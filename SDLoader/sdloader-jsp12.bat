@@ -1,0 +1,1 @@
+%JAVA_HOME%\bin\java -cp .;sdloader-jsp12.jar;tools.jar sdloader.Open
