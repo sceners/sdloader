@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE web-app PUBLIC
+  "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+  "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+    <context-param>
+        <param-name>CONTEXT-PARAM-NAME</param-name>
+        <param-value>PARAM-VALUE</param-value>
+        <description>
+            Test
+            Test2
+        </description>
+    </context-param>
+
+    <filter>
+        <filter-name>FILTER-NAME</filter-name>
+        <filter-class>FILTER-CLASS</filter-class>
+        <init-param>
+            <param-name>PARAM-NAME</param-name>
+            <param-value>PARAM-VALUE</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>FILTER-NAME</filter-name>
+        <url-pattern>URL-PATTETRN</url-pattern>
+    </filter-mapping>
+    <listener>
+        <listener-class>LISTENER-CLASS</listener-class>
+    </listener>
+    
+    <servlet>
+        <servlet-name>SERVLET-NAME</servlet-name>
+        <servlet-class>SERVLET-CLASS</servlet-class>
+        <init-param>
+        	<param-name>PARAM-NAME</param-name>
+        	<param-value>PARA-VALUE</param-value>
+    	</init-param>
+        <load-on-startup>LOAD-ON-STARTUP</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>SERVLET-NAME</servlet-name>
+        <url-pattern>URL-PATTERN</url-pattern>
+    </servlet-mapping>
+
+<!--
+    <session-config>
+        <session-timeout>SESSION-TIMEOUT</session-timeout>
+    </session-config>
+
+    <welcome-file-list>
+        <welcome-file>WELCOME-FILE</welcome-file>
+    </welcome-file-list>
+-->
+
+</web-app>
