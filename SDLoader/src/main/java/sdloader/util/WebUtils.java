@@ -49,21 +49,44 @@ public class WebUtils {
 	private WebUtils() {
 		super();
 	}
+	/**
+	 * ヘッダー用の日付文字を、ミリ秒フォーマットに変換します。
+	 * @param date
+	 * @return
+	 * @throws ParseException
+	 */
 	public static long parseHeaderDate(String date) throws ParseException{
 		synchronized(HEADER_DATE_FORMAT){
 			return HEADER_DATE_FORMAT.parse(date).getTime();
 		}
 	}
+	/**
+	 * クッキー用の日付文字を、ミリ秒フォーマットに変換します。
+	 * @param date
+	 * @return
+	 * @throws ParseException
+	 */
 	public static long parseCookieDate(String date) throws ParseException{
 		synchronized(COOKIE_DATE_FORMAT){
 			return COOKIE_DATE_FORMAT.parse(date).getTime();
 		}
 	}
+	/**
+	 * 日付をヘッダー用の日付文字列にフォーマットします。
+	 * @param date
+	 * @return
+	 */
 	public static String formatHeaderDate(Date date){
 		synchronized(HEADER_DATE_FORMAT){
 			return HEADER_DATE_FORMAT.format(date);
 		}
 	}
+	/**
+	 * 日付をクッキー用の日付文字列にフォーマットします。
+	 * @param date
+	 * @return
+	 * @throws ParseException
+	 */
 	public static String formatCookieDate(Date date){
 		synchronized(COOKIE_DATE_FORMAT){
 			return COOKIE_DATE_FORMAT.format(date);
