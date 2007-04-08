@@ -18,7 +18,7 @@ package sdloader.util;
 import sdloader.util.WebUtils;
 import junit.framework.TestCase;
 
-public class PathUtilsTest extends TestCase{
+public class WebUtilsTest extends TestCase{
 
 	//from servlet-2_4_fr_sec.pdf
 	String pattern1 = "/foo/bar/*";
