@@ -2,8 +2,10 @@
 <project name="SDLoader" default="dist" basedir=".">
 
   <property name="build" value="./bin" />
-  <property name="src" value="./src" />  
-  <property name="srctest" value="./srctest" />	
+  <property name="src" value="./src/main/java" /> 	
+  <property name="srcresources" value="./src/main/resources" /> 		
+  <property name="srctest" value="./src/test/java" />
+  <property name="srctestresources" value="./src/test/resources" />	
   <property name="lib" value="./lib" />	
   <property name="distbase"  value="dist" />
   <property file="META-INF/sdloaderversion.txt" />
@@ -75,7 +77,16 @@
 		<fileset dir="${src}">
 			<include name="**/*" />
 		</fileset>
-    </jar>
+		<fileset dir="${srcresources}">
+			<include name="**/*" />
+		</fileset>
+		<fileset dir="${srctest}">
+			<include name="**/*" />
+		</fileset>
+		<fileset dir="${srctestresources}">
+			<include name="**/*" />
+		</fileset>
+  	</jar>
   	
     <copy todir="${distbin}" >
 		<fileset dir=".">
