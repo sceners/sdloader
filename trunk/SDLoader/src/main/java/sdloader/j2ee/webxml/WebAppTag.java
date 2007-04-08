@@ -25,19 +25,21 @@ import java.util.List;
  * @author c9katayama
  */
 public class WebAppTag {
-
+	
 	private List contextParam = new ArrayList();
-
-	private List listener = new ArrayList();
 
 	private List filter = new ArrayList();
 
 	private List filterMapping = new ArrayList();
 
+	private List listener = new ArrayList();
+
 	private List servlet = new ArrayList();
 
 	private List servletMapping = new ArrayList();
 
+	private WelcomeFileListTag welcomeFileList;
+	
 	public WebAppTag() {
 		super();
 	}
@@ -48,14 +50,6 @@ public class WebAppTag {
 
 	public List getContextParam() {
 		return contextParam;
-	}
-
-	public void addListener(ListenerTag tag) {
-		this.listener.add(tag);
-	}
-
-	public List getListener() {
-		return listener;
 	}
 
 	public void addFilter(FilterTag filter) {
@@ -92,6 +86,14 @@ public class WebAppTag {
 		return null;
 	}
 
+	public void addListener(ListenerTag tag) {
+		this.listener.add(tag);
+	}
+
+	public List getListener() {
+		return listener;
+	}
+	
 	public void addServlet(ServletTag servlet) {
 		this.servlet.add(servlet);
 	}
@@ -124,5 +126,13 @@ public class WebAppTag {
 				return servetMapping;
 		}
 		return null;
+	}
+	
+	public void setWelcomeFileList(WelcomeFileListTag welcomeFileList) {
+		this.welcomeFileList = welcomeFileList;
+	}
+	
+	public WelcomeFileListTag getWelcomeFileList() {
+		return welcomeFileList;
 	}
 }
