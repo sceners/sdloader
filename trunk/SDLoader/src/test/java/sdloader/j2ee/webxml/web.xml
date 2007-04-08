@@ -4,24 +4,70 @@
   "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
+	<icon>
+		<small-icon>WEB-APP-ICON-SMALL</small-icon>
+		<large-icon>WEB-APP-ICON-LARGE</large-icon>
+	</icon>
+	<display-name>
+		WEB-APP-DISP
+	</display-name>	
+	<description>
+		WEB-APP-DESC
+	</description>
+	<distributable>
+		WEB-APP-DISTRIBUTABLE
+	</distributable>
     <context-param>
-        <param-name>CONTEXT-PARAM-NAME</param-name>
-        <param-value>PARAM-VALUE</param-value>
+        <param-name>
+        	CONTEXT-PARAM-NAME1
+        </param-name>
+        <param-value>
+        	CONTEXT-PARAM-VALUE1
+        </param-value>
         <description>
-            Test
-            Test2
+            CONTEXT-PARAM-DESC11
+            CONTEXT-PARAM-DESC12
         </description>
     </context-param>
+    <context-param>
+        <param-name>CONTEXT-PARAM-NAME2</param-name>
+        <param-value>CONTEXT-PARAM-VALUE2</param-value>
+        <description>CONTEXT-PARAM-DESC21CONTEXT-PARAM-DESC22</description>
+    </context-param>   
 
     <filter>
-        <filter-name>FILTER-NAME</filter-name>
-        <filter-class>FILTER-CLASS</filter-class>
+        <filter-name>
+        	FILTER-NAME1
+        </filter-name>
+        <filter-class>
+        	FILTER-CLASS1
+        </filter-class>
         <init-param>
-            <param-name>PARAM-NAME</param-name>
-            <param-value>PARAM-VALUE</param-value>
+            <param-name>
+            	FILTER-PARAM-NAME1
+            </param-name>
+            <param-value>
+            	FILTER-PARAM-VALUE1
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>
+            	FILTER-PARAM-NAME11
+            </param-name>
+            <param-value>
+            	FILTER-PARAM-VALUE11
+            </param-value>
+        </init-param>        
+    </filter>
+    <filter>
+        <filter-name>FILTER-NAME2</filter-name>
+        <filter-class>FILTER-CLASS2</filter-class>
+        <init-param>
+            <param-name>FILTER-PARAM-NAME2</param-name>
+            <param-value>FILTER-PARAM-VALUE2</param-value>
         </init-param>
     </filter>
-
+    
     <filter-mapping>
         <filter-name>FILTER-NAME</filter-name>
         <url-pattern>URL-PATTETRN</url-pattern>
@@ -49,10 +95,10 @@
     <session-config>
         <session-timeout>SESSION-TIMEOUT</session-timeout>
     </session-config>
-
-    <welcome-file-list>
-        <welcome-file>WELCOME-FILE</welcome-file>
-    </welcome-file-list>
 -->
+    <welcome-file-list>
+        <welcome-file>WELCOME-FILE1</welcome-file>
+        <welcome-file>WELCOME-FILE2</welcome-file>
+    </welcome-file-list>
 
 </web-app>
