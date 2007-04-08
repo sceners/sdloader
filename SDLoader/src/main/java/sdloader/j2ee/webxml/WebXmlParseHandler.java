@@ -29,7 +29,16 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * web-xmlパース用ハンドラ
- * 
+ * タグをパースし、xmlをインスタンス化します。
+ * タグは、次のように解析します。
+ * ・タグ名を読み、tag2classMapからクラス名を取得
+ * ・クラス名がある場合、そのクラスをインスタンス化しMapに入れ、
+ * 　解析を続行する。
+ * 　タグが閉じたところで、直前にインスタンス化したクラスのプロパティ
+ * 　として、set+タグ名とadd+タグ名でプロパティのセットを試みる
+ * ・クラス名がない場合、直前にインスタンス化したクラスのプロパティとみなし、
+ * 　set+タグ名とadd+タグ名で属性のセットを試みる
+ * ・getRootObject()で、最初にインスタンス化したクラスを返す。
  * @author c9katayama
  */
 public class WebXmlParseHandler extends DefaultHandler {
@@ -73,7 +82,7 @@ public class WebXmlParseHandler extends DefaultHandler {
 			throws SAXException {
 		char[] c = new char[length];
 		System.arraycopy(ch, start, c, 0, length);
-		String value = new String(c);
+		String value = new String(c).trim();
 		if (characters == null)
 			characters = value;
 		else
