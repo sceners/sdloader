@@ -29,6 +29,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.swing.text.Position.Bias;
 
 import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
@@ -66,6 +67,10 @@ public class SDLoader {
 	private int backLogNum = -1;//-1でデフォルト値を使用する
 	
 	private int port = 30000;
+	/**
+	 * ポートが使用中の場合、使用できるポートを探すかどうか
+	 */
+	private boolean autoPortDetect = false;
 	
 	private String serverName ="SDLoader";
 
@@ -90,14 +95,29 @@ public class SDLoader {
 	public SDLoader(int port) {
 		this.port = port;
 	}
-	
 	public String getConfig(String key) {
 		return (String) config.get(key);
 	}
-
 	public void setConfig(String key, String value) {
 		config.put(key, value);
 	}
+	/**
+	 * ポートが使用中の場合、使用できるポートを探すかどうかを返します。
+	 * @param key
+	 * @return
+	 */
+	public boolean isAutoPortDetect() {
+		return autoPortDetect;
+	}
+	/**
+	 * ポートが使用中の場合、使用できるポートを探すかどうかをセットします。
+	 * @param key
+	 * @return
+	 */
+	public void setAutoPortDetect(boolean autoPortDetect) {
+		this.autoPortDetect = autoPortDetect;
+	}
+
 	public WebAppManager getWebAppManager() {
 		return webAppManager;
 	}
@@ -160,14 +180,20 @@ public class SDLoader {
 	public void open() {
 		ServerSocket initSocket = null;
 		long t = System.currentTimeMillis();
-		log.info("Bind start.Port=" + port);
-		try {
-			initSocket = new ServerSocket(port,backLogNum, InetAddress.getByName("127.0.0.1"));
-		} catch (IOException ioe) {
-			log.error("Bind fail.Port=" + port, ioe);
-			throw new RuntimeException(ioe);
-		}
-		log.info("Bind success.port=" + port);
+		
+		for(;port < 65535;port++){
+			log.info("Bind start.Port=" + port);
+			try {
+				initSocket = new ServerSocket(port,backLogNum, InetAddress.getByName("127.0.0.1"));
+				log.info("Bind success.port=" + port);
+				break;
+			} catch (IOException ioe) {
+				if(!autoPortDetect){
+					log.error("Bind fail.Port=" + port, ioe);
+					throw new RuntimeException(ioe);
+				}
+			}
+		}		
 
 		init();
 
@@ -181,56 +207,8 @@ public class SDLoader {
 	 * ソケットを閉じ、サーバを終了します。
 	 */
 	public void close(){
-		// destroy servlet
-		List webAppList = webAppManager.getWebAppList();
-		for (Iterator itr = webAppList.iterator(); itr.hasNext();) {
-			WebApplication webapp = (WebApplication) itr.next();
-			List servletList = webapp.getServletList();
-			{
-				if (servletList != null) {
-					for (Iterator servletItr = servletList.iterator(); servletItr
-							.hasNext();) {
-						Servlet servlet = (Servlet) servletItr.next();
-						try {
-							servlet.destroy();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-			List filterList = webapp.getFilterList();
-			{
-				if (filterList != null) {
-					for (Iterator filterItr = filterList.iterator(); filterItr
-							.hasNext();) {
-						Filter filter = (Filter) filterItr.next();
-						try {
-							filter.destroy();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-			ServletContextEvent contextEvent = new ServletContextEvent(webapp
-					.getServletContext());
-			List listenerList = webapp.getListenerList();
-			{
-				if (listenerList != null) {
-					for (Iterator listenerItr = listenerList.iterator(); listenerItr
-							.hasNext();) {
-						ServletContextListener listener = (ServletContextListener) listenerItr
-								.next();
-						try {
-							listener.contextDestroyed(contextEvent);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		}
+		// destroy webapps
+		webAppManager.close();
 		// close socket
 		try {
 			sdLoaderThread.close();

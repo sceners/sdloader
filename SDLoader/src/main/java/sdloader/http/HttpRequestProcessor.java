@@ -28,7 +28,6 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 
 import sdloader.SDLoader;
 import sdloader.j2ee.ServletMapping;
@@ -164,23 +163,30 @@ public class HttpRequestProcessor extends Thread {
 		HttpServletResponseImp response = new HttpServletResponseImp();
 		
 		String requestURI = header.getRequestURI();
-		String contextPath = WebUtils.getContextPath(requestURI);
-
-		WebApplication webapp = loader.getWebAppManager().findWebApp(contextPath);
-		if (webapp == null) {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			setDefaultResponseHeader(request, response,requestCount);
+		String resourcePath = WebUtils.getResourcePath(requestURI);
+		if(!requestURI.equals("/") && resourcePath == null){//contextpathだけのパターン /をつけてリダイレクト
+			response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
+			resourcePath = requestURI+"/";
+			response.addHeader(HttpConst.LOCATION,request.getScheme()+"://"+request.getLocalName()+":"+request.getLocalPort()+resourcePath);
 			processDataOutput(response, os);
 			return header.isKeepAlive();
 		}
 		
-		String resourcePath = WebUtils.getResourcePath(requestURI);	
+		String contextPath = WebUtils.getContextPath(requestURI);
+		WebApplication webapp = loader.getWebAppManager().findWebApp(contextPath);
+		if (webapp == null) {
+			response.setStatus(HttpConst.SC_NOT_FOUND);
+			setDefaultResponseHeader(request, response,requestCount);
+			processDataOutput(response, os);
+			return header.isKeepAlive();
+		}
+			
 		ServletMapping mapping = webapp.findServletMapping(resourcePath);
 		Servlet servlet = null;
 		if(mapping != null)
 			servlet = webapp.findServlet(mapping.getServletName());
 		if (mapping == null || servlet == null) {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.setStatus(HttpConst.SC_NOT_FOUND);
 			setDefaultResponseHeader(request, response,requestCount);
 			processDataOutput(response, os);
 			return header.isKeepAlive();
@@ -209,10 +215,10 @@ public class HttpRequestProcessor extends Thread {
 				servlet.service(request, response);
 		} catch (ServletException se) {
 			log.error(se.getMessage(), se);
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setStatus(HttpConst.SC_INTERNAL_SERVER_ERROR);
 		} catch (IOException ioe) {
 			log.error(ioe.getMessage(), ioe);
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setStatus(HttpConst.SC_INTERNAL_SERVER_ERROR);
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldLoader);
 		}

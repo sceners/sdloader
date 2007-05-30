@@ -230,7 +230,9 @@ public class ServletContextImp implements ServletContext {
 	public void setDocBase(String absoluteContextPath) {
 		this.docBase = absoluteContextPath;
 	}
-
+	public WebApplication getWebApp() {
+		return webApp;
+	}
 	private String createResourcePath(String resource) {
 		if (resource.startsWith("/") || resource.startsWith("\\")) {
 			String path = docBase + resource;

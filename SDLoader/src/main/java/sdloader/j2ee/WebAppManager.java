@@ -28,6 +28,10 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+import javax.servlet.Filter;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -442,5 +446,57 @@ public class WebAppManager {
 				return webapp;
 		}
 		return null;
+	}
+	
+	public void close(){
+		List webAppList = getWebAppList();
+		for (Iterator itr = webAppList.iterator(); itr.hasNext();) {
+			WebApplication webapp = (WebApplication) itr.next();
+			List servletList = webapp.getServletList();
+			{
+				if (servletList != null) {
+					for (Iterator servletItr = servletList.iterator(); servletItr
+							.hasNext();) {
+						Servlet servlet = (Servlet) servletItr.next();
+						try {
+							servlet.destroy();
+						} catch (Exception e) {
+							log.error(e.getMessage(),e);
+						}
+					}
+				}
+			}
+			List filterList = webapp.getFilterList();
+			{
+				if (filterList != null) {
+					for (Iterator filterItr = filterList.iterator(); filterItr
+							.hasNext();) {
+						Filter filter = (Filter) filterItr.next();
+						try {
+							filter.destroy();
+						} catch (Exception e) {
+							log.error(e.getMessage(),e);
+						}
+					}
+				}
+			}
+			ServletContextEvent contextEvent = new ServletContextEvent(webapp
+					.getServletContext());
+			List listenerList = webapp.getListenerList();
+			{
+				if (listenerList != null) {
+					for (Iterator listenerItr = listenerList.iterator(); listenerItr
+							.hasNext();) {
+						ServletContextListener listener = (ServletContextListener) listenerItr
+								.next();
+						try {
+							listener.contextDestroyed(contextEvent);
+						} catch (Exception e) {
+							log.error(e.getMessage(),e);
+						}
+					}
+				}
+			}
+		}
 	}
 }

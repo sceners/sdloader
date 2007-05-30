@@ -1,1 +1,1 @@
-%JAVA_HOME%\bin\java -cp .;sdloader-jsp20.jar sdloader.Open
+java -cp .;sdloader-jsp20.jar sdloader.Open

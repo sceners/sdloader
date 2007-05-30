@@ -237,37 +237,36 @@ public class WebUtils {
 	 */
 	public static final int PATTERN_EXACT_MATCH = 4;
 	/**
-	 * パスとパスパターンのマッチングを行います。
-	 * 
+	 *パスパターンと パスのマッチングを行います。
 	 * @param pattern
-	 * @param resourcePath
-	 * @return
+	 * @param path
+	 * @return　PATTERN_NOMATCH PATTERN_DEFAULT_MATCH PATTERN_EXT_MATCH PATTERN_PATH_MATCH PATTERN_EXACT_MATCH
 	 */
-	public static int matchPattern(String pattern, String resourcePath) {
-		if (pattern == null || resourcePath == null)
+	public static int matchPattern(String pattern, String path) {
+		if (pattern == null || path == null)
 			return PATTERN_NOMATCH;
 
-		if (pattern.equals(resourcePath))
+		if (pattern.equals(path))
 			return PATTERN_EXACT_MATCH;
 
 		if (pattern.equals("/*"))
 			return PATTERN_DEFAULT_MATCH;
 
 		if (pattern.endsWith("/*")) {
-			if (pattern.regionMatches(0, resourcePath, 0, pattern.length() - 2)) {
-				if (resourcePath.length() == (pattern.length() - 2))
+			if (pattern.regionMatches(0, path, 0, pattern.length() - 2)) {
+				if (path.length() == (pattern.length() - 2))
 					return PATTERN_PATH_MATCH;
-				else if (resourcePath.charAt(pattern.length() - 2) == '/')
+				else if (path.charAt(pattern.length() - 2) == '/')
 					return PATTERN_PATH_MATCH;
 			}
 			return PATTERN_NOMATCH;
 		}
 
 		if (pattern.startsWith("*.")) {
-			int resourceDot = resourcePath.lastIndexOf(".");
+			int resourceDot = path.lastIndexOf(".");
 			if (resourceDot >= 0) {
-				String resourceExt = resourcePath.substring(resourceDot,
-						resourcePath.length());
+				String resourceExt = path.substring(resourceDot,
+						path.length());
 				int patternDot = pattern.indexOf(".");
 				String patternExt = pattern.substring(patternDot, pattern
 						.length());

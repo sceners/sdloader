@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -33,6 +35,10 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import sdloader.http.HttpConst;
+import sdloader.j2ee.WebApplication;
+import sdloader.j2ee.imp.ServletContextImp;
+import sdloader.j2ee.webxml.ServletMappingTag;
+import sdloader.j2ee.webxml.WelcomeFileListTag;
 import sdloader.util.WebUtils;
 
 /**
@@ -53,6 +59,8 @@ public class FileSavingServlet extends HttpServlet {
 
 	private Map mimeTypeMap = new HashMap();
 
+	private WelcomeFileListTag welcomeFileListTag ;
+	
 	public FileSavingServlet() {
 		super();
 
@@ -65,6 +73,10 @@ public class FileSavingServlet extends HttpServlet {
 
 		// load mimetype
 		initMime();
+		
+		ServletContextImp servletContext = (ServletContextImp)getServletContext();
+		WebApplication app = servletContext.getWebApp();
+		welcomeFileListTag = app.getWebXml().getWebApp().getWelcomeFileList();
 	}
 
 	/**
@@ -108,7 +120,7 @@ public class FileSavingServlet extends HttpServlet {
 			return;
 		}
 		
-		if(uri.startsWith("/WEB-INF/")){
+		if(uri.startsWith("/WEB-INF/") || uri.endsWith("/WEB-INF")){
 			res.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -123,34 +135,91 @@ public class FileSavingServlet extends HttpServlet {
 
 		if (fileOrDir.isFile()) {
 			File file = fileOrDir;
-			Date lastModifyDate = new Date(file.lastModified());
-			res.setHeader(HttpConst.LASTMODIFIED,
-					WebUtils.formatHeaderDate(lastModifyDate));
-			String ifModified = req.getHeader(HttpConst.IFMODIFIEDSINCE);
-			// 変更したかどうか
-			if (!isModifiedSince(lastModifyDate, ifModified)) {
-				res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+			outputFile(file, req, res);
+			return;
+		} else{
+			if(welcomeFileListTag != null) {
+				File dir = fileOrDir;
+				processWelcomeFile(dir,req,res);
+				return;
+			}else{
+				res.setStatus(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
-
-			FileInputStream fin = new FileInputStream(file);
-			ServletOutputStream sout = res.getOutputStream();
-			try {
-				int size = WebUtils.copyStream(fin, sout);
-				setContentType(res, file);
-				res.setContentLength(size);
-				res.setStatus(HttpServletResponse.SC_OK);
-			} finally {
-				fin.close();
-				sout.flush();
-				sout.close();
+		}
+	}
+	/**
+	 * welcomeファイルの処理
+	 * welcomeファイルリストのパスに対して、パターンが完全一致するサーブレット
+	 * かファイルを検索し、見つかった場合forwardします。
+	 * @param dir
+	 * @param req
+	 * @param res
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	protected void processWelcomeFile(File dir,HttpServletRequest req,HttpServletResponse res) throws ServletException, IOException{
+		String basePath = req.getPathInfo();
+		if(!basePath.endsWith("/"))
+			basePath += "/";
+		
+		ServletContextImp context = (ServletContextImp)getServletContext();
+		WebApplication webapp = context.getWebApp();
+		List welcomeFileList = welcomeFileListTag.getWelcomeFile();
+		List servletMappingList = webapp.getWebXml().getWebApp().getServletMapping();
+		
+		for(Iterator itr = welcomeFileList.iterator();itr.hasNext();){
+			String  welcomefileName = (String)itr.next();
+			String path = basePath+welcomefileName;
+			//find servlet mapping
+			for(Iterator mappingItr = servletMappingList.iterator();mappingItr.hasNext();){
+				ServletMappingTag mappingTag = (ServletMappingTag)mappingItr.next();				
+				int matchType = WebUtils.matchPattern(mappingTag.getUrlPattern(),path);
+				if(matchType==WebUtils.PATTERN_EXACT_MATCH){//完全
+					context.getRequestDispatcher(path).forward(req,res);
+					return;
+				}
 			}
-			return;
-		} else {
-			// TODO welcomefile set
-			res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			//find file
+			File welcomeFile = new File(dir,welcomefileName);
+			if(welcomeFile.exists() && welcomeFile.isFile()){
+				context.getRequestDispatcher(path).forward(req,res);
+				return;
+			}
+		}
+		res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		return;
+	}
+	/**
+	 * ファイル出力
+	 * @param file
+	 * @param req
+	 * @param res
+	 * @throws IOException
+	 */
+	protected void outputFile(File file,HttpServletRequest req,HttpServletResponse res) throws IOException{
+		Date lastModifyDate = new Date(file.lastModified());
+		res.setHeader(HttpConst.LASTMODIFIED,
+				WebUtils.formatHeaderDate(lastModifyDate));
+		String ifModified = req.getHeader(HttpConst.IFMODIFIEDSINCE);
+		// 変更したかどうか
+		if (!isModifiedSince(lastModifyDate, ifModified)) {
+			res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 			return;
 		}
+
+		FileInputStream fin = new FileInputStream(file);
+		ServletOutputStream sout = res.getOutputStream();
+		try {
+			int size = WebUtils.copyStream(fin, sout);
+			setContentType(res, file);
+			res.setContentLength(size);
+			res.setStatus(HttpServletResponse.SC_OK);
+		} finally {
+			fin.close();
+			sout.flush();
+			sout.close();
+		}	
 	}
 
 	/**
