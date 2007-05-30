@@ -9,6 +9,10 @@
         <mime-type>application/postscript</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>air</extension>
+        <mime-type>application/vnd.adobe.apollo-application-installer-package+zip</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>aif</extension>
         <mime-type>audio/x-aiff</mime-type>
     </mime-mapping>
