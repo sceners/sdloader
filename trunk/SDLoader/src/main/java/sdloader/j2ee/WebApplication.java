@@ -75,10 +75,10 @@ public class WebApplication {
 	private List listenerList;
 
 	/** Servlet Map */
-	private Map servletMap;
+	private Map/*<String,Servlet>*/ servletMap;
 
 	/** Filter Map */
-	private Map filterMap;
+	private Map/*<String,Filter>*/ filterMap;
 
 	/**
 	 * WebAppクラス
@@ -334,7 +334,7 @@ public class WebApplication {
 		return (Servlet)servletMap.get(servletName);
 	}
 	
-	public List getServletList() {
+	public List/*<Servlet>*/ getServletList() {
 		if (servletMap != null)
 			return new ArrayList(servletMap.values());
 		else

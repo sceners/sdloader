@@ -345,7 +345,6 @@ public class HttpServletRequestImp implements HttpServletRequest {
 		try {
 			return WebUtils.parseHeaderDate(value);
 		} catch (ParseException e) {
-			// TODO 自動生成された catch ブロック
 			throw new IllegalArgumentException("date format fail.header name="+name+" value="+value);
 		}
 	}

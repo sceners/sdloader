@@ -134,7 +134,7 @@ public class HttpConst {
 
 	public static final int SC_MOVED_TEMPORARILY = 302;
 
-	public static final int SC_FOUND = 302;
+	//public static final int SC_FOUND = 302;
 
 	public static final int SC_SEE_OTHER = 303;
 
@@ -209,7 +209,7 @@ public class HttpConst {
 		statusMap.put(new Integer(SC_MULTIPLE_CHOICES), "Multiple Choices");
 		statusMap.put(new Integer(SC_MOVED_PERMANENTLY), "Moved Permanently");
 		statusMap.put(new Integer(SC_MOVED_TEMPORARILY), "Moved Temporarily");
-		statusMap.put(new Integer(SC_FOUND), "Found");
+//		statusMap.put(new Integer(SC_FOUND), "Found");
 		statusMap.put(new Integer(SC_SEE_OTHER), "See Other");
 		statusMap.put(new Integer(SC_NOT_MODIFIED), "Not Modified");
 		statusMap.put(new Integer(SC_USE_PROXY), "Use Proxy");
