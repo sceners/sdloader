@@ -22,21 +22,21 @@ package sdloader.log;
  */
 public class SDLoaderLogFactory {
 	
-	private static boolean commosSupport;
+	private static boolean isCommonsSupport;
 	
 	static{
 		try{
 			Class.forName("org.apache.commons.logging.LogFactory");
-			commosSupport = true;
+			isCommonsSupport = true;
 		}catch(Throwable e){
-			commosSupport = false;
+			isCommonsSupport = false;
 		}
 	}
 	private SDLoaderLogFactory() {
 	}
 
 	public static SDLoaderLog getLog(Class c) {
-		if(commosSupport)
+		if(isCommonsSupport)
 			return new SDLoaderLogCommonsLoggingImp(c);
 		else
 			return new SDLoaderLogSystemOutImp(c);
