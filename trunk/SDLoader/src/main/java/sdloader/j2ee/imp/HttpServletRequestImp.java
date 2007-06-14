@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
@@ -85,6 +86,7 @@ public class HttpServletRequestImp implements HttpServletRequest {
 	private HttpRequestBody body;
 
 	private ServletContext servletContext;
+	
 	//TODO 
 	private String characterEncoding = "UTF-8";
 
@@ -222,23 +224,14 @@ public class HttpServletRequestImp implements HttpServletRequest {
 	 * セッションの取得 新規作成時には、HttpHeaderのセッションIDを書き換えます。
 	 */
 	public HttpSession getSession(boolean create) {
+		
 		String sessionId = getRequestedSessionId();
-		if (sessionId == null) {
-			if (create) {
-				HttpSession session = SessionManager.getInstance()
-						.createNewSession(servletContext);
-				header.addCookie(HttpConst.SESSIONID_KEY, session.getId());
-				return session;
-			} else
-				return null;
-		} else {
-			HttpSession session = SessionManager.getInstance().getSession(sessionId, create, servletContext);
-			if(session == null){
-				header.addCookie(HttpConst.SESSIONID_KEY,null);
-				return null;
-			}
-			if (!sessionId.equals(session.getId()))
-				header.addCookie(HttpConst.SESSIONID_KEY, session.getId());
+		HttpSession session = SessionManager.getInstance().getSession(sessionId, create, servletContext);
+		if(session == null){
+			header.addCookie(HttpConst.SESSIONID_KEY,null);
+			return null;
+		}else{
+			header.addCookie(HttpConst.SESSIONID_KEY, session.getId());
 			return session;
 		}
 	}

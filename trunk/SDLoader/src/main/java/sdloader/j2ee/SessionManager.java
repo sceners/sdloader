@@ -17,27 +17,23 @@ package sdloader.j2ee;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.codec.binary.Base64;
-
-import sdloader.j2ee.imp.HttpSessionImp;
+import sdloader.j2ee.imp.SessionManagerSharedSessionImp;
+import sdloader.org.apache.commons.codec.binary.Base64;
 
 /**
  * セッション管理クラス
  * @author c9katayama
  */
-public class SessionManager {
-	private static SessionManager manager = new SessionManager();
+public abstract class SessionManager {
 
-	private Map sessionMap = new HashMap();
-
-	private static long sessionIdSeed = System.currentTimeMillis()
-			+ (int) Math.random() * 1000;
+	//TODO 
+	private static SessionManager manager = new SessionManagerSharedSessionImp(); 
+	
+	private static long sessionIdSeed = System.currentTimeMillis()	+ (int) Math.random() * 1000;
 
 	private static final MessageDigest digest;
 	
@@ -48,8 +44,8 @@ public class SessionManager {
 			throw new ExceptionInInitializerError(e);
 		}
 	}
-
-	private SessionManager() {
+	
+	protected SessionManager() {
 		super();
 	}
 
@@ -57,38 +53,16 @@ public class SessionManager {
 		return manager;
 	}
 
-	public HttpSession getSession(String sessionId, boolean createNew,
-			ServletContext servletContext) {
-		HttpSessionImp session = (HttpSessionImp) sessionMap.get(sessionId);
-		if (session != null) {
-			if (!session.isInvalidate())
-				return session;
-			else {
-				if (createNew)
-					return createNewSession(servletContext);
-				else
-					return null;
-			}
-		} else {
-			if (createNew)
-				return createNewSession(servletContext);
-			else
-				return null;
+	public abstract HttpSession getSession(String sessionId, boolean createNew,
+			ServletContext servletContext) ;
+
+	protected String createNewSessionId(){
+		String sessionId = null;
+		synchronized (SessionManager.class) {
+			long sesIdSeed = ++sessionIdSeed;
+			byte[] digestId = digest.digest(Long.toString(sesIdSeed).getBytes());
+			sessionId = new String(Base64.encodeBase64(digestId));
 		}
-	}
-
-	public HttpSession createNewSession(ServletContext servletContext) {
-		long sesIdSeed;
-		synchronized (this) {
-			sesIdSeed = ++sessionIdSeed;
-		}
-		byte[] digestId = digest.digest(Long.toString(sesIdSeed).getBytes());
-		String sessionId = new String(Base64.encodeBase64(digestId));
-
-		HttpSessionImp ses = new HttpSessionImp(sessionId);
-		ses.setServletContext(servletContext);
-		sessionMap.put(sessionId, ses);
-
-		return ses;
+		return sessionId;
 	}
 }
