@@ -17,9 +17,18 @@ package sdloader.util;
 
 import java.io.IOException;
 
+import sdloader.exception.NotImplementedYetException;
+
 public class MiscUtils {
 
-	public static void openBrowser(String url) throws IOException{
-       	Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
+	public static void openBrowser(String url) throws IOException {
+		final String os = PropertiesUtil.getValueFromSystem("os.name");
+		if (os != null && os.startsWith("Windows")) {
+			Runtime.getRuntime().exec(
+					"rundll32 url.dll,FileProtocolHandler " + url);
+		} else {
+			throw new NotImplementedYetException();
+		}
 	}
+
 }

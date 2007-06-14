@@ -21,96 +21,97 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.AccessControlException;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.swing.text.Position.Bias;
-
+import sdloader.exception.IORuntimeException;
 import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
 import sdloader.j2ee.WebAppManager;
-import sdloader.j2ee.WebApplication;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+import sdloader.util.SocketUtil;
 import sdloader.util.WebUtils;
 
-
 /**
- * SDLoader
- * ローカル動作のアプリケーションサーバー
+ * SDLoader ローカル動作のアプリケーションサーバー
  * 
  * @author c9katayama
  */
 public class SDLoader {
-	
-	private static final SDLoaderLog log = SDLoaderLogFactory	.getLog(SDLoader.class);
 
-	/** 
-	 * JSPコンパイル用のライブラリパス
-	 * SDLoader呼び出し前にSystem.setPropertyでセットすると、このパスの
+	private static final SDLoaderLog log = SDLoaderLogFactory
+			.getLog(SDLoader.class);
+
+	/**
+	 * JSPコンパイル用のライブラリパス SDLoader呼び出し前にSystem.setPropertyでセットすると、このパスの
 	 * ライブラリを利用します。
 	 */
-	public static final String SDLOADER_JSP_LIBPATH = "sdloader.jsp.libpath";	
+	public static final String SDLOADER_JSP_LIBPATH = "sdloader.jsp.libpath";
+
 	/**
-	 * SDLoaderのベースディレクトリパス
-	 * このパス以下のwebappsディレクトに対して動作します。 
+	 * SDLoaderのベースディレクトリパス このパス以下のwebappsディレクトに対して動作します。
 	 */
 	public static final String KEY_SDLOADER_HOME = "SDLOADER_HOME";
-	
+
 	private int maxThreadPoolNum = 5;
-	
-	private int backLogNum = -1;//-1でデフォルト値を使用する
-	
+
+	private int backLogNum = -1;// -1でデフォルト値を使用する
+
 	private int port = 30000;
+
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうか
 	 */
 	private boolean autoPortDetect = false;
-	
-	private String serverName ="SDLoader";
+
+	private String serverName = "SDLoader";
 
 	private HttpRequestProcessorPool socketProcessorPool;
 
 	private SDLoaderThread sdLoaderThread;
-	
+
 	private WebAppManager webAppManager;
 
-	private Map config = new HashMap();	
+	private Map config = new HashMap();
 
 	/**
 	 * ポート30000でSDLoaderを構築します。
+	 * 
 	 * @param port
 	 */
 	public SDLoader() {
 	}
+
 	/**
 	 * 指定のポートでSDLoaderを構築します。
+	 * 
 	 * @param port
 	 */
 	public SDLoader(int port) {
 		this.port = port;
 	}
+
 	public String getConfig(String key) {
 		return (String) config.get(key);
 	}
+
 	public void setConfig(String key, String value) {
 		config.put(key, value);
 	}
+
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうかを返します。
+	 * 
 	 * @param key
 	 * @return
 	 */
 	public boolean isAutoPortDetect() {
 		return autoPortDetect;
 	}
+
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうかをセットします。
+	 * 
 	 * @param key
 	 * @return
 	 */
@@ -121,8 +122,10 @@ public class SDLoader {
 	public WebAppManager getWebAppManager() {
 		return webAppManager;
 	}
+
 	/**
 	 * 最大プールスレッド数を返します。
+	 * 
 	 * @return
 	 */
 	public int getMaxThreadPoolNum() {
@@ -180,20 +183,17 @@ public class SDLoader {
 	public void open() {
 		ServerSocket initSocket = null;
 		long t = System.currentTimeMillis();
-		
-		for(;port < 65535;port++){
-			log.info("Bind start.Port=" + port);
-			try {
-				initSocket = new ServerSocket(port,backLogNum, InetAddress.getByName("127.0.0.1"));
-				log.info("Bind success.port=" + port);
-				break;
-			} catch (IOException ioe) {
-				if(!autoPortDetect){
-					log.error("Bind fail.Port=" + port, ioe);
-					throw new RuntimeException(ioe);
-				}
-			}
-		}		
+
+		log.info("Bind start.Port=" + port);
+		bindToFreePort();
+		try {
+			initSocket = new ServerSocket(getPort(), backLogNum, InetAddress
+					.getByName("127.0.0.1"));
+			log.info("Bind success.port=" + port);
+		} catch (IOException ioe) {
+			log.error("Bind fail.Port=" + port, ioe);
+			throw new RuntimeException(ioe);
+		}
 
 		init();
 
@@ -201,12 +201,30 @@ public class SDLoader {
 
 		sdLoaderThread.start();
 
-		log.info("SDLoader startup in " + (System.currentTimeMillis()-t)+" ms.");
+		log.info("SDLoader startup in " + (System.currentTimeMillis() - t)
+				+ " ms.");
 	}
+
+	protected void bindToFreePort() {
+		if (!isAutoPortDetect()) {
+			return;
+		}
+		while (true) {
+			try {
+				port = SocketUtil.findFreePort();
+				if (port < Constants.MAX_PORT_ADDRESS) {
+					break;
+				}
+			} catch (IORuntimeException expected) {
+				log.info(expected.getMessage());
+			}
+		}
+	}
+
 	/**
 	 * ソケットを閉じ、サーバを終了します。
 	 */
-	public void close(){
+	public void close() {
 		// destroy webapps
 		webAppManager.close();
 		// close socket
@@ -217,16 +235,17 @@ public class SDLoader {
 		}
 	}
 
-	protected void init(){
+	protected void init() {
 		initConfig();
 		initWebApp();
 		initSocketProcessor();
 		initShutdown();
 	}
-	protected void initConfig(){
+
+	protected void initConfig() {
 		String homeDir = System.getProperty(SDLoader.KEY_SDLOADER_HOME);
 		if (homeDir == null)
-			homeDir = System.getProperty("user.dir");//+"/sdloader";
+			homeDir = System.getProperty("user.dir");// +"/sdloader";
 		homeDir = WebUtils.replaceFileSeparator(homeDir);
 		if (homeDir.endsWith("/"))
 			homeDir = homeDir.substring(0, homeDir.length() - 1);
@@ -234,6 +253,7 @@ public class SDLoader {
 
 		setConfig(SDLoader.KEY_SDLOADER_HOME, homeDir);
 	}
+
 	protected void initWebApp() {
 		try {
 			log.info("WebApplication initialize start.");
@@ -245,17 +265,20 @@ public class SDLoader {
 			throw e;
 		}
 	}
-	protected void initSocketProcessor(){
-		socketProcessorPool = new HttpRequestProcessorPool(this.maxThreadPoolNum);
+
+	protected void initSocketProcessor() {
+		socketProcessorPool = new HttpRequestProcessorPool(
+				this.maxThreadPoolNum);
 	}
-	protected void initShutdown(){
+
+	protected void initShutdown() {
 		final SDLoader sdloader = this;
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				try {
 					sdloader.close();
 				} catch (Throwable e) {
-					log.error("SDLoader close fail.",e);
+					log.error("SDLoader close fail.", e);
 				}
 			};
 		});
@@ -290,7 +313,8 @@ public class SDLoader {
 					log.error("Socket accept error.", ioe);
 					continue;
 				}
-				HttpRequestProcessor con = socketProcessorPool.borrowProcessor();
+				HttpRequestProcessor con = socketProcessorPool
+						.borrowProcessor();
 				con.process(socket, SDLoader.this);
 			}
 		}

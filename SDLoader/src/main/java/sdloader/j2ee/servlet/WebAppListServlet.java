@@ -22,15 +22,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import sdloader.SDLoader;
-
 
 /**
  * デプロイしてあるWebアプリの一覧を表示するサーブレット
  * @author c9katayama
+ * @author shot
  */
 public class WebAppListServlet extends HttpServlet {
 
+	private static final long serialVersionUID = 1L;
+	
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 	throws ServletException, IOException {
 		doIt(req, res);
@@ -40,8 +41,8 @@ public class WebAppListServlet extends HttpServlet {
 		throws ServletException, IOException {
 		doIt(req, res);
 	}
+	
 	protected void doIt(HttpServletRequest req,HttpServletResponse res)
-		throws ServletException, IOException {
-		
+		throws ServletException, IOException {		
 	}
 }
