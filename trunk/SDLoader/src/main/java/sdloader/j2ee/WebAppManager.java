@@ -50,6 +50,7 @@ import sdloader.j2ee.webxml.WebXml;
 import sdloader.j2ee.webxml.WebXmlFactory;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+import sdloader.util.ClassUtil;
 import sdloader.util.WebUtils;
 
 /**
@@ -89,12 +90,7 @@ public class WebAppManager {
 	private static final boolean JASPER_SUPPORT;
 	
 	static{
-		Class jasper = null;
-		try{		
-			jasper = Class.forName(JASPER_SERVLET_CLASS);
-		}catch(Exception e){
-		}
-		JASPER_SUPPORT = (jasper==null) ? false : true;			
+		JASPER_SUPPORT = ClassUtil.hasClass(JASPER_SERVLET_CLASS);
 	}
 
 	private class PathPair {
