@@ -17,23 +17,26 @@ package sdloader.j2ee;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
-import sdloader.j2ee.imp.SessionManagerSharedSessionImp;
+import sdloader.internal.SDLoaderInitializer;
 import sdloader.org.apache.commons.codec.binary.Base64;
 
 /**
  * セッション管理クラス
  * @author c9katayama
+ * @author shot
  */
 public abstract class SessionManager {
 
-	//TODO 
-	private static SessionManager manager = new SessionManagerSharedSessionImp(); 
+	private static SessionManager manager = SDLoaderInitializer.createSessionManager(); 
+
+	private static final SecureRandom RANDOM_GENERATOR = new SecureRandom();
 	
-	private static long sessionIdSeed = System.currentTimeMillis()	+ (int) Math.random() * 1000;
+	private static long sessionIdSeed = System.currentTimeMillis()	+ (int) RANDOM_GENERATOR.nextInt() * 1000;
 
 	private static final MessageDigest digest;
 	
@@ -65,4 +68,5 @@ public abstract class SessionManager {
 		}
 		return sessionId;
 	}
+	
 }
