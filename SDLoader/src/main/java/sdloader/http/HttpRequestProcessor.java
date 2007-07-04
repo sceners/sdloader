@@ -180,7 +180,6 @@ public class HttpRequestProcessor extends Thread {
 			processDataOutput(response, os);
 			return header.isKeepAlive();
 		}
-			
 		ServletMapping mapping = webapp.findServletMapping(resourcePath);
 		Servlet servlet = null;
 		if(mapping != null)
