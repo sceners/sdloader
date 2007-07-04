@@ -42,6 +42,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import sdloader.SDLoader;
 import sdloader.j2ee.servlet.FileSavingServlet;
+import sdloader.j2ee.servlet.WebAppListServlet;
 import sdloader.j2ee.webxml.InitParamTag;
 import sdloader.j2ee.webxml.ServletMappingTag;
 import sdloader.j2ee.webxml.ServletTag;
@@ -251,6 +252,29 @@ public class WebAppManager {
 			log.info("create webapp [" + contextPath + "]");
 			this.webAppList.add(webapp);
 		}
+		
+		this.webAppList.add(getRootWebApplication());
+	}
+	protected WebApplication getRootWebApplication(){
+		// WebApp List 
+		final String webAppListServletName="webAppList";
+		ServletTag webAppListServletTag = new ServletTag();
+		webAppListServletTag.setLoadOnStartup(0);
+		webAppListServletTag.setServletClass(WebAppListServlet.class.getName());
+		webAppListServletTag.setServletName(webAppListServletName);
+		
+		ServletMappingTag webAppListMappingTag = new ServletMappingTag();
+		webAppListMappingTag.setServletName(webAppListServletName);
+		webAppListMappingTag.setUrlPattern("/*");
+		WebXml webXmlTag = new WebXml();
+		WebAppTag webAppTag = new WebAppTag();
+		webAppTag.addServlet(webAppListServletTag);
+		webAppTag.addServletMapping(webAppListMappingTag);
+		webXmlTag.setWebApp(webAppTag);
+
+		WebAppClassLoader webAppClassLoader = createWebAppClassLoader("");
+		WebApplication webapp = new WebApplication(webXmlTag,null,"/",webAppClassLoader,this);
+		return webapp;
 	}
 
 	/**
@@ -260,28 +284,30 @@ public class WebAppManager {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	private WebAppClassLoader createWebAppClassLoader(String docBase)
-			throws MalformedURLException {
-		List urlList = new ArrayList();
-		// classes
-		File classesDir = new File(docBase + "/WEB-INF/classes");
-		if (classesDir.exists()) {
-			String dirPath = classesDir.getAbsolutePath();
-			dirPath = WebUtils.replaceFileSeparator(dirPath) + "/";
-			urlList.add(new URL("file:///" + dirPath));
+	private WebAppClassLoader createWebAppClassLoader(String docBase){
+		try{
+			List urlList = new ArrayList();
+			// classes
+			File classesDir = new File(docBase + "/WEB-INF/classes");
+			if (classesDir.exists()) {
+				String dirPath = classesDir.getAbsolutePath();
+				dirPath = WebUtils.replaceFileSeparator(dirPath) + "/";
+				urlList.add(new URL("file:///" + dirPath));
+			}
+			// WEB-INF/lib
+			String webinfLibDir = docBase + "/WEB-INF/lib";
+			URL[] libs = WebUtils.createClassPaths(webinfLibDir,new ArchiveFileFilter());
+			if (libs != null) {
+				for (int i = 0; i < libs.length; i++)
+					urlList.add(libs[i]);
+			}
+			URL[] urls = (URL[]) urlList.toArray(new URL[] {});
+			WebAppClassLoader webAppClassLoader = new WebAppClassLoader(urls);
+			webAppClassLoader.setParentClassLoader(Thread.currentThread().getContextClassLoader());
+			return webAppClassLoader;
+		}catch(MalformedURLException e){
+			throw new RuntimeException(e);
 		}
-		// WEB-INF/lib
-		String webinfLibDir = docBase + "/WEB-INF/lib";
-		URL[] libs = WebUtils.createClassPaths(webinfLibDir,new ArchiveFileFilter());
-		if (libs != null) {
-			for (int i = 0; i < libs.length; i++)
-				urlList.add(libs[i]);
-		}
-		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-		if (urls != null)
-			return new WebAppClassLoader(urls);
-		else
-			return null;
 	}
 
 	/**
@@ -328,20 +354,19 @@ public class WebAppManager {
 		}
 
 		// file saving
-		final String servletName = "file";
-		ServletTag fileServlet = new ServletTag();
-		fileServlet.setLoadOnStartup(0);
-		fileServlet.setServletClass(FileSavingServlet.class.getName());
-		fileServlet.setServletName(servletName);
-		fileServlet.addInitParam(new InitParamTag(
+		final String fileSavingServletName = "file";
+		ServletTag fileServletTag = new ServletTag();
+		fileServletTag.setLoadOnStartup(0);
+		fileServletTag.setServletClass(FileSavingServlet.class.getName());
+		fileServletTag.setServletName(fileSavingServletName);
+		fileServletTag.addInitParam(new InitParamTag(
 				FileSavingServlet.PARAM_DOC_ROOT, docBase));
-		ServletMappingTag mapping = new ServletMappingTag();
-		mapping.setServletName(servletName);
-		mapping.setUrlPattern("/*");
+		ServletMappingTag mappingTag = new ServletMappingTag();
+		mappingTag.setServletName(fileSavingServletName);
+		mappingTag.setUrlPattern("/*");
 
-		webxml.getWebApp().addServlet(fileServlet);
-		webxml.getWebApp().addServletMapping(mapping);
-
+		webxml.getWebApp().addServlet(fileServletTag);
+		webxml.getWebApp().addServletMapping(mappingTag);
 	}
 
 	private static boolean isExtracted(File warFile, File[] dirs) {
