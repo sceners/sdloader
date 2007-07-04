@@ -93,7 +93,7 @@ public class WebApplication {
 		this.manager = manager;
 		init();
 	}
-	public WebAppManager getManager() {
+	public WebAppManager getWebApplicationManager() {
 		return manager;
 	}
 	
@@ -293,6 +293,7 @@ public class WebApplication {
 	 * @throws ServletException
 	 */
 	public ServletMapping findServletMapping(String uri){
+
 		if (uri != null && servletMap != null) {
 			uri = WebUtils.stripQueryPart(uri);
 			ServletMapping targetServletMapping = null;
@@ -351,5 +352,4 @@ public class WebApplication {
 		else
 			return null;
 	}
-
 }
