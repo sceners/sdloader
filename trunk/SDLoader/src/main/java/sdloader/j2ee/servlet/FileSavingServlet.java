@@ -75,7 +75,7 @@ public class FileSavingServlet extends HttpServlet {
 		initMime();
 		
 		ServletContextImp servletContext = (ServletContextImp)getServletContext();
-		WebApplication app = servletContext.getWebApp();
+		WebApplication app = servletContext.getWebApplication();
 		welcomeFileListTag = app.getWebXml().getWebApp().getWelcomeFileList();
 	}
 
@@ -164,7 +164,7 @@ public class FileSavingServlet extends HttpServlet {
 			basePath += "/";
 		
 		ServletContextImp context = (ServletContextImp)getServletContext();
-		WebApplication webapp = context.getWebApp();
+		WebApplication webapp = context.getWebApplication();
 		List welcomeFileList = welcomeFileListTag.getWelcomeFile();
 		List servletMappingList = webapp.getWebXml().getWebApp().getServletMapping();
 		

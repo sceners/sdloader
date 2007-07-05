@@ -16,15 +16,22 @@
 package sdloader.j2ee.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import sdloader.j2ee.WebApplication;
+import sdloader.j2ee.imp.ServletContextImp;
+
 
 /**
  * デプロイしてあるWebアプリの一覧を表示するサーブレット
+ * 
  * @author c9katayama
  * @author shot
  */
@@ -43,6 +50,24 @@ public class WebAppListServlet extends HttpServlet {
 	}
 	
 	protected void doIt(HttpServletRequest req,HttpServletResponse res)
-		throws ServletException, IOException {		
+		throws ServletException, IOException {
+		
+		WebApplication webapp = ((ServletContextImp)getServletContext()).getWebApplication();
+		List contextPathList = webapp.getWebApplicationManager().getContextPathList();
+		outputWebAppList(contextPathList, req, res);
+	}
+	protected void outputWebAppList(List contextPathList,HttpServletRequest req,HttpServletResponse res)
+																	throws ServletException, IOException {
+		PrintWriter writer = res.getWriter();
+		writer.write("<html><head><title>SDLoader -Web Application List-</title></head><body>");
+		writer.write("[Web Application List]<br/>");
+		writer.write("<a href=\"/\">ROOT</a><br/>");
+		if(contextPathList != null){
+			for(Iterator itr = contextPathList.iterator();itr.hasNext();){
+				String path = (String)itr.next();
+				writer.write("<a href=\"" + path + "\">" + path + "</a><br/>");				
+			}
+		}
+		writer.write("</body></html>");
 	}
 }

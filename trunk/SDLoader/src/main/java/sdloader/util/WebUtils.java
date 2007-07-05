@@ -158,13 +158,16 @@ public class WebUtils {
 	/**
 	 * リクエストURI中のコンテキストパス以外の部分を返します。 
 	 * resoucePath = servletpath + pathinfo
-	 * 
+	 *　ただし、requestURIが"/"の場合(ルートアプリケーション）のみ、"/"を返します。
 	 * @param requestURI
 	 * @return resourcePath
 	 */
 	public static String getResourcePath(String requestURI) {
 		if (requestURI == null)
 			return null;
+		if(requestURI.equals("/")){
+			return  "/";
+		}
 
 		if (requestURI.startsWith("/") && requestURI.length() > 1
 				&& requestURI.indexOf("/", 1) >= 1) {
@@ -182,6 +185,8 @@ public class WebUtils {
 	 * @return resourcePath
 	 */
 	public static String getServletPath(String pattern,String resourcePath){
+		if(resourcePath==null)
+			return null;
 		int type = matchPattern(pattern,resourcePath);
 		switch(type){
 			case PATTERN_DEFAULT_MATCH:
@@ -203,6 +208,8 @@ public class WebUtils {
 	 * @return resourcePath
 	 */	
 	public static String getPathInfo(String pattern,String resourcePath){
+		if(resourcePath==null)
+			return null;
 		int type = matchPattern(pattern,resourcePath);
 		switch(type){
 			case PATTERN_DEFAULT_MATCH:
