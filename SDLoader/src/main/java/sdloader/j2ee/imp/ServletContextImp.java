@@ -63,7 +63,7 @@ public class ServletContextImp implements ServletContext {
 	}
 
 	public ServletContext getContext(String contextPath) {
-		WebApplication webapp = this.webApp.getManager().findWebApp(contextPath);
+		WebApplication webapp = this.webApp.getWebApplicationManager().findWebApp(contextPath);
 		if (webapp != null)
 			return webapp.getServletContext();
 
@@ -195,7 +195,7 @@ public class ServletContextImp implements ServletContext {
 
 	public RequestDispatcher getRequestDispatcher(String requestPath) {
 
-		WebApplication webapp = webApp.getManager().findWebApp(this.servletContextName);
+		WebApplication webapp = webApp.getWebApplicationManager().findWebApp(this.servletContextName);
 		ServletMapping mapping = webapp.findServletMapping(requestPath);
 		if(mapping==null)
 			return null;
@@ -230,7 +230,7 @@ public class ServletContextImp implements ServletContext {
 	public void setDocBase(String absoluteContextPath) {
 		this.docBase = absoluteContextPath;
 	}
-	public WebApplication getWebApp() {
+	public WebApplication getWebApplication() {
 		return webApp;
 	}
 	private String createResourcePath(String resource) {
