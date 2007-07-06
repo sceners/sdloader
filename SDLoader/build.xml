@@ -91,7 +91,7 @@
     <copy todir="${distbin}" >
 		<fileset dir=".">
 			<include name="*.txt"/>
-			<include name="*.xml"/>
+			<include name="context-xml-sample.xml"/>
 			<include name="*.bat"/>
 			<include name="webapps/WARFILE*"/>			
 			<exclude name="*-src.zip"/>
