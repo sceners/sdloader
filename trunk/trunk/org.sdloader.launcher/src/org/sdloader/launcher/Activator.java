@@ -34,18 +34,6 @@ public class Activator extends AbstractUIPlugin {
 	 * 
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
-	/*
-	 * for (int i = 0; i < events.length; i++) { DebugEvent event = events[i];
-	 * if (event.getKind() == DebugEvent.TERMINATE) { Object o =
-	 * event.getSource(); if (o instanceof IProcess) { try { ILaunch l =
-	 * ((IProcess) o).getLaunch(); String id =
-	 * l.getLaunchConfiguration().getType() .getIdentifier(); if
-	 * (Constants.ID_WINSTONE_LAUNCH_CONFIG.equals(id)) { IProject p =
-	 * LaunchUtil.getProject(l); Activator.setLaunch(p, null);
-	 * WebRunningDecorator.updateDecorators(p); } } catch (CoreException e) {
-	 * Activator.log(e); } } } }
-	 * 
-	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		DebugPlugin debugPlugin = DebugPlugin.getDefault();
@@ -86,6 +74,17 @@ public class Activator extends AbstractUIPlugin {
 		}
 	}
 
+	public static ILaunch getLaunch(IProject project) {
+		if(project != null) {
+			try {
+				return (ILaunch) project.getSessionProperty(Constants.KEY_SERVER_STATE);
+			} catch (CoreException e) {
+				LogUtil.log(getDefault(), e);
+			}
+		}
+		return null;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
