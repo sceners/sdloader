@@ -212,6 +212,7 @@ public class WebAppManager {
 								}else{
 									log.info("detect webapp context. contextPath="+ contextPath + " docBase=" + docBase);
 									pathPairList.add(new PathPair(docBase,contextPath));
+									contextPathList.add(contextPath);
 								}
 							}
 						}
