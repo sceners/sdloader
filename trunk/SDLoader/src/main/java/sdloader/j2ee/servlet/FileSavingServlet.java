@@ -39,6 +39,7 @@ import sdloader.j2ee.WebApplication;
 import sdloader.j2ee.imp.ServletContextImp;
 import sdloader.j2ee.webxml.ServletMappingTag;
 import sdloader.j2ee.webxml.WelcomeFileListTag;
+import sdloader.util.ResourceUtil;
 import sdloader.util.WebUtils;
 
 /**
@@ -85,7 +86,7 @@ public class FileSavingServlet extends HttpServlet {
 	 * @throws ServletException
 	 */
 	protected void initMime() throws ServletException {
-		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("sdloader/resource/mime.xml");
+		InputStream is = ResourceUtil.getResourceByClassPath("/sdloader/resource/mime.xml",getClass());
 		if (is == null)
 			throw new ServletException("mime.xml not found.");
 
