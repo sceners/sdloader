@@ -10,7 +10,7 @@ public class SDLoaderVariables extends AbstractVariable {
 	@Override
 	protected URL getInstallLocation() {
 		Bundle bundle = Activator.getDefault().getBundle();
-		return bundle.getEntry("/lib/sdloader-jsp12.jar");
+		return bundle.getEntry("/lib/sdloader.jar");
 	}
 
 }
