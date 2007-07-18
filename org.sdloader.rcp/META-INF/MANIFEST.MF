@@ -8,5 +8,6 @@ Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
 Eclipse-LazyStart: true
-Bundle-ClassPath: lib/sdloader-jsp20.jar,
- .
+Bundle-ClassPath: .,
+ lib/sdloader-jsp12.jar,
+ lib/tools.jar
