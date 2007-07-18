@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.sdloader.rcp.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="Rcp Perspective"
+            class="org.sdloader.rcp.Perspective"
+            id="org.sdloader.rcp.perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="true"
+            class="org.sdloader.rcp.BrowserView"
+            id="org.sdloader.rcp.browserview"
+            name="org.sdloader.rcp.browserview"/>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.sdloader.rcp.application"
+            name="SDLoader RCP"/>
+   </extension>
+
+</plugin>
