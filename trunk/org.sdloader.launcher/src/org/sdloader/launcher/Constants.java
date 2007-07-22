@@ -8,6 +8,8 @@ public interface Constants {
 	
 	String ID_SDLOADER_LAUNCH_CONFIG = ID_PLUGIN + ".launchConfigurationType";
 
+	String ID_DECORATOR = ID_PLUGIN + ".nature";
+	
     public static final QualifiedName KEY_SERVER_STATE = new QualifiedName(
             ID_PLUGIN, "serverstate");
 }
