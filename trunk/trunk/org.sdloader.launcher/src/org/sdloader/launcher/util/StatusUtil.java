@@ -20,4 +20,9 @@ public class StatusUtil {
 				message, throwable);
 	}
 
+	public static IStatus createInfo(Plugin plugin, int code, String message,
+			Throwable throwable) {
+		return create(plugin, IStatus.INFO, code, message, throwable);
+	}
+
 }

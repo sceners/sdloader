@@ -2,10 +2,38 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension
+         id="id1"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.sdloader.launcher.nature.SDLoaderLauncherNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
             class="org.sdloader.launcher.preference.SdloaderPreferenceInitializer">
       </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.jdt.core.classpathVariableInitializer">
+      <classpathVariableInitializer
+            class="org.sdloader.launcher.variables.SDLoaderVariables"
+            variable="SDLOADER_LIB">
+      </classpathVariableInitializer>
+      <classpathVariableInitializer
+            class="org.sdloader.launcher.variables.SDLoaderSrcVariables"
+            variable="SDLOADER_SRC">
+      </classpathVariableInitializer>
+      <classpathVariableInitializer
+            class="org.sdloader.launcher.variables.SDLoaderJsp12Variables"
+            variable="SDLOADER_JSP12">
+      </classpathVariableInitializer>
+      <classpathVariableInitializer
+            class="org.sdloader.launcher.variables.SDLoaderJsp20Variables"
+            variable="SDLOADER_JSP20">
+      </classpathVariableInitializer>
    </extension>
 
 </plugin>
