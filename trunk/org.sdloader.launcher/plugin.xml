@@ -35,5 +35,65 @@
             variable="SDLOADER_JSP20">
       </classpathVariableInitializer>
    </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            adaptable="true"
+            class="org.sdloader.launcher.decorator.SDLoaderRunningDecorator"
+            id="org.sdloader.launcher.decorator"
+            label="SDLoaderLauncherDecorator"
+            lightweight="true"
+            location="BOTTOM_RIGHT"
+            state="true">
+         <enablement>
+            <and>
+               <objectState
+                     name="projectNature"
+                     value="org.sdloader.launcher.nature">
+               </objectState>
+               <objectClass
+                     name="org.eclipse.core.resources.IProject">
+               </objectClass>
+            </and>
+         </enablement>
+      </decorator>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="org.sdloader.launcher.objectContribution"
+            objectClass="org.eclipse.core.resources.IProject">
+         <menu
+               id="org.sdloader.launcher.menu"
+               label="%plugin.label"
+               path="addtions">
+            <groupMarker
+                  name="addtions">
+            </groupMarker>
+         </menu>
+         <visibility>
+            <objectState
+                  name="projectNature"
+                  value="org.sdloader.launcher.nature">
+            </objectState>
+         </visibility>
+         <action
+               class="org.sdloader.launcher.action.ToggleServerAction"
+               enablesFor="1"
+               icon="icons/start.gif"
+               id="org.sdloader.launcher.action.start"
+               label="%start"
+               menubarPath="org.sdloader.launcher.menu/additions">
+            <enablement>
+               <not>
+                  <objectState
+                        name="sessionProperty"
+                        value="org.sdloader.launcher.serverstate">
+                  </objectState>
+               </not>
+            </enablement>
+         </action>
+      </objectContribution>
+   </extension>
 
 </plugin>
