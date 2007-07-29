@@ -15,26 +15,23 @@
  */
 package sdloader.j2ee.imp;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
 import sdloader.j2ee.SessionManager;
+
 /**
- * セッション管理の実装クラス
- * セッションID単位でセッションを管理します。
- * 通常のJ2EEのセッション管理方式です。
+ * セッションIDに係わらず、すべてのリクエストに対して 同一のセッションを返します。
+ * プロセスの異なるIEなどでセッション共有できます。
  * @author c9katayama
  */
-public class SessionManagerImp extends SessionManager{
+public class SessionManagerSharedSessionImpl extends SessionManager {
 
-	private Map sessionMap = new HashMap();
+	private static HttpSessionImpl session;
 
 	public HttpSession getSession(String sessionId, boolean createNew,
 			ServletContext servletContext) {
-		HttpSessionImp session = (HttpSessionImp) sessionMap.get(sessionId);
+
 		if (session != null) {
 			if (!session.isInvalidate())
 				return session;
@@ -54,10 +51,9 @@ public class SessionManagerImp extends SessionManager{
 
 	private HttpSession createNewSession(ServletContext servletContext) {
 		String sessionId = createNewSessionId();
-		HttpSessionImp ses = new HttpSessionImp(sessionId);
+		HttpSessionImpl ses = new HttpSessionImpl(sessionId);
 		ses.setServletContext(servletContext);
-		sessionMap.put(sessionId, ses);
-
+		session = ses;
 		return ses;
 	}
 }

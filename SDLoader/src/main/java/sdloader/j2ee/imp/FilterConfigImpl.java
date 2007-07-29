@@ -29,7 +29,7 @@ import sdloader.util.IteratorEnumeration;
  * 
  * @author c9katayama
  */
-public class FilterConfigImp implements FilterConfig {
+public class FilterConfigImpl implements FilterConfig {
 
 	private Map initParameter = new HashMap();
 

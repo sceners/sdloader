@@ -1,7 +1,7 @@
 package sdloader.internal;
 
 import sdloader.j2ee.SessionManager;
-import sdloader.j2ee.imp.SessionManagerSharedSessionImp;
+import sdloader.j2ee.imp.SessionManagerSharedSessionImpl;
 
 /**
  * @author shot
@@ -17,7 +17,7 @@ public abstract class SDLoaderInitializer {
 		if(sessionManager != null) {
 			return sessionManager;
 		}
-		return new SessionManagerSharedSessionImp();
+		return new SessionManagerSharedSessionImpl();
 	}
 	
 	public static void setSessionManager(SessionManager sessionManager) {

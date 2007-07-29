@@ -34,7 +34,7 @@ import sdloader.util.WebUtils;
  * 
  * @author c9katayama
  */
-public class RequestDispatcherImp implements RequestDispatcher {
+public class RequestDispatcherImpl implements RequestDispatcher {
 
     public static final String JAVAX_INCLUDE_REQUEST_URI = "javax.servlet.include.request_uri";
     public static final String JAVAX_INCLUDE_CONTEXT_PATH = "javax.servlet.include.context_path";
@@ -62,7 +62,7 @@ public class RequestDispatcherImp implements RequestDispatcher {
 	private String requestURI;
 	private String queryString;
 
-	RequestDispatcherImp(ServletMapping dispatchServletMapping,Servlet dispatchServlet, ServletContext dispatchServletContext,String dispatchURI) {
+	RequestDispatcherImpl(ServletMapping dispatchServletMapping,Servlet dispatchServlet, ServletContext dispatchServletContext,String dispatchURI) {
 		this.dispatchServletContext = dispatchServletContext;
 		this.dispatchServletMapping = dispatchServletMapping;
 		this.dispatchServlet = dispatchServlet;
@@ -70,16 +70,16 @@ public class RequestDispatcherImp implements RequestDispatcher {
 		this.queryString = WebUtils.getQueryPart(dispatchURI);
 	}
 	
-	private HttpServletRequestImp stripRequestWrapper(ServletRequest request){
+	private HttpServletRequestImpl stripRequestWrapper(ServletRequest request){
 		while(request instanceof HttpServletRequestWrapper){
 			request = ((HttpServletRequestWrapper)request).getRequest();
 		}
-		return (HttpServletRequestImp)request;
+		return (HttpServletRequestImpl)request;
 	}
 	public void forward(ServletRequest request, ServletResponse response)
 			throws ServletException, IOException {
 
-		HttpServletRequestImp firstRequest = stripRequestWrapper(request);
+		HttpServletRequestImpl firstRequest = stripRequestWrapper(request);
 		if(request.getAttribute(JAVAX_FORWARD_SERVLET_PATH) == null){
 			//初回はパスを保存
 			firstRequest.setAttribute(JAVAX_FORWARD_REQUEST_URI,firstRequest.getRequestURI());

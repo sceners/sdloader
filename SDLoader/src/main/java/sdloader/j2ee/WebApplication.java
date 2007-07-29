@@ -30,9 +30,9 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 
-import sdloader.j2ee.imp.FilterConfigImp;
-import sdloader.j2ee.imp.ServletConfigImp;
-import sdloader.j2ee.imp.ServletContextImp;
+import sdloader.j2ee.imp.FilterConfigImpl;
+import sdloader.j2ee.imp.ServletConfigImpl;
+import sdloader.j2ee.imp.ServletContextImpl;
 import sdloader.j2ee.webxml.ContextParamTag;
 import sdloader.j2ee.webxml.FilterMappingTag;
 import sdloader.j2ee.webxml.FilterTag;
@@ -69,7 +69,7 @@ public class WebApplication {
 	private WebAppManager manager;
 	
 	/** ServletContext */
-	private ServletContextImp servletContext;
+	private ServletContextImpl servletContext;
 
 	/** listener */
 	private List listenerList;
@@ -125,7 +125,7 @@ public class WebApplication {
 	}
 
 	private void initServletContext() {
-		servletContext = new ServletContextImp(this);
+		servletContext = new ServletContextImpl(this);
 		servletContext.setDocBase(docBase);
 		servletContext.setServletContextName(contextPath);
 		for (Iterator itr = webXml.getWebApp().getContextParam().iterator(); itr
@@ -227,7 +227,7 @@ public class WebApplication {
 	}
 
 	private ServletConfig createServletConfig(ServletTag servletTag) {
-		ServletConfigImp config = new ServletConfigImp();
+		ServletConfigImpl config = new ServletConfigImpl();
 		config.setServletContext(servletContext);
 		List initParamList = servletTag.getInitParamList();
 		for (Iterator paramItr = initParamList.iterator(); paramItr.hasNext();) {
@@ -239,7 +239,7 @@ public class WebApplication {
 	}
 
 	private FilterConfig createFilterConfig(FilterTag filterTag) {
-		FilterConfigImp config = new FilterConfigImp();
+		FilterConfigImpl config = new FilterConfigImpl();
 		config.setServletContext(servletContext);
 		List initParamList = filterTag.getInitParamList();
 		for (Iterator paramItr = initParamList.iterator(); paramItr.hasNext();) {

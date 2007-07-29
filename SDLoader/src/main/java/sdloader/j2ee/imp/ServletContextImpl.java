@@ -42,9 +42,9 @@ import sdloader.util.IteratorEnumeration;
  * 
  * @author c9katayama
  */
-public class ServletContextImp implements ServletContext {
+public class ServletContextImpl implements ServletContext {
 	private static final SDLoaderLog log = SDLoaderLogFactory
-			.getLog(ServletConfigImp.class);
+			.getLog(ServletConfigImpl.class);
 	
 	private WebApplication webApp;
 	
@@ -58,7 +58,7 @@ public class ServletContextImp implements ServletContext {
 
 	private Map initParamMap = new HashMap();
 
-	public ServletContextImp(WebApplication webapp) {
+	public ServletContextImpl(WebApplication webapp) {
 		this.webApp = webapp;
 	}
 
@@ -203,7 +203,7 @@ public class ServletContextImp implements ServletContext {
 		if(servlet==null)
 			return null;
 		String requestURI = webapp.getContextPath()+requestPath; 
-		return new RequestDispatcherImp(mapping,servlet,webapp.getServletContext(),requestURI);
+		return new RequestDispatcherImpl(mapping,servlet,webapp.getServletContext(),requestURI);
 	}
 
 	public RequestDispatcher getNamedDispatcher(String arg0) {

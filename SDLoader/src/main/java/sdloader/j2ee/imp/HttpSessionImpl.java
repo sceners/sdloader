@@ -30,7 +30,7 @@ import sdloader.util.IteratorEnumeration;
  * 
  * @author c9katayama
  */
-public class HttpSessionImp implements HttpSession {
+public class HttpSessionImpl implements HttpSession {
 	private String id;
 
 	private long creationTime;
@@ -47,7 +47,7 @@ public class HttpSessionImp implements HttpSession {
 
 	private boolean isNew = true;
 
-	public HttpSessionImp(String sessionId) {
+	public HttpSessionImpl(String sessionId) {
 		this.id = sessionId;
 		this.creationTime = System.currentTimeMillis();
 	}

@@ -29,14 +29,14 @@ import sdloader.util.IteratorEnumeration;
  * 
  * @author c9katayama
  */
-public class ServletConfigImp implements ServletConfig {
+public class ServletConfigImpl implements ServletConfig {
 	private Map initParameter = new HashMap();
 
 	private String servletName;
 
 	private ServletContext servletContext;
 
-	public ServletConfigImp() {
+	public ServletConfigImpl() {
 		super();
 	}
 
