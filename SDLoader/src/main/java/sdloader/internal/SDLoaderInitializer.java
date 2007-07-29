@@ -1,7 +1,7 @@
 package sdloader.internal;
 
 import sdloader.j2ee.SessionManager;
-import sdloader.j2ee.imp.SessionManagerSharedSessionImpl;
+import sdloader.j2ee.impl.SessionManagerSharedSessionImpl;
 
 /**
  * @author shot

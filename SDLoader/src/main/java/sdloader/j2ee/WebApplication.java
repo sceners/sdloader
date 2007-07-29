@@ -30,9 +30,9 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 
-import sdloader.j2ee.imp.FilterConfigImpl;
-import sdloader.j2ee.imp.ServletConfigImpl;
-import sdloader.j2ee.imp.ServletContextImpl;
+import sdloader.j2ee.impl.FilterConfigImpl;
+import sdloader.j2ee.impl.ServletConfigImpl;
+import sdloader.j2ee.impl.ServletContextImpl;
 import sdloader.j2ee.webxml.ContextParamTag;
 import sdloader.j2ee.webxml.FilterMappingTag;
 import sdloader.j2ee.webxml.FilterTag;

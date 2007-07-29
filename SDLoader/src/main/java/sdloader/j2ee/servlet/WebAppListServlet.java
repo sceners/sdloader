@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import sdloader.j2ee.WebApplication;
-import sdloader.j2ee.imp.ServletContextImpl;
+import sdloader.j2ee.impl.ServletContextImpl;
 
 
 /**
