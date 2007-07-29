@@ -36,7 +36,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import sdloader.http.HttpConst;
 import sdloader.j2ee.WebApplication;
-import sdloader.j2ee.imp.ServletContextImpl;
+import sdloader.j2ee.impl.ServletContextImpl;
 import sdloader.j2ee.webxml.ServletMappingTag;
 import sdloader.j2ee.webxml.WelcomeFileListTag;
 import sdloader.util.ResourceUtil;
