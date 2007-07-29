@@ -33,9 +33,9 @@ import sdloader.SDLoader;
 import sdloader.j2ee.ServletMapping;
 import sdloader.j2ee.WebAppClassLoader;
 import sdloader.j2ee.WebApplication;
-import sdloader.j2ee.imp.FilterChainImp;
-import sdloader.j2ee.imp.HttpServletRequestImp;
-import sdloader.j2ee.imp.HttpServletResponseImp;
+import sdloader.j2ee.imp.FilterChainImpl;
+import sdloader.j2ee.imp.HttpServletRequestImpl;
+import sdloader.j2ee.imp.HttpServletResponseImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.WebUtils;
@@ -158,9 +158,9 @@ public class HttpRequestProcessor extends Thread {
 		}
 
 		// request
-		HttpServletRequestImp request =createServletRequestImp(header, body);		
+		HttpServletRequestImpl request =createServletRequestImp(header, body);		
 		// response
-		HttpServletResponseImp response = new HttpServletResponseImp();
+		HttpServletResponseImpl response = new HttpServletResponseImpl();
 		
 		String requestURI = header.getRequestURI();
 		String resourcePath = WebUtils.getResourcePath(requestURI);
@@ -207,7 +207,7 @@ public class HttpRequestProcessor extends Thread {
 			if (filterList.size() > 0) {
 				Filter[] filters = (Filter[]) filterList
 						.toArray(new Filter[] {});
-				FilterChainImp filterChain = new FilterChainImp(filters,
+				FilterChainImpl filterChain = new FilterChainImpl(filters,
 						servlet);
 				filterChain.doFilter(request, response);
 			} else
@@ -225,8 +225,8 @@ public class HttpRequestProcessor extends Thread {
 		processDataOutput(response, os);
 		return header.isKeepAlive();
 	}
-	private HttpServletRequestImp createServletRequestImp(HttpRequestHeader header,HttpRequestBody body){
-		HttpServletRequestImp request = new HttpServletRequestImp();
+	private HttpServletRequestImpl createServletRequestImp(HttpRequestHeader header,HttpRequestBody body){
+		HttpServletRequestImpl request = new HttpServletRequestImpl();
 		request.setHeader(header);
 		request.setBody(body);
 		
@@ -242,7 +242,7 @@ public class HttpRequestProcessor extends Thread {
 		request.setScheme("http");
 		return request;
 	}
-	private void processDataOutput(HttpServletResponseImp response,
+	private void processDataOutput(HttpServletResponseImpl response,
 			OutputStream os) throws IOException {
 		HttpResponseHeader resHeader = response.getResponseHeader();
 		byte[] headerData = resHeader.getHeaderString().getBytes();
@@ -259,7 +259,7 @@ public class HttpRequestProcessor extends Thread {
 		}
 		os.flush();
 	}
-	private void setDefaultResponseHeader(HttpServletRequestImp request,HttpServletResponseImp response,int requestCount) throws IOException {
+	private void setDefaultResponseHeader(HttpServletRequestImpl request,HttpServletResponseImpl response,int requestCount) throws IOException {
 		response.setHeader(HttpConst.DATE, WebUtils.formatHeaderDate(Calendar.getInstance().getTime()));
 		response.setHeader(HttpConst.SERVER, loader.getServerName());
 		String sessionId = request.getRequestedSessionId();

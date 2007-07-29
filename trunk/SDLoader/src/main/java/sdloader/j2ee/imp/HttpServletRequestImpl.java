@@ -51,7 +51,7 @@ import sdloader.util.WebUtils;
  * 
  * @author c9katayama
  */
-public class HttpServletRequestImp implements HttpServletRequest {
+public class HttpServletRequestImpl implements HttpServletRequest {
 	private StringBuffer requestURL;
 
 	private String servletPath;
@@ -89,7 +89,7 @@ public class HttpServletRequestImp implements HttpServletRequest {
 	//TODO 
 	private String characterEncoding = "UTF-8";
 
-	public HttpServletRequestImp() {
+	public HttpServletRequestImpl() {
 		super();
 	}
 

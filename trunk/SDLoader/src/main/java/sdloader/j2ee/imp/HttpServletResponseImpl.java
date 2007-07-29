@@ -33,20 +33,20 @@ import sdloader.util.WebUtils;
  * 
  * @author c9katayama
  */
-public class HttpServletResponseImp implements HttpServletResponse {
+public class HttpServletResponseImpl implements HttpServletResponse {
 	private Locale locale = Locale.getDefault();
 	
 	private String characterEncoding = "UTF-8";//HttpParameters.DEFAULT_CHAR_ENCODE;
 
 	private HttpResponseHeader header = new HttpResponseHeader();
 
-	private ServletOutputStreamImp servletOutputStream = new ServletOutputStreamImp();
+	private ServletOutputStreamImpl servletOutputStream = new ServletOutputStreamImpl();
 
 	private PrintWriter writer;
 
 	private int bufferSize;
 
-	public HttpServletResponseImp() {
+	public HttpServletResponseImpl() {
 		super();
 	}
 
@@ -172,7 +172,7 @@ public class HttpServletResponseImp implements HttpServletResponse {
 	}
 
 	public void resetBuffer() {
-		servletOutputStream = new ServletOutputStreamImp();
+		servletOutputStream = new ServletOutputStreamImpl();
 	}
 
 	public boolean isCommitted() {
@@ -180,7 +180,7 @@ public class HttpServletResponseImp implements HttpServletResponse {
 	}
 
 	public void reset() {
-		servletOutputStream = new ServletOutputStreamImp();
+		servletOutputStream = new ServletOutputStreamImpl();
 	}
 
 	public void setLocale(Locale locale) {

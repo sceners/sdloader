@@ -26,14 +26,14 @@ import javax.servlet.ServletOutputStream;
  * 
  * @author c9katayama
  */
-public class ServletOutputStreamImp extends ServletOutputStream {
+public class ServletOutputStreamImpl extends ServletOutputStream {
 	private ByteArrayOutputStream bout;
 
 	private BufferedOutputStream bufOut;
 	
 	private boolean close = false;
 	
-	public ServletOutputStreamImp() {
+	public ServletOutputStreamImpl() {
 		bout = new ByteArrayOutputStream();
 		bufOut = new BufferedOutputStream(bout);
 	}

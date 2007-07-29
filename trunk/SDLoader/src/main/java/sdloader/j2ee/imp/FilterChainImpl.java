@@ -29,7 +29,7 @@ import javax.servlet.ServletResponse;
  * 
  * @author c9katayama
  */
-public class FilterChainImp implements FilterChain {
+public class FilterChainImpl implements FilterChain {
 
 	private Filter[] nextFilters;
 
@@ -37,7 +37,7 @@ public class FilterChainImp implements FilterChain {
 
 	private int currentFilterNo = 0;
 
-	public FilterChainImp(Filter[] nextFilter, Servlet servlet) {
+	public FilterChainImpl(Filter[] nextFilter, Servlet servlet) {
 		this.nextFilters = nextFilter;
 		this.servlet = servlet;
 	}

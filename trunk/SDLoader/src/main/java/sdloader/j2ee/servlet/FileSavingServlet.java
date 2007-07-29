@@ -36,7 +36,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import sdloader.http.HttpConst;
 import sdloader.j2ee.WebApplication;
-import sdloader.j2ee.imp.ServletContextImp;
+import sdloader.j2ee.imp.ServletContextImpl;
 import sdloader.j2ee.webxml.ServletMappingTag;
 import sdloader.j2ee.webxml.WelcomeFileListTag;
 import sdloader.util.ResourceUtil;
@@ -75,7 +75,7 @@ public class FileSavingServlet extends HttpServlet {
 		// load mimetype
 		initMime();
 		
-		ServletContextImp servletContext = (ServletContextImp)getServletContext();
+		ServletContextImpl servletContext = (ServletContextImpl)getServletContext();
 		WebApplication app = servletContext.getWebApplication();
 		welcomeFileListTag = app.getWebXml().getWebApp().getWelcomeFileList();
 	}
@@ -164,7 +164,7 @@ public class FileSavingServlet extends HttpServlet {
 		if(!basePath.endsWith("/"))
 			basePath += "/";
 		
-		ServletContextImp context = (ServletContextImp)getServletContext();
+		ServletContextImpl context = (ServletContextImpl)getServletContext();
 		WebApplication webapp = context.getWebApplication();
 		List welcomeFileList = welcomeFileListTag.getWelcomeFile();
 		List servletMappingList = webapp.getWebXml().getWebApp().getServletMapping();
