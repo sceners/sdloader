@@ -19,72 +19,81 @@ package sdloader.log;
  * System.outを行うログ
  * 
  * @author c9katayama
+ * @author shot
  */
-public class SDLoaderLogSystemOutImp implements SDLoaderLog {
+public class SDLoaderLogSystemOutImpl implements SDLoaderLog {
 
 	private String className;;
-	public SDLoaderLogSystemOutImp(Class c) {
+
+	public SDLoaderLogSystemOutImpl(Class c) {
 		className = c.getName();
 	}
+
 	public void debug(Object log) {
-		debug(log,null);
+		debug(log, null);
 	}
 
 	public void debug(Object log, Throwable t) {
-		if(isDebugEnabled())
-			log("DEBUG",log,t);
+		if (isDebugEnabled())
+			log("DEBUG", log, t);
 	}
 
 	public void error(Object log) {
-		error(log,null);
+		error(log, null);
 	}
 
 	public void error(Object log, Throwable t) {
-		log("ERROR",className+" "+log,t);
+		log("ERROR", className + " " + log, t);
 	}
 
 	public void info(Object log) {
-		info(log,null);
+		info(log, null);
 	}
 
 	public void info(Object log, Throwable t) {
-		if(isInfoEnabled())
-			log("INFO",log,null);
+		if (isInfoEnabled())
+			log("INFO", log, null);
 	}
 
 	public boolean isDebugEnabled() {
-		//TODO DEBUGLEVEL
+		// TODO DEBUGLEVEL
 		return false;
 	}
 
 	public boolean isInfoEnabled() {
 		return true;
 	}
+
 	public boolean isWarnEnabled() {
 		return true;
 	}
 
 	public void warn(Object log) {
-		warn(log,null);
+		warn(log, null);
 	}
 
 	public void warn(Object log, Throwable t) {
-		if(isWarnEnabled())
-			log("WARN",className+" "+log,t);
+		if (isWarnEnabled())
+			log("WARN", className + " " + log, t);
 	}
-	
-	private void log(String level,Object log,Throwable t){
-		String logtext = "SDLoader:["+level+"] ";
-		if(log != null){
+
+	private void log(String level, Object log, Throwable t) {
+		String logtext = "SDLoader:[" + level + "] ";
+		if (log != null) {
 			logtext += log.toString() + " ";
-		}		
-		if(t != null){
+		}
+		if (t != null) {
 			logtext += t.getMessage();
 			System.out.println(logtext);
 			t.printStackTrace();
-		}else{
+		} else {
 			System.out.println(logtext);
 		}
+	}
+
+	// TODO i18n
+	public void release() {
+		log("WARN", "logger released.", null);
 	}
 
 }
