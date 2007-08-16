@@ -29,6 +29,7 @@ import sdloader.http.HttpRequestProcessorPool;
 import sdloader.j2ee.WebAppManager;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+import sdloader.util.DisposableUtil;
 import sdloader.util.SocketUtil;
 import sdloader.util.WebUtils;
 
@@ -287,7 +288,7 @@ public class SDLoader {
 				} catch (Throwable e) {
 					log.error("SDLoader close fail.", e);
 				} finally {
-					log.release();
+					DisposableUtil.dispose();
 				}
 			};
 		});
