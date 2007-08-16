@@ -29,17 +29,12 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * web-xmlパース用ハンドラ
- * タグをパースし、xmlをインスタンス化します。
- * タグは、次のように解析します。
- * ・タグ名を読み、tag2classMapからクラス名を取得
- * ・クラス名がある場合、そのクラスをインスタンス化しMapに入れ、
- * 　解析を続行する。
- * 　タグが閉じたところで、直前にインスタンス化したクラスのプロパティ
- * 　として、set+タグ名とadd+タグ名でプロパティのセットを試みる
- * ・クラス名がない場合、直前にインスタンス化したクラスのプロパティとみなし、
- * 　set+タグ名とadd+タグ名で属性のセットを試みる
+ * web-xmlパース用ハンドラ タグをパースし、xmlをインスタンス化します。 タグは、次のように解析します。
+ * ・タグ名を読み、tag2classMapからクラス名を取得 ・クラス名がある場合、そのクラスをインスタンス化しMapに入れ、 解析を続行する。
+ * タグが閉じたところで、直前にインスタンス化したクラスのプロパティ として、set+タグ名とadd+タグ名でプロパティのセットを試みる
+ * ・クラス名がない場合、直前にインスタンス化したクラスのプロパティとみなし、 set+タグ名とadd+タグ名で属性のセットを試みる
  * ・getRootObject()で、最初にインスタンス化したクラスを返す。
+ * 
  * @author c9katayama
  */
 public class WebXmlParseHandler extends DefaultHandler {
@@ -172,20 +167,15 @@ public class WebXmlParseHandler extends DefaultHandler {
 	}
 
 	public InputSource resolveEntity(String publicId, String systemId)
-			throws SAXException {
+			throws SAXException, IOException {
 		URL resourceUrl = (URL) resolveMap.get(publicId);
 		if (resourceUrl == null) {
 			resourceUrl = (URL) resolveMap.get(systemId);
 		}
 		if (resourceUrl != null) {
 			InputStream is;
-			try {
-				is = resourceUrl.openStream();
-				return new InputSource(is);
-			} catch (IOException e) {
-				//TODO logging
-				return null;
-			}
+			is = resourceUrl.openStream();
+			return new InputSource(is);
 		} else {
 			return super.resolveEntity(publicId, systemId);
 		}
