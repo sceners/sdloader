@@ -38,7 +38,7 @@ import sdloader.util.WebUtils;
  * 
  * @author c9katayama
  */
-public class SDLoader {
+public class SDLoader implements Lifecycle {
 
 	private static final SDLoaderLog log = SDLoaderLogFactory
 			.getLog(SDLoader.class);
@@ -61,7 +61,7 @@ public class SDLoader {
 	private int port = 30000;
 
 	private String host = "127.0.0.1";
-	
+
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうか
 	 */
@@ -98,7 +98,7 @@ public class SDLoader {
 		this.host = host;
 		this.port = port;
 	}
-	
+
 	public String getConfig(String key) {
 		return (String) config.get(key);
 	}
@@ -342,5 +342,19 @@ public class SDLoader {
 
 	public void setHost(String host) {
 		this.host = host;
+	}
+
+	public void start() {
+		open();
+	}
+
+	public boolean isRunning() {
+		return (sdLoaderThread != null && sdLoaderThread.isAlive())
+				&& (sdLoaderThread.serverSocket != null && sdLoaderThread.serverSocket
+						.isClosed());
+	}
+
+	public void stop() {
+		close();
 	}
 }
