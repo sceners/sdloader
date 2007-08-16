@@ -22,56 +22,62 @@ import org.apache.commons.logging.LogFactory;
  * ログインターフェース
  * 
  * @author c9katayama
+ * @author shot
  */
-public class SDLoaderLogCommonsLoggingImp implements SDLoaderLog{
+public class SDLoaderLogCommonsLoggingImpl implements SDLoaderLog {
 
-	private Log logimp;
+	private Log logger;
 
-	public SDLoaderLogCommonsLoggingImp(Class c) {
-		this.logimp = LogFactory.getLog(c);
+	public SDLoaderLogCommonsLoggingImpl(Class c) {
+		this.logger = LogFactory.getLog(c);
 	}
 
 	public boolean isDebugEnabled() {
-		return logimp.isDebugEnabled();
+		return logger.isDebugEnabled();
 	}
 
 	public boolean isInfoEnabled() {
-		return logimp.isInfoEnabled();
+		return logger.isInfoEnabled();
 	}
 
 	public boolean isWarnEnabled() {
-		return logimp.isWarnEnabled();
+		return logger.isWarnEnabled();
 	}
 
 	public void debug(Object log) {
-		logimp.debug(log);
+		logger.debug(log);
 	}
 
 	public void debug(Object log, Throwable t) {
-		logimp.debug(log, t);
+		logger.debug(log, t);
 	}
 
 	public void info(Object log) {
-		logimp.info(log);
+		logger.info(log);
 	}
 
 	public void info(Object log, Throwable t) {
-		logimp.info(log, t);
+		logger.info(log, t);
 	}
 
 	public void warn(Object log) {
-		logimp.warn(log);
+		logger.warn(log);
 	}
 
 	public void warn(Object log, Throwable t) {
-		logimp.warn(log, t);
+		logger.warn(log, t);
 	}
 
 	public void error(Object log) {
-		logimp.error(log);
+		logger.error(log);
 	}
 
 	public void error(Object log, Throwable t) {
-		logimp.error(log, t);
+		logger.error(log, t);
+	}
+
+	public void release() {
+		LogFactory.releaseAll();
+		logger = null;
 	}
 }

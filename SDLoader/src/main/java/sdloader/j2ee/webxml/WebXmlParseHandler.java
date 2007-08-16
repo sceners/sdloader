@@ -16,6 +16,7 @@
 package sdloader.j2ee.webxml;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashMap;
@@ -171,13 +172,20 @@ public class WebXmlParseHandler extends DefaultHandler {
 	}
 
 	public InputSource resolveEntity(String publicId, String systemId)
-			throws IOException, SAXException {
+			throws SAXException {
 		URL resourceUrl = (URL) resolveMap.get(publicId);
 		if (resourceUrl == null) {
 			resourceUrl = (URL) resolveMap.get(systemId);
 		}
 		if (resourceUrl != null) {
-			return new InputSource(resourceUrl.openStream());
+			InputStream is;
+			try {
+				is = resourceUrl.openStream();
+				return new InputSource(is);
+			} catch (IOException e) {
+				//TODO logging
+				return null;
+			}
 		} else {
 			return super.resolveEntity(publicId, systemId);
 		}

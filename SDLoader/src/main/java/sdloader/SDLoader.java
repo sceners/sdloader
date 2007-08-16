@@ -59,6 +59,8 @@ public class SDLoader {
 
 	private int port = 30000;
 
+	private String host = "127.0.0.1";
+	
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうか
 	 */
@@ -91,6 +93,11 @@ public class SDLoader {
 		this.port = port;
 	}
 
+	public SDLoader(String host, int port) {
+		this.host = host;
+		this.port = port;
+	}
+	
 	public String getConfig(String key) {
 		return (String) config.get(key);
 	}
@@ -188,7 +195,7 @@ public class SDLoader {
 		bindToFreePort();
 		try {
 			initSocket = new ServerSocket(getPort(), backLogNum, InetAddress
-					.getByName("127.0.0.1"));
+					.getByName(host));
 			log.info("Bind success.port=" + port);
 		} catch (IOException ioe) {
 			log.error("Bind fail.Port=" + port, ioe);
@@ -279,6 +286,8 @@ public class SDLoader {
 					sdloader.close();
 				} catch (Throwable e) {
 					log.error("SDLoader close fail.", e);
+				} finally {
+					log.release();
 				}
 			};
 		});
@@ -324,5 +333,13 @@ public class SDLoader {
 			serverSocket.close();
 			serverSocket = null;
 		}
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
 	}
 }
