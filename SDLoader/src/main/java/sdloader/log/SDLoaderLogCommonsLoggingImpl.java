@@ -18,6 +18,9 @@ package sdloader.log;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import sdloader.util.DisposableUtil;
+import sdloader.util.DisposableUtil.Disposable;
+
 /**
  * ログインターフェース
  * 
@@ -30,6 +33,13 @@ public class SDLoaderLogCommonsLoggingImpl implements SDLoaderLog {
 
 	public SDLoaderLogCommonsLoggingImpl(Class c) {
 		this.logger = LogFactory.getLog(c);
+		DisposableUtil.add(new Disposable() {
+
+			public void dispose() {
+				release();
+			}
+			
+		});
 	}
 
 	public boolean isDebugEnabled() {
