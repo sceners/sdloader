@@ -62,6 +62,20 @@ public class SDLoader implements Lifecycle {
 
 	private String host = "127.0.0.1";
 
+	public static boolean isRunnnig = false;
+
+	private static ThreadLocal<SDLoader> threadLocal = new ThreadLocal<SDLoader>();
+	
+	public static void setSDLoader(SDLoader loader) {
+		if(isRunnnig) {
+			threadLocal.set(loader);
+		}
+	}
+	
+	public static SDLoader getSdLoader() {
+		return threadLocal.get();
+	}
+	
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうか
 	 */
@@ -192,6 +206,8 @@ public class SDLoader implements Lifecycle {
 		ServerSocket initSocket = null;
 		long t = System.currentTimeMillis();
 
+		CommandMonitor.monitor(8089, "SDLoader", this);
+		
 		log.info("Bind start.Port=" + port);
 		bindToFreePort();
 		try {
@@ -346,15 +362,18 @@ public class SDLoader implements Lifecycle {
 
 	public void start() {
 		open();
+		isRunnnig = true;
 	}
 
 	public boolean isRunning() {
-		return (sdLoaderThread != null && sdLoaderThread.isAlive())
-				&& (sdLoaderThread.serverSocket != null && sdLoaderThread.serverSocket
-						.isClosed());
+//		return (sdLoaderThread != null && sdLoaderThread.isAlive())
+//				&& (sdLoaderThread.serverSocket != null && sdLoaderThread.serverSocket
+//						.isClosed());
+		return isRunnnig;
 	}
 
 	public void stop() {
 		close();
+		isRunnnig = false;
 	}
 }
