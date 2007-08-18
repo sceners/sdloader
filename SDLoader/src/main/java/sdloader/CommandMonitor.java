@@ -20,8 +20,9 @@ public class CommandMonitor extends Thread {
 	private ServerSocket serverSocket;
 
 	private Lifecycle lifecycle;
-	
-	public CommandMonitor(final int port, final String commandKey, Lifecycle lifecycle) {
+
+	public CommandMonitor(final int port, final String commandKey,
+			Lifecycle lifecycle) {
 		try {
 			if (port < 0) {
 				return;
@@ -42,7 +43,8 @@ public class CommandMonitor extends Thread {
 			e.printStackTrace();
 		}
 		if (serverSocket != null) {
-			System.out.println("Monitor is working for " + commandKey + ", port:" + port);
+			System.out.println("Monitor is working for " + commandKey
+					+ ", port:" + port);
 			this.lifecycle = lifecycle;
 			this.start();
 		}
@@ -56,34 +58,47 @@ public class CommandMonitor extends Thread {
 				InputStream is = socket.getInputStream();
 				LineNumberReader reader = new LineNumberReader(
 						new InputStreamReader(is));
-				// param=command format
 				String key = reader.readLine();
 				System.out.println("key : " + key);
-				if (key == null || !key.startsWith(commandKey)
-						|| !key.contains("=")) {
+				if (key == null) {
 					continue;
 				}
-				int i = key.indexOf("=");
-				String commandCandidate = key.substring(i+1, key.length());
-				Command command = CommandFactory.getCommand(commandCandidate);
-				if(commandCandidate.equals(command.toString())) {
-					try {
-						socket.close();
-					}catch(IOException e) {
-						e.printStackTrace();
+				Command command = CommandFactory.getCommand(key);
+				if (command == Command.STOP) {
+					synchronized (this) {
+						try {
+							socket.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						try {
+							serverSocket.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						try {
+							lifecycle.stop();
+						} finally {
+							lifecycle = null;
+						}
+						System.out.println("stop command received.");
+						System.exit(0);
 					}
-					try {
-						serverSocket.close();
-					}catch(IOException e) {
-						e.printStackTrace();
+				} else if (command == Command.RESTART) {
+					synchronized (this) {
+						boolean isClosedNoramlly = false;
+						try {
+							lifecycle.stop();
+							System.out
+									.println("restart command received, so stop first.");
+							isClosedNoramlly = true;
+						} finally {
+							if (isClosedNoramlly) {
+								System.out.println("then start.");
+								lifecycle.start();
+							}
+						}
 					}
-					try {
-						lifecycle.stop();
-					} finally {
-						lifecycle = null;
-					}
-					System.out.println("stop command received....");
-					System.exit(0);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -103,8 +118,9 @@ public class CommandMonitor extends Thread {
 		return Long.toString((long) (Long.MAX_VALUE * Math.random()
 				+ this.hashCode() + System.currentTimeMillis()), 36);
 	}
-	
-	public static void monitor(final int port, final String commandKey, final Lifecycle lifecycle) {
+
+	public static void monitor(final int port, final String commandKey,
+			final Lifecycle lifecycle) {
 		new CommandMonitor(port, commandKey, lifecycle);
 	}
 }

@@ -8,6 +8,7 @@ public final class CommandFactory {
 	private static final Map<String, Command> commands = new HashMap<String, Command>();
 	static {
 		commands.put(Command.STOP.toString(), Command.STOP);
+		commands.put(Command.RESTART.toString(), Command.RESTART);
 	}
 
 	public static void addCommand(Command command) {
