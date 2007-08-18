@@ -29,10 +29,10 @@ public class Open {
 			.getLog(Open.class);
 
 	public static void main(String[] args) {
-
 		try {
 			SDLoader server = new SDLoader();
-			server.open();
+			CommandMonitor.monitor(8089, "SDLoader", server);
+			server.start();
 		} catch (Throwable e) {
 			log.error("SDLoader catch error.",e);
 		}

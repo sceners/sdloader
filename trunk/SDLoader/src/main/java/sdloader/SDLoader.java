@@ -65,17 +65,17 @@ public class SDLoader implements Lifecycle {
 	public static boolean isRunnnig = false;
 
 	private static ThreadLocal<SDLoader> threadLocal = new ThreadLocal<SDLoader>();
-	
+
 	public static void setSDLoader(SDLoader loader) {
-		if(isRunnnig) {
+		if (isRunnnig) {
 			threadLocal.set(loader);
 		}
 	}
-	
+
 	public static SDLoader getSdLoader() {
 		return threadLocal.get();
 	}
-	
+
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうか
 	 */
@@ -202,12 +202,10 @@ public class SDLoader implements Lifecycle {
 	/**
 	 * ソケットをオープンし、サーバを開始します。
 	 */
-	public void open() {
+	public void start() {
 		ServerSocket initSocket = null;
 		long t = System.currentTimeMillis();
 
-		CommandMonitor.monitor(8089, "SDLoader", this);
-		
 		log.info("Bind start.Port=" + port);
 		bindToFreePort();
 		try {
@@ -227,6 +225,7 @@ public class SDLoader implements Lifecycle {
 
 		log.info("SDLoader startup in " + (System.currentTimeMillis() - t)
 				+ " ms.");
+		isRunnnig = true;
 	}
 
 	protected void bindToFreePort() {
@@ -248,7 +247,7 @@ public class SDLoader implements Lifecycle {
 	/**
 	 * ソケットを閉じ、サーバを終了します。
 	 */
-	public void close() {
+	public void stop() {
 		// destroy webapps
 		webAppManager.close();
 		// close socket
@@ -257,6 +256,7 @@ public class SDLoader implements Lifecycle {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+		isRunnnig = false;
 	}
 
 	protected void init() {
@@ -300,7 +300,7 @@ public class SDLoader implements Lifecycle {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				try {
-					sdloader.close();
+					sdloader.stop();
 				} catch (Throwable e) {
 					log.error("SDLoader close fail.", e);
 				} finally {
@@ -360,20 +360,12 @@ public class SDLoader implements Lifecycle {
 		this.host = host;
 	}
 
-	public void start() {
-		open();
-		isRunnnig = true;
-	}
-
 	public boolean isRunning() {
-//		return (sdLoaderThread != null && sdLoaderThread.isAlive())
-//				&& (sdLoaderThread.serverSocket != null && sdLoaderThread.serverSocket
-//						.isClosed());
+		// return (sdLoaderThread != null && sdLoaderThread.isAlive())
+		// && (sdLoaderThread.serverSocket != null &&
+		// sdLoaderThread.serverSocket
+		// .isClosed());
 		return isRunnnig;
 	}
 
-	public void stop() {
-		close();
-		isRunnnig = false;
-	}
 }

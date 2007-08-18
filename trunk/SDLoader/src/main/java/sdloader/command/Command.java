@@ -8,4 +8,12 @@ public interface Command {
 			return "stop";
 		}
 	};
+	
+	public static final Command RESTART = new Command() {
+		
+		public String toString() {
+			return "restart";
+		}
+	};
+
 }
