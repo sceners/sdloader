@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="SDLoader" default="dist" basedir=".">
+
+  <property name="build" value="./bin" />
+  <property name="src" value="./src/main/java" /> 	
+  <property name="srcresources" value="./src/main/resources" /> 		
+  <property name="srctest" value="./src/test/java" />
+  <property name="srctestresources" value="./src/test/resources" />	
+  <property name="lib" value="./lib" />	
+  <property name="distbase"  value="dist" />
+  <property file="META-INF/sdloaderversion.txt" />
+  
+  <target name="init">
+  	<tstamp/>
+	<property name="dist"  value="${distbase}/${libversion}_${DSTAMP}${TSTAMP}" />	  	
+    <mkdir dir="${dist}" />
+  </target>
+
+  <target name="dist" depends="init">
+	<echo message="${libversion}"/>	
+	<property name="distbin"  value="${dist}/bin" />
+    <mkdir dir="${distbin}" />  	
+  	
+    <jar jarfile="${distbin}/sdloader.jar">
+    	<fileset dir="${build}">
+    		<exclude name="test/**" />
+    		<exclude name="dev/**" />
+    	</fileset>
+		<fileset dir=".">
+			<include name="META-INF/sdloaderversion.txt" />
+		</fileset>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar">
+    		<exclude name="*.html"/>
+    	</zipfileset>
+    </jar>
+  	
+    <jar jarfile="${distbin}/sdloader-jsp12.jar">
+    	<fileset dir="${build}">
+    		<exclude name="test/**" />
+    		<exclude name="dev/**" />
+    	</fileset>
+		<fileset dir=".">
+			<include name="META-INF/sdloaderversion.txt" />
+		</fileset>
+    	<zipfileset src="lib/Servlet2.3_JSP1.2/ant.jar"/>
+    	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-compiler.jar"/>
+    	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-runtime.jar"/>
+    	<zipfileset src="lib/Servlet2.3_JSP1.2/servlet.jar"/>
+    	<zipfileset src="lib/commons-logging-1.1.jar"/>
+    </jar>
+  	
+    <jar jarfile="${distbin}/sdloader-jsp20.jar" >
+    	<fileset dir="${build}">
+    		<exclude name="test/**" />
+    		<exclude name="dev/**" />
+    	</fileset>
+		<fileset dir=".">
+			<include name="META-INF/sdloaderversion.txt" />
+		</fileset>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/commons-el.jar"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-compiler.jar"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-compiler-jdt.jar"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-runtime.jar"/>
+       	<zipfileset src="lib/Servlet2.4_JSP2.0/jsp-api.jar"/>    	
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar">
+    		<exclude name="*.html"/>
+    	</zipfileset>
+    	<zipfileset src="lib/commons-logging-1.1.jar"/>
+    	<!--
+    	<manifest>
+    		<attribute name="Main-Class" value="sdloader.Open"/>
+    	</manifest>
+    	-->
+    </jar>
+
+  	<jar jarfile="${distbin}/sdloadersrc.jar">
+		<fileset dir="${src}">
+			<include name="**/*" />
+		</fileset>
+		<fileset dir="${srcresources}">
+			<include name="**/*" />
+		</fileset>
+		<fileset dir="${srctest}">
+			<include name="**/*" />
+		</fileset>
+		<fileset dir="${srctestresources}">
+			<include name="**/*" />
+		</fileset>
+  	</jar>
+  	
+    <copy todir="${distbin}" >
+		<fileset dir=".">
+			<include name="*.txt"/>
+			<include name="context-xml-sample.xml"/>
+			<include name="*.bat"/>
+			<include name="webapps/WARFILE*"/>			
+			<include name="webapps/ROOT/*"/>
+			<exclude name="*-src.zip"/>
+		</fileset>
+    </copy>
+  	
+  	<!--project-->
+	<property name="distproject"  value="${dist}/project" />
+    <mkdir dir="${distproject}" /> 
+	<zip zipfile="${distproject}/SDLoaderProject.zip">
+		<zipfileset prefix="SDLoader" dir=".">
+			<exclude name="**/dist/**"/>				
+			<exclude name="bin/**"/>
+			<exclude name="**/.settings/**"/>
+			<exclude name="webapps/*-example.xml"/>				
+		</zipfileset>
+	</zip>
+
+  </target>
+	
+</project>
