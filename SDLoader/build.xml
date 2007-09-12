@@ -94,6 +94,7 @@
 			<include name="context-xml-sample.xml"/>
 			<include name="*.bat"/>
 			<include name="webapps/WARFILE*"/>			
+			<include name="webapps/ROOT/*"/>
 			<exclude name="*-src.zip"/>
 		</fileset>
     </copy>
