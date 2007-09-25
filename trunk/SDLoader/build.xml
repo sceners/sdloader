@@ -10,6 +10,8 @@
   <property name="distbase"  value="dist" />
   <property file="META-INF/sdloaderversion.txt" />
   
+  <property name="mainclass" value="sdloader.BrowserOpen"/>
+	
   <target name="init">
   	<tstamp/>
 	<property name="dist"  value="${distbase}/${libversion}_${DSTAMP}${TSTAMP}" />	  	
@@ -32,6 +34,9 @@
     	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar">
     		<exclude name="*.html"/>
     	</zipfileset>
+    	<manifest>
+ 	    	<attribute name="Main-Class" value="${mainclass}"/>
+		</manifest>
     </jar>
   	
     <jar jarfile="${distbin}/sdloader-jsp12.jar">
@@ -47,6 +52,9 @@
     	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-runtime.jar"/>
     	<zipfileset src="lib/Servlet2.3_JSP1.2/servlet.jar"/>
     	<zipfileset src="lib/commons-logging-1.1.jar"/>
+    	<manifest>
+ 	    	<attribute name="Main-Class" value="${mainclass}"/>
+		</manifest>
     </jar>
   	
     <jar jarfile="${distbin}/sdloader-jsp20.jar" >
@@ -66,11 +74,9 @@
     		<exclude name="*.html"/>
     	</zipfileset>
     	<zipfileset src="lib/commons-logging-1.1.jar"/>
-    	<!--
     	<manifest>
-    		<attribute name="Main-Class" value="sdloader.Open"/>
-    	</manifest>
-    	-->
+ 	    	<attribute name="Main-Class" value="${mainclass}"/>
+		</manifest>
     </jar>
 
   	<jar jarfile="${distbin}/sdloadersrc.jar">
