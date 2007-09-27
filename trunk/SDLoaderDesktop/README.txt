@@ -20,5 +20,6 @@ OSにjreをインストールしていないPCでも動作するようになり�
 JDK/JREは1.5以上を入れて下さい。
 
 ・JSPを動かす場合
-実行環境がJREの場合は、JDKから${JDK_HOME}/lib/tools.jarというファイルを持ってきて、
-libフォルダもしくはjre/libに入れて下さい。
+sdloader-jsp20.jarがlibに入っている場合はそのまま動作します（JSP2.0レベルで動作します）
+JSP1.2で動作させたい場合で実行環境がJREの場合は、JDKから${JDK_HOME}/lib/tools.jar
+というファイルを持ってきて、libフォルダもしくはjre/libに入れて下さい。
