@@ -362,9 +362,11 @@ public class SDLoader implements Lifecycle {
 		}
 
 		public void close() throws IOException {
-			shutdown = true;
-			serverSocket.close();
-			serverSocket = null;
+			if(serverSocket != null){
+				serverSocket.close();
+				serverSocket = null;
+			}
+			shutdown = true;			
 		}
 	}
 

@@ -95,10 +95,11 @@ public class EventDispatcher<L,E extends Event>{
 	}
 	protected void invoke(L listener,E event){
 		try{
-			Method method = listener.getClass().getMethod(invokeMethodName,new Class[]{event.getClass()});
+			Method method = listener.getClass().getDeclaredMethod(invokeMethodName,new Class[]{event.getClass()});
 			if(method == null){
 				throw new NoSuchMethodError(invokeMethodName);
 			}
+			method.setAccessible(true);			
 			method.invoke(listener,new Object[]{event});
 		}catch(Exception e){
 			throw new RuntimeException(e);
