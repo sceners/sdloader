@@ -86,7 +86,7 @@ public class FileSavingServlet extends HttpServlet {
 	 * @throws ServletException
 	 */
 	protected void initMime() throws ServletException {
-		InputStream is = ResourceUtil.getResourceAsStream("/sdloader/resource/mime.xml",getClass());
+		InputStream is = ResourceUtil.getResourceByClassPath("/sdloader/resource/mime.xml",getClass());
 		if (is == null)
 			throw new ServletException("mime.xml not found.");
 

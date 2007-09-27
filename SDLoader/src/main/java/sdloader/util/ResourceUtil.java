@@ -15,34 +15,18 @@
  */
 package sdloader.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class ResourceUtil {
-	/**
-	 * リソースのストリームを取得します。
-	 * @param path
-	 * @param caller
-	 * @return
-	 */
-	public static InputStream getResourceAsStream(String path,Class caller) {
+
+	public static InputStream getResourceByClassPath(String path,Class caller) {
 
 		String resource = path;
 		if (resource.startsWith("/")){
 			resource = resource.substring(1);
 		}
 		
-		InputStream is = null;
-		File file = new File(path);
-		if(file.exists()&&file.isFile()){
-			try{
-				is = new FileInputStream(file);
-			}catch(FileNotFoundException e){}
-		}
-		if(is == null)
-			is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);	
+		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);	
 		if (is == null)
 			is = caller.getResourceAsStream(path);
 		if (is == null)
