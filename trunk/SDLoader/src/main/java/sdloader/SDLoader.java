@@ -202,7 +202,9 @@ public class SDLoader implements Lifecycle {
 	public void setServerName(String serverName) {
 		this.serverName = serverName;
 	}
-
+	public void addEventListener(String type,LifecycleListener listener){
+		dispatcher.addEventListener(type, listener);
+	}
 	/**
 	 * ソケットをオープンし、サーバを開始します。
 	 */
