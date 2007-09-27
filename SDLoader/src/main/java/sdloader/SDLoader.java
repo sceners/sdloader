@@ -23,6 +23,7 @@ import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.Map;
 
+import sdloader.event.EventDispatcher;
 import sdloader.exception.IORuntimeException;
 import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
@@ -89,8 +90,11 @@ public class SDLoader implements Lifecycle {
 
 	private WebAppManager webAppManager;
 
-	private Map config = new HashMap();
-
+	private Map<String,String> config = new HashMap<String,String>();
+	
+	private EventDispatcher<LifecycleListener,LifecycleEvent<SDLoader>> dispatcher
+		= new EventDispatcher<LifecycleListener, LifecycleEvent<SDLoader>>(LifecycleListener.class);
+	
 	/**
 	 * ポート30000でSDLoaderを構築します。
 	 * 
@@ -203,6 +207,9 @@ public class SDLoader implements Lifecycle {
 	 * ソケットをオープンし、サーバを開始します。
 	 */
 	public void start() {
+		//TODO AOP
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.BEFORE_START,this));
+
 		ServerSocket initSocket = null;
 		long t = System.currentTimeMillis();
 
@@ -226,6 +233,8 @@ public class SDLoader implements Lifecycle {
 		log.info("SDLoader startup in " + (System.currentTimeMillis() - t)
 				+ " ms.");
 		isRunnnig = true;
+		
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.AFTER_START,this));
 	}
 
 	protected void bindToFreePort() {
@@ -248,6 +257,9 @@ public class SDLoader implements Lifecycle {
 	 * ソケットを閉じ、サーバを終了します。
 	 */
 	public void stop() {
+		//TODO AOP
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.BEFORE_STOP,this));
+		
 		// destroy webapps
 		webAppManager.close();
 		// close socket
@@ -257,6 +269,8 @@ public class SDLoader implements Lifecycle {
 			ioe.printStackTrace();
 		}
 		isRunnnig = false;
+		//TODO AOP
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.AFTER_STOP,this));
 	}
 
 	protected void init() {
