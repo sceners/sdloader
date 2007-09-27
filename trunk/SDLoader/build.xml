@@ -27,6 +27,7 @@
     	<fileset dir="${build}">
     		<exclude name="test/**" />
     		<exclude name="dev/**" />
+    		<exclude name="**/*Test" />
     	</fileset>
 		<fileset dir=".">
 			<include name="META-INF/sdloaderversion.txt" />
@@ -43,6 +44,7 @@
     	<fileset dir="${build}">
     		<exclude name="test/**" />
     		<exclude name="dev/**" />
+    		<exclude name="**/*Test" />
     	</fileset>
 		<fileset dir=".">
 			<include name="META-INF/sdloaderversion.txt" />
@@ -61,6 +63,7 @@
     	<fileset dir="${build}">
     		<exclude name="test/**" />
     		<exclude name="dev/**" />
+       		<exclude name="**/*Test" />    		
     	</fileset>
 		<fileset dir=".">
 			<include name="META-INF/sdloaderversion.txt" />
