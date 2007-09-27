@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="SDLoaderDesktop" default="dist" basedir=".">
+
+  <property name="build" value="./bin" />
+  <property name="src" value="./src" /> 	
+  <property name="distbase"  value="dist" />
+  <property file="version.txt" />
+  
+  <property name="mainclass" value="sdloader.desktop.SwingUI"/>
+	
+  <target name="init">
+  	<tstamp/>
+	<property name="dist"  value="${distbase}/${version}_${DSTAMP}${TSTAMP}" />	  	
+    <mkdir dir="${dist}" />
+  </target>
+
+  <target name="dist" depends="init">
+	<echo message="${version}"/>	
+    <jar jarfile="${dist}/SDLoaderDesktop.jar">
+    	<fileset dir="${build}">
+    		<exclude name="test/**" />
+    		<exclude name="dev/**" />
+    		<exclude name="**/*Test" />
+    	</fileset>
+		<fileset dir=".">
+			<include name="version.txt" />
+		</fileset>
+    	<manifest>
+ 	    	<attribute name="Main-Class" value="${mainclass}"/>
+		</manifest>
+    </jar>
+    <copy todir="${dist}">
+    	<fileset dir=".">
+    		<include name="application.properties" />
+    		<include name="webapps/**" />
+    		<include name="lib/**" />
+    		<include name="jre/**" />
+  			<include name="README.txt" />
+  			<include name="version.txt" /> 	    		
+    	</fileset>
+    </copy>
+	<exec executable="./exewrap/exewrap.exe">
+		<arg line="-g -e SINGLE ${dist}/SDLoaderDesktop.jar"/>  	
+	</exec>
+  </target>	
+</project>
