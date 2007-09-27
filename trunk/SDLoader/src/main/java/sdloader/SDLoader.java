@@ -209,6 +209,9 @@ public class SDLoader implements Lifecycle {
 	 * ソケットをオープンし、サーバを開始します。
 	 */
 	public void start() {
+		if(isRunnnig)
+			return ;
+		
 		//TODO AOP
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.BEFORE_START,this));
 
@@ -259,6 +262,9 @@ public class SDLoader implements Lifecycle {
 	 * ソケットを閉じ、サーバを終了します。
 	 */
 	public void stop() {
+		if(!isRunnnig){
+			return ;
+		}
 		//TODO AOP
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.BEFORE_STOP,this));
 		
