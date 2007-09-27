@@ -58,7 +58,6 @@ public class SwingUI extends JFrame{
 	}
 
 	public void start(){
-
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(300,200);
 		setLocationRelativeTo(null);//画面の真ん中
@@ -90,7 +89,7 @@ public class SwingUI extends JFrame{
 			server.start();
 		}catch(Exception e){
 			e.printStackTrace();
-			throw new RuntimeException("�N���Ɏ��s���܂����eエラーが発生しました。\n"+e.getMessage());
+			throw new RuntimeException("エラーが発生しました。\n"+e.getMessage());
 		}
 	}
 	private void showUI(){
