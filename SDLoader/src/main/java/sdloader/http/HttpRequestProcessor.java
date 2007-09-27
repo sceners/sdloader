@@ -33,9 +33,9 @@ import sdloader.SDLoader;
 import sdloader.j2ee.ServletMapping;
 import sdloader.j2ee.WebAppClassLoader;
 import sdloader.j2ee.WebApplication;
-import sdloader.j2ee.impl.FilterChainImpl;
-import sdloader.j2ee.impl.HttpServletRequestImpl;
-import sdloader.j2ee.impl.HttpServletResponseImpl;
+import sdloader.j2ee.imp.FilterChainImp;
+import sdloader.j2ee.imp.HttpServletRequestImp;
+import sdloader.j2ee.imp.HttpServletResponseImp;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.WebUtils;
@@ -158,33 +158,23 @@ public class HttpRequestProcessor extends Thread {
 		}
 
 		// request
-		HttpServletRequestImpl request =createServletRequestImp(header, body);		
+		HttpServletRequestImp request =createServletRequestImp(header, body);		
 		// response
-		HttpServletResponseImpl response = new HttpServletResponseImpl();
+		HttpServletResponseImp response = new HttpServletResponseImp();
 		
 		String requestURI = header.getRequestURI();
 		String resourcePath = WebUtils.getResourcePath(requestURI);
+		if(!requestURI.equals("/") && resourcePath == null){//contextpathだけのパターン /をつけてリダイレクト
+			response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
+			resourcePath = requestURI+"/";
+			response.addHeader(HttpConst.LOCATION,request.getScheme()+"://"+request.getLocalName()+":"+request.getLocalPort()+resourcePath);
+			processDataOutput(response, os);
+			return header.isKeepAlive();
+		}
+		
 		String contextPath = WebUtils.getContextPath(requestURI);
 		WebApplication webapp = loader.getWebAppManager().findWebApp(contextPath);
-		
-		if(webapp != null){
-			//contextpathだけのパターン (/testのようなパターン）の場合、contextpathに/をつけてリダイレクト
-			if(!requestURI.equals("/") && resourcePath == null){
-				response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
-				resourcePath = requestURI+"/";
-				response.addHeader(HttpConst.LOCATION,request.getScheme()+"://"+request.getLocalName()+":"+request.getLocalPort()+resourcePath);
-				processDataOutput(response, os);
-				return header.isKeepAlive();
-			}
-		}
-		//処理するwebappがない場合、デフォルトのwebappで処理
 		if (webapp == null) {
-			contextPath = "/";
-			resourcePath = requestURI;
-			webapp = loader.getWebAppManager().findWebApp(contextPath);
-		}
-		//デフォルトもなければ404
-		if(webapp == null){
 			response.setStatus(HttpConst.SC_NOT_FOUND);
 			setDefaultResponseHeader(request, response,requestCount);
 			processDataOutput(response, os);
@@ -217,7 +207,7 @@ public class HttpRequestProcessor extends Thread {
 			if (filterList.size() > 0) {
 				Filter[] filters = (Filter[]) filterList
 						.toArray(new Filter[] {});
-				FilterChainImpl filterChain = new FilterChainImpl(filters,
+				FilterChainImp filterChain = new FilterChainImp(filters,
 						servlet);
 				filterChain.doFilter(request, response);
 			} else
@@ -235,8 +225,8 @@ public class HttpRequestProcessor extends Thread {
 		processDataOutput(response, os);
 		return header.isKeepAlive();
 	}
-	private HttpServletRequestImpl createServletRequestImp(HttpRequestHeader header,HttpRequestBody body){
-		HttpServletRequestImpl request = new HttpServletRequestImpl();
+	private HttpServletRequestImp createServletRequestImp(HttpRequestHeader header,HttpRequestBody body){
+		HttpServletRequestImp request = new HttpServletRequestImp();
 		request.setHeader(header);
 		request.setBody(body);
 		
@@ -252,7 +242,7 @@ public class HttpRequestProcessor extends Thread {
 		request.setScheme("http");
 		return request;
 	}
-	private void processDataOutput(HttpServletResponseImpl response,
+	private void processDataOutput(HttpServletResponseImp response,
 			OutputStream os) throws IOException {
 		HttpResponseHeader resHeader = response.getResponseHeader();
 		byte[] headerData = resHeader.getHeaderString().getBytes();
@@ -269,7 +259,7 @@ public class HttpRequestProcessor extends Thread {
 		}
 		os.flush();
 	}
-	private void setDefaultResponseHeader(HttpServletRequestImpl request,HttpServletResponseImpl response,int requestCount) throws IOException {
+	private void setDefaultResponseHeader(HttpServletRequestImp request,HttpServletResponseImp response,int requestCount) throws IOException {
 		response.setHeader(HttpConst.DATE, WebUtils.formatHeaderDate(Calendar.getInstance().getTime()));
 		response.setHeader(HttpConst.SERVER, loader.getServerName());
 		String sessionId = request.getRequestedSessionId();

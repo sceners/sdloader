@@ -10,8 +10,6 @@
   <property name="distbase"  value="dist" />
   <property file="META-INF/sdloaderversion.txt" />
   
-  <property name="mainclass" value="sdloader.BrowserOpen"/>
-	
   <target name="init">
   	<tstamp/>
 	<property name="dist"  value="${distbase}/${libversion}_${DSTAMP}${TSTAMP}" />	  	
@@ -27,7 +25,6 @@
     	<fileset dir="${build}">
     		<exclude name="test/**" />
     		<exclude name="dev/**" />
-    		<exclude name="**/*Test" />
     	</fileset>
 		<fileset dir=".">
 			<include name="META-INF/sdloaderversion.txt" />
@@ -35,16 +32,12 @@
     	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar">
     		<exclude name="*.html"/>
     	</zipfileset>
-    	<manifest>
- 	    	<attribute name="Main-Class" value="${mainclass}"/>
-		</manifest>
     </jar>
   	
     <jar jarfile="${distbin}/sdloader-jsp12.jar">
     	<fileset dir="${build}">
     		<exclude name="test/**" />
     		<exclude name="dev/**" />
-    		<exclude name="**/*Test" />
     	</fileset>
 		<fileset dir=".">
 			<include name="META-INF/sdloaderversion.txt" />
@@ -54,16 +47,12 @@
     	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-runtime.jar"/>
     	<zipfileset src="lib/Servlet2.3_JSP1.2/servlet.jar"/>
     	<zipfileset src="lib/commons-logging-1.1.jar"/>
-    	<manifest>
- 	    	<attribute name="Main-Class" value="${mainclass}"/>
-		</manifest>
     </jar>
   	
     <jar jarfile="${distbin}/sdloader-jsp20.jar" >
     	<fileset dir="${build}">
     		<exclude name="test/**" />
     		<exclude name="dev/**" />
-       		<exclude name="**/*Test" />    		
     	</fileset>
 		<fileset dir=".">
 			<include name="META-INF/sdloaderversion.txt" />
@@ -77,9 +66,11 @@
     		<exclude name="*.html"/>
     	</zipfileset>
     	<zipfileset src="lib/commons-logging-1.1.jar"/>
+    	<!--
     	<manifest>
- 	    	<attribute name="Main-Class" value="${mainclass}"/>
-		</manifest>
+    		<attribute name="Main-Class" value="sdloader.Open"/>
+    	</manifest>
+    	-->
     </jar>
 
   	<jar jarfile="${distbin}/sdloadersrc.jar">
@@ -103,7 +94,6 @@
 			<include name="context-xml-sample.xml"/>
 			<include name="*.bat"/>
 			<include name="webapps/WARFILE*"/>			
-			<include name="webapps/ROOT/*"/>
 			<exclude name="*-src.zip"/>
 		</fileset>
     </copy>

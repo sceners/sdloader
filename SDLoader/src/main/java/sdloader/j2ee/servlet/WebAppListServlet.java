@@ -26,8 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import sdloader.j2ee.WebApplication;
-import sdloader.j2ee.WebConstants;
-import sdloader.j2ee.impl.ServletContextImpl;
+import sdloader.j2ee.imp.ServletContextImp;
 
 
 /**
@@ -53,7 +52,7 @@ public class WebAppListServlet extends HttpServlet {
 	protected void doIt(HttpServletRequest req,HttpServletResponse res)
 		throws ServletException, IOException {
 		
-		WebApplication webapp = ((ServletContextImpl)getServletContext()).getWebApplication();
+		WebApplication webapp = ((ServletContextImp)getServletContext()).getWebApplication();
 		List contextPathList = webapp.getWebApplicationManager().getContextPathList();
 		outputWebAppList(contextPathList, req, res);
 	}
@@ -66,8 +65,7 @@ public class WebAppListServlet extends HttpServlet {
 		if(contextPathList != null){
 			for(Iterator itr = contextPathList.iterator();itr.hasNext();){
 				String path = (String)itr.next();
-				if(!path.equals("/"+WebConstants.ROOT_DIR_NAME))
-					writer.write("<a href=\"" + path + "\">" + path + "</a><br/>");				
+				writer.write("<a href=\"" + path + "\">" + path + "</a><br/>");				
 			}
 		}
 		writer.write("</body></html>");

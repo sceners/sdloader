@@ -107,7 +107,7 @@ public class WebAppManager {
 
 	private class DirFileFilter implements FileFilter {
 		public boolean accept(File file) {
-			return file.isDirectory() && !file.getName().equals("CVS") 
+			return file.isDirectory() && !file.getName().equals("CVS")
 					&& !file.getName().startsWith(".");
 		}
 	}
@@ -142,7 +142,7 @@ public class WebAppManager {
 		try{
 			String homeDirPath = server.getConfig(SDLoader.KEY_SDLOADER_HOME);
 			// webappsの絶対パス
-			webappDirPath = homeDirPath + "/" + WebConstants.WEBAPP_DIR_NAME;
+			webappDirPath = homeDirPath + "/webapps";
 			File webappDir = new File(webappDirPath);
 			if (!webappDir.exists()) {
 				throw new RuntimeException("webapps directory not exists.path="+ webappDirPath);
@@ -212,7 +212,6 @@ public class WebAppManager {
 								}else{
 									log.info("detect webapp context. contextPath="+ contextPath + " docBase=" + docBase);
 									pathPairList.add(new PathPair(docBase,contextPath));
-									contextPathList.add(contextPath);
 								}
 							}
 						}
@@ -266,23 +265,15 @@ public class WebAppManager {
 		
 		ServletMappingTag webAppListMappingTag = new ServletMappingTag();
 		webAppListMappingTag.setServletName(webAppListServletName);
-		webAppListMappingTag.setUrlPattern("/");
-		
+		webAppListMappingTag.setUrlPattern("/*");
 		WebXml webXmlTag = new WebXml();
 		WebAppTag webAppTag = new WebAppTag();
 		webAppTag.addServlet(webAppListServletTag);
 		webAppTag.addServletMapping(webAppListMappingTag);
 		webXmlTag.setWebApp(webAppTag);
-		
-		// Default servlet
-		String contextPath = "/";
-		String docBase = webappDirPath + "/" + WebConstants.ROOT_DIR_NAME;
-		setDefaultServlet(webXmlTag, docBase, contextPath);
-		
+
 		WebAppClassLoader webAppClassLoader = createWebAppClassLoader("");
 		WebApplication webapp = new WebApplication(webXmlTag,null,"/",webAppClassLoader,this);
-		
-		
 		return webapp;
 	}
 

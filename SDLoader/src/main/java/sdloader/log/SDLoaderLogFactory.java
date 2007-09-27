@@ -37,8 +37,8 @@ public class SDLoaderLogFactory {
 
 	public static SDLoaderLog getLog(Class c) {
 		if(isCommonsSupport)
-			return new SDLoaderLogCommonsLoggingImpl(c);
+			return new SDLoaderLogCommonsLoggingImp(c);
 		else
-			return new SDLoaderLogSystemOutImpl(c);
+			return new SDLoaderLogSystemOutImp(c);
 	}
 }

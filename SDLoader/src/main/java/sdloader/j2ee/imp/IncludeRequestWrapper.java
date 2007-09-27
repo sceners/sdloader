@@ -13,34 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.log;
+package sdloader.j2ee.imp;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
- * ログインターフェース
- * 
+ * RequestDispatcher#include利用時のリクエストラッパー
  * @author c9katayama
  */
-public interface SDLoaderLog {
+public class IncludeRequestWrapper extends HttpServletRequestWrapper {
 
-	public boolean isDebugEnabled();
-
-	public boolean isInfoEnabled();
-
-	public boolean isWarnEnabled();
-
-	public void debug(Object log);
-
-	public void debug(Object log, Throwable t);
-
-	public void info(Object log);
-
-	public void info(Object log, Throwable t);
-
-	public void warn(Object log);
-
-	public void warn(Object log, Throwable t);
-
-	public void error(Object log);
-
-	public void error(Object log, Throwable t);
+	private Map includeAttributeMap;
+	
+	public IncludeRequestWrapper(HttpServletRequest req) {
+		super(req);
+	}
+	
+	void setIncludeRequestParameter(String key,String value){
+		if(includeAttributeMap==null)
+			includeAttributeMap = new HashMap();
+		includeAttributeMap.put(key,value);
+	}
 }

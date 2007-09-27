@@ -33,10 +33,9 @@ public class BrowserOpen {
 
 		try {
 			SDLoader server = new SDLoader();
-			CommandMonitor.monitor(8089, "SDLoader", server);
 			server.setAutoPortDetect(true);
 			
-			server.start();
+			server.open();
 
 			int port = server.getPort();
 			String url = "http://localhost:"+port;

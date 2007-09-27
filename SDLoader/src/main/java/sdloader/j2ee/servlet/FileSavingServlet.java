@@ -36,10 +36,9 @@ import javax.xml.parsers.SAXParserFactory;
 
 import sdloader.http.HttpConst;
 import sdloader.j2ee.WebApplication;
-import sdloader.j2ee.impl.ServletContextImpl;
+import sdloader.j2ee.imp.ServletContextImp;
 import sdloader.j2ee.webxml.ServletMappingTag;
 import sdloader.j2ee.webxml.WelcomeFileListTag;
-import sdloader.util.ResourceUtil;
 import sdloader.util.WebUtils;
 
 /**
@@ -75,7 +74,7 @@ public class FileSavingServlet extends HttpServlet {
 		// load mimetype
 		initMime();
 		
-		ServletContextImpl servletContext = (ServletContextImpl)getServletContext();
+		ServletContextImp servletContext = (ServletContextImp)getServletContext();
 		WebApplication app = servletContext.getWebApplication();
 		welcomeFileListTag = app.getWebXml().getWebApp().getWelcomeFileList();
 	}
@@ -86,7 +85,7 @@ public class FileSavingServlet extends HttpServlet {
 	 * @throws ServletException
 	 */
 	protected void initMime() throws ServletException {
-		InputStream is = ResourceUtil.getResourceAsStream("/sdloader/resource/mime.xml",getClass());
+		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("sdloader/resource/mime.xml");
 		if (is == null)
 			throw new ServletException("mime.xml not found.");
 
@@ -164,7 +163,7 @@ public class FileSavingServlet extends HttpServlet {
 		if(!basePath.endsWith("/"))
 			basePath += "/";
 		
-		ServletContextImpl context = (ServletContextImpl)getServletContext();
+		ServletContextImp context = (ServletContextImp)getServletContext();
 		WebApplication webapp = context.getWebApplication();
 		List welcomeFileList = welcomeFileListTag.getWelcomeFile();
 		List servletMappingList = webapp.getWebXml().getWebApp().getServletMapping();

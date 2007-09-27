@@ -24,13 +24,6 @@ public class MiscUtils {
 	public static void openBrowser(String url) throws IOException {
 		final String os = PropertiesUtil.getValueFromSystem("os.name");
 		if (os != null && os.startsWith("Windows")) {
-			if(os.indexOf("2000") >= 0){
-				//2000の場合、htmlもしくはhtmで終わるとブラウザが開かない為、ダミーの#をつける
-				if(url.toLowerCase().endsWith(".html") ||
-						url.toLowerCase().endsWith(".htm")){
-					url +="#";
-				}
-			}
 			Runtime.getRuntime().exec(
 					"rundll32 url.dll,FileProtocolHandler " + url);
 		} else {

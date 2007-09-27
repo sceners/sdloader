@@ -23,14 +23,12 @@ import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.Map;
 
-import sdloader.event.EventDispatcher;
 import sdloader.exception.IORuntimeException;
 import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
 import sdloader.j2ee.WebAppManager;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
-import sdloader.util.DisposableUtil;
 import sdloader.util.SocketUtil;
 import sdloader.util.WebUtils;
 
@@ -39,7 +37,7 @@ import sdloader.util.WebUtils;
  * 
  * @author c9katayama
  */
-public class SDLoader implements Lifecycle {
+public class SDLoader {
 
 	private static final SDLoaderLog log = SDLoaderLogFactory
 			.getLog(SDLoader.class);
@@ -61,22 +59,6 @@ public class SDLoader implements Lifecycle {
 
 	private int port = 30000;
 
-	private String host = "127.0.0.1";
-
-	public static boolean isRunnnig = false;
-
-	private static ThreadLocal<SDLoader> threadLocal = new ThreadLocal<SDLoader>();
-
-	public static void setSDLoader(SDLoader loader) {
-		if (isRunnnig) {
-			threadLocal.set(loader);
-		}
-	}
-
-	public static SDLoader getSdLoader() {
-		return threadLocal.get();
-	}
-
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうか
 	 */
@@ -90,11 +72,8 @@ public class SDLoader implements Lifecycle {
 
 	private WebAppManager webAppManager;
 
-	private Map<String,String> config = new HashMap<String,String>();
-	
-	private EventDispatcher<LifecycleListener,LifecycleEvent<SDLoader>> dispatcher
-		= new EventDispatcher<LifecycleListener, LifecycleEvent<SDLoader>>(LifecycleListener.class);
-	
+	private Map config = new HashMap();
+
 	/**
 	 * ポート30000でSDLoaderを構築します。
 	 * 
@@ -109,11 +88,6 @@ public class SDLoader implements Lifecycle {
 	 * @param port
 	 */
 	public SDLoader(int port) {
-		this.port = port;
-	}
-
-	public SDLoader(String host, int port) {
-		this.host = host;
 		this.port = port;
 	}
 
@@ -202,19 +176,11 @@ public class SDLoader implements Lifecycle {
 	public void setServerName(String serverName) {
 		this.serverName = serverName;
 	}
-	public void addEventListener(String type,LifecycleListener listener){
-		dispatcher.addEventListener(type, listener);
-	}
+
 	/**
 	 * ソケットをオープンし、サーバを開始します。
 	 */
-	public void start() {
-		if(isRunnnig)
-			return ;
-		
-		//TODO AOP
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.BEFORE_START,this));
-
+	public void open() {
 		ServerSocket initSocket = null;
 		long t = System.currentTimeMillis();
 
@@ -222,7 +188,7 @@ public class SDLoader implements Lifecycle {
 		bindToFreePort();
 		try {
 			initSocket = new ServerSocket(getPort(), backLogNum, InetAddress
-					.getByName(host));
+					.getByName("127.0.0.1"));
 			log.info("Bind success.port=" + port);
 		} catch (IOException ioe) {
 			log.error("Bind fail.Port=" + port, ioe);
@@ -237,9 +203,6 @@ public class SDLoader implements Lifecycle {
 
 		log.info("SDLoader startup in " + (System.currentTimeMillis() - t)
 				+ " ms.");
-		isRunnnig = true;
-		
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.AFTER_START,this));
 	}
 
 	protected void bindToFreePort() {
@@ -261,13 +224,7 @@ public class SDLoader implements Lifecycle {
 	/**
 	 * ソケットを閉じ、サーバを終了します。
 	 */
-	public void stop() {
-		if(!isRunnnig){
-			return ;
-		}
-		//TODO AOP
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.BEFORE_STOP,this));
-		
+	public void close() {
 		// destroy webapps
 		webAppManager.close();
 		// close socket
@@ -276,9 +233,6 @@ public class SDLoader implements Lifecycle {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-		isRunnnig = false;
-		//TODO AOP
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.AFTER_STOP,this));
 	}
 
 	protected void init() {
@@ -322,11 +276,9 @@ public class SDLoader implements Lifecycle {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				try {
-					sdloader.stop();
+					sdloader.close();
 				} catch (Throwable e) {
 					log.error("SDLoader close fail.", e);
-				} finally {
-					DisposableUtil.dispose();
 				}
 			};
 		});
@@ -368,28 +320,9 @@ public class SDLoader implements Lifecycle {
 		}
 
 		public void close() throws IOException {
-			if(serverSocket != null){
-				serverSocket.close();
-				serverSocket = null;
-			}
-			shutdown = true;			
+			shutdown = true;
+			serverSocket.close();
+			serverSocket = null;
 		}
 	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public boolean isRunning() {
-		// return (sdLoaderThread != null && sdLoaderThread.isAlive())
-		// && (sdLoaderThread.serverSocket != null &&
-		// sdLoaderThread.serverSocket
-		// .isClosed());
-		return isRunnnig;
-	}
-
 }
