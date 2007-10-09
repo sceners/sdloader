@@ -55,6 +55,8 @@ public class SDLoader implements Lifecycle {
 	 */
 	public static final String KEY_SDLOADER_HOME = "SDLOADER_HOME";
 
+	public static final String KEY_WAR_INMEMORY_EXTRACT = "SDLOADER_WAR_INMEMORY_EXTRACT";
+
 	private int maxThreadPoolNum = 5;
 
 	private int backLogNum = -1;// -1でデフォルト値を使用する
@@ -90,11 +92,11 @@ public class SDLoader implements Lifecycle {
 
 	private WebAppManager webAppManager;
 
-	private Map<String,String> config = new HashMap<String,String>();
-	
-	private EventDispatcher<LifecycleListener,LifecycleEvent<SDLoader>> dispatcher
-		= new EventDispatcher<LifecycleListener, LifecycleEvent<SDLoader>>(LifecycleListener.class);
-	
+	private Map<String, String> config = new HashMap<String, String>();
+
+	private EventDispatcher<LifecycleListener, LifecycleEvent<SDLoader>> dispatcher = new EventDispatcher<LifecycleListener, LifecycleEvent<SDLoader>>(
+			LifecycleListener.class);
+
 	/**
 	 * ポート30000でSDLoaderを構築します。
 	 * 
@@ -202,18 +204,21 @@ public class SDLoader implements Lifecycle {
 	public void setServerName(String serverName) {
 		this.serverName = serverName;
 	}
-	public void addEventListener(String type,LifecycleListener listener){
+
+	public void addEventListener(String type, LifecycleListener listener) {
 		dispatcher.addEventListener(type, listener);
 	}
+
 	/**
 	 * ソケットをオープンし、サーバを開始します。
 	 */
 	public void start() {
-		if(isRunnnig)
-			return ;
-		
-		//TODO AOP
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.BEFORE_START,this));
+		if (isRunnnig)
+			return;
+
+		// TODO AOP
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+				LifecycleEvent.BEFORE_START, this));
 
 		ServerSocket initSocket = null;
 		long t = System.currentTimeMillis();
@@ -238,8 +243,9 @@ public class SDLoader implements Lifecycle {
 		log.info("SDLoader startup in " + (System.currentTimeMillis() - t)
 				+ " ms.");
 		isRunnnig = true;
-		
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.AFTER_START,this));
+
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+				LifecycleEvent.AFTER_START, this));
 	}
 
 	protected void bindToFreePort() {
@@ -262,12 +268,13 @@ public class SDLoader implements Lifecycle {
 	 * ソケットを閉じ、サーバを終了します。
 	 */
 	public void stop() {
-		if(!isRunnnig){
-			return ;
+		if (!isRunnnig) {
+			return;
 		}
-		//TODO AOP
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.BEFORE_STOP,this));
-		
+		// TODO AOP
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+				LifecycleEvent.BEFORE_STOP, this));
+
 		// destroy webapps
 		webAppManager.close();
 		// close socket
@@ -277,8 +284,9 @@ public class SDLoader implements Lifecycle {
 			ioe.printStackTrace();
 		}
 		isRunnnig = false;
-		//TODO AOP
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(LifecycleEvent.AFTER_STOP,this));
+		// TODO AOP
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+				LifecycleEvent.AFTER_STOP, this));
 	}
 
 	protected void init() {
@@ -293,11 +301,15 @@ public class SDLoader implements Lifecycle {
 		if (homeDir == null)
 			homeDir = System.getProperty("user.dir");// +"/sdloader";
 		homeDir = WebUtils.replaceFileSeparator(homeDir);
-		if (homeDir.endsWith("/"))
+		if (homeDir.endsWith("/")) {
 			homeDir = homeDir.substring(0, homeDir.length() - 1);
+		}
 		log.info("SDLOADER_HOME=" + homeDir);
 
+		String inmemoryExtract = System
+				.getProperty(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
 		setConfig(SDLoader.KEY_SDLOADER_HOME, homeDir);
+		setConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT, inmemoryExtract);
 	}
 
 	protected void initWebApp() {
@@ -368,11 +380,11 @@ public class SDLoader implements Lifecycle {
 		}
 
 		public void close() throws IOException {
-			if(serverSocket != null){
+			if (serverSocket != null) {
 				serverSocket.close();
 				serverSocket = null;
 			}
-			shutdown = true;			
+			shutdown = true;
 		}
 	}
 
