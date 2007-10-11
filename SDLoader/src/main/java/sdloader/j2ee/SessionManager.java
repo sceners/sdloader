@@ -16,7 +16,6 @@
 package sdloader.j2ee;
 
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import javax.servlet.ServletContext;
@@ -24,30 +23,30 @@ import javax.servlet.http.HttpSession;
 
 import sdloader.internal.SDLoaderInitializer;
 import sdloader.org.apache.commons.codec.binary.Base64;
+import sdloader.util.MessageDigestUtil;
 
 /**
  * セッション管理クラス
+ * 
  * @author c9katayama
  * @author shot
  */
 public abstract class SessionManager {
 
-	private static SessionManager manager = SDLoaderInitializer.createSessionManager(); 
+	private static SessionManager manager = SDLoaderInitializer
+			.createSessionManager();
 
 	private static final SecureRandom RANDOM_GENERATOR = new SecureRandom();
-	
-	private static long sessionIdSeed = System.currentTimeMillis()	+ (int) RANDOM_GENERATOR.nextInt() * 1000;
+
+	private static long sessionIdSeed = System.currentTimeMillis()
+			+ (int) RANDOM_GENERATOR.nextInt() * 1000;
 
 	private static final MessageDigest digest;
-	
+
 	static {
-		try {
-			digest = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			throw new ExceptionInInitializerError(e);
-		}
+		digest = MessageDigestUtil.createMessageDigest();
 	}
-	
+
 	protected SessionManager() {
 		super();
 	}
@@ -57,16 +56,17 @@ public abstract class SessionManager {
 	}
 
 	public abstract HttpSession getSession(String sessionId, boolean createNew,
-			ServletContext servletContext) ;
+			ServletContext servletContext);
 
-	protected String createNewSessionId(){
+	protected String createNewSessionId() {
 		String sessionId = null;
 		synchronized (SessionManager.class) {
 			long sesIdSeed = ++sessionIdSeed;
-			byte[] digestId = digest.digest(Long.toString(sesIdSeed).getBytes());
+			byte[] digestId = digest
+					.digest(Long.toString(sesIdSeed).getBytes());
 			sessionId = new String(Base64.encodeBase64(digestId));
 		}
 		return sessionId;
 	}
-	
+
 }
