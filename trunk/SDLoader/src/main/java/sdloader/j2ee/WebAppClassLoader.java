@@ -32,8 +32,6 @@ public class WebAppClassLoader extends URLClassLoader {
 
 	protected String[] parentLoadPackagePrefix = { "java.", "javax.servlet",
 			"javax.xml", "org.w3c.dom", "org.xml.sax", "sun.", "com.sun." };
-
-	protected boolean inmemoryExtract = false;
 	
 	public WebAppClassLoader(URL[] urls) {
 		super(urls);
@@ -147,14 +145,5 @@ public class WebAppClassLoader extends URLClassLoader {
 		}
 		return false;
 	}
-
-	public boolean isInmemoryExtract() {
-		return inmemoryExtract;
-	}
-
-	public void setInmemoryExtract(boolean inmemoryExtract) {
-		this.inmemoryExtract = inmemoryExtract;
-	}
-	
 	
 }

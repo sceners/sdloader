@@ -65,6 +65,7 @@ import sdloader.util.WebUtils;
  * 相対パスの場合は、xmlファイルのある位置からの相対パスを記述します。
  * 
  * @author c9katayama
+ * @author shot
  */
 public class WebAppManager {
 	private static SDLoaderLog log = SDLoaderLogFactory
@@ -74,14 +75,14 @@ public class WebAppManager {
 
 	protected String webappDirPath;
 
-	protected List pathPairList;
+	protected List<PathPair> pathPairList;
 
-	protected List contextPathList;
+	protected List<String> contextPathList;
 
 	protected List<WebApplication> webAppList = new ArrayList<WebApplication>();
 
 	protected boolean isInmemoryExtract = false;
-	
+
 	private static final String JASPER_SERVLET_CLASS = "org.apache.jasper.servlet.JspServlet";
 
 	private static final boolean JASPER_SUPPORT;
@@ -90,53 +91,13 @@ public class WebAppManager {
 		JASPER_SUPPORT = ClassUtil.hasClass(JASPER_SERVLET_CLASS);
 	}
 
-	private class PathPair {
-		String docBase;// アプリケーションのドキュメントルート
-
-		String contextPath;// アプリケーションのコンテキストパス
-
-		PathPair(String docBase, String contextPath) {
-			this.docBase = docBase;
-			this.contextPath = contextPath;
-		}
-	}
-
-	private class DirFileFilter implements FileFilter {
-		public boolean accept(File file) {
-			return file.isDirectory() && !file.getName().equals("CVS")
-					&& !file.getName().startsWith(".");
-		}
-	}
-
-	private class WarFileFilter implements FileFilter {
-		public boolean accept(File file) {
-			return file.getName().endsWith(".war");
-		}
-	}
-
-	private class ContextXMLFileFilter implements FileFilter {
-		public boolean accept(File file) {
-			return file.getName().endsWith(".xml");
-		}
-	}
-
-	private class ArchiveFileFilter implements FileFilter {
-		public boolean accept(File pathname) {
-			if (pathname.getName().endsWith(".jar")
-					|| pathname.getName().endsWith(".zip"))
-				return true;
-			else
-				return false;
-		}
-	}
-
 	public WebAppManager(SDLoader server) {
 		this.server = server;
 	}
 
 	public void init() {
 		try {
-			String homeDirPath = server.getConfig(SDLoader.KEY_SDLOADER_HOME);
+			final String homeDirPath = server.getConfig(SDLoader.KEY_SDLOADER_HOME);
 			// webappsの絶対パス
 			webappDirPath = homeDirPath + "/" + WebConstants.WEBAPP_DIR_NAME;
 			File webappDir = new File(webappDirPath);
@@ -144,7 +105,8 @@ public class WebAppManager {
 				throw new RuntimeException("webapps directory not exists.path="
 						+ webappDirPath);
 			}
-			String extractStr = server.getConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
+			String extractStr = server
+					.getConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
 			isInmemoryExtract = BooleanUtil.toBoolean(extractStr);
 			detectWebApps();
 			initWebAppContext();
@@ -153,7 +115,7 @@ public class WebAppManager {
 		}
 	}
 
-	private void detectWebApps() throws Exception {
+	protected void detectWebApps() throws Exception {
 		File webappDir = new File(webappDirPath);
 
 		File[] dirs = webappDir.listFiles(new DirFileFilter());
@@ -167,14 +129,16 @@ public class WebAppManager {
 			}
 		}
 		// webapps以下のフォルダ
-		pathPairList = new ArrayList();
-		contextPathList = new ArrayList();
+		pathPairList = new ArrayList<PathPair>();
+		contextPathList = new ArrayList<String>();
 		dirs = webappDir.listFiles(new DirFileFilter());
 		if (dirs != null) {
 			for (int i = 0; i < dirs.length; i++) {
-				String contextPath = "/" + dirs[i].getName();
-				String docBase = webappDirPath + contextPath;
-				pathPairList.add(new PathPair(docBase, contextPath));
+				final String contextPath = "/" + dirs[i].getName();
+				final String docBase = webappDirPath + contextPath;
+				final PathPair pathPair = createPathPair(new File(docBase)
+						.toURL());
+				pathPairList.add(pathPair);
 				contextPathList.add(contextPath);
 				log.info("detect webapp context. contextPath=" + contextPath
 						+ " docBase=" + docBase);
@@ -220,8 +184,13 @@ public class WebAppManager {
 													+ contextPath
 													+ " docBase="
 													+ docBase);
-									pathPairList.add(new PathPair(docBase,
-											contextPath));
+									try {
+										final PathPair pathPair = createPathPair(new File(
+												docBase).toURL());
+										pathPairList.add(pathPair);
+									} catch (MalformedURLException ignore) {
+										// TODO logging or throw exception.
+									}
 									contextPathList.add(contextPath);
 								}
 							}
@@ -230,6 +199,10 @@ public class WebAppManager {
 				});
 			}
 		}
+	}
+
+	protected PathPair createPathPair(final URL url) {
+		return new PathPair(url);
 	}
 
 	protected void initWebAppContext() throws Exception {
@@ -255,8 +228,7 @@ public class WebAppManager {
 			setDefaultServlet(webxml, docBase, contextPath);
 
 			// create WebApplication
-			WebAppClassLoader webAppClassLoader = createWebAppClassLoader(
-					docBase, isInmemoryExtract);
+			WebAppClassLoader webAppClassLoader = createWebAppClassLoader(docBase);
 			webAppClassLoader.setParentClassLoader(Thread.currentThread()
 					.getContextClassLoader());
 			WebApplication webapp = new WebApplication(webxml, docBase,
@@ -291,8 +263,7 @@ public class WebAppManager {
 		String docBase = webappDirPath + "/" + WebConstants.ROOT_DIR_NAME;
 		setDefaultServlet(webXmlTag, docBase, contextPath);
 
-		final WebAppClassLoader webAppClassLoader = createWebAppClassLoader("",
-				isInmemoryExtract);
+		final WebAppClassLoader webAppClassLoader = createWebAppClassLoader("");
 		final WebApplication webapp = new WebApplication(webXmlTag, null, "/",
 				webAppClassLoader, this);
 
@@ -306,8 +277,7 @@ public class WebAppManager {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	protected WebAppClassLoader createWebAppClassLoader(String docBase,
-			boolean inmemoryExtract) {
+	protected WebAppClassLoader createWebAppClassLoader(String docBase) {
 		try {
 			List<URL> urlList = new ArrayList<URL>();
 			// classes
@@ -329,7 +299,6 @@ public class WebAppManager {
 			WebAppClassLoader webAppClassLoader = new WebAppClassLoader(urls);
 			webAppClassLoader.setParentClassLoader(Thread.currentThread()
 					.getContextClassLoader());
-			webAppClassLoader.setInmemoryExtract(inmemoryExtract);
 			return webAppClassLoader;
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
@@ -471,7 +440,7 @@ public class WebAppManager {
 	 * 
 	 * @return
 	 */
-	public List getContextPathList() {
+	public List<String> getContextPathList() {
 		return contextPathList;
 	}
 
@@ -480,7 +449,7 @@ public class WebAppManager {
 	 * 
 	 * @return
 	 */
-	public List getWebAppList() {
+	public List<WebApplication> getWebAppList() {
 		return webAppList;
 	}
 
@@ -500,7 +469,7 @@ public class WebAppManager {
 	}
 
 	public void close() {
-		List webAppList = getWebAppList();
+		List<WebApplication> webAppList = getWebAppList();
 		for (Iterator itr = webAppList.iterator(); itr.hasNext();) {
 			WebApplication webapp = (WebApplication) itr.next();
 			List servletList = webapp.getServletList();
@@ -550,4 +519,55 @@ public class WebAppManager {
 			}
 		}
 	}
+
+	private class PathPair {
+		String docBase;// アプリケーションのドキュメントルート
+
+		String contextPath;// アプリケーションのコンテキストパス
+
+		URL url;// docBaseのURL形式またはWARへのURL
+
+		PathPair(final URL url) {
+			this.url = url;
+			if (!isInmemoryExtract) {
+				final String urlStr = url.toExternalForm();
+				this.docBase = urlStr.replace("file:/", "");
+				String s = this.docBase.replace(webappDirPath, "");
+				this.contextPath = (s.endsWith("/")) ? s.substring(0, s
+						.length() - 1) : s;
+			} else {
+				// TODO
+			}
+		}
+	}
+
+	private class DirFileFilter implements FileFilter {
+		public boolean accept(File file) {
+			return file.isDirectory() && !file.getName().equals("CVS")
+					&& !file.getName().startsWith(".");
+		}
+	}
+
+	private class WarFileFilter implements FileFilter {
+		public boolean accept(File file) {
+			return file.getName().endsWith(".war");
+		}
+	}
+
+	private class ContextXMLFileFilter implements FileFilter {
+		public boolean accept(File file) {
+			return file.getName().endsWith(".xml");
+		}
+	}
+
+	private class ArchiveFileFilter implements FileFilter {
+		public boolean accept(File pathname) {
+			if (pathname.getName().endsWith(".jar")
+					|| pathname.getName().endsWith(".zip"))
+				return true;
+			else
+				return false;
+		}
+	}
+
 }
