@@ -24,7 +24,7 @@ public class IORuntimeException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 	
-	private Exception cause;
+	protected Exception cause;
 	
 	public IORuntimeException(IOException cause) {
 		this.cause = cause;
