@@ -25,7 +25,6 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -106,7 +105,7 @@ public class WebUtils {
 		if (!libDir.exists())
 			return null;
 
-		List urlList = new ArrayList();
+		List<URL> urlList = CollectionsUtil.newArrayList();
 
 		File[] libs = libDir.listFiles(fileFilter);
 		if (libs != null) {

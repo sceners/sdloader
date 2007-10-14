@@ -41,12 +41,11 @@ import sdloader.j2ee.webxml.ListenerTag;
 import sdloader.j2ee.webxml.ServletMappingTag;
 import sdloader.j2ee.webxml.ServletTag;
 import sdloader.j2ee.webxml.WebXml;
+import sdloader.util.CollectionsUtil;
 import sdloader.util.WebUtils;
 
 /**
- * WebAppクラス
- * Webアプリケーションに属するサーブレットコンテキスト、 サーブレット、フィルター、webxml、クラスローダーが
- * 集約されています。
+ * WebAppクラス Webアプリケーションに属するサーブレットコンテキスト、 サーブレット、フィルター、webxml、クラスローダーが 集約されています。
  * WebAppManagerにより管理され、コンテキストパスをキーにして取り出します。
  * 
  * @author c9katayama
@@ -64,28 +63,27 @@ public class WebApplication {
 
 	/** WebApplicationクラスローダー */
 	private WebAppClassLoader webAppClassLoader;
-	
+
 	/** WebAppManager */
 	private WebAppManager manager;
-	
+
 	/** ServletContext */
 	private ServletContextImpl servletContext;
 
 	/** listener */
-	private List listenerList;
+	private List<ServletContextListener> listenerList;
 
 	/** Servlet Map */
-	private Map/*<String,Servlet>*/ servletMap;
+	private Map<String, Servlet> servletMap;
 
 	/** Filter Map */
-	private Map/*<String,Filter>*/ filterMap;
+	private Map<String, Filter> filterMap;
 
 	/**
 	 * WebAppクラス
 	 */
 	WebApplication(WebXml webXml, String docBase, String contextPath,
-			WebAppClassLoader webAppClassLoader,WebAppManager manager)
-			 {
+			WebAppClassLoader webAppClassLoader, WebAppManager manager) {
 		this.webXml = webXml;
 		this.docBase = docBase;
 		this.contextPath = contextPath;
@@ -93,10 +91,11 @@ public class WebApplication {
 		this.manager = manager;
 		init();
 	}
+
 	public WebAppManager getWebApplicationManager() {
 		return manager;
 	}
-	
+
 	public String getDocBase() {
 		return docBase;
 	}
@@ -117,7 +116,7 @@ public class WebApplication {
 		return servletContext;
 	}
 
-	private void init(){
+	private void init() {
 		initServletContext();
 		initListener();
 		initServlet();
@@ -136,19 +135,20 @@ public class WebApplication {
 		}
 	}
 
-	private void initListener(){
+	private void initListener() {
 		ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(webAppClassLoader);
 		try {
 			ServletContextEvent contextEvent = new ServletContextEvent(
 					this.servletContext);
-			for (Iterator itr = webXml.getWebApp().getListener().iterator(); itr
-					.hasNext();) {
-				if (listenerList == null)
-					listenerList = new ArrayList();
+			for (Iterator<ListenerTag> itr = webXml.getWebApp().getListener()
+					.iterator(); itr.hasNext();) {
+				if (listenerList == null) {
+					listenerList = CollectionsUtil.newArrayList();
+				}
 
-				ListenerTag listenerTag = (ListenerTag) itr.next();
+				ListenerTag listenerTag = itr.next();
 				ServletContextListener listenerImp = (ServletContextListener) createInstance(
 						webAppClassLoader, listenerTag.getListenerClass());
 				listenerImp.contextInitialized(contextEvent);
@@ -159,7 +159,7 @@ public class WebApplication {
 		}
 	}
 
-	private void initServlet(){
+	private void initServlet() {
 		ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(webAppClassLoader);
@@ -187,7 +187,7 @@ public class WebApplication {
 		}
 	}
 
-	private void initFilter(){
+	private void initFilter() {
 		ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(webAppClassLoader);
@@ -216,13 +216,14 @@ public class WebApplication {
 	}
 
 	private Object createInstance(ClassLoader webAppClassLoader,
-			String className){
+			String className) {
 		try {
 			Class clazz = webAppClassLoader.loadClass(className);
 			Object instance = clazz.newInstance();
 			return instance;
-		} catch (Exception e){
-			throw new RuntimeException("create instance fail.className="+className,e);
+		} catch (Exception e) {
+			throw new RuntimeException("create instance fail.className="
+					+ className, e);
 		}
 	}
 
@@ -231,8 +232,9 @@ public class WebApplication {
 		config.setServletContext(servletContext);
 		List initParamList = servletTag.getInitParamList();
 		for (Iterator paramItr = initParamList.iterator(); paramItr.hasNext();) {
-			InitParamTag initParam = (InitParamTag)paramItr.next();
-			config.addInitParameter(initParam.getParamName(),initParam.getParamValue());
+			InitParamTag initParam = (InitParamTag) paramItr.next();
+			config.addInitParameter(initParam.getParamName(), initParam
+					.getParamValue());
 		}
 		config.setServletName(servletTag.getServletName());
 		return config;
@@ -243,8 +245,9 @@ public class WebApplication {
 		config.setServletContext(servletContext);
 		List initParamList = filterTag.getInitParamList();
 		for (Iterator paramItr = initParamList.iterator(); paramItr.hasNext();) {
-			InitParamTag initParam = (InitParamTag)paramItr.next();
-			config.addInitParameter(initParam.getParamName(),initParam.getParamValue());
+			InitParamTag initParam = (InitParamTag) paramItr.next();
+			config.addInitParameter(initParam.getParamName(), initParam
+					.getParamValue());
 		}
 		config.setFilterName(filterTag.getFilterName());
 		return config;
@@ -264,27 +267,28 @@ public class WebApplication {
 		if (resourcePath != null && filterMap != null) {
 			List mappingList = webXml.getWebApp().getFilterMapping();
 
-			for (Iterator mappingItr = mappingList.iterator(); mappingItr.hasNext();) {
+			for (Iterator mappingItr = mappingList.iterator(); mappingItr
+					.hasNext();) {
 				FilterMappingTag mapping = (FilterMappingTag) mappingItr.next();
 				String patternText = mapping.getUrlPattern();
-				if(patternText != null){
+				if (patternText != null) {
 					if (WebUtils.matchPattern(patternText, resourcePath) != WebUtils.PATTERN_NOMATCH) {
 						String filterName = mapping.getFilterName();
 						Filter filter = (Filter) filterMap.get(filterName);
 						filterList.add(filter);
 					}
-				}				
+				}
 				String nameTest = mapping.getServletName();
-				if(nameTest != null && nameTest.equals(servletName)) {
+				if (nameTest != null && nameTest.equals(servletName)) {
 					String filterName = mapping.getFilterName();
 					Filter filter = (Filter) filterMap.get(filterName);
 					filterList.add(filter);
-				}				
+				}
 			}
 		}
 		return filterList;
 	}
-	
+
 	/**
 	 * リクエストを処理するサーブレットマッピング情報を返します。
 	 * 
@@ -292,50 +296,57 @@ public class WebApplication {
 	 * @return servletMapping 見つからなかった場合、nullを返します。
 	 * @throws ServletException
 	 */
-	public ServletMapping findServletMapping(String uri){
+	public ServletMapping findServletMapping(String uri) {
 
 		if (uri != null && servletMap != null) {
 			uri = WebUtils.stripQueryPart(uri);
 			ServletMapping targetServletMapping = null;
 			int currentMatchType = WebUtils.PATTERN_NOMATCH;
 			int currentPathMatchLength = 0;
-			
+
 			List mappingList = webXml.getWebApp().getServletMapping();
-			for (Iterator mappingItr = mappingList.iterator(); mappingItr.hasNext();) {
-				ServletMappingTag mapping = (ServletMappingTag) mappingItr.next();
+			for (Iterator mappingItr = mappingList.iterator(); mappingItr
+					.hasNext();) {
+				ServletMappingTag mapping = (ServletMappingTag) mappingItr
+						.next();
 				String patternText = mapping.getUrlPattern();
 				int matchType = WebUtils.matchPattern(patternText, uri);
 
-				if(matchType != WebUtils.PATTERN_NOMATCH && matchType >= currentMatchType){
-					if(matchType==WebUtils.PATTERN_EXACT_MATCH){
-						ServletMapping servletMapping = new ServletMapping(mapping.getServletName(),patternText);
+				if (matchType != WebUtils.PATTERN_NOMATCH
+						&& matchType >= currentMatchType) {
+					if (matchType == WebUtils.PATTERN_EXACT_MATCH) {
+						ServletMapping servletMapping = new ServletMapping(
+								mapping.getServletName(), patternText);
 						return servletMapping;
 					}
-					if(matchType == WebUtils.PATTERN_PATH_MATCH && currentMatchType == WebUtils.PATTERN_PATH_MATCH){
-						if(patternText.length() <= currentPathMatchLength){
+					if (matchType == WebUtils.PATTERN_PATH_MATCH
+							&& currentMatchType == WebUtils.PATTERN_PATH_MATCH) {
+						if (patternText.length() <= currentPathMatchLength) {
 							continue;
 						}
 					}
 					currentMatchType = matchType;
 					currentPathMatchLength = patternText.length();
-					targetServletMapping = new ServletMapping(mapping.getServletName(),patternText);
+					targetServletMapping = new ServletMapping(mapping
+							.getServletName(), patternText);
 				}
 			}
 			return targetServletMapping;
 		}
 		return null;
 	}
+
 	/**
 	 * サーブレット名に該当するサーブレットを返します。
 	 * 
 	 * @param servletName
 	 * @return servlet 見つからなかった場合、nullを返します。
 	 */
-	public Servlet findServlet(String servletName){
-		return (Servlet)servletMap.get(servletName);
+	public Servlet findServlet(String servletName) {
+		return (Servlet) servletMap.get(servletName);
 	}
-	
-	public List/*<Servlet>*/ getServletList() {
+
+	public List/* <Servlet> */getServletList() {
 		if (servletMap != null)
 			return new ArrayList(servletMap.values());
 		else

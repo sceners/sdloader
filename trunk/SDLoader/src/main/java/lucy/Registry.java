@@ -13,30 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.j2ee.webxml;
-
-import java.util.List;
-
-import sdloader.util.CollectionsUtil;
+package lucy;
 
 /**
- * welcome-file-listタグ
- * 
- * @author c9katayama
+ * @author shot
  */
-public class WelcomeFileListTag {
+public interface Registry {
 
-	private List<String> welcomeFile = CollectionsUtil.newArrayList();
+	void init();
+	
+	void destroy();
+	
+	<T> void register(Class<T> componentClass);
 
-	public List<String> getWelcomeFile() {
-		return welcomeFile;
-	}
-
-	public void setWelcomeFile(List<String> welcomeFile) {
-		this.welcomeFile = welcomeFile;
-	}
-
-	public void addWelcomeFile(String welcomeFile) {
-		this.welcomeFile.add(welcomeFile);
-	}
+	<T> T get(Class<? extends T> key);
 }

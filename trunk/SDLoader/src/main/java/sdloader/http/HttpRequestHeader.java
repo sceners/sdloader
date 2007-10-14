@@ -16,21 +16,23 @@
 package sdloader.http;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.Cookie;
 
+import sdloader.util.CollectionsUtil;
+
 /**
  * HTTPリクエストのヘッダー部分
  * 
  * @author c9katayama
+ * @author shot
  */
 public class HttpRequestHeader {
+
 	private String method;
 
 	private String version;
@@ -39,16 +41,16 @@ public class HttpRequestHeader {
 
 	private String queryString;
 
-	private Map headerFieldMap = new HashMap();
+	private Map<String, String> headerFieldMap = CollectionsUtil.newHashMap();
 
-	private List headerFieldNameList = new LinkedList();
+	private List<String> headerFieldNameList = CollectionsUtil.newLinkedList();
 
-	private Map cookieMap = new HashMap();
+	private Map<String, Cookie> cookieMap = CollectionsUtil.newHashMap();
 
-	private List cookieNameList = new LinkedList();
-	
+	private List<String> cookieNameList = CollectionsUtil.newLinkedList();
+
 	private String header;
-	
+
 	public HttpRequestHeader(String httpHeader) {
 		if (httpHeader == null)
 			throw new IllegalArgumentException("Http header is null.");
@@ -116,7 +118,8 @@ public class HttpRequestHeader {
 		if (cookieValue == null || cookieValue.length() <= 0)
 			return;
 
-		StringTokenizer token = new StringTokenizer(cookieValue,HttpConst.SEMI_COLON_STRING, false);
+		StringTokenizer token = new StringTokenizer(cookieValue,
+				HttpConst.SEMI_COLON_STRING, false);
 		while (token.hasMoreTokens()) {
 			String keyValue = token.nextToken();
 
@@ -129,26 +132,29 @@ public class HttpRequestHeader {
 	}
 
 	public void addCookie(String key, String value) {
-		if (!cookieMap.containsKey(key))
+		if (!cookieMap.containsKey(key)) {
 			this.cookieNameList.add(key);
+		}
 		Cookie cookie = new Cookie(key, value);
 		this.cookieMap.put(key, cookie);
 	}
 
-	public List getHeaderName() {
+	public List<String> getHeaderName() {
 		return headerFieldNameList;
 	}
 
-	public List getHeaders() {
-		List list = new ArrayList();
-		for (Iterator itr = headerFieldNameList.iterator(); itr.hasNext();)
+	public List<String> getHeaders() {
+		List<String> list = CollectionsUtil.newArrayList();
+		for (Iterator<String> itr = headerFieldNameList.iterator(); itr
+				.hasNext();)
 			list.add(headerFieldMap.get(itr.next()));
 		return list;
 	}
 
 	public void addHeader(String paramName, String paramValue) {
-		if (!headerFieldMap.containsKey(paramName))
+		if (!headerFieldMap.containsKey(paramName)) {
 			headerFieldNameList.add(paramName);
+		}
 		headerFieldMap.put(paramName, paramValue);
 	}
 
@@ -181,11 +187,14 @@ public class HttpRequestHeader {
 		return (Cookie) cookieMap.get(cookieName);
 	}
 
-	public List getCookieList() {
-		List cookieList = new ArrayList();
-		for (Iterator itr = cookieNameList.iterator(); itr.hasNext();)
-			cookieList.add(cookieMap.get(itr.next()));
-		return cookieList;
+	public List<Cookie> getCookieList() {
+		return new ArrayList<Cookie>(cookieMap.values());
+		// List<Cookie> cookieList = CollectionsUtil.newArrayList();
+		// for (Iterator<String> itr = cookieNameList.iterator();
+		// itr.hasNext();) {
+		// cookieList.add(cookieMap.get(itr.next()));
+		// }
+		// return cookieList;
 	}
 
 	public boolean isKeepAlive() {
@@ -202,11 +211,11 @@ public class HttpRequestHeader {
 			return true;
 		return false;
 	}
-	
+
 	public String getHeader() {
 		return header;
 	}
-	
+
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
 		buf.append("method=" + method);
@@ -214,16 +223,17 @@ public class HttpRequestHeader {
 		buf.append(",requestURI=" + requestURI);
 		buf.append(",queryString=" + queryString + "\n");
 		buf.append("header[");
-		for (Iterator itr = headerFieldNameList.iterator(); itr.hasNext();) {
-			String name = (String) itr.next();
-			String value = (String) headerFieldMap.get(name);
+		for (Iterator<String> itr = headerFieldNameList.iterator(); itr
+				.hasNext();) {
+			String name = itr.next();
+			String value = headerFieldMap.get(name);
 			buf.append(name + "=" + value + ",");
 		}
 		buf.append("]\n");
 		buf.append("cookie[");
-		for (Iterator itr = cookieNameList.iterator(); itr.hasNext();) {
-			String name = (String) itr.next();
-			String value = ((Cookie) cookieMap.get(name)).getValue();
+		for (Iterator<String> itr = cookieNameList.iterator(); itr.hasNext();) {
+			String name = itr.next();
+			String value = cookieMap.get(name).getValue();
 			buf.append(name + "=" + value + ",");
 		}
 		buf.append("]");

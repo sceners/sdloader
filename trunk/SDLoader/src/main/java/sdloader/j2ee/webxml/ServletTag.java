@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import sdloader.util.CollectionsUtil;
+
 /**
  * servletタグ
  * 
@@ -32,7 +34,7 @@ public class ServletTag {
 
 	private String servletClass;
 
-	private List initParam = new ArrayList();
+	private List<InitParamTag> initParam = CollectionsUtil.newArrayList();
 
 	private int loadOnStartup;
 
@@ -77,15 +79,15 @@ public class ServletTag {
 	}
 
 	public String getInitParam(String paramName) {
-		for (Iterator itr = initParam.iterator(); itr.hasNext();) {
-			InitParamTag initParamTag = (InitParamTag) itr.next();
+		for (Iterator<InitParamTag> itr = initParam.iterator(); itr.hasNext();) {
+			InitParamTag initParamTag = itr.next();
 			if (initParamTag.getParamName().equals(paramName))
 				return initParamTag.getParamValue();
 		}
 		return null;
 	}
 
-	public List getInitParamList() {
+	public List<InitParamTag> getInitParamList() {
 		return initParam;
 	}
 }

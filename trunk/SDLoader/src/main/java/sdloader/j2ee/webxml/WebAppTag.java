@@ -15,9 +15,10 @@
  */
 package sdloader.j2ee.webxml;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import sdloader.util.CollectionsUtil;
 
 /**
  * web-appタグ
@@ -25,21 +26,23 @@ import java.util.List;
  * @author c9katayama
  */
 public class WebAppTag {
-	
-	private List contextParam = new ArrayList();
 
-	private List filter = new ArrayList();
+	private List<ContextParamTag> contextParam = CollectionsUtil.newArrayList();
 
-	private List filterMapping = new ArrayList();
+	private List<FilterTag> filter = CollectionsUtil.newArrayList();
 
-	private List listener = new ArrayList();
+	private List<FilterMappingTag> filterMapping = CollectionsUtil
+			.newArrayList();
 
-	private List servlet = new ArrayList();
+	private List<ListenerTag> listener = CollectionsUtil.newArrayList();
 
-	private List servletMapping = new ArrayList();
+	private List<ServletTag> servlet = CollectionsUtil.newArrayList();
+
+	private List<ServletMappingTag> servletMapping = CollectionsUtil
+			.newArrayList();
 
 	private WelcomeFileListTag welcomeFileList;
-	
+
 	public WebAppTag() {
 		super();
 	}
@@ -48,7 +51,7 @@ public class WebAppTag {
 		this.contextParam.add(tag);
 	}
 
-	public List getContextParam() {
+	public List<ContextParamTag> getContextParam() {
 		return contextParam;
 	}
 
@@ -60,17 +63,17 @@ public class WebAppTag {
 		this.filterMapping.add(mapping);
 	}
 
-	public List getFilter() {
+	public List<FilterTag> getFilter() {
 		return filter;
 	}
 
-	public List getFilterMapping() {
+	public List<FilterMappingTag> getFilterMapping() {
 		return filterMapping;
 	}
 
 	public FilterTag findFilter(FilterTag filterName) {
-		for (Iterator itr = filter.iterator(); itr.hasNext();) {
-			FilterTag filter = (FilterTag) itr.next();
+		for (Iterator<FilterTag> itr = filter.iterator(); itr.hasNext();) {
+			FilterTag filter = itr.next();
 			if (filter.getFilterName().equals(filterName))
 				return filter;
 		}
@@ -78,8 +81,9 @@ public class WebAppTag {
 	}
 
 	public FilterMappingTag findFiterMapping(String filterName) {
-		for (Iterator itr = filterMapping.iterator(); itr.hasNext();) {
-			FilterMappingTag filterMapping = (FilterMappingTag) itr.next();
+		for (Iterator<FilterMappingTag> itr = filterMapping.iterator(); itr
+				.hasNext();) {
+			FilterMappingTag filterMapping = itr.next();
 			if (filterMapping.getFilterName().equals(filterName))
 				return filterMapping;
 		}
@@ -90,10 +94,10 @@ public class WebAppTag {
 		this.listener.add(tag);
 	}
 
-	public List getListener() {
+	public List<ListenerTag> getListener() {
 		return listener;
 	}
-	
+
 	public void addServlet(ServletTag servlet) {
 		this.servlet.add(servlet);
 	}
@@ -102,17 +106,17 @@ public class WebAppTag {
 		this.servletMapping.add(mapping);
 	}
 
-	public List getServlet() {
+	public List<ServletTag> getServlet() {
 		return servlet;
 	}
 
-	public List getServletMapping() {
+	public List<ServletMappingTag> getServletMapping() {
 		return servletMapping;
 	}
 
 	public ServletTag findServlet(String servletName) {
-		for (Iterator itr = servlet.iterator(); itr.hasNext();) {
-			ServletTag servet = (ServletTag) itr.next();
+		for (Iterator<ServletTag> itr = servlet.iterator(); itr.hasNext();) {
+			ServletTag servet = itr.next();
 			if (servet.getServletName().equals(servletName))
 				return servet;
 		}
@@ -120,18 +124,19 @@ public class WebAppTag {
 	}
 
 	public ServletMappingTag findServletMapping(String servletName) {
-		for (Iterator itr = servletMapping.iterator(); itr.hasNext();) {
-			ServletMappingTag servetMapping = (ServletMappingTag) itr.next();
+		for (Iterator<ServletMappingTag> itr = servletMapping.iterator(); itr
+				.hasNext();) {
+			ServletMappingTag servetMapping = itr.next();
 			if (servetMapping.getServletName().equals(servletName))
 				return servetMapping;
 		}
 		return null;
 	}
-	
+
 	public void setWelcomeFileList(WelcomeFileListTag welcomeFileList) {
 		this.welcomeFileList = welcomeFileList;
 	}
-	
+
 	public WelcomeFileListTag getWelcomeFileList() {
 		return welcomeFileList;
 	}
