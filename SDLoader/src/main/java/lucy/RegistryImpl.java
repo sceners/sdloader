@@ -19,7 +19,7 @@ import java.lang.annotation.Annotation;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lucy.annotation.Component;
-import lucy.util.AssertionUtil;
+import sdloader.util.Assertion;
 
 /**
  * @author shot
@@ -33,14 +33,12 @@ public class RegistryImpl implements Registry {
 		@SuppressWarnings("unchecked")
 		public void registerBehavior(Class<? extends Annotation> clazz,
 				Behavior behavior) {
-			AssertionUtil.assertNotNull(clazz);
-			AssertionUtil.assertNotNull(behavior);
-			behaviors.put(clazz, behavior);
+			behaviors.put(Assertion.notNull(clazz), Assertion
+					.notNull(behavior));
 		}
 
 		public Behavior getBehavior(Class<? extends Annotation> clazz) {
-			AssertionUtil.assertNotNull(clazz);
-			return behaviors.get(clazz);
+			return behaviors.get(Assertion.notNull(clazz));
 		}
 	};
 
@@ -54,12 +52,13 @@ public class RegistryImpl implements Registry {
 	public void init() {
 		annotationRegistry.registerBehavior(Component.class, new Behavior() {
 
-			public <T> T execute(Class<? extends T> clazz, T t, PropertyDesc propertyDesc) {
+			public <T> T execute(Class<? extends T> clazz, T t,
+					PropertyDesc propertyDesc) {
 				final Object object = get(propertyDesc.getPropertyType());
 				propertyDesc.setValue(t, object);
 				return t;
 			}
-			
+
 		});
 	}
 
