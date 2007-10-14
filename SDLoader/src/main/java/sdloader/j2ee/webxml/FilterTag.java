@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import sdloader.util.CollectionsUtil;
+
 /**
  * filterタグ
  * 
@@ -30,7 +32,7 @@ public class FilterTag {
 
 	private String filterClass;
 
-	private List initParam = new ArrayList();
+	private List<InitParamTag> initParam = CollectionsUtil.newArrayList();
 
 	public FilterTag() {
 		super();
@@ -57,15 +59,15 @@ public class FilterTag {
 	}
 
 	public String getInitParam(String paramName) {
-		for (Iterator itr = initParam.iterator(); itr.hasNext();) {
-			InitParamTag initParamTag = (InitParamTag) itr.next();
+		for (Iterator<InitParamTag> itr = initParam.iterator(); itr.hasNext();) {
+			InitParamTag initParamTag = itr.next();
 			if (initParamTag.getParamName().equals(paramName))
 				return initParamTag.getParamValue();
 		}
 		return null;
 	}
 
-	public List getInitParamList() {
+	public List<InitParamTag> getInitParamList() {
 		return initParam;
 	}
 }

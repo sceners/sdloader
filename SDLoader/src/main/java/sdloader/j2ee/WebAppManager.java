@@ -52,6 +52,7 @@ import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.BooleanUtil;
 import sdloader.util.ClassUtil;
+import sdloader.util.CollectionsUtil;
 import sdloader.util.WebUtils;
 
 /**
@@ -79,7 +80,7 @@ public class WebAppManager {
 
 	protected List<String> contextPathList;
 
-	protected List<WebApplication> webAppList = new ArrayList<WebApplication>();
+	protected List<WebApplication> webAppList = CollectionsUtil.newArrayList();
 
 	protected boolean isInmemoryExtract = false;
 
@@ -129,8 +130,8 @@ public class WebAppManager {
 			}
 		}
 		// webapps以下のフォルダ
-		pathPairList = new ArrayList<PathPair>();
-		contextPathList = new ArrayList<String>();
+		pathPairList = CollectionsUtil.newArrayList();;
+		contextPathList = CollectionsUtil.newArrayList();;
 		dirs = webappDir.listFiles(new DirFileFilter());
 		if (dirs != null) {
 			for (int i = 0; i < dirs.length; i++) {
@@ -279,7 +280,7 @@ public class WebAppManager {
 	 */
 	protected WebAppClassLoader createWebAppClassLoader(String docBase) {
 		try {
-			List<URL> urlList = new ArrayList<URL>();
+			List<URL> urlList = CollectionsUtil.newArrayList();
 			// classes
 			File classesDir = new File(docBase + "/WEB-INF/classes");
 			if (classesDir.exists()) {

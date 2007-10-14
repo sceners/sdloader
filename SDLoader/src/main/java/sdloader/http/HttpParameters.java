@@ -15,24 +15,24 @@
  */
 package sdloader.http;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import sdloader.util.CollectionsUtil;
 
 /**
  * HTTPパラメータ
  * 
  * @author c9katayama
+ * @author shot
  */
 public class HttpParameters {
 	public static final String DEFAULT_CHAR_ENCODE = "ISO-8859-1";
 
-	private Map paramMap;
+	private Map<String, List<String>> paramMap;
 
-	private List paramNameList;
+	private List<String> paramNameList;
 
 	private String characterEncoding = DEFAULT_CHAR_ENCODE;
 
@@ -42,45 +42,42 @@ public class HttpParameters {
 		this.body = body;
 	}
 
-	private void init() {
+	protected void initIfNeed() {
 		if (paramMap == null) {
-			paramMap = new HashMap();
-			paramNameList = new LinkedList();
+			paramMap = CollectionsUtil.newHashMap();
+			paramNameList = CollectionsUtil.newLinkedList();
 			body.initParameters();
 		}
 	}
 
 	public String getParamter(String key) {
-		init();
-
-		List paramList = (List) paramMap.get(key);
-		if (paramList == null)
+		initIfNeed();
+		List<String> paramList = paramMap.get(key);
+		if (paramList == null) {
 			return null;
-
-		String param = (String) paramList.get(0);
+		}
+		String param = paramList.get(0);
 		return param;
 	}
 
 	public String[] getParamterValues(String key) {
-		init();
-
-		List paramList = (List) paramMap.get(key);
-		if (paramList == null)
+		initIfNeed();
+		List<String> paramList = paramMap.get(key);
+		if (paramList == null) {
 			return null;
-		String[] params = (String[]) paramList.toArray(new String[] {});
+		}
+		String[] params = paramList.toArray(new String[] {});
 		return params;
 	}
 
-	public Iterator getParameterNames() {
-		init();
-
+	public Iterator<String> getParameterNames() {
+		initIfNeed();
 		return paramNameList.iterator();
 	}
 
-	public Map getParamterMap() {
-		init();
-
-		Map newMap = new HashMap();
+	public Map<String, List<String>> getParamterMap() {
+		initIfNeed();
+		Map<String, List<String>> newMap = CollectionsUtil.newHashMap();
 		newMap.putAll(paramMap);
 		return newMap;
 	}
@@ -94,9 +91,10 @@ public class HttpParameters {
 	}
 
 	void addParameter(String key, String value) {
-		List paramList = (List) paramMap.get(key);
-		if (paramList == null)
-			paramList = new ArrayList();
+		List<String> paramList = paramMap.get(key);
+		if (paramList == null) {
+			paramList = CollectionsUtil.newArrayList();
+		}
 		paramList.add(value);
 		paramMap.put(key, paramList);
 		paramNameList.add(key);

@@ -13,30 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.j2ee.webxml;
-
-import java.util.List;
-
-import sdloader.util.CollectionsUtil;
+package lucy;
 
 /**
- * welcome-file-listタグ
- * 
- * @author c9katayama
+ * @author shot
  */
-public class WelcomeFileListTag {
+public final class Lucy {
 
-	private List<String> welcomeFile = CollectionsUtil.newArrayList();
-
-	public List<String> getWelcomeFile() {
-		return welcomeFile;
-	}
-
-	public void setWelcomeFile(List<String> welcomeFile) {
-		this.welcomeFile = welcomeFile;
-	}
-
-	public void addWelcomeFile(String welcomeFile) {
-		this.welcomeFile.add(welcomeFile);
+	private static final Registry REGISTRY = new RegistryImpl();
+	
+	public Registry getRegistry() {
+		return REGISTRY;
 	}
 }

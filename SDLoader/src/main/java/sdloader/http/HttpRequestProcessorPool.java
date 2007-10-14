@@ -15,28 +15,33 @@
  */
 package sdloader.http;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+import sdloader.util.CollectionsUtil;
 
 /**
  * HttpRequestProcessorPool
+ * 
  * @author c9katayama
+ * @author shot
  */
 public class HttpRequestProcessorPool {
-	
-	private static final SDLoaderLog log = SDLoaderLogFactory	.getLog(HttpRequestProcessor.class);
+
+	private static final SDLoaderLog log = SDLoaderLogFactory
+			.getLog(HttpRequestProcessor.class);
 
 	private int maxThreadPoolNum;
 
-	private List processorPool = new LinkedList();
+	//TODO change list to concurrent queue.
+	private List<HttpRequestProcessor> processorPool = CollectionsUtil.newLinkedList();
 
 	public HttpRequestProcessorPool(int maxThreadPoolNum) {
 		this.maxThreadPoolNum = maxThreadPoolNum;
 		for (int i = 0; i < maxThreadPoolNum; ++i) {
-			HttpRequestProcessor processor = new HttpRequestProcessor("HttpRequestProcessor:init" + i);
+			HttpRequestProcessor processor = new HttpRequestProcessor(
+					"HttpRequestProcessor:init" + i);
 			processor.start();
 			processorPool.add(processor);
 		}
@@ -45,12 +50,14 @@ public class HttpRequestProcessorPool {
 	public HttpRequestProcessor borrowProcessor() {
 		synchronized (processorPool) {
 			if (processorPool.isEmpty()) {
-				HttpRequestProcessor processor = new HttpRequestProcessor("HttpRequestProcessor:" + System.currentTimeMillis());
+				HttpRequestProcessor processor = new HttpRequestProcessor(
+						"HttpRequestProcessor:" + System.currentTimeMillis());
 				processor.start();
 				log.debug("create " + processor.getName());
 				return processor;
 			} else {
-				HttpRequestProcessor processor = (HttpRequestProcessor) processorPool.remove(0);
+				HttpRequestProcessor processor = (HttpRequestProcessor) processorPool
+						.remove(0);
 				log.debug("reuse " + processor.getName());
 				return processor;
 			}

@@ -16,10 +16,11 @@
 package sdloader.event;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import sdloader.util.CollectionsUtil;
 /**
  * イベントディスパッチャー
  * @author AKatayama
@@ -53,7 +54,7 @@ public class EventDispatcher<L,E extends Event>{
 	public void addEventListener(String type,L listener){
 		List<L> listenerList = listenerMap.get(type);
 		if(listenerList == null){
-			listenerList = new ArrayList<L>();
+			listenerList = CollectionsUtil.newArrayList();
 			listenerMap.put(type,listenerList);
 		}
 		listenerList.add(listener);		
