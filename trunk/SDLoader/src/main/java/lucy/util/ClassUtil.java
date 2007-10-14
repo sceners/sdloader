@@ -3,12 +3,21 @@ package lucy.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-//TODO exception
+import sdloader.util.Assertion;
+
+/**
+ * TODO better exception
+ * 
+ * @author shot
+ * 
+ */
 public class ClassUtil {
 
 	public static <T> Class<T> forName(final String className) {
-		return forName(className, Thread.currentThread()
-				.getContextClassLoader());
+		final String name = Assertion.notNull(className);
+		final ClassLoader loader = Assertion.notNull(Thread
+				.currentThread().getContextClassLoader());
+		return forName(name, loader);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -17,14 +26,15 @@ public class ClassUtil {
 		try {
 			return (Class<T>) Class.forName(className, true, loader);
 		} catch (final ClassNotFoundException e) {
-			// throw new ClassNotFoundRuntimeException(e);
 			throw new RuntimeException(e);
 		}
 	}
 
 	public static <T> Class<T> forNameNoException(final String className) {
-		return forNameNoException(className, Thread.currentThread()
-				.getContextClassLoader());
+		final String name = Assertion.notNull(className);
+		final ClassLoader loader = Assertion.notNull(Thread
+				.currentThread().getContextClassLoader());
+		return forNameNoException(name, loader);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -41,10 +51,8 @@ public class ClassUtil {
 		try {
 			return clazz.newInstance();
 		} catch (final InstantiationException e) {
-			// throw new InstantiationRuntimeException(clazz, e);
 			throw new RuntimeException(e);
 		} catch (final IllegalAccessException e) {
-			// throw new IllegalAccessRuntimeException(clazz, e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -54,17 +62,10 @@ public class ClassUtil {
 		try {
 			return constructor.newInstance(args);
 		} catch (final InstantiationException e) {
-			// throw new InstantiationRuntimeException(constructor
-			// .getDeclaringClass(), e);
 			throw new RuntimeException(e);
-
 		} catch (final IllegalAccessException e) {
-			// throw new IllegalAccessRuntimeException(constructor
-			// .getDeclaringClass(), e);
 			throw new RuntimeException(e);
 		} catch (final InvocationTargetException e) {
-			// throw new InvocationTargetRuntimeException(constructor
-			// .getDeclaringClass(), e);
 			throw new RuntimeException(e);
 		}
 	}
