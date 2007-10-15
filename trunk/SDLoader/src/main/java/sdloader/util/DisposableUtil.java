@@ -15,6 +15,7 @@
  */
 package sdloader.util;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -22,31 +23,51 @@ import java.util.LinkedList;
  */
 public final class DisposableUtil {
 
-    protected static final LinkedList<Disposable> disposables = new LinkedList<Disposable>();
+	protected static final LinkedList<Disposable> disposables = CollectionsUtil
+			.newLinkedList();
 
-    public static synchronized void add(final Disposable disposable) {
-        disposables.add(disposable);
-    }
+	protected static boolean DEBUG = false;
 
-    public static synchronized void remove(final Disposable disposable) {
-        disposables.remove(disposable);
-    }
+	public static synchronized void add(final Disposable disposable) {
+		disposables.add(disposable);
+	}
 
-    public static synchronized void dispose() {
-        while (!disposables.isEmpty()) {
-            final Disposable disposable = disposables.removeLast();
-            try {
-                disposable.dispose();
-            } catch (final Throwable t) {
-                t.printStackTrace();
-            }
-        }
-        disposables.clear();
-    }
+	public static synchronized void remove(final Disposable disposable) {
+		disposables.remove(disposable);
+	}
 
-    public static interface Disposable {
-    	
-    	void dispose();
-    }
-    
+	public static synchronized void dispose() {
+		listDisposables();
+		while (!disposables.isEmpty()) {
+			final Disposable disposable = disposables.removeLast();
+			try {
+				disposable.dispose();
+			} catch (final Throwable t) {
+				t.printStackTrace();
+			}
+		}
+		disposables.clear();
+	}
+
+	private static void listDisposables() {
+		if (!DEBUG) {
+			return;
+		}
+		for (Iterator<Disposable> iterator = disposables.iterator(); iterator
+				.hasNext();) {
+			Disposable disposable = iterator.next();
+			System.out
+					.println("[Disposable] dipose : " + disposable.toString());
+		}
+	}
+
+	public static void setDebugMode(final boolean debug) {
+		DEBUG = debug;
+	}
+
+	public static interface Disposable {
+
+		void dispose();
+	}
+
 }

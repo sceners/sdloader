@@ -16,95 +16,110 @@
 package sdloader.event;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sdloader.LifecycleListener;
 import sdloader.util.CollectionsUtil;
+
 /**
  * イベントディスパッチャー
+ * 
  * @author AKatayama
- *
- * @param <E> Event
- * @param <L> ListenerTest
+ * @author shot
+ * 
+ * @param <E>
+ *            Event
+ * @param <L>
+ *            ListenerTest
  */
-public class EventDispatcher<L,E extends Event>{
-	
+public class EventDispatcher<L, E extends Event> {
+
 	private String invokeMethodName;
-	private Map<String,List<L>> listenerMap = new HashMap<String, List<L>>();
+	private Map<String, List<L>> listenerMap = CollectionsUtil.newHashMap();
+
 	/**
-	 * イベント発生時に呼び出すメソッド名を引数に、EventDispatcherを
-	 * 構築します。
+	 * イベント発生時に呼び出すメソッド名を引数に、EventDispatcherを 構築します。
+	 * 
 	 * @param invokeMethodName
 	 */
-	public EventDispatcher(String invokeMethodName) {		
+	public EventDispatcher(String invokeMethodName) {
 		this.invokeMethodName = invokeMethodName;
 	}
+
 	/**
-	 * リスナーインターフェースのクラスを引数に、EventDispatcherを
-	 * 構築します。
-	 * リスナーインターフェースが1つのメソッド宣言を持つ場合、そのメソッドを呼び出しメソッド
-	 * として採用します。
-	 * それ以外の場合はエラーが発生します。
+	 * リスナーインターフェースのクラスを引数に、EventDispatcherを 構築します。
+	 * リスナーインターフェースが1つのメソッド宣言を持つ場合、そのメソッドを呼び出しメソッド として採用します。 それ以外の場合はエラーが発生します。
+	 * 
 	 * @param listenerClass
 	 */
-	public EventDispatcher(Class listenerClass) {
+	public EventDispatcher(Class<?> listenerClass) {
 		detectInvokeMethod(listenerClass);
 	}
-	public void addEventListener(String type,L listener){
+
+	public void addEventListener(String type, L listener) {
 		List<L> listenerList = listenerMap.get(type);
-		if(listenerList == null){
+		if (listenerList == null) {
 			listenerList = CollectionsUtil.newArrayList();
-			listenerMap.put(type,listenerList);
+			listenerMap.put(type, listenerList);
 		}
-		listenerList.add(listener);		
+		listenerList.add(listener);
 	}
-	public void removeEventListener(String type,L listener){
+
+	public void removeEventListener(String type, L listener) {
 		List<L> listenerList = listenerMap.get(type);
-		if(listenerList != null){
-			//マッチする全要素削除
-			while(listenerList.remove(listener)){}
+		if (listenerList != null) {
+			// マッチする全要素削除
+			while (listenerList.remove(listener)) {
+			}
 		}
 	}
+
 	/**
 	 * 引数のタイプに対するリスナーを全てクリアします。
+	 * 
 	 * @param type
 	 */
-	public void clear(String type){
+	public void clear(String type) {
 		listenerMap.remove(type);
 	}
+
 	/**
 	 * 全てのリスナーをクリアします。
 	 */
-	public void clearAll(){
+	public void clearAll() {
 		listenerMap.clear();
 	}
-	public void dispatchEvent(E event){
+
+	public void dispatchEvent(E event) {
 		List<L> listenerList = listenerMap.get(event.getType());
-		if(listenerList != null){
-			for(L listener :listenerList){
-				invoke(listener,event);
+		if (listenerList != null) {
+			for (L listener : listenerList) {
+				invoke(listener, event);
 			}
 		}
 	}
-	protected void detectInvokeMethod(Class listener){
+
+	protected void detectInvokeMethod(Class<?> listener) {
 		Method[] methods = listener.getMethods();
-		if(methods.length != 1){
+		if (methods.length != 1) {
 			throw new RuntimeException("invoke method detect fail.");
 		}
-		invokeMethodName = methods[0].getName();		
+		invokeMethodName = methods[0].getName();
 	}
-	protected void invoke(L listener,E event){
-		try{
-			Method method = listener.getClass().getDeclaredMethod(invokeMethodName,new Class[]{event.getClass()});
-			if(method == null){
+
+	protected void invoke(L listener, E event) {
+		try {
+			Method method = listener.getClass().getDeclaredMethod(
+					invokeMethodName, new Class[] { event.getClass() });
+			if (method == null) {
 				throw new NoSuchMethodError(invokeMethodName);
 			}
-			method.setAccessible(true);			
-			method.invoke(listener,new Object[]{event});
-		}catch(Exception e){
+			method.setAccessible(true);
+			method.invoke(listener, new Object[] { event });
+		} catch (Exception e) {
 			throw new RuntimeException(e);
-		}		
+		}
 	}
-	
+
 }

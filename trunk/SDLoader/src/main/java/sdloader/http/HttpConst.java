@@ -15,8 +15,9 @@
  */
 package sdloader.http;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import sdloader.util.CollectionsUtil;
 
 /**
  * HTTPヘッダーの定数定義
@@ -192,9 +193,9 @@ public class HttpConst {
 
 	public static final int SC_HTTP_VERSION_NOT_SUPPORTED = 505;
 
-	private static Map statusMap;
+	private static Map<Integer, String> statusMap;
 	static {
-		statusMap = new HashMap();
+		statusMap = CollectionsUtil.newHashMap(50);
 		statusMap.put(new Integer(SC_CONTINUE), "Continue");
 		statusMap.put(new Integer(SC_SWITCHING_PROTOCOLS),
 				"Switching Protocols");

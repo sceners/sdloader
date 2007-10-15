@@ -15,35 +15,35 @@
  */
 package sdloader.http;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
 
+import sdloader.util.CollectionsUtil;
+
 /**
  * HTTPレスポンスのヘッダー部分
  * 
  * @author c9katayama
+ * @author shot
  */
 public class HttpResponseHeader {
-	
+
 	private String version = HttpConst.HTTP_1_1;
 
 	private int statusCode = HttpConst.SC_OK;
 
 	private String status = HttpConst.findStatus(HttpConst.SC_OK);
 
-	private Map headerFieldMap = new HashMap();
+	private Map<String, String> headerFieldMap = CollectionsUtil.newHashMap();
 
-	private List headerFieldNameList = new LinkedList();
+	private List<String> headerFieldNameList = CollectionsUtil.newLinkedList();
 
-	private Map cookieMap = new HashMap();
+	private Map<String, Cookie> cookieMap = CollectionsUtil.newHashMap();
 
-	private List cookieNameList = new LinkedList();
+	private List<String> cookieNameList = CollectionsUtil.newLinkedList();
 
 	public HttpResponseHeader() {
 		super();
@@ -74,8 +74,9 @@ public class HttpResponseHeader {
 	}
 
 	public void addCookie(Cookie cookie) {
-		if (!cookieMap.containsKey(cookie.getName()))
+		if (!cookieMap.containsKey(cookie.getName())) {
 			cookieNameList.add(cookie.getName());
+		}
 		cookieMap.put(cookie.getName(), cookie);
 	}
 
@@ -84,20 +85,22 @@ public class HttpResponseHeader {
 	}
 
 	public void addHeader(String name, String value) {
-		if (!headerFieldMap.containsKey(name))
+		if (!headerFieldMap.containsKey(name)) {
 			headerFieldNameList.add(name);
+		}
 		headerFieldMap.put(name, value);
 	}
 
-	public List getHeaderName() {
+	public List<String> getHeaderName() {
 		return headerFieldNameList;
 	}
 
-	public List getHeaders() {
-		List list = new ArrayList();
-		for (Iterator itr = headerFieldNameList.iterator(); itr.hasNext();)
-			list.add(headerFieldMap.get(itr.next()));
-		return list;
+	public List<String> getHeaders() {
+		return CollectionsUtil.newArrayList(headerFieldMap.values());
+		// List list = new ArrayList();
+		// for (Iterator itr = headerFieldNameList.iterator(); itr.hasNext();)
+		// list.add(headerFieldMap.get(itr.next()));
+		// return list;
 	}
 
 	public void removeHeader(String paramName) {
@@ -116,18 +119,20 @@ public class HttpResponseHeader {
 		StringBuffer buf = new StringBuffer();
 		buf.append(this.version + " " + statusCode + " " + status
 				+ HttpConst.CRLF_STRING);
-		for (Iterator itr = headerFieldNameList.iterator(); itr.hasNext();) {
-			String headerName = (String) itr.next();
-			String headerValue = (String) headerFieldMap.get(headerName);
+		for (Iterator<String> itr = headerFieldNameList.iterator(); itr
+				.hasNext();) {
+			String headerName = itr.next();
+			String headerValue = headerFieldMap.get(headerName);
 			buf.append(headerName + HttpConst.COLON_STRING + headerValue
 					+ HttpConst.CRLF_STRING);
 		}
-		for (Iterator itr = cookieNameList.iterator(); itr.hasNext();) {
-			String cookieName = (String) itr.next();
-			Cookie cookie = (Cookie) cookieMap.get(cookieName);
-			if(cookie.getValue() != null){
-				buf.append(HttpConst.SETCOOKIE + HttpConst.COLON_STRING);			
-				buf.append(cookie.getName() + "=" + cookie.getValue() + HttpConst.SEMI_COLON_STRING);
+		for (Iterator<String> itr = cookieNameList.iterator(); itr.hasNext();) {
+			String cookieName = itr.next();
+			Cookie cookie = cookieMap.get(cookieName);
+			if (cookie.getValue() != null) {
+				buf.append(HttpConst.SETCOOKIE + HttpConst.COLON_STRING);
+				buf.append(cookie.getName() + "=" + cookie.getValue()
+						+ HttpConst.SEMI_COLON_STRING);
 				// TODO cookie implementation
 				buf.append(HttpConst.CRLF_STRING);
 			}

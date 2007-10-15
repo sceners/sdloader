@@ -27,7 +27,7 @@ import sdloader.event.EventDispatcher;
 import sdloader.exception.IORuntimeException;
 import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
-import sdloader.j2ee.WebAppManager;
+import sdloader.javaee.WebAppManager;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.DisposableUtil;

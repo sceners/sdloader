@@ -30,12 +30,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 
 import sdloader.SDLoader;
-import sdloader.j2ee.ServletMapping;
-import sdloader.j2ee.WebAppClassLoader;
-import sdloader.j2ee.WebApplication;
-import sdloader.j2ee.impl.FilterChainImpl;
-import sdloader.j2ee.impl.HttpServletRequestImpl;
-import sdloader.j2ee.impl.HttpServletResponseImpl;
+import sdloader.javaee.ServletMapping;
+import sdloader.javaee.WebAppClassLoader;
+import sdloader.javaee.WebApplication;
+import sdloader.javaee.impl.FilterChainImpl;
+import sdloader.javaee.impl.HttpServletRequestImpl;
+import sdloader.javaee.impl.HttpServletResponseImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.WebUtils;

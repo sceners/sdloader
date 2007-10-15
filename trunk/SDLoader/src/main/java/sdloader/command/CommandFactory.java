@@ -15,17 +15,18 @@
  */
 package sdloader.command;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import sdloader.util.CollectionsUtil;
 /**
  * @author shot
  * @author c9katayama
  */
 public final class CommandFactory {
 
-	private static final Map<String, Command> commands = new HashMap<String, Command>();
+	private static final Map<String, Command> commands = CollectionsUtil.newHashMap();
 	static {
 		commands.put(Command.STOP.toString(), Command.STOP);
 		commands.put(Command.RESTART.toString(), Command.RESTART);

@@ -6,7 +6,7 @@
 <web-app>
 	<servlet>
 		<servlet-name>sessionTest</servlet-name>
-		<servlet-class>sdloader.j2ee.servlet.SharedSessionTestServlet</servlet-class>
+		<servlet-class>sdloader.javaee.servlet.SharedSessionTestServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
 	<servlet-mapping>

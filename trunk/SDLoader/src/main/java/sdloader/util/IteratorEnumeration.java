@@ -17,29 +17,34 @@ package sdloader.util;
 
 import java.util.Enumeration;
 import java.util.Iterator;
+
 /**
  * IteratorのEnumerationラップクラス
  * 
  * @author c9katayama
  */
-public class IteratorEnumeration implements Enumeration{
+public class IteratorEnumeration implements Enumeration {
 
 	private Iterator itr;
-	public IteratorEnumeration() {		
+
+	public IteratorEnumeration() {
 	}
+
 	public IteratorEnumeration(Iterator itr) {
 		this.itr = itr;
 	}
+
 	public boolean hasMoreElements() {
-		if(itr==null)
+		if (itr == null)
 			return false;
 		else
 			return itr.hasNext();
 	}
+
 	public Object nextElement() {
-		if(itr==null)
+		if (itr == null)
 			return null;
 		else
 			return itr.next();
-	}	
+	}
 }
