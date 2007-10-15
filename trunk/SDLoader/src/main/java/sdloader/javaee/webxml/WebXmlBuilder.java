@@ -15,42 +15,17 @@
  */
 package sdloader.javaee.webxml;
 
+import java.net.URL;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 /**
- * context-paramタグ
- * 
- * @author c9katayama
  * @author shot
  */
-public class ContextParamTag implements WebXmlTagElement {
+public interface WebXmlBuilder {
 
-	private String paramName;
-
-	private String paramValue;
-
-	private String description;
-
-	public String getParamName() {
-		return paramName;
-	}
-
-	public void setParamName(String paramName) {
-		this.paramName = paramName;
-	}
-
-	public String getParamValue() {
-		return paramValue;
-	}
-
-	public void setParamValue(String paramValue) {
-		this.paramValue = paramValue;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
+	WebXml build(final URL url) throws SAXException,
+			ParserConfigurationException;
 }

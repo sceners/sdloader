@@ -19,8 +19,9 @@ package sdloader.javaee.webxml;
  * listenerタグ
  * 
  * @author c9katayama
+ * @author shot
  */
-public class ListenerTag {
+public class ListenerTag implements WebXmlTagElement {
 
 	private String listenerClass;
 

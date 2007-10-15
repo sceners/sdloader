@@ -32,6 +32,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -47,9 +48,11 @@ import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.ServletTag;
 import sdloader.javaee.webxml.WebAppTag;
 import sdloader.javaee.webxml.WebXml;
+import sdloader.javaee.webxml.WebXmlBuilder;
 import sdloader.javaee.webxml.WebXmlFactory;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+import sdloader.util.Assertion;
 import sdloader.util.BooleanUtil;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
@@ -69,6 +72,7 @@ import sdloader.util.WebUtils;
  * @author shot
  */
 public class WebAppManager {
+	
 	private static SDLoaderLog log = SDLoaderLogFactory
 			.getLog(WebAppManager.class);
 
@@ -212,16 +216,7 @@ public class WebAppManager {
 			final PathPair pathPair = itr.next();
 			final String docBase = pathPair.docBase;
 			final String contextPath = pathPair.contextPath;
-			final URL url = pathPair.url;
-			final URL webXmlUrl = new URL(url, "WEB-INF/web.xml");
-			WebXml webxml = null;
-			try {
-				InputStream is = webXmlUrl.openStream();
-				webxml = WebXmlFactory.createWebXml(is);
-			} catch (IOException ignore) {
-				webxml = new WebXml();
-				webxml.setWebApp(new WebAppTag());
-			}
+			WebXml webxml = buildWebXml(pathPair.url);
 			setDefaultServlet(webxml, docBase, contextPath);
 
 			// create WebApplication
@@ -235,6 +230,26 @@ public class WebAppManager {
 		}
 
 		this.webAppList.add(getRootWebApplication());
+	}
+
+	protected WebXml buildWebXml(URL url) throws SAXException,
+			ParserConfigurationException, MalformedURLException {
+		final URL webXmlUrl = new URL(url, "WEB-INF/web.xml");
+		return new WebXmlBuilder() {
+
+			public WebXml build(final URL webXmlUrl) throws SAXException,
+					ParserConfigurationException {
+				try {
+					InputStream is = webXmlUrl.openStream();
+					return WebXmlFactory.createWebXml(is);
+				} catch (IOException ignore) {
+					WebXml webxml = new WebXml();
+					webxml.setWebApp(new WebAppTag());
+					return webxml;
+				}
+			}
+
+		}.build(webXmlUrl);
 	}
 
 	protected WebApplication getRootWebApplication() {
@@ -528,13 +543,13 @@ public class WebAppManager {
 		URL url;// docBaseのURL形式またはWARへのURL
 
 		PathPair(final URL url) {
-			this.url = url;
+			this.url = Assertion.notNull(url);
 			if (!isInmemoryExtract) {
 				final String urlStr = url.toExternalForm();
-				this.docBase = urlStr.replace("file:/", "");
+				this.docBase = Assertion.notNull(urlStr.replace("file:/", ""));
 				String s = this.docBase.replace(webappDirPath, "");
-				this.contextPath = (s.endsWith("/")) ? s.substring(0, s
-						.length() - 1) : s;
+				s = (s.endsWith("/")) ? s.substring(0, s.length() - 1) : s;
+				this.contextPath = Assertion.notNull(s);
 			} else {
 				// TODO
 			}

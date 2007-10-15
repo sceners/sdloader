@@ -15,7 +15,6 @@
  */
 package sdloader.javaee.webxml;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,8 +24,9 @@ import sdloader.util.CollectionsUtil;
  * servletタグ
  * 
  * @author c9katayama
+ * @author shot
  */
-public class ServletTag {
+public class ServletTag implements WebXmlTagElement {
 
 	private String servletName;
 

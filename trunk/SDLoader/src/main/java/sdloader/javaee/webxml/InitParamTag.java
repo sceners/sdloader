@@ -19,9 +19,9 @@ package sdloader.javaee.webxml;
  * init-paramタグ
  * 
  * @author c9katayama
- * 
+ * @author shot
  */
-public class InitParamTag {
+public class InitParamTag implements WebXmlTagElement {
 
 	private String paramName;
 
