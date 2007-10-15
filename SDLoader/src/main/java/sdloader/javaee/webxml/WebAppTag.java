@@ -24,8 +24,9 @@ import sdloader.util.CollectionsUtil;
  * web-appタグ
  * 
  * @author c9katayama
+ * @author shot
  */
-public class WebAppTag {
+public class WebAppTag implements WebXmlTagElement {
 
 	private List<ContextParamTag> contextParam = CollectionsUtil.newArrayList();
 

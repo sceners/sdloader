@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -27,6 +26,12 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import sdloader.util.Assertion;
+import sdloader.util.ClassUtil;
+import sdloader.util.CollectionsUtil;
+import sdloader.util.DisposableUtil;
+import sdloader.util.DisposableUtil.Disposable;
 
 /**
  * web-xmlパース用ハンドラ タグをパースし、xmlをインスタンス化します。 タグは、次のように解析します。
@@ -36,10 +41,13 @@ import org.xml.sax.helpers.DefaultHandler;
  * ・getRootObject()で、最初にインスタンス化したクラスを返す。
  * 
  * @author c9katayama
+ * @author shot
  */
 public class WebXmlParseHandler extends DefaultHandler {
 
-	private static final Map tag2classMap = new HashMap();
+	private static final Map<String, Class<? extends WebXmlTagElement>> tag2classMap = CollectionsUtil
+			.newHashMap();
+
 	static {
 		tag2classMap.put("web-app", WebAppTag.class);
 		tag2classMap.put("context-param", ContextParamTag.class);
@@ -52,23 +60,39 @@ public class WebXmlParseHandler extends DefaultHandler {
 		tag2classMap.put("welcome-file-list", WelcomeFileListTag.class);
 	}
 
-	private Map resolveMap = new HashMap();
+	private Map<String, URL> resolveMap = CollectionsUtil.newHashMap();
 
-	private Map tagInstanceMap = new HashMap();
+	private Map<String, WebXmlTagElement> tagInstanceMap = CollectionsUtil
+			.newHashMap();
 
-	private Stack tagNameStack = new Stack();
+	private Stack<String> tagNameStack = CollectionsUtil.newStack();
 
 	private String characters;
 
 	private Object rootObject;
 
+	public WebXmlParseHandler() {
+		DisposableUtil.add(new Disposable() {
+
+			public void dispose() {
+				tag2classMap.clear();
+				resolveMap.clear();
+				tagInstanceMap.clear();
+				tagNameStack.clear();
+				characters = null;
+				rootObject = null;
+			}
+
+		});
+	}
+
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
-		tagNameStack.push(qName);
+		tagNameStack.push(Assertion.notNull(qName));
 		characters = null;
-		Class tagClass = (Class) tag2classMap.get(qName);
+		Class<? extends WebXmlTagElement> tagClass = tag2classMap.get(qName);
 		if (tagClass != null) {
-			Object tag = newInstace(tagClass);
+			WebXmlTagElement tag = ClassUtil.newInstance(tagClass);
 			tagInstanceMap.put(qName, tag);
 			if (rootObject == null)
 				rootObject = tag;
@@ -80,23 +104,23 @@ public class WebXmlParseHandler extends DefaultHandler {
 		char[] c = new char[length];
 		System.arraycopy(ch, start, c, 0, length);
 		String value = new String(c).trim();
-		if (characters == null)
+		if (characters == null) {
 			characters = value;
-		else
+		} else {
 			characters += value;
+		}
 	}
 
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-
 		String valueTagName = (String) tagNameStack.pop();
-		if (tagNameStack.isEmpty())
+		if (tagNameStack.isEmpty()) {
 			return;
-
+		}
 		Object o = tagInstanceMap.remove(valueTagName);
-		if (o == null)
+		if (o == null) {
 			o = characters;
-
+		}
 		if (o != null) {
 			Object target = tagInstanceMap.get(tagNameStack.peek());
 			if (target != null) {
@@ -109,14 +133,6 @@ public class WebXmlParseHandler extends DefaultHandler {
 
 	public Object getRootObject() {
 		return rootObject;
-	}
-
-	private Object newInstace(Class c) {
-		try {
-			return c.newInstance();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	private String toCamelCase(String tagName) {
@@ -162,7 +178,7 @@ public class WebXmlParseHandler extends DefaultHandler {
 		}
 	}
 
-	public void register(String id, URL resourceUrl) {
+	public void register(final String id, final URL resourceUrl) {
 		resolveMap.put(id, resourceUrl);
 	}
 
@@ -173,8 +189,7 @@ public class WebXmlParseHandler extends DefaultHandler {
 			resourceUrl = (URL) resolveMap.get(systemId);
 		}
 		if (resourceUrl != null) {
-			InputStream is;
-			is = resourceUrl.openStream();
+			InputStream is = resourceUrl.openStream();
 			return new InputSource(is);
 		} else {
 			return super.resolveEntity(publicId, systemId);

@@ -23,8 +23,9 @@ import sdloader.util.CollectionsUtil;
  * welcome-file-listタグ
  * 
  * @author c9katayama
+ * @author shot
  */
-public class WelcomeFileListTag {
+public class WelcomeFileListTag implements WebXmlTagElement {
 
 	private List<String> welcomeFile = CollectionsUtil.newArrayList();
 

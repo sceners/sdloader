@@ -15,7 +15,6 @@
  */
 package sdloader.javaee.webxml;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,7 +25,7 @@ import sdloader.util.CollectionsUtil;
  * 
  * @author c9katayama
  */
-public class FilterTag {
+public class FilterTag implements WebXmlTagElement {
 
 	private String filterName;
 

@@ -19,8 +19,9 @@ package sdloader.javaee.webxml;
  * servlet-mappingタグ
  * 
  * @author c9katayama
+ * @author shot
  */
-public class ServletMappingTag {
+public class ServletMappingTag implements WebXmlTagElement {
 
 	private String servletName;
 

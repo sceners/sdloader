@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -52,4 +53,8 @@ public class CollectionsUtil {
 		return new HashSet<T>();
 	}
 
+	public static <T> Stack<T> newStack() {
+		return new Stack<T>();
+	}
+	
 }

@@ -19,8 +19,10 @@ package sdloader.javaee.webxml;
  * filter-mappingタグ
  * 
  * @author c9katayama
+ * @author shot
  */
-public class FilterMappingTag {
+public class FilterMappingTag implements WebXmlTagElement {
+
 	private String filterName;
 
 	private String urlPattern;
