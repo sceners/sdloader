@@ -15,8 +15,8 @@
  */
 package sdloader.internal;
 
-import sdloader.j2ee.SessionManager;
-import sdloader.j2ee.impl.SessionManagerSharedSessionImpl;
+import sdloader.javaee.SessionManager;
+import sdloader.javaee.impl.SessionManagerSharedSessionImpl;
 
 /**
  * @author shot

@@ -188,7 +188,7 @@ public class HttpRequestHeader {
 	}
 
 	public List<Cookie> getCookieList() {
-		return new ArrayList<Cookie>(cookieMap.values());
+		return CollectionsUtil.newArrayList(cookieMap.values());
 		// List<Cookie> cookieList = CollectionsUtil.newArrayList();
 		// for (Iterator<String> itr = cookieNameList.iterator();
 		// itr.hasNext();) {

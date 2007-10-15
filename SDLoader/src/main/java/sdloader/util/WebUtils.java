@@ -39,67 +39,77 @@ public class WebUtils {
 	 * ヘッダー日付フォーマット
 	 */
 	private static final DateFormat HEADER_DATE_FORMAT = new SimpleDateFormat(
-	"E, d MMM yyyy HH:mm:ss 'GMT'", Locale.UK);
+			"E, d MMM yyyy HH:mm:ss 'GMT'", Locale.UK);
 	/**
 	 * クッキー日付フォーマット
 	 */
 	private static final DateFormat COOKIE_DATE_FORMAT = new SimpleDateFormat(
-	"E, d-MMM-yyyy HH:mm:ss 'GMT'", Locale.UK);
+			"E, d-MMM-yyyy HH:mm:ss 'GMT'", Locale.UK);
+
 	private WebUtils() {
 		super();
 	}
+
 	/**
 	 * ヘッダー用の日付文字を、ミリ秒フォーマットに変換します。
+	 * 
 	 * @param date
 	 * @return
 	 * @throws ParseException
 	 */
-	public static long parseHeaderDate(String date) throws ParseException{
-		synchronized(HEADER_DATE_FORMAT){
+	public static long parseHeaderDate(String date) throws ParseException {
+		synchronized (HEADER_DATE_FORMAT) {
 			return HEADER_DATE_FORMAT.parse(date).getTime();
 		}
 	}
+
 	/**
 	 * クッキー用の日付文字を、ミリ秒フォーマットに変換します。
+	 * 
 	 * @param date
 	 * @return
 	 * @throws ParseException
 	 */
-	public static long parseCookieDate(String date) throws ParseException{
-		synchronized(COOKIE_DATE_FORMAT){
+	public static long parseCookieDate(String date) throws ParseException {
+		synchronized (COOKIE_DATE_FORMAT) {
 			return COOKIE_DATE_FORMAT.parse(date).getTime();
 		}
 	}
+
 	/**
 	 * 日付をヘッダー用の日付文字列にフォーマットします。
+	 * 
 	 * @param date
 	 * @return
 	 */
-	public static String formatHeaderDate(Date date){
-		synchronized(HEADER_DATE_FORMAT){
+	public static String formatHeaderDate(Date date) {
+		synchronized (HEADER_DATE_FORMAT) {
 			return HEADER_DATE_FORMAT.format(date);
 		}
 	}
+
 	/**
 	 * 日付をクッキー用の日付文字列にフォーマットします。
+	 * 
 	 * @param date
 	 * @return
 	 * @throws ParseException
 	 */
-	public static String formatCookieDate(Date date){
-		synchronized(COOKIE_DATE_FORMAT){
+	public static String formatCookieDate(Date date) {
+		synchronized (COOKIE_DATE_FORMAT) {
 			return COOKIE_DATE_FORMAT.format(date);
 		}
 	}
+
 	/**
-	 * 対象ディレクトリ中のファイルへのURLを生成します。
-	 * ディレクトリがある場合、再帰的にファイルを探します。
+	 * 対象ディレクトリ中のファイルへのURLを生成します。 ディレクトリがある場合、再帰的にファイルを探します。
+	 * 
 	 * @param targetDir
 	 * @param fileFilter
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public static URL[] createClassPaths(String targetDir,FileFilter fileFilter)
+	public static URL[] createClassPaths(String targetDir, FileFilter fileFilter)
 			throws MalformedURLException {
 		File libDir = new File(targetDir);
 		if (!libDir.exists())
@@ -120,8 +130,8 @@ public class WebUtils {
 		if (dirs != null) {
 			for (int i = 0; i < dirs.length; i++) {
 				if (dirs[i].isDirectory()) {
-					URL[] urls = createClassPaths(dirs[i]
-							.getAbsolutePath(),fileFilter);
+					URL[] urls = createClassPaths(dirs[i].getAbsolutePath(),
+							fileFilter);
 					if (urls != null) {
 						for (int j = 0; j < urls.length; j++)
 							urlList.add(urls[j]);
@@ -134,8 +144,9 @@ public class WebUtils {
 	}
 
 	/**
-	 * リクエストURI中のコンテキストパス部分を返します。
-	 * requestURI = contextPath + servletPath + pathInfo
+	 * リクエストURI中のコンテキストパス部分を返します。 requestURI = contextPath + servletPath +
+	 * pathInfo
+	 * 
 	 * @param requestURI
 	 * @return contextPath
 	 */
@@ -155,17 +166,17 @@ public class WebUtils {
 	}
 
 	/**
-	 * リクエストURI中のコンテキストパス以外の部分を返します。 
-	 * resoucePath = servletpath + pathinfo
-	 *　ただし、requestURIが"/"の場合(ルートアプリケーション）のみ、"/"を返します。
+	 * リクエストURI中のコンテキストパス以外の部分を返します。 resoucePath = servletpath + pathinfo
+	 * ただし、requestURIが"/"の場合(ルートアプリケーション）のみ、"/"を返します。
+	 * 
 	 * @param requestURI
 	 * @return resourcePath
 	 */
 	public static String getResourcePath(String requestURI) {
 		if (requestURI == null)
 			return null;
-		if(requestURI.equals("/")){
-			return  "/";
+		if (requestURI.equals("/")) {
+			return "/";
 		}
 
 		if (requestURI.startsWith("/") && requestURI.length() > 1
@@ -176,52 +187,56 @@ public class WebUtils {
 		}
 		return null;
 	}
+
 	/**
-	 * servletPath+PathInfoのパスから、サーブレットパスの部分を返します。 
-	 * resoucePath = servletpath + pathinfo
+	 * servletPath+PathInfoのパスから、サーブレットパスの部分を返します。 resoucePath = servletpath +
+	 * pathinfo
 	 * 
 	 * @param requestURI
 	 * @return resourcePath
 	 */
-	public static String getServletPath(String pattern,String resourcePath){
-		if(resourcePath==null)
+	public static String getServletPath(String pattern, String resourcePath) {
+		if (resourcePath == null)
 			return null;
-		int type = matchPattern(pattern,resourcePath);
-		switch(type){
-			case PATTERN_DEFAULT_MATCH:
-				return "";
-			case PATTERN_EXT_MATCH:
-			case PATTERN_EXACT_MATCH:
-				 return resourcePath;
-			case PATTERN_PATH_MATCH:
-				return pattern.substring(0,pattern.length()-"/*".length());
-			default:
-				throw new RuntimeException("PATTERN_NOMATCH pattern="+pattern+" path="+resourcePath);
+		int type = matchPattern(pattern, resourcePath);
+		switch (type) {
+		case PATTERN_DEFAULT_MATCH:
+			return "";
+		case PATTERN_EXT_MATCH:
+		case PATTERN_EXACT_MATCH:
+			return resourcePath;
+		case PATTERN_PATH_MATCH:
+			return pattern.substring(0, pattern.length() - "/*".length());
+		default:
+			throw new RuntimeException("PATTERN_NOMATCH pattern=" + pattern
+					+ " path=" + resourcePath);
 		}
 	}
+
 	/**
-	 * リクエストURI中のコンテキストパス以外の部分を返します。 
-	 * resoucePath = servletpath + pathinfo
+	 * リクエストURI中のコンテキストパス以外の部分を返します。 resoucePath = servletpath + pathinfo
 	 * 
 	 * @param requestURI
 	 * @return resourcePath
-	 */	
-	public static String getPathInfo(String pattern,String resourcePath){
-		if(resourcePath==null)
+	 */
+	public static String getPathInfo(String pattern, String resourcePath) {
+		if (resourcePath == null)
 			return null;
-		int type = matchPattern(pattern,resourcePath);
-		switch(type){
-			case PATTERN_DEFAULT_MATCH:
-				return resourcePath;
-			case PATTERN_EXT_MATCH:
-			case PATTERN_EXACT_MATCH:
-				return null;
-			case PATTERN_PATH_MATCH:
-				return resourcePath.substring(pattern.length()-"/*".length());
-			default:
-				throw new RuntimeException("PATTERN_NOMATCH pattern="+pattern+" path="+resourcePath);
-		}	
+		int type = matchPattern(pattern, resourcePath);
+		switch (type) {
+		case PATTERN_DEFAULT_MATCH:
+			return resourcePath;
+		case PATTERN_EXT_MATCH:
+		case PATTERN_EXACT_MATCH:
+			return null;
+		case PATTERN_PATH_MATCH:
+			return resourcePath.substring(pattern.length() - "/*".length());
+		default:
+			throw new RuntimeException("PATTERN_NOMATCH pattern=" + pattern
+					+ " path=" + resourcePath);
+		}
 	}
+
 	/**
 	 * パターンマッチなし
 	 */
@@ -242,11 +257,14 @@ public class WebUtils {
 	 * 完全マッチ
 	 */
 	public static final int PATTERN_EXACT_MATCH = 4;
+
 	/**
-	 *パスパターンと パスのマッチングを行います。
+	 * パスパターンと パスのマッチングを行います。
+	 * 
 	 * @param pattern
 	 * @param path
-	 * @return　PATTERN_NOMATCH PATTERN_DEFAULT_MATCH PATTERN_EXT_MATCH PATTERN_PATH_MATCH PATTERN_EXACT_MATCH
+	 * @return PATTERN_NOMATCH PATTERN_DEFAULT_MATCH PATTERN_EXT_MATCH
+	 *         PATTERN_PATH_MATCH PATTERN_EXACT_MATCH
 	 */
 	public static int matchPattern(String pattern, String path) {
 		if (pattern == null || path == null)
@@ -271,8 +289,7 @@ public class WebUtils {
 		if (pattern.startsWith("*.")) {
 			int resourceDot = path.lastIndexOf(".");
 			if (resourceDot >= 0) {
-				String resourceExt = path.substring(resourceDot,
-						path.length());
+				String resourceExt = path.substring(resourceDot, path.length());
 				int patternDot = pattern.indexOf(".");
 				String patternExt = pattern.substring(patternDot, pattern
 						.length());
@@ -312,49 +329,57 @@ public class WebUtils {
 	public static final String replaceFileSeparator(String filepath) {
 		return filepath.replace('\\', '/');
 	}
+
 	/**
 	 * Query部分を取り除きます
+	 * 
 	 * @param requestURI
 	 * @return
 	 */
-	public static String stripQueryPart(String requestURI){
+	public static String stripQueryPart(String requestURI) {
 		int queryIndex = requestURI.indexOf("?");
-		if(queryIndex>0){
-			return requestURI.substring(0,queryIndex);
-		}else{
+		if (queryIndex > 0) {
+			return requestURI.substring(0, queryIndex);
+		} else {
 			return requestURI;
 		}
 	}
+
 	/**
 	 * Queary部分を取得します。ない場合、nullを返します。
+	 * 
 	 * @param requestURI
 	 * @return
 	 */
-	public static String getQueryPart(String requestURI){
+	public static String getQueryPart(String requestURI) {
 		int queryIndex = requestURI.indexOf("?");
-		if(queryIndex>0){
-			return requestURI.substring(queryIndex+1,requestURI.length());
-		}else{
+		if (queryIndex > 0) {
+			return requestURI.substring(queryIndex + 1, requestURI.length());
+		} else {
 			return null;
 		}
 	}
+
 	/**
 	 * RequestURLを構築します。
+	 * 
 	 * @param schema
 	 * @param localName
 	 * @param port
 	 * @param requestURI
 	 * @return
 	 */
-	public static StringBuffer buildRequestURL(String schema,String localName,int port,String requestURI){
+	public static StringBuffer buildRequestURL(String schema, String localName,
+			int port, String requestURI) {
 		String portString;
-		if(port==80 && schema.equals("http"))
+		if (port == 80 && schema.equals("http"))
 			portString = "";
-		else if(port==443 && schema.equals("https"))
+		else if (port == 443 && schema.equals("https"))
 			portString = "";
 		else
-			portString = ":"+port;
+			portString = ":" + port;
 		requestURI = stripQueryPart(requestURI);
-		return new StringBuffer(schema+"://"+localName+portString+requestURI);
+		return new StringBuffer(schema + "://" + localName + portString
+				+ requestURI);
 	}
 }
