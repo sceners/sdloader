@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
@@ -131,9 +132,7 @@ public class WebAppManager {
 		}
 		// webapps以下のフォルダ
 		pathPairList = CollectionsUtil.newArrayList();
-		;
 		contextPathList = CollectionsUtil.newArrayList();
-		;
 		dirs = webappDir.listFiles(new DirFileFilter());
 		if (dirs != null) {
 			for (int i = 0; i < dirs.length; i++) {
@@ -210,21 +209,16 @@ public class WebAppManager {
 
 	protected void initWebAppContext() throws Exception {
 		for (Iterator<PathPair> itr = pathPairList.iterator(); itr.hasNext();) {
-			PathPair pathPair = itr.next();
-			String docBase = pathPair.docBase;
-			String contextPath = pathPair.contextPath;
-			File webxmlFile = new File(docBase + "/WEB-INF/web.xml");
+			final PathPair pathPair = itr.next();
+			final String docBase = pathPair.docBase;
+			final String contextPath = pathPair.contextPath;
+			final URL url = pathPair.url;
+			final URL webXmlUrl = new URL(url, "WEB-INF/web.xml");
 			WebXml webxml = null;
-			if (webxmlFile.exists()) {
-				FileInputStream fin = null;
-				try {
-					fin = new FileInputStream(webxmlFile);
-					webxml = WebXmlFactory.createWebXml(fin);
-				} finally {
-					fin.close();
-					fin = null;
-				}
-			} else {
+			try {
+				InputStream is = webXmlUrl.openStream();
+				webxml = WebXmlFactory.createWebXml(is);
+			} catch (IOException ignore) {
 				webxml = new WebXml();
 				webxml.setWebApp(new WebAppTag());
 			}
@@ -507,11 +501,12 @@ public class WebAppManager {
 			}
 			ServletContextEvent contextEvent = new ServletContextEvent(webapp
 					.getServletContext());
-			List<ServletContextListener> listenerList = webapp.getListenerList();
+			List<ServletContextListener> listenerList = webapp
+					.getListenerList();
 			{
 				if (listenerList != null) {
-					for (Iterator<ServletContextListener> listenerItr = listenerList.iterator(); listenerItr
-							.hasNext();) {
+					for (Iterator<ServletContextListener> listenerItr = listenerList
+							.iterator(); listenerItr.hasNext();) {
 						ServletContextListener listener = (ServletContextListener) listenerItr
 								.next();
 						try {
