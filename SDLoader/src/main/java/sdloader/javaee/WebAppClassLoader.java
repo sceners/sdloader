@@ -65,10 +65,10 @@ public class WebAppClassLoader extends URLClassLoader {
 	 * 事前読み込み（親クラスローダーから） の順で読み込みを行い、クラスが見つかった場合はそのクラスを返します。
 	 * 自前クラスローダーは、WEB-INF/classesとWEB-INF/libがロード対象になります。
 	 */
-	protected synchronized Class loadClass(String name, boolean resolve)
+	protected synchronized Class<?> loadClass(String name, boolean resolve)
 			throws ClassNotFoundException {
 		// ロード済みクラスをチェック
-		Class c = findLoadedClass(name);
+		Class<?> c = findLoadedClass(name);
 		if (c != null) {
 			if (resolve)
 				resolveClass(c);

@@ -23,8 +23,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -41,6 +45,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import sdloader.SDLoader;
+import sdloader.internal.resource.Resource;
+import sdloader.internal.resource.ResourceBuilder;
+import sdloader.internal.resource.ResourceBuilderImpl;
 import sdloader.javaee.servlet.FileSavingServlet;
 import sdloader.javaee.servlet.WebAppListServlet;
 import sdloader.javaee.webxml.InitParamTag;
@@ -72,7 +79,7 @@ import sdloader.util.WebUtils;
  * @author shot
  */
 public class WebAppManager {
-	
+
 	private static SDLoaderLog log = SDLoaderLogFactory
 			.getLog(WebAppManager.class);
 
@@ -87,6 +94,9 @@ public class WebAppManager {
 	protected List<WebApplication> webAppList = CollectionsUtil.newArrayList();
 
 	protected boolean isInmemoryExtract = false;
+
+	protected Map<URL, Map<URL, Resource>> warInmemoryMap = CollectionsUtil
+			.newHashMap();
 
 	private static final String JASPER_SERVLET_CLASS = "org.apache.jasper.servlet.JspServlet";
 
@@ -121,6 +131,7 @@ public class WebAppManager {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	protected void detectWebApps() throws Exception {
 		File webappDir = new File(webappDirPath);
 
@@ -128,83 +139,120 @@ public class WebAppManager {
 
 		File[] warFiles = webappDir.listFiles(new WarFileFilter());
 
-		if (warFiles != null) {
-			for (int i = 0; i < warFiles.length; i++) {
-				if (!isExtracted(warFiles[i], dirs))
-					extractWar(warFiles[i], webappDir);
+		if (!isInmemoryExtract) {
+			if (warFiles != null) {
+				for (int i = 0; i < warFiles.length; i++) {
+					if (!isExtracted(warFiles[i], dirs))
+						extractWar(warFiles[i], webappDir);
+				}
 			}
 		}
 		// webapps以下のフォルダ
 		pathPairList = CollectionsUtil.newArrayList();
 		contextPathList = CollectionsUtil.newArrayList();
 		dirs = webappDir.listFiles(new DirFileFilter());
-		if (dirs != null) {
-			for (int i = 0; i < dirs.length; i++) {
-				final String contextPath = "/" + dirs[i].getName();
-				final String docBase = webappDirPath + contextPath;
-				final PathPair pathPair = createPathPair(new File(docBase)
-						.toURL());
-				pathPairList.add(pathPair);
-				contextPathList.add(contextPath);
-				log.info("detect webapp context. contextPath=" + contextPath
-						+ " docBase=" + docBase);
+		if (!isInmemoryExtract) {
+			if (dirs != null) {
+				for (int i = 0; i < dirs.length; i++) {
+					final String contextPath = "/" + dirs[i].getName();
+					final String docBase = webappDirPath + contextPath;
+					final PathPair pathPair = createPathPair(new File(docBase)
+							.toURL());
+					pathPairList.add(pathPair);
+					contextPathList.add(contextPath);
+					log.info("detect webapp context. contextPath="
+							+ contextPath + " docBase=" + docBase);
+				}
+			}
+		} else {
+			URL.setURLStreamHandlerFactory(new URLStreamHandlerFactory() {
+
+				public URLStreamHandler createURLStreamHandler(String protocol) {
+					if (protocol.startsWith("war")
+							|| protocol.startsWith("innerjar")) {
+						return new URLStreamHandler() {
+
+							@Override
+							protected void parseURL(URL u, String spec,
+									int start, int limit) {
+								super.parseURL(u, spec, start, limit);
+							}
+
+							@Override
+							protected String toExternalForm(URL u) {
+								return super.toExternalForm(u);
+							}
+
+							@Override
+							protected URLConnection openConnection(URL u)
+									throws IOException {
+								String externalForm = u.toExternalForm();
+								String s = externalForm.substring(0,
+										externalForm.indexOf("!"));
+								Map<URL, Resource> resources = null;
+								for (URL key : warInmemoryMap.keySet()) {
+									if (key.toExternalForm().equals(s)) {
+										resources = warInmemoryMap.get(key);
+										break;
+									}
+								}
+								final Resource resource = (resources != null) ? resources
+										.get(u)
+										: null;
+								if (resource == null) {
+									return null;
+								}
+								URLConnection con = new URLConnection(resource
+										.getURL()) {
+
+									@Override
+									public void connect() throws IOException {
+									}
+
+									@Override
+									public InputStream getInputStream()
+											throws IOException {
+										return resource
+												.getResourceAsInputStream();
+									}
+
+								};
+								return con;
+							}
+
+						};
+					}
+					return null;
+				}
+
+			});
+			ResourceBuilder builder = new ResourceBuilderImpl();
+			for (File warfile : warFiles) {
+				Map<URL, Resource> map = builder.build(warfile.getPath());
+				PathPair pair = createPathPairFromResources(map);
+				pathPairList.add(pair);
+				warInmemoryMap.put(pair.url, map);
 			}
 		}
 		// コンテキストXML
 		File[] contextXMLs = webappDir.listFiles(new ContextXMLFileFilter());
-		if (contextXMLs != null) {
-			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
-			for (int i = 0; i < contextXMLs.length; i++) {
-				File contextXml = contextXMLs[i];
-				final String fileName = contextXml.getName();
-				final String contextPathFromFileName = "/"
-						+ fileName.substring(0, fileName.length()
-								- ".xml".length());
-				parser.parse(contextXml, new DefaultHandler() {
-					public void startElement(String uri, String localName,
-							String qName, Attributes attributes)
-							throws SAXException {
-						if (qName.equals("Context")) {
-							String contextPath = attributes.getValue("path");
-							String docBase = attributes.getValue("docBase");
-							if (docBase == null) {
-								log.error("docBase attribute not found. file="
-										+ fileName);
-								return;
-							} else {
-								if (contextPath == null)
-									contextPath = contextPathFromFileName;
-								docBase = docBase.replace('\\', '/');
-								if (docBase.startsWith(".")) {// 相対パスの場合、webappsまでのパスを追加
-									docBase = webappDirPath + "/" + docBase;
-								}
-								if (!new File(docBase).exists()) {
-									log.error("docBase not exist.file="
-											+ fileName + " contextPath="
-											+ contextPath + " docBase="
-											+ docBase);
-									return;
-								} else {
-									log
-											.info("detect webapp context. contextPath="
-													+ contextPath
-													+ " docBase="
-													+ docBase);
-									try {
-										final PathPair pathPair = createPathPair(new File(
-												docBase).toURL());
-										pathPairList.add(pathPair);
-									} catch (MalformedURLException ignore) {
-										// TODO logging or throw exception.
-									}
-									contextPathList.add(contextPath);
-								}
-							}
-						}
-					}
-				});
-			}
+		parseContextXMLs(contextXMLs);
+	}
+
+	protected PathPair createPathPairFromResources(Map<URL, Resource> resources)
+			throws MalformedURLException {
+		if (resources == null || resources.isEmpty()) {
+			return null;
 		}
+		Resource r = resources.values().iterator().next();
+		URL u = r.getURL();
+		if (u == null) {
+			return null;
+		}
+		String baseurl = u.toExternalForm();
+		String s = baseurl.substring(0, baseurl.indexOf("!"));
+		URL url = new URL(s);
+		return createPathPair(url);
 	}
 
 	protected PathPair createPathPair(final URL url) {
@@ -217,16 +265,20 @@ public class WebAppManager {
 			final String docBase = pathPair.docBase;
 			final String contextPath = pathPair.contextPath;
 			WebXml webxml = buildWebXml(pathPair.url);
-			setDefaultServlet(webxml, docBase, contextPath);
+			if (!isInmemoryExtract) {
+				setDefaultServlet(webxml, docBase, contextPath);
 
-			// create WebApplication
-			WebAppClassLoader webAppClassLoader = createWebAppClassLoader(docBase);
-			webAppClassLoader.setParentClassLoader(Thread.currentThread()
-					.getContextClassLoader());
-			WebApplication webapp = new WebApplication(webxml, docBase,
-					contextPath, webAppClassLoader, this);
+				// create WebApplication
+				WebAppClassLoader webAppClassLoader = createWebAppClassLoader(docBase);
+				webAppClassLoader.setParentClassLoader(Thread.currentThread()
+						.getContextClassLoader());
+				WebApplication webapp = new WebApplication(webxml, docBase,
+						contextPath, webAppClassLoader, this);
+				this.webAppList.add(webapp);
+			} else {
+				//TODO create CustomClassLoader and create WebApplication....
+			}
 			log.info("create webapp [" + contextPath + "]");
-			this.webAppList.add(webapp);
 		}
 
 		this.webAppList.add(getRootWebApplication());
@@ -234,7 +286,13 @@ public class WebAppManager {
 
 	protected WebXml buildWebXml(URL url) throws SAXException,
 			ParserConfigurationException, MalformedURLException {
-		final URL webXmlUrl = new URL(url, "WEB-INF/web.xml");
+		URL webXmlUrl = null;
+		if(!isInmemoryExtract) {
+			webXmlUrl = new URL(url, "WEB-INF/web.xml");
+		} else {
+			String s = url + "!" + "/WEB-INF/web.xml";
+			webXmlUrl = new URL(null, s);
+		}
 		return new WebXmlBuilder() {
 
 			public WebXml build(final URL webXmlUrl) throws SAXException,
@@ -551,7 +609,8 @@ public class WebAppManager {
 				s = (s.endsWith("/")) ? s.substring(0, s.length() - 1) : s;
 				this.contextPath = Assertion.notNull(s);
 			} else {
-				// TODO
+				final String urlStr = url.toExternalForm();
+				this.docBase = urlStr;
 			}
 		}
 	}
@@ -585,4 +644,60 @@ public class WebAppManager {
 		}
 	}
 
+	protected void parseContextXMLs(File[] contextXMLs) throws Exception {
+		if (contextXMLs != null) {
+			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+			for (int i = 0; i < contextXMLs.length; i++) {
+				File contextXml = contextXMLs[i];
+				final String fileName = contextXml.getName();
+				final String contextPathFromFileName = "/"
+						+ fileName.substring(0, fileName.length()
+								- ".xml".length());
+				parser.parse(contextXml, new DefaultHandler() {
+					public void startElement(String uri, String localName,
+							String qName, Attributes attributes)
+							throws SAXException {
+						if (qName.equals("Context")) {
+							String contextPath = attributes.getValue("path");
+							String docBase = attributes.getValue("docBase");
+							if (docBase == null) {
+								log.error("docBase attribute not found. file="
+										+ fileName);
+								return;
+							} else {
+								if (contextPath == null)
+									contextPath = contextPathFromFileName;
+								docBase = docBase.replace('\\', '/');
+								if (docBase.startsWith(".")) {// 相対パスの場合、webappsまでのパスを追加
+									docBase = webappDirPath + "/" + docBase;
+								}
+								if (!new File(docBase).exists()) {
+									log.error("docBase not exist.file="
+											+ fileName + " contextPath="
+											+ contextPath + " docBase="
+											+ docBase);
+									return;
+								} else {
+									log
+											.info("detect webapp context. contextPath="
+													+ contextPath
+													+ " docBase="
+													+ docBase);
+									try {
+										final PathPair pathPair = createPathPair(new File(
+												docBase).toURL());
+										pathPairList.add(pathPair);
+									} catch (MalformedURLException ignore) {
+										// TODO logging or throw exception.
+									}
+									contextPathList.add(contextPath);
+								}
+							}
+						}
+					}
+				});
+			}
+		}
+
+	}
 }
