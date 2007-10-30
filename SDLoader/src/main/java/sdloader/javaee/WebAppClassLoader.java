@@ -25,31 +25,19 @@ import java.net.URLStreamHandlerFactory;
  * @author c9katayama
  */
 public class WebAppClassLoader extends URLClassLoader {
-	
-	protected ClassLoader parentClassLoader;
 
 	protected String[] selfLoadPackagePrefix = {};
 
 	protected String[] parentLoadPackagePrefix = { "java.", "javax.servlet",
 			"javax.xml", "org.w3c.dom", "org.xml.sax", "sun.", "com.sun." };
-	
-	public WebAppClassLoader(URL[] urls) {
-		super(urls);
-	}
 
 	public WebAppClassLoader(URL[] urls, ClassLoader parent) {
 		super(urls, parent);
-		this.parentClassLoader = parent;
 	}
 
 	public WebAppClassLoader(URL[] urls, ClassLoader parent,
 			URLStreamHandlerFactory factory) {
 		super(urls, parent, factory);
-		this.parentClassLoader = parent;
-	}
-
-	public void setParentClassLoader(ClassLoader loader) {
-		this.parentClassLoader = loader;
 	}
 
 	public void setSelfLoadPackagePrefix(String[] selfLoadPackagePrefix) {
@@ -82,10 +70,8 @@ public class WebAppClassLoader extends URLClassLoader {
 
 		if (preParentLoad) {
 			try {
-				c = parentClassLoader.loadClass(name);
+				c = super.loadClass(name,resolve);
 				if (c != null) {
-					if (resolve)
-						resolveClass(c);
 					return c;
 				}
 			} catch (Throwable e) {
@@ -105,10 +91,8 @@ public class WebAppClassLoader extends URLClassLoader {
 
 		if (!preParentLoad) {
 			// ない場合は委譲
-			c = parentClassLoader.loadClass(name);
+			c = super.loadClass(name,resolve);
 			if (c != null) {
-				if (resolve)
-					resolveClass(c);
 				return c;
 			}
 		}
