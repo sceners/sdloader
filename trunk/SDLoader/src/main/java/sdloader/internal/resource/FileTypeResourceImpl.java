@@ -36,7 +36,7 @@ public class FileTypeResourceImpl implements FileTypeResource {
 		this.path = path;
 		this.originalPath = path;
 		this.bytes = bytes;
-		this.url = WarProtocolBuilder.resourcePathToUrl(rootUrl, originalPath);
+		this.url = WarProtocolBuilder.createArchiveResourceURL(rootUrl, originalPath);
 	}
 	
 	public String getOriginalPath() {
