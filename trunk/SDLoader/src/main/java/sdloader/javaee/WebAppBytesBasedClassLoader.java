@@ -53,15 +53,20 @@ public class WebAppBytesBasedClassLoader extends URLClassLoader {
 		c = findLoadedClass(getParent(), name);
 		if (c != null) {
 			return c;
-		}
+		}		
 		c = defineClass(name, resolve);
 		if (c != null) {
 			return c;
 		}
-		return super.loadClass(name, resolve);
+		return getParent().loadClass(name);
 	}
-
+    protected Class<?> findClass(final String name)
+	 throws ClassNotFoundException{
+    	//
+    	return null;
+    }
 	private Class defineClass(String name, boolean resolve) {
+		//メモリ上のリソースからロード
 		String classResourceName = name.replace(".","/")+".class";
 		Resource classResource = findClassPathResource(classResourceName);
 		if(classResource != null){
