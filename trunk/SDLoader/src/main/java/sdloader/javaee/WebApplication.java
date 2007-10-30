@@ -15,6 +15,7 @@
  */
 package sdloader.javaee;
 
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.ServletTag;
 import sdloader.javaee.webxml.WebXml;
 import sdloader.util.CollectionsUtil;
+import sdloader.util.ResourceUtil;
 import sdloader.util.WebUtils;
 
 /**
@@ -54,13 +56,13 @@ public class WebApplication {
 	private WebXml webXml;
 
 	/** ドキュメントルート */
-	private String docBase;
+	private URL docBase;
 
 	/** /から始まるコンテキストパス */
 	private String contextPath;
 
 	/** WebApplicationクラスローダー */
-	private WebAppClassLoader webAppClassLoader;
+	private ClassLoader webAppClassLoader;
 
 	/** WebAppManager */
 	private WebAppManager manager;
@@ -80,8 +82,8 @@ public class WebApplication {
 	/**
 	 * WebAppクラス
 	 */
-	WebApplication(WebXml webXml, String docBase, String contextPath,
-			WebAppClassLoader webAppClassLoader, WebAppManager manager) {
+	WebApplication(WebXml webXml, URL docBase, String contextPath,
+			ClassLoader webAppClassLoader, WebAppManager manager) {
 		this.webXml = webXml;
 		this.docBase = docBase;
 		this.contextPath = contextPath;
@@ -94,7 +96,7 @@ public class WebApplication {
 		return manager;
 	}
 
-	public String getDocBase() {
+	public URL getDocBase() {
 		return docBase;
 	}
 
@@ -102,7 +104,7 @@ public class WebApplication {
 		return contextPath;
 	}
 
-	public WebAppClassLoader getWebAppClassLoader() {
+	public ClassLoader getWebAppClassLoader() {
 		return webAppClassLoader;
 	}
 
@@ -305,6 +307,7 @@ public class WebApplication {
 
 			List<ServletMappingTag> mappingList = webXml.getWebApp()
 					.getServletMapping();
+			//servlet
 			for (Iterator<ServletMappingTag> mappingItr = mappingList
 					.iterator(); mappingItr.hasNext();) {
 				ServletMappingTag mapping = mappingItr.next();
