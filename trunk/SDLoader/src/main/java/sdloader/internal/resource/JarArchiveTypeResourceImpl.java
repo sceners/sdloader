@@ -19,13 +19,14 @@ package sdloader.internal.resource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 
 /**
  * @author shot
  */
 public class JarArchiveTypeResourceImpl implements ArchiveTypeResource {
 
-	public static final String WEBINF = "WEB-INF/";
+	public static final String WEBINFLIB = "WEB-INF/lib";
 
 	public static final String PROTOCOL = "innerjar:";
 
@@ -38,19 +39,21 @@ public class JarArchiveTypeResourceImpl implements ArchiveTypeResource {
 	protected boolean runtimeNeeded;
 
 	protected URL url;
+	
+	protected Map<URL, Resource> archiveResource;
 
 	public JarArchiveTypeResourceImpl(final URL rootUrl, final String path, final byte[] bytes) {
 		this.originalPath = path;
 		this.path = path;
-		if (path.startsWith(WEBINF)) {
+		if (path.startsWith(WEBINFLIB)) {
 			this.runtimeNeeded = true;
 		} else {
 			this.runtimeNeeded = false;
+			this.bytes = bytes;
 		}
-		this.bytes = bytes;
 		this.url = WarProtocolBuilder.innerjarUrl(rootUrl, originalPath);
 	}
-
+	
 	public String getOriginalPath() {
 		return originalPath;
 	}
@@ -74,5 +77,13 @@ public class JarArchiveTypeResourceImpl implements ArchiveTypeResource {
 	public URL getURL() {
 		return url;
 	}
-
+	
+	public void setArchiveResources(Map<URL, Resource> resources){
+		this.archiveResource = resources;
+	}
+	
+	public Resource getArchiveResource(String name){
+		URL resourceUrl = WarProtocolBuilder.createArchiveResourceURL(url,name);
+		return archiveResource.get(resourceUrl);
+	}
 }
