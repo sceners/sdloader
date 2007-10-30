@@ -36,6 +36,7 @@ import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
+import sdloader.util.ResourceUtil;
 
 /**
  * ServletContext実装クラス
@@ -50,7 +51,7 @@ public class ServletContextImpl implements ServletContext {
 
 	private String servletContextName;// コンテキスト名 /で始まるコンテキストディレクトリ名
 
-	private String docBase;// ドキュメントルート
+	private URL docBase;// ドキュメントルート
 
 	private Map<String, Servlet> servletMap;
 
@@ -103,19 +104,19 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public URL getResource(String resource) throws MalformedURLException {
-		log.debug(resource);
-		String resourcePath = createResourcePath(resource);
-		File file = new File(resourcePath);
-		if (file.exists())
-			return new URL("file", null, resourcePath);
-		else
-			return null;
+		URL url = ResourceUtil.createURL(docBase,resource);
+		return ResourceUtil.isResourceExist(url) ? url : null;
 	}
 
 	public InputStream getResourceAsStream(String resource) {
-		try {
-			return new FileInputStream(createResourcePath(resource));
-		} catch (Exception e) {
+		try{
+			URL url = getResource(resource);
+			if(url != null){
+				return url.openStream();
+			}else{
+				return null;
+			}
+		}catch(Exception e){
 			return null;
 		}
 	}
@@ -141,7 +142,12 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public String getRealPath(String resource) {
-		return createResourcePath(resource);
+		URL url = ResourceUtil.createURL(docBase,resource);
+		if(url.getProtocol().startsWith("file")){
+			return url.getFile();
+		}else{
+			return url.toExternalForm();
+		}
 	}
 
 	public String getInitParameter(String key) {
@@ -232,21 +238,11 @@ public class ServletContextImpl implements ServletContext {
 		this.servletContextName = servletContextName;
 	}
 
-	public void setDocBase(String absoluteContextPath) {
+	public void setDocBase(URL absoluteContextPath) {
 		this.docBase = absoluteContextPath;
 	}
 
 	public WebApplication getWebApplication() {
 		return webApp;
-	}
-
-	private String createResourcePath(String resource) {
-		if (resource.startsWith("/") || resource.startsWith("\\")) {
-			String path = docBase + resource;
-			return path;
-		} else {
-			String path = docBase + "/" + resource;
-			return path;
-		}
 	}
 }
