@@ -31,7 +31,6 @@ import javax.servlet.http.Cookie;
 
 import sdloader.SDLoader;
 import sdloader.javaee.ServletMapping;
-import sdloader.javaee.WebAppClassLoader;
 import sdloader.javaee.WebApplication;
 import sdloader.javaee.impl.FilterChainImpl;
 import sdloader.javaee.impl.HttpServletRequestImpl;
@@ -205,9 +204,8 @@ public class HttpRequestProcessor extends Thread {
 		request.setServletContext(webapp.getServletContext());
 
 		// class loader
-		WebAppClassLoader webClassLoader = webapp.getWebAppClassLoader();
+		ClassLoader webClassLoader = webapp.getWebAppClassLoader();
 		ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-		webClassLoader.setParentClassLoader(oldLoader);
 		Thread.currentThread().setContextClassLoader(webClassLoader);
 
 		// service
