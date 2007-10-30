@@ -102,14 +102,15 @@ public class WebUtils {
 	}
 
 	/**
-	 * 対象ディレクトリ中のファイルへのURLを生成します。 ディレクトリがある場合、再帰的にファイルを探します。
+	 * 対象ディレクトリ中のファイルへのURLを生成します。
 	 * 
 	 * @param targetDir
 	 * @param fileFilter
+	 * @param recursive 再帰的に追加するかどうか
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public static URL[] createClassPaths(String targetDir, FileFilter fileFilter)
+	public static URL[] createClassPaths(String targetDir, FileFilter fileFilter,boolean recursive)
 			throws MalformedURLException {
 		File libDir = new File(targetDir);
 		if (!libDir.exists())
@@ -125,21 +126,21 @@ public class WebUtils {
 				urlList.add(new URL("file:///" + libPath));
 			}
 		}
-
-		File[] dirs = libDir.listFiles();
-		if (dirs != null) {
-			for (int i = 0; i < dirs.length; i++) {
-				if (dirs[i].isDirectory()) {
-					URL[] urls = createClassPaths(dirs[i].getAbsolutePath(),
-							fileFilter);
-					if (urls != null) {
-						for (int j = 0; j < urls.length; j++)
-							urlList.add(urls[j]);
+		if(recursive){
+			File[] dirs = libDir.listFiles();
+			if (dirs != null) {
+				for (int i = 0; i < dirs.length; i++) {
+					if (dirs[i].isDirectory()) {
+						URL[] urls = createClassPaths(dirs[i].getAbsolutePath(),
+								fileFilter,recursive);
+						if (urls != null) {
+							for (int j = 0; j < urls.length; j++)
+								urlList.add(urls[j]);
+						}
 					}
 				}
 			}
 		}
-
 		return (URL[]) urlList.toArray(new URL[] {});
 	}
 
