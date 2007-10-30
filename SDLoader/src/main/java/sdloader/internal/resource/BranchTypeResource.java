@@ -26,4 +26,6 @@ public interface BranchTypeResource extends Resource {
 	void addResource(Resource resource);
 	
 	void addResources(List<Resource> resources);
+	
+	List<Resource> getResources();
 }
