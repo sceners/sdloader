@@ -33,13 +33,12 @@ public class ClassTypeResourceImpl implements ClassTypeResource {
 	protected URL url;
 	
 	public ClassTypeResourceImpl(final URL rootUrl, final String path, final byte[] bytes) {
-		String s = path.replace(WEBINF_PREFIX, "");
-		s = s.substring(0, s.lastIndexOf(CLASS_SUFFIX));
+		String s = path;
 		s = s.replaceAll("/", ".");
 		this.path = s;
 		this.originalPath = path;
 		this.bytes = bytes;
-		this.url = WarProtocolBuilder.classPathToUrl(rootUrl, originalPath);
+		this.url = WarProtocolBuilder.createArchiveResourceURL(rootUrl, originalPath);
 	}
 	
 	public String getOriginalPath() {
