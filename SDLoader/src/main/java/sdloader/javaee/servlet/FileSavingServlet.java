@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
@@ -56,28 +57,32 @@ public class FileSavingServlet extends HttpServlet {
 	/**
 	 * ドキュメントルート（絶対パス）
 	 */
-	private String docRootPath;
+	protected URL docRootPath;
 
-	private Map<String, String> mimeTypeMap = CollectionsUtil.newHashMap();
+	protected Map<String, String> mimeTypeMap = CollectionsUtil.newHashMap();
 
-	private WelcomeFileListTag welcomeFileListTag;
-
+	protected WelcomeFileListTag welcomeFileListTag;
+	
+	protected WebApplication webApp;
+	
 	public FileSavingServlet() {
 		super();
 
 	}
 
 	public void init() throws ServletException {
-		this.docRootPath = getInitParameter(PARAM_DOC_ROOT);
-		if (docRootPath == null)
+		String docRootStr = getInitParameter(PARAM_DOC_ROOT); 
+		if ( docRootStr == null)
 			throw new ServletException("InitParameter [docRootPath] not found.");
+		
+		this.docRootPath = ResourceUtil.createURL(docRootStr);
 
 		// load mimetype
 		initMime();
 
 		ServletContextImpl servletContext = (ServletContextImpl) getServletContext();
-		WebApplication app = servletContext.getWebApplication();
-		welcomeFileListTag = app.getWebXml().getWebApp().getWelcomeFileList();
+		webApp = servletContext.getWebApplication();
+		welcomeFileListTag = webApp.getWebXml().getWebApp().getWelcomeFileList();
 	}
 
 	/**
@@ -127,7 +132,7 @@ public class FileSavingServlet extends HttpServlet {
 			return;
 		}
 
-		String realPath = this.docRootPath + uri;
+		String realPath = this.docRootPath.getPath() + uri;
 
 		File fileOrDir = new File(realPath);
 		if (!fileOrDir.exists()) {
@@ -142,7 +147,7 @@ public class FileSavingServlet extends HttpServlet {
 		} else {
 			if (welcomeFileListTag != null) {
 				File dir = fileOrDir;
-				processWelcomeFile(dir, req, res);
+				processWelcomeFile(dir.toURL(), req, res);
 				return;
 			} else {
 				res.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -161,8 +166,8 @@ public class FileSavingServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	protected void processWelcomeFile(File dir, HttpServletRequest req,
-			HttpServletResponse res) throws ServletException, IOException {
+	protected void processWelcomeFile(final URL dir,final HttpServletRequest req,
+			final HttpServletResponse res) throws ServletException, IOException {
 		String basePath = req.getPathInfo();
 		if (!basePath.endsWith("/"))
 			basePath += "/";
@@ -188,11 +193,11 @@ public class FileSavingServlet extends HttpServlet {
 				}
 			}
 			// find file
-			File welcomeFile = new File(dir, welcomefileName);
-			if (welcomeFile.exists() && welcomeFile.isFile()) {
+			URL welcomeFile = ResourceUtil.createURL(dir,welcomefileName);
+			if (ResourceUtil.isResourceExist(welcomeFile)) {
 				context.getRequestDispatcher(path).forward(req, res);
 				return;
-			}
+			}			
 		}
 		res.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		return;
@@ -222,7 +227,7 @@ public class FileSavingServlet extends HttpServlet {
 		ServletOutputStream sout = res.getOutputStream();
 		try {
 			int size = WebUtils.copyStream(fin, sout);
-			setContentType(res, file);
+			setContentType(res, file.getName());
 			res.setContentLength(size);
 			res.setStatus(HttpServletResponse.SC_OK);
 		} finally {
@@ -258,12 +263,11 @@ public class FileSavingServlet extends HttpServlet {
 		}
 	}
 
-	protected void setContentType(HttpServletResponse res, File file) {
-		String name = file.getName();
-		int dotIndex = name.lastIndexOf(".");
+	protected void setContentType(HttpServletResponse res, String path) {
+		int dotIndex = path.lastIndexOf(".");
 		if (dotIndex >= 0) {
 			try {
-				String ext = name.substring(dotIndex + 1);
+				String ext = path.substring(dotIndex + 1);
 				String type = mimeTypeMap.get(ext);
 				if (type == null)
 					type = mimeTypeMap.get(ext.toLowerCase());
