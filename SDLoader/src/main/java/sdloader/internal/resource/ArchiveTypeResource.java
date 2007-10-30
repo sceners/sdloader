@@ -15,10 +15,13 @@
  */
 package sdloader.internal.resource;
 
+
 /**
  * @author shot
  */
 public interface ArchiveTypeResource extends LeafTypeResource {
 
 	boolean isRuntimeNeeded();
+	
+	Resource getArchiveResource(String name);
 }
