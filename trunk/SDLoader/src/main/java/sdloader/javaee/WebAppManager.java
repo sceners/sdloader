@@ -62,7 +62,6 @@ import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.Assertion;
 import sdloader.util.BooleanUtil;
-import sdloader.util.ClassLoaderUtil;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.ResourceUtil;
@@ -312,7 +311,7 @@ public class WebAppManager {
 					urlList.add(libs[i]);
 			}
 			URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-			ClassLoader webinfClassLoader = new URLClassLoader(urls,ClassLoaderUtil.getBootStrapClassLoader());
+			ClassLoader webinfClassLoader = new URLClassLoader(urls,ClassLoader.getSystemClassLoader());
 			ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
 			WebAppClassLoader webAppClassLoader = new WebAppClassLoader(parentClassLoader,webinfClassLoader);
 			return webAppClassLoader;
@@ -352,7 +351,7 @@ public class WebAppManager {
 			}
 		}				
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-		ClassLoader webinfClassLoader = new BytesBasedClassLoader(ClassLoaderUtil.getBootStrapClassLoader(),resourceMap,urls);
+		ClassLoader webinfClassLoader = new BytesBasedClassLoader(ClassLoader.getSystemClassLoader(),resourceMap,urls);
 		ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
 		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(parentClassLoader,webinfClassLoader);
 		
