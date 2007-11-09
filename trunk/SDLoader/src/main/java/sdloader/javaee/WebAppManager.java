@@ -387,7 +387,7 @@ public class WebAppManager {
 			// JSPコンパイルディレクトリの作成
 			jspServlet.addInitParam(new InitParamTag("scratchdir", "false"));
 			String jspWorkDirPath = System.getProperty("java.io.tmpdir")
-					+ "/sdloaderjsp" + contextPath;
+					+ "sdloaderjsp" + contextPath;
 			File jspWorkDir = new File(jspWorkDirPath);
 			jspWorkDir.mkdirs();
 			jspServlet.addInitParam(new InitParamTag("scratchdir",
