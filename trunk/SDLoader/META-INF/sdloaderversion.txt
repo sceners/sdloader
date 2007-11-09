@@ -1,1 +1,1 @@
-libversion=v0_1_04
+libversion=v0_1_05
