@@ -23,14 +23,14 @@ import java.util.Iterator;
  * 
  * @author c9katayama
  */
-public class IteratorEnumeration implements Enumeration {
+public class IteratorEnumeration<T> implements Enumeration {
 
-	private Iterator itr;
+	private Iterator<T> itr;
 
 	public IteratorEnumeration() {
 	}
 
-	public IteratorEnumeration(Iterator itr) {
+	public IteratorEnumeration(Iterator<T> itr) {
 		this.itr = itr;
 	}
 
@@ -41,7 +41,7 @@ public class IteratorEnumeration implements Enumeration {
 			return itr.hasNext();
 	}
 
-	public Object nextElement() {
+	public T nextElement() {
 		if (itr == null)
 			return null;
 		else
