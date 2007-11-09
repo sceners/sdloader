@@ -57,8 +57,7 @@ public class WebAppClassLoader extends URLClassLoader {
 		
 		if(webInfLoadFirst){
 			try{
-				c = webinfClassLoader.loadClass(name);
-				return c;
+				return webinfClassLoader.loadClass(name);
 			}catch(ClassNotFoundException e){
 				//ignore
 			}
@@ -69,7 +68,8 @@ public class WebAppClassLoader extends URLClassLoader {
 				return c;
 			}
 		}catch(ClassNotFoundException e){
-			return webinfClassLoader.loadClass(name);			
+			if(!webInfLoadFirst)
+				return webinfClassLoader.loadClass(name);			
 		}
 		throw new ClassNotFoundException("Class not found.classname=" + name);
 	}
