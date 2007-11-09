@@ -1,1 +1,0 @@
-libversion=v0_1_05
