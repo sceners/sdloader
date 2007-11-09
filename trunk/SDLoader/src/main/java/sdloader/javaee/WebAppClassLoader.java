@@ -15,9 +15,11 @@
  */
 package sdloader.javaee;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLStreamHandlerFactory;
+import java.util.Enumeration;
+import java.util.NoSuchElementException;
 
 /**
  * WebApp用クラスローダー WEB-INF/classesとWEB-INF/lib内のjarとzipがロード対象となります。
@@ -26,108 +28,98 @@ import java.net.URLStreamHandlerFactory;
  */
 public class WebAppClassLoader extends URLClassLoader {
 
-	protected String[] selfLoadPackagePrefix = {};
+	protected ClassLoader webinfClassLoader;
+	
+	protected String[] webInfLoadFirstPackagePrefix={"org.h2","org.apache.commons.logging"};
 
-	protected String[] parentLoadPackagePrefix = { "java.", "javax.servlet",
-			"javax.xml", "org.w3c.dom", "org.xml.sax", "sun.", "com.sun." };
-
-	public WebAppClassLoader(URL[] urls, ClassLoader parent) {
-		super(urls, parent);
+	public WebAppClassLoader(ClassLoader parent,ClassLoader webinfClassLoader) {
+		super(new URL[]{}, parent);
+		this.webinfClassLoader = webinfClassLoader;
 	}
-
-	public WebAppClassLoader(URL[] urls, ClassLoader parent,
-			URLStreamHandlerFactory factory) {
-		super(urls, parent, factory);
-	}
-
-	public void setSelfLoadPackagePrefix(String[] selfLoadPackagePrefix) {
-		this.selfLoadPackagePrefix = selfLoadPackagePrefix;
-	}
-
-	public void setParentLoadPackagePrefix(String[] parentLoadPackagePrefix) {
-		this.parentLoadPackagePrefix = parentLoadPackagePrefix;
-	}
-
 	/**
-	 * クラスをロードします。 ロード済みクラスがあるかどうか 事前読み込み（親クラスローダーから） 自前読み込み（自前クラスローダーから）
-	 * 事前読み込み（親クラスローダーから） の順で読み込みを行い、クラスが見つかった場合はそのクラスを返します。
-	 * 自前クラスローダーは、WEB-INF/classesとWEB-INF/libがロード対象になります。
+	 * クラスをロードします。 
+	 * まずロード済みクラスがあるかどうかをチェックします。
+	 * 次にWEB-INFを先読みする対象パターンのクラスを、WEB-INF以下から読み込みます。
+	 * （SDLoaderが読み込んでいるけどもWebアプリごとにロードした方が良いものが対象）
+	 * 次に親クラスローダーで読み込み、なけばWEb-INFから読み込みます。
 	 */
 	protected synchronized Class<?> loadClass(String name, boolean resolve)
 			throws ClassNotFoundException {
-		// ロード済みクラスをチェック
+		//check loaded Class
 		Class<?> c = findLoadedClass(name);
 		if (c != null) {
 			if (resolve)
 				resolveClass(c);
 			return c;
 		}
-
-		boolean selfLoad = isSelfLoad(name);
-		boolean parentLoad = isParentLoad(name);
-		// 自前ロードでなく、かつ親ロードの場合、親で先にロード
-		boolean preParentLoad = (!selfLoad && parentLoad);
-
-		if (preParentLoad) {
-			try {
-				c = super.loadClass(name,resolve);
-				if (c != null) {
-					return c;
-				}
-			} catch (Throwable e) {
-			}
-		}
-
-		try {
-			// 前ロード
-			c = findClass(name);
-			if (c != null) {
-				if (resolve)
-					resolveClass(c);
+		
+		boolean webInfLoadFirst = isWebInfLoadFirst(name);
+		
+		if(webInfLoadFirst){
+			try{
+				c = webinfClassLoader.loadClass(name);
 				return c;
+			}catch(ClassNotFoundException e){
+				//ignore
 			}
-		} catch (Throwable e) {
 		}
-
-		if (!preParentLoad) {
-			// ない場合は委譲
+		try{
 			c = super.loadClass(name,resolve);
 			if (c != null) {
 				return c;
 			}
+		}catch(ClassNotFoundException e){
+			return webinfClassLoader.loadClass(name);			
 		}
 		throw new ClassNotFoundException("Class not found.classname=" + name);
 	}
+	@Override
+	public URL[] getURLs() {
+		if(webinfClassLoader instanceof URLClassLoader){
+			return ((URLClassLoader)webinfClassLoader).getURLs();
+		}else{
+			return super.getURLs();
+		}
+	}
+	@Override
+	public URL findResource(String name) {
+		URL resource = super.findResource(name);
+		if(resource == null){
+			resource = webinfClassLoader.getResource(name);
+		}
+		return resource;
+	}
+	@Override
+	public Enumeration<URL> findResources(String name) throws IOException {
+		final Enumeration<URL> resources = super.findResources(name);
+		final Enumeration<URL> selfResources = webinfClassLoader.getResources(name);		
+		return new Enumeration<URL>(){
+			public boolean hasMoreElements() {
+				return (resources.hasMoreElements() || selfResources.hasMoreElements());
+			}
+			public URL nextElement() {
+				if(resources.hasMoreElements()){
+					return resources.nextElement();
+				}
+				if(selfResources.hasMoreElements()){
+					return selfResources.nextElement();
+				}
+				 throw new NoSuchElementException();
+			}
+		};
+	}
 
 	/**
-	 * 親ロードの前に自前ロードするかどうか
+	 * 親ロードの前にweb-inf内をロードするかどうか
 	 */
-	private boolean isSelfLoad(String name) {
-		if (selfLoadPackagePrefix != null) {
-			for (int i = 0; i < selfLoadPackagePrefix.length; i++) {
-				if (name.startsWith(selfLoadPackagePrefix[i])) {
+	private boolean isWebInfLoadFirst(String name) {
+		if (webInfLoadFirstPackagePrefix != null) {
+			for (int i = 0; i < webInfLoadFirstPackagePrefix.length; i++) {
+				if (name.startsWith(webInfLoadFirstPackagePrefix[i])) {
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-
-	/**
-	 * 自前ロードの前に親でロードするかどうか
-	 * 
-	 * @param name
-	 * @return
-	 */
-	private boolean isParentLoad(String name) {
-		if (parentLoadPackagePrefix != null) {
-			for (int i = 0; i < parentLoadPackagePrefix.length; i++) {
-				if (name.startsWith(parentLoadPackagePrefix[i])) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 }

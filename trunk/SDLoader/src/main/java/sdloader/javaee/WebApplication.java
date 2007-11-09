@@ -41,7 +41,6 @@ import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.ServletTag;
 import sdloader.javaee.webxml.WebXml;
 import sdloader.util.CollectionsUtil;
-import sdloader.util.ResourceUtil;
 import sdloader.util.WebUtils;
 
 /**
