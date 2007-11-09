@@ -30,7 +30,7 @@ import sdloader.util.CollectionsUtil;
 public class HttpParameters {
 	public static final String DEFAULT_CHAR_ENCODE = "ISO-8859-1";
 
-	private Map<String, List<String>> paramMap;
+	private Map<String, String[]> paramMap;
 
 	private List<String> paramNameList;
 
@@ -52,21 +52,20 @@ public class HttpParameters {
 
 	public String getParamter(String key) {
 		initIfNeed();
-		List<String> paramList = paramMap.get(key);
+		String[] paramList = paramMap.get(key);
 		if (paramList == null) {
 			return null;
 		}
-		String param = paramList.get(0);
+		String param = paramList[0];
 		return param;
 	}
 
 	public String[] getParamterValues(String key) {
 		initIfNeed();
-		List<String> paramList = paramMap.get(key);
-		if (paramList == null) {
+		String[] params = paramMap.get(key);
+		if (params == null) {
 			return null;
-		}
-		String[] params = paramList.toArray(new String[] {});
+		}		
 		return params;
 	}
 
@@ -75,9 +74,9 @@ public class HttpParameters {
 		return paramNameList.iterator();
 	}
 
-	public Map<String, List<String>> getParamterMap() {
-		initIfNeed();
-		Map<String, List<String>> newMap = CollectionsUtil.newHashMap();
+	public Map<String, String[]> getParamterMap() {
+		initIfNeed();		
+		Map<String, String[]> newMap = CollectionsUtil.newHashMap();
 		newMap.putAll(paramMap);
 		return newMap;
 	}
@@ -91,13 +90,20 @@ public class HttpParameters {
 	}
 
 	void addParameter(String key, String value) {
-		List<String> paramList = paramMap.get(key);
-		if (paramList == null) {
-			paramList = CollectionsUtil.newArrayList();
+		if(value==null){
+			return;
 		}
-		paramList.add(value);
-		paramMap.put(key, paramList);
-		paramNameList.add(key);
+		String[] params = paramMap.get(key);
+		if (params == null) {
+			params = new String[]{value};
+			paramMap.put(key,params);
+			paramNameList.add(key);
+		}else{
+			String[] newParams = new String[params.length+1];
+			System.arraycopy(params,0,newParams,0,params.length);
+			newParams[newParams.length-1] = value;
+			paramMap.put(key,newParams);
+		}
 	}
 
 }
