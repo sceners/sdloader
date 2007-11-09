@@ -15,9 +15,13 @@
  */
 package sdloader.javaee;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import sdloader.internal.resource.ArchiveTypeResource;
@@ -25,10 +29,11 @@ import sdloader.internal.resource.BranchTypeResource;
 import sdloader.internal.resource.Resource;
 
 /**
+ * load classes and resources on memory.
  * @author shot
  * @author c9katayama
  */
-public class WebAppBytesBasedClassLoader extends URLClassLoader {
+public class BytesBasedClassLoader extends ClassLoader{
 
 	private static final Method findLoadedClassMethod = getFindLoadedClassMethod();
 
@@ -36,10 +41,10 @@ public class WebAppBytesBasedClassLoader extends URLClassLoader {
 	
 	private URL[] classPathURLs;
 
-	public WebAppBytesBasedClassLoader(ClassLoader parent,
+	public BytesBasedClassLoader(ClassLoader parent,
 			Map<URL, Resource> resources,
 			URL[] classPathURLs) {
-		super(classPathURLs,parent);
+		super(parent);
 		this.resources = resources;
 		this.classPathURLs = classPathURLs;
 	}
@@ -60,11 +65,26 @@ public class WebAppBytesBasedClassLoader extends URLClassLoader {
 		}
 		return getParent().loadClass(name);
 	}
-    protected Class<?> findClass(final String name)
-	 throws ClassNotFoundException{
-    	//
-    	return null;
-    }
+	@Override
+	public URL getResource(String name) {
+		Resource res = findClassPathResource(name);
+		return (res != null) ? res.getURL() :  null;
+	}
+	@Override
+	public Enumeration<URL> getResources(String name) throws IOException {
+		List<Resource> resourceList = findClassPathResources(name,false);
+		final Iterator<Resource> itr = resourceList.iterator();
+		return new Enumeration<URL>(){
+			public boolean hasMoreElements() {
+				return itr.hasNext();
+			}
+			public URL nextElement() {
+				Resource res = itr.next();
+				return res.getURL();
+			}
+		};
+	}
+        
 	private Class defineClass(String name, boolean resolve) {
 		//メモリ上のリソースからロード
 		String classResourceName = name.replace(".","/")+".class";
@@ -99,7 +119,6 @@ public class WebAppBytesBasedClassLoader extends URLClassLoader {
 		}
 		return null;
 	}
-
 	private static Method getFindLoadedClassMethod() {
 		Method method = null;
 		try {
@@ -113,6 +132,12 @@ public class WebAppBytesBasedClassLoader extends URLClassLoader {
 	}
 	
 	protected Resource findClassPathResource(String name){
+		List<Resource> resourceList = findClassPathResources(name,true);
+		return resourceList.size()==0?null:resourceList.get(0);
+	}
+	protected List<Resource> findClassPathResources(String name,boolean firstOnly){
+
+		List<Resource> resourceList = new ArrayList<Resource>();
 		for(int i = 0;i < classPathURLs.length;i++){
 			final URL classPathBase = classPathURLs[i];
 			final Resource classPathBaseResource = resources.get(classPathBase);
@@ -122,23 +147,20 @@ public class WebAppBytesBasedClassLoader extends URLClassLoader {
 						new URL(classPathBase.toExternalForm()+name);
 					final Resource classPathResource = 
 						resources.get(resourceUrl);
-					if(classPathResource != null)
-						return classPathResource;
+					if(classPathResource != null){
+						resourceList.add(classPathResource);
+					}
 				}catch(Exception e){
+					//ignore
 				}
 			}else if(classPathBaseResource instanceof ArchiveTypeResource){
 				final Resource classPathResource = 
 					((ArchiveTypeResource)classPathBaseResource).getArchiveResource(name);
-				if(classPathResource != null)
-					return classPathResource;
+				if(classPathResource != null){
+					resourceList.add(classPathResource);
+				}
 			}
 		}
-		return null;
+		return resourceList;
 	}	
-	@Override
-	public URL getResource(String name) {
-		Resource res = findClassPathResource(name);
-		//handle custom URLStreamHandler
-		return (res != null) ? res.getURL() :  null;
-	}
 }

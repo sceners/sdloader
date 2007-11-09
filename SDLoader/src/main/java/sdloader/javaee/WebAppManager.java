@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
@@ -61,6 +62,7 @@ import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.Assertion;
 import sdloader.util.BooleanUtil;
+import sdloader.util.ClassLoaderUtil;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.ResourceUtil;
@@ -310,7 +312,9 @@ public class WebAppManager {
 					urlList.add(libs[i]);
 			}
 			URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-			WebAppClassLoader webAppClassLoader = new WebAppClassLoader(urls,Thread.currentThread().getContextClassLoader());
+			ClassLoader webinfClassLoader = new URLClassLoader(urls,ClassLoaderUtil.getBootStrapClassLoader());
+			ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
+			WebAppClassLoader webAppClassLoader = new WebAppClassLoader(parentClassLoader,webinfClassLoader);
 			return webAppClassLoader;
 		}catch (MalformedURLException e) {
 			throw new RuntimeException(e);
@@ -348,9 +352,9 @@ public class WebAppManager {
 			}
 		}				
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
+		ClassLoader webinfClassLoader = new BytesBasedClassLoader(ClassLoaderUtil.getBootStrapClassLoader(),resourceMap,urls);
 		ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
-		WebAppBytesBasedClassLoader webAppClassLoader = 
-			new WebAppBytesBasedClassLoader(parentClassLoader,resourceMap,urls);
+		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(parentClassLoader,webinfClassLoader);
 		
 		return webAppClassLoader;
 	}		
