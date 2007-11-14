@@ -115,10 +115,7 @@ public class WebAppManager {
 
 	public void init() {
 		try {
-			final String homeDirPath = server
-					.getConfig(SDLoader.KEY_SDLOADER_HOME);
-			// webappsの絶対パス
-			webappDirPath = homeDirPath + "/" + WebConstants.WEBAPP_DIR_NAME;
+			this.webappDirPath = getWebAppDirPath();
 			File webappDir = new File(webappDirPath);
 			if (!webappDir.exists()) {
 				throw new RuntimeException("webapps directory not exists.path="
@@ -132,6 +129,13 @@ public class WebAppManager {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	protected String getWebAppDirPath() {
+		final String homeDirPath = server.getConfig(SDLoader.KEY_SDLOADER_HOME);
+		final String webAppPath = server
+				.getConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
+		return homeDirPath + "/" + webAppPath;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -168,24 +172,23 @@ public class WebAppManager {
 				}
 			}
 		} else {
-			URL.setURLStreamHandlerFactory(
-				new URLStreamHandlerFactory() {
-					public URLStreamHandler createURLStreamHandler(final String protocol) {
-						if (protocol.startsWith("war")){	
-							return new WarURLStreamHandler();
-						}else if(protocol.startsWith("innerjar")) {
-							return new InnerJarURLStreamHandler();
-						}
-						return null;
+			URL.setURLStreamHandlerFactory(new URLStreamHandlerFactory() {
+				public URLStreamHandler createURLStreamHandler(
+						final String protocol) {
+					if (protocol.startsWith("war")) {
+						return new WarURLStreamHandler();
+					} else if (protocol.startsWith("innerjar")) {
+						return new InnerJarURLStreamHandler();
 					}
+					return null;
 				}
-			);
+			});
 			ResourceBuilder builder = new ResourceBuilderImpl();
 			for (File warfile : warFiles) {
 				Map<URL, Resource> map = builder.build(warfile.getPath());
 				PathPair pair = createPathPairFromResources(map);
 				pathPairList.add(pair);
-				warInmemoryMap.put(pair.docBase	, map);
+				warInmemoryMap.put(pair.docBase, map);
 			}
 		}
 		// コンテキストXML
@@ -219,16 +222,15 @@ public class WebAppManager {
 			final URL docBase = pathPair.docBase;
 			final String contextPath = pathPair.contextPath;
 			WebXml webxml = buildWebXml(docBase);
-			
-			setDefaultServlet(webxml, docBase, contextPath,isInmemoryExtract);
+
+			setDefaultServlet(webxml, docBase, contextPath, isInmemoryExtract);
 			// create WebApplication
-			ClassLoader webAppClassLoader = !isInmemoryExtract ?  
-				createWebAppClassLoader(docBase) :
-				createInMemoryWebAppClassLoader(docBase);
+			ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase)
+					: createInMemoryWebAppClassLoader(docBase);
 			WebApplication webapp = new WebApplication(webxml, docBase,
 					contextPath, webAppClassLoader, this);
 			this.webAppList.add(webapp);
-			
+
 			log.info("create webapp [" + contextPath + "]");
 		}
 
@@ -237,7 +239,7 @@ public class WebAppManager {
 
 	protected WebXml buildWebXml(URL url) throws SAXException,
 			ParserConfigurationException, MalformedURLException {
-		URL webXmlUrl = ResourceUtil.createURL(url,"WEB-INF/web.xml");
+		URL webXmlUrl = ResourceUtil.createURL(url, "WEB-INF/web.xml");
 		return new WebXmlBuilder() {
 
 			public WebXml build(final URL webXmlUrl) throws SAXException,
@@ -275,12 +277,13 @@ public class WebAppManager {
 
 		// Default servlet
 		final String contextPath = "/";
-		final String docBaseStr = "file:/"+webappDirPath + "/" + WebConstants.ROOT_DIR_NAME +"/";
+		final String docBaseStr = "file:/" + webappDirPath + "/"
+				+ WebConstants.ROOT_DIR_NAME + "/";
 		URL docBase = ResourceUtil.createURL(docBaseStr);
-		setDefaultServlet(webXmlTag, docBase, contextPath,false);
+		setDefaultServlet(webXmlTag, docBase, contextPath, false);
 		final ClassLoader webAppClassLoader = createWebAppClassLoader(docBase);
-		final WebApplication webapp = new WebApplication(webXmlTag,docBase, "/",
-				webAppClassLoader, this);
+		final WebApplication webapp = new WebApplication(webXmlTag, docBase,
+				"/", webAppClassLoader, this);
 
 		return webapp;
 	}
@@ -305,24 +308,28 @@ public class WebAppManager {
 			// WEB-INF/lib
 			String webinfLibDir = docBase.getFile() + "/WEB-INF/lib";
 			URL[] libs = WebUtils.createClassPaths(webinfLibDir,
-					new ArchiveFileFilter(),false);
+					new ArchiveFileFilter(), false);
 			if (libs != null) {
 				for (int i = 0; i < libs.length; i++)
 					urlList.add(libs[i]);
 			}
 			URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-			ClassLoader webinfClassLoader = new URLClassLoader(urls,ClassLoader.getSystemClassLoader());
-			ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
-			WebAppClassLoader webAppClassLoader = new WebAppClassLoader(parentClassLoader,webinfClassLoader);
+			ClassLoader webinfClassLoader = new URLClassLoader(urls,
+					ClassLoader.getSystemClassLoader());
+			ClassLoader parentClassLoader = Thread.currentThread()
+					.getContextClassLoader();
+			WebAppClassLoader webAppClassLoader = new WebAppClassLoader(
+					parentClassLoader, webinfClassLoader);
 			return webAppClassLoader;
-		}catch (MalformedURLException e) {
+		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
 	}
+
 	/**
 	 * inMemory動作のWebアプリ用のクラスローダーを生成します。
-	 * メモリ上のwarファイルから、クラスパスになるリソースを読み込み、ClassLoaderに
-	 * 設定します。
+	 * メモリ上のwarファイルから、クラスパスになるリソースを読み込み、ClassLoaderに 設定します。
+	 * 
 	 * @param absoluteContextPath
 	 * @return
 	 * @throws MalformedURLException
@@ -331,32 +338,36 @@ public class WebAppManager {
 		List<URL> urlList = CollectionsUtil.newArrayList();
 		Map<URL, Resource> resourceMap = warInmemoryMap.get(docBase);
 		// classes
-		URL classesDir = ResourceUtil.createURL(docBase,"WEB-INF/classes/");
-		if (resourceMap.get(classesDir)!=null){
+		URL classesDir = ResourceUtil.createURL(docBase, "WEB-INF/classes/");
+		if (resourceMap.get(classesDir) != null) {
 			urlList.add(classesDir);
 		}
 		// WEB-INF/lib
-		URL webinfLibDir = ResourceUtil.createURL(docBase,"WEB-INF/lib/");
+		URL webinfLibDir = ResourceUtil.createURL(docBase, "WEB-INF/lib/");
 		Resource libDirResource = resourceMap.get(webinfLibDir);
-		if(libDirResource != null){
-			BranchTypeResource dirResource = (BranchTypeResource)libDirResource;
+		if (libDirResource != null) {
+			BranchTypeResource dirResource = (BranchTypeResource) libDirResource;
 			List<Resource> libs = dirResource.getResources();
-			if(libs != null){
-				for(Resource lib:libs){
+			if (libs != null) {
+				for (Resource lib : libs) {
 					String path = lib.getPath();
-					if(lib instanceof LeafTypeResource && (path.endsWith(".jar")||path.endsWith(".zip"))){
+					if (lib instanceof LeafTypeResource
+							&& (path.endsWith(".jar") || path.endsWith(".zip"))) {
 						urlList.add(lib.getURL());
 					}
 				}
 			}
-		}				
+		}
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-		ClassLoader webinfClassLoader = new BytesBasedClassLoader(ClassLoader.getSystemClassLoader(),resourceMap,urls);
-		ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
-		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(parentClassLoader,webinfClassLoader);
-		
+		ClassLoader webinfClassLoader = new BytesBasedClassLoader(ClassLoader
+				.getSystemClassLoader(), resourceMap, urls);
+		ClassLoader parentClassLoader = Thread.currentThread()
+				.getContextClassLoader();
+		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(
+				parentClassLoader, webinfClassLoader);
+
 		return webAppClassLoader;
-	}		
+	}
 
 	/**
 	 * デフォルトサーブレット（FileSavingServlet)の記述を追加します。
@@ -366,10 +377,10 @@ public class WebAppManager {
 	 *            ドキュメントルートになるパス
 	 * @param contextPath
 	 *            コンテキストパス
-	 * @param warInMemory 
+	 * @param warInMemory
 	 */
 	private void setDefaultServlet(WebXml webxml, URL docBase,
-			String contextPath,boolean warInMemory) {
+			String contextPath, boolean warInMemory) {
 
 		if (JASPER_SUPPORT) {
 			// jsp compiler
@@ -409,10 +420,11 @@ public class WebAppManager {
 		final String fileSavingServletName = "file";
 		ServletTag fileServletTag = new ServletTag();
 		fileServletTag.setLoadOnStartup(0);
-		//TODO 統合したい
-		if(warInMemory){
-			fileServletTag.setServletClass(InMemoryFileSavingServlet.class.getName());
-		}else{
+		// TODO 統合したい
+		if (warInMemory) {
+			fileServletTag.setServletClass(InMemoryFileSavingServlet.class
+					.getName());
+		} else {
 			fileServletTag.setServletClass(FileSavingServlet.class.getName());
 		}
 		fileServletTag.setServletName(fileSavingServletName);
@@ -437,6 +449,7 @@ public class WebAppManager {
 		}
 		return extracted;
 	}
+
 	/**
 	 * webapps以下のフォルダをコンテキストパスとして認識し、/をつけて返します。
 	 * 
@@ -524,13 +537,12 @@ public class WebAppManager {
 			}
 		}
 	}
-	
+
 	private final class WarURLStreamHandler extends URLStreamHandler {
 		@Override
-		protected URLConnection openConnection(URL u)
-				throws IOException {
+		protected URLConnection openConnection(URL u) throws IOException {
 			String warPath = u.toExternalForm();
-			warPath = warPath.substring(0,warPath.indexOf("!"));
+			warPath = warPath.substring(0, warPath.indexOf("!"));
 			Map<URL, Resource> resources = null;
 			for (URL key : warInmemoryMap.keySet()) {
 				if (key.toExternalForm().equals(warPath)) {
@@ -538,30 +550,29 @@ public class WebAppManager {
 					break;
 				}
 			}
-			final Resource resource = (resources != null) ?
-					resources.get(u): null;
+			final Resource resource = (resources != null) ? resources.get(u)
+					: null;
 			if (resource == null) {
 				return null;
 			}
-			return new URLConnection(resource.getURL()){
+			return new URLConnection(resource.getURL()) {
 				@Override
 				public void connect() throws IOException {
-				}					
+				}
+
 				@Override
-				public InputStream getInputStream()
-						throws IOException {
+				public InputStream getInputStream() throws IOException {
 					return resource.getResourceAsInputStream();
-				}					
+				}
 			};
 		}
 	}
 
 	private final class InnerJarURLStreamHandler extends URLStreamHandler {
 		@Override
-		protected URLConnection openConnection(URL u)
-				throws IOException {								
+		protected URLConnection openConnection(URL u) throws IOException {
 			String warPath = u.getPath();
-			warPath = warPath.substring(0,warPath.indexOf("!"));
+			warPath = warPath.substring(0, warPath.indexOf("!"));
 			Map<URL, Resource> resources = null;
 			for (URL key : warInmemoryMap.keySet()) {
 				if (key.toExternalForm().equals(warPath)) {
@@ -569,26 +580,29 @@ public class WebAppManager {
 					break;
 				}
 			}
-			if(resources == null){
+			if (resources == null) {
 				return null;
 			}
 			String jarPath = u.toExternalForm();
-			String innerJar = jarPath.substring(0,jarPath.lastIndexOf("!"));
-			String resourceName = jarPath.substring(jarPath.lastIndexOf("!/")+2,jarPath.length());
-			Resource jarResource = resources.get(ResourceUtil.createURL(innerJar));
-			if(jarResource!=null){
-				ArchiveTypeResource jar = (ArchiveTypeResource)jarResource;
-				final Resource innerJarResource = jar.getArchiveResource(resourceName);
-				if(innerJarResource != null){
-					return new URLConnection(innerJarResource.getURL()){
+			String innerJar = jarPath.substring(0, jarPath.lastIndexOf("!"));
+			String resourceName = jarPath.substring(
+					jarPath.lastIndexOf("!/") + 2, jarPath.length());
+			Resource jarResource = resources.get(ResourceUtil
+					.createURL(innerJar));
+			if (jarResource != null) {
+				ArchiveTypeResource jar = (ArchiveTypeResource) jarResource;
+				final Resource innerJarResource = jar
+						.getArchiveResource(resourceName);
+				if (innerJarResource != null) {
+					return new URLConnection(innerJarResource.getURL()) {
 						@Override
 						public void connect() throws IOException {
-						}					
+						}
+
 						@Override
-						public InputStream getInputStream()
-								throws IOException {
+						public InputStream getInputStream() throws IOException {
 							return innerJarResource.getResourceAsInputStream();
-						}					
+						}
 					};
 				}
 			}
@@ -604,13 +618,14 @@ public class WebAppManager {
 			this.docBase = Assertion.notNull(url);
 			if (!isInmemoryExtract) {
 				final String urlStr = url.toExternalForm();
-				String s = urlStr.replace("file:/", "").replace(webappDirPath, "");
+				String s = urlStr.replace("file:/", "").replace(webappDirPath,
+						"");
 				s = (s.endsWith("/")) ? s.substring(0, s.length() - 1) : s;
 				this.contextPath = Assertion.notNull(s);
 			} else {
 				final String urlStr = url.toExternalForm();
 				String s = Assertion.notNull(urlStr.replace("war:file:/", ""));
-				s = s.replace(webappDirPath, "").replace(".war","");			
+				s = s.replace(webappDirPath, "").replace(".war", "");
 				s = (s.endsWith("/")) ? s.substring(0, s.length() - 1) : s;
 				this.contextPath = Assertion.notNull(s);
 			}
@@ -656,6 +671,7 @@ public class WebAppManager {
 						+ fileName.substring(0, fileName.length()
 								- ".xml".length());
 				parser.parse(contextXml, new DefaultHandler() {
+					@SuppressWarnings("deprecation")
 					public void startElement(String uri, String localName,
 							String qName, Attributes attributes)
 							throws SAXException {
@@ -680,7 +696,8 @@ public class WebAppManager {
 											+ docBase);
 									return;
 								} else {
-									log.info("detect webapp context. contextPath="
+									log
+											.info("detect webapp context. contextPath="
 													+ contextPath
 													+ " docBase="
 													+ docBase);
