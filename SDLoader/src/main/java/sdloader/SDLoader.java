@@ -28,6 +28,7 @@ import sdloader.exception.IORuntimeException;
 import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
 import sdloader.javaee.WebAppManager;
+import sdloader.javaee.WebConstants;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.DisposableUtil;
@@ -56,6 +57,8 @@ public class SDLoader implements Lifecycle {
 	public static final String KEY_SDLOADER_HOME = "SDLOADER_HOME";
 
 	public static final String KEY_WAR_INMEMORY_EXTRACT = "SDLOADER_WAR_INMEMORY_EXTRACT";
+
+	public static final String KEY_SDLOADER_WEBAPP_PATH = "SDLOADER_WEBAPP_PATH";
 
 	private int maxThreadPoolNum = 5;
 
@@ -298,18 +301,27 @@ public class SDLoader implements Lifecycle {
 
 	protected void initConfig() {
 		String homeDir = System.getProperty(SDLoader.KEY_SDLOADER_HOME);
-		if (homeDir == null)
+		if (homeDir == null) {
 			homeDir = System.getProperty("user.dir");// +"/sdloader";
+		}
 		homeDir = WebUtils.replaceFileSeparator(homeDir);
 		if (homeDir.endsWith("/")) {
 			homeDir = homeDir.substring(0, homeDir.length() - 1);
 		}
 		log.info("SDLOADER_HOME=" + homeDir);
 
+		String webappPath = System
+				.getProperty(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
+		if (webappPath == null) {
+			webappPath = WebConstants.WEBAPP_DIR_NAME;
+		}
+		log.info(KEY_SDLOADER_WEBAPP_PATH + "=" + webappPath);
+
 		String inmemoryExtract = System
 				.getProperty(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
 		setConfig(SDLoader.KEY_SDLOADER_HOME, homeDir);
 		setConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT, inmemoryExtract);
+		setConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH, webappPath);
 	}
 
 	protected void initWebApp() {
