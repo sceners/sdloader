@@ -93,7 +93,7 @@ public class SDLoader implements Lifecycle {
 
 	private SDLoaderThread sdLoaderThread;
 
-	private WebAppManager webAppManager;
+	protected WebAppManager webAppManager;
 
 	private Map<String, String> config = new HashMap<String, String>();
 
