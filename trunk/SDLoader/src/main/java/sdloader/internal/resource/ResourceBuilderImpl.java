@@ -39,47 +39,59 @@ public class ResourceBuilderImpl implements ResourceBuilder {
 	@SuppressWarnings("deprecation")
 	public Map<URL, Resource> build(String filepath) throws IOException {
 		final File file = new File(filepath);
-		final URL rootUrl = new URL("war:"+file.toURL().toExternalForm());
+		final URL rootUrl = new URL("war:" + file.toURI().toURL().toExternalForm());
 		final JarInputStream ji = new JarInputStream(new FileInputStream(file));
-		return build(rootUrl,ji);
+		return build(rootUrl, ji);
 	}
-	@SuppressWarnings("deprecation")
-	public Map<URL, Resource> build(URL rootUrl,JarInputStream ji) throws IOException {
 
-		Map<URL, Resource> map = CollectionsUtil.newHashMap();
-		Map<String,Resource> pathMap = CollectionsUtil.newHashMap();
-		final DirectoryTypeResource rootDirResource = new DirectoryTypeResourceImpl(rootUrl,"/");
-		map.put(rootDirResource.getURL(),rootDirResource);
-		pathMap.put("/",rootDirResource);
-		for(;;){
-			JarEntry entry = (JarEntry)ji.getNextJarEntry();
-			if(entry ==null)
+	@SuppressWarnings("deprecation")
+	public Map<URL, Resource> build(URL rootUrl, JarInputStream ji)
+			throws IOException {
+
+		Map<URL, Resource> resoureMap = CollectionsUtil.newHashMap();
+		Map<String, Resource> pathMap = CollectionsUtil.newHashMap();
+
+		for (;;) {
+			JarEntry entry = (JarEntry) ji.getNextJarEntry();
+			if (entry == null)
 				break;
-			final String path = entry.getName();
+			final String resourcePath = entry.getName();
 			byte[] bytes = getBytes(ji);
-			final Resource resourceType = getResourceType(rootUrl, path, bytes);
-			map.put(resourceType.getURL(), resourceType);
-			pathMap.put(path,resourceType);
-			
-			BranchTypeResource parent = findParentBranchTypeResource(pathMap,path);
-			if(parent != null)
-				parent.addResource(resourceType);
+			final Resource resourceType = getResourceType(rootUrl, resourcePath, bytes);
+			addResource(resourceType, resourcePath, rootUrl, resoureMap, pathMap);
 		}
-		return map;
+		return resoureMap;
 	}
-	protected static final BranchTypeResource findParentBranchTypeResource(Map<String,Resource> pathMap,String path){
-		if(path.endsWith("/"))
-			path = path.substring(0,path.length()-1);
-		int sepIndex = path.lastIndexOf("/");
-		String parentPath;
-		if(sepIndex < 0){
-			parentPath = "/";
-		}else{
-			parentPath = path.substring(0,sepIndex+1);
+
+	protected void addResource(
+			Resource resourceType,
+			String resourcePath,
+			URL rootUrl,
+			Map<URL, Resource> resoureMap,
+			Map<String, Resource> pathMap) {
+		if(!resourcePath.equals("/")){
+			String testPath = resourcePath;
+			if (testPath.endsWith("/"))
+				testPath = testPath.substring(0, testPath.length() - 1);
+			int sepIndex = testPath.lastIndexOf("/");
+			String parentPath;
+			if (sepIndex < 0) {
+				parentPath = "/";
+			} else {
+				parentPath = testPath.substring(0, sepIndex + 1);
+			}
+			BranchTypeResource parent = (BranchTypeResource)pathMap.get(parentPath);
+			if(parent==null){
+				parent = new DirectoryTypeResourceImpl(rootUrl,parentPath);
+				addResource(parent,parentPath,rootUrl, resoureMap, pathMap);
+			}
+			parent.addResource(resourceType);
 		}
-		return (BranchTypeResource)pathMap.get(parentPath);		
+		resoureMap.put(resourceType.getURL(),resourceType);
+		pathMap.put(resourcePath,resourceType);
 	}
-	protected static final byte[] getBytes(InputStream is){
+
+	protected static final byte[] getBytes(InputStream is) {
 		byte[] bytes = null;
 		byte[] buf = new byte[8192];
 		try {
@@ -90,27 +102,27 @@ public class ResourceBuilderImpl implements ResourceBuilder {
 			}
 			bytes = baos.toByteArray();
 		} catch (IOException ignore) {
-			 bytes = new byte[0];
+			bytes = new byte[0];
 		}
 		return bytes;
 	}
 
-	protected Resource getResourceType(final URL rootUrl, final String path, final byte[] bytes) throws IOException {
+	protected Resource getResourceType(final URL rootUrl, final String path,
+			final byte[] bytes) throws IOException {
 		if (path.endsWith(".class")) {
 			return new ClassTypeResourceImpl(rootUrl, path, bytes);
 		} else if (path.endsWith(".jar")) {
-				JarArchiveTypeResourceImpl jarResource = 
-					new JarArchiveTypeResourceImpl(rootUrl, path, bytes);
-				if(jarResource.isRuntimeNeeded()){
-					//resolve jar resources
-					Map<URL, Resource> jarResources = 
-						build(jarResource.getURL(),
-								new JarInputStream(new ByteArrayInputStream(bytes)));
-					jarResource.setArchiveResources(jarResources);
-				}
-				return jarResource;
-		} else if(path.endsWith("/")) {
-			return new DirectoryTypeResourceImpl(rootUrl,path);
+			JarArchiveTypeResourceImpl jarResource = new JarArchiveTypeResourceImpl(
+					rootUrl, path, bytes);
+			if (jarResource.isRuntimeNeeded()) {
+				// resolve jar resources
+				Map<URL, Resource> jarResources = build(jarResource.getURL(),
+						new JarInputStream(new ByteArrayInputStream(bytes)));
+				jarResource.setArchiveResources(jarResources);
+			}
+			return jarResource;
+		} else if (path.endsWith("/")) {
+			return new DirectoryTypeResourceImpl(rootUrl, path);
 		}
 		return new FileTypeResourceImpl(rootUrl, path, bytes);
 	}
@@ -120,6 +132,6 @@ public class ResourceBuilderImpl implements ResourceBuilder {
 	}
 
 	public static final String stripJarArchivePath(String filepath) {
-		return filepath.substring(filepath.indexOf("!")+1,filepath.length());
+		return filepath.substring(filepath.indexOf("!") + 1, filepath.length());
 	}
 }
