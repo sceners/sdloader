@@ -99,11 +99,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public Enumeration getHeaders(String arg0) {
-		return new IteratorEnumeration(header.getHeaders().iterator());
+		return new IteratorEnumeration<String>(header.getHeaders().iterator());
 	}
 
 	public Enumeration getHeaderNames() {
-		return new IteratorEnumeration(header.getHeaderName().iterator());
+		return new IteratorEnumeration<String>(header.getHeaderName().iterator());
 	}
 
 	public int getIntHeader(String paramName) {
@@ -126,7 +126,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public Enumeration getAttributeNames() {
-		return new IteratorEnumeration(attribute.keySet().iterator());
+		return new IteratorEnumeration<String>(attribute.keySet().iterator());
 	}
 
 	public String getCharacterEncoding() {
@@ -172,8 +172,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public Enumeration getParameterNames() {
-		Iterator paramNameItr = body.getParameters().getParameterNames();
-		return new IteratorEnumeration(paramNameItr);
+		Iterator<String> paramNameItr = body.getParameters().getParameterNames();
+		return new IteratorEnumeration<String>(paramNameItr);
 	}
 
 	public String[] getParameterValues(String key) {
