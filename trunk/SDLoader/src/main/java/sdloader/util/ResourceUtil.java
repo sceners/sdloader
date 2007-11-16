@@ -64,10 +64,18 @@ public class ResourceUtil {
 				}
 				return new URL(baseURL,relativeURL);				
 			}else{
+				//TODO
+				String baseArchivePath = baseURL.toExternalForm();
+				if(baseArchivePath.endsWith("/")){
+					baseArchivePath = baseArchivePath.substring(0,baseArchivePath.length()-1);
+				}
+				if(baseArchivePath.endsWith("!")){
+					baseArchivePath = baseArchivePath.substring(0,baseArchivePath.length()-1);
+				}				
 				if(!relativeURL.startsWith("/")){
 					relativeURL = "/" + relativeURL;
 				}
-				return new URL(baseURL.toExternalForm()+"!"+relativeURL);
+				return new URL(baseArchivePath+"!"+relativeURL);
 			}
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
