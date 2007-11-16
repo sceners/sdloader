@@ -16,25 +16,29 @@
 package sdloader.javaee;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
+import sdloader.util.ClassUtil;
+
 /**
- * WebApp用クラスローダー WEB-INF/classesとWEB-INF/lib内のjarとzipがロード対象となります。
- * 
+ * WebApp用クラスローダー 
+ * 実際のロード処理はApplicationLoaderに委譲します。
  * @author c9katayama
  */
 public class WebAppClassLoader extends URLClassLoader {
 
-	protected ClassLoader webinfClassLoader;
+	protected ApplicationLoader applicationLoader;
+	//クラスパス上にあって、アプリケーションに入る可能性のあるクラスの場合、アプリケーションを優先。
+	protected String[] webInfLoadFirstPackagePrefix = {"org.h2","org.apache.commons.logging"};
 	
-	protected String[] webInfLoadFirstPackagePrefix={"org.h2","org.apache.commons.logging"};
-
 	public WebAppClassLoader(ClassLoader parent,ClassLoader webinfClassLoader) {
 		super(new URL[]{}, parent);
-		this.webinfClassLoader = webinfClassLoader;
+		this.applicationLoader = new ApplicationLoader(webinfClassLoader);
+		
 	}
 	/**
 	 * クラスをロードします。 
@@ -46,53 +50,62 @@ public class WebAppClassLoader extends URLClassLoader {
 	protected synchronized Class<?> loadClass(String name, boolean resolve)
 			throws ClassNotFoundException {
 		//check loaded Class
-		Class<?> c = findLoadedClass(name);
-		if (c != null) {
-			if (resolve)
-				resolveClass(c);
+		Class<?> c = findAndResolveLoadedClass(name, resolve);
+		if(c != null){
 			return c;
 		}
 		
 		boolean webInfLoadFirst = isWebInfLoadFirst(name);
 		
+		//if first load class,use webinfclassloader
 		if(webInfLoadFirst){
 			try{
-				return webinfClassLoader.loadClass(name);
-			}catch(ClassNotFoundException e){
-				//ignore
+				c = applicationLoader.findClass(name);
+				if (c != null) {
+					if (resolve)
+						applicationLoader.resolveClass(c);
+					return c;
+				}
+			}catch(Exception e){//ignore
 			}
 		}
+		
+		//use parent classloader.
 		try{
 			c = super.loadClass(name,resolve);
 			if (c != null) {
 				return c;
 			}
-		}catch(ClassNotFoundException e){
-			if(!webInfLoadFirst)
-				return webinfClassLoader.loadClass(name);			
+		}catch(ClassNotFoundException e){//ignore			
+		}
+		
+		//parent cannot load,use webinfclassloader
+		if(c==null && !webInfLoadFirst){
+			c = applicationLoader.findClass(name);
+			if (c != null) {
+				if (resolve)
+					applicationLoader.resolveClass(c);
+				return c;
+			}
 		}
 		throw new ClassNotFoundException("Class not found.classname=" + name);
 	}
 	@Override
 	public URL[] getURLs() {
-		if(webinfClassLoader instanceof URLClassLoader){
-			return ((URLClassLoader)webinfClassLoader).getURLs();
-		}else{
-			return super.getURLs();
-		}
+		return applicationLoader.getURLs();
 	}
 	@Override
 	public URL findResource(String name) {
 		URL resource = super.findResource(name);
 		if(resource == null){
-			resource = webinfClassLoader.getResource(name);
+			resource = applicationLoader.classLoader.getResource(name);
 		}
 		return resource;
 	}
 	@Override
 	public Enumeration<URL> findResources(String name) throws IOException {
 		final Enumeration<URL> resources = super.findResources(name);
-		final Enumeration<URL> selfResources = webinfClassLoader.getResources(name);		
+		final Enumeration<URL> selfResources = applicationLoader.classLoader.getResources(name);		
 		return new Enumeration<URL>(){
 			public boolean hasMoreElements() {
 				return (resources.hasMoreElements() || selfResources.hasMoreElements());
@@ -108,11 +121,26 @@ public class WebAppClassLoader extends URLClassLoader {
 			}
 		};
 	}
-
-	/**
-	 * 親ロードの前にweb-inf内をロードするかどうか
-	 */
-	private boolean isWebInfLoadFirst(String name) {
+	public ClassLoader getWebInfClassLoader() {
+		return applicationLoader.classLoader;
+	}
+	protected final Class<?> findAndResolveLoadedClass(String name,boolean resolve) {
+		Class<?> c = findLoadedClass(name);
+		if (c != null) {
+			if (resolve)
+				resolveClass(c);
+			return c;
+		}
+		// check webinf
+		c = applicationLoader.findLoadedClass(name);
+		if (c != null) {
+			if (resolve)
+				applicationLoader.resolveClass(c);
+			return c;
+		}
+		return null;
+	}
+	protected boolean isWebInfLoadFirst(String name) {
 		if (webInfLoadFirstPackagePrefix != null) {
 			for (int i = 0; i < webInfLoadFirstPackagePrefix.length; i++) {
 				if (name.startsWith(webInfLoadFirstPackagePrefix[i])) {
@@ -121,5 +149,37 @@ public class WebAppClassLoader extends URLClassLoader {
 			}
 		}
 		return false;
+	}
+	
+	class ApplicationLoader{
+		private ClassLoader classLoader;
+		protected Method findClass;
+		protected Method resolveClass;
+		protected Method findLoadedClass;
+		protected Method getURLs;
+		ApplicationLoader(ClassLoader cl){
+			classLoader = cl;
+			Class clClass = cl.getClass();
+			findClass = ClassUtil.getMethod(clClass,"findClass",new Class[]{String.class});
+			resolveClass = ClassUtil.getMethod(clClass,"resolveClass",new Class[]{Class.class});
+			findLoadedClass = ClassUtil.getMethod(clClass,"findLoadedClass",new Class[]{String.class});
+			getURLs = ClassUtil.getMethod(clClass,"getURLs",null);
+		}
+		Class<?> findClass(String name) throws ClassNotFoundException{
+			try{
+				return (Class<?>)ClassUtil.invoke(classLoader,findClass,new Object[]{name});
+			}catch(RuntimeException e){				
+				throw new ClassNotFoundException(name);
+			}
+		}
+		void resolveClass(Class c) {
+			ClassUtil.invoke(classLoader,resolveClass,new Object[]{c});
+		}
+		Class<?> findLoadedClass(String name){
+			return (Class<?>)ClassUtil.invoke(classLoader,findLoadedClass,new Object[]{name});
+		}
+		URL[] getURLs(){
+			return (URL[])ClassUtil.invoke(classLoader,getURLs,null);
+		}
 	}
 }
