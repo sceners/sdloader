@@ -17,6 +17,7 @@ package sdloader.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @author shot
@@ -102,6 +103,31 @@ public class ClassUtil {
 			return c != null;
 		} catch(Throwable t) {
 			return false;
+		}
+	}
+	
+	public static Method getMethod(Class<?> target,final String methodName,final Class<?>[] params){
+		try {
+			return target.getDeclaredMethod(methodName,params);
+		}catch(Exception e){
+			target = target.getSuperclass();
+			if(target!=null){
+				return getMethod(target, methodName, params);
+			}else{
+				throw new RuntimeException(e);
+			}
+		}		
+	}
+	public static Object invoke(final Object target,final Method method,final Object[] params){
+		try {
+			method.setAccessible(true);
+			return method.invoke(target,params);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
