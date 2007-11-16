@@ -147,7 +147,7 @@ public class FileSavingServlet extends HttpServlet {
 		} else {
 			if (welcomeFileListTag != null) {
 				File dir = fileOrDir;
-				processWelcomeFile(dir.toURL(), req, res);
+				processWelcomeFile(dir.toURI().toURL(), req, res);
 				return;
 			} else {
 				res.setStatus(HttpServletResponse.SC_NOT_FOUND);

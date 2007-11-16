@@ -32,6 +32,7 @@ import sdloader.util.WebUtils;
  * 
  * @author c9katayama
  */
+@SuppressWarnings("serial")
 public class InMemoryFileSavingServlet extends FileSavingServlet {
 	
 	public InMemoryFileSavingServlet() {

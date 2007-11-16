@@ -30,7 +30,7 @@ public class MimeParseHandler extends DefaultHandler {
 
 	private FileSavingServlet target;
 
-	private Stack nameStack = new Stack();
+	private Stack<String> nameStack = new Stack<String>();
 
 	private String extension;
 
