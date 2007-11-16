@@ -26,7 +26,6 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 
 import sdloader.javaee.impl.FilterConfigImpl;
@@ -69,15 +68,15 @@ public class WebApplication {
 	/** ServletContext */
 	private ServletContextImpl servletContext;
 
-	/** listener */
-	private List<ServletContextListener> listenerList;
-
 	/** Servlet Map */
 	private Map<String, Servlet> servletMap;
 
 	/** Filter Map */
 	private Map<String, Filter> filterMap;
-
+	
+	/** ListenerEventDispatcher */
+	private ListenerEventDispatcher listenerEventDispatcher;
+	
 	/**
 	 * WebAppクラス
 	 */
@@ -139,20 +138,19 @@ public class WebApplication {
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(webAppClassLoader);
 		try {
-			ServletContextEvent contextEvent = new ServletContextEvent(
-					this.servletContext);
+			listenerEventDispatcher = new ListenerEventDispatcher();
+			
 			for (Iterator<ListenerTag> itr = webXml.getWebApp().getListener()
 					.iterator(); itr.hasNext();) {
-				if (listenerList == null) {
-					listenerList = CollectionsUtil.newArrayList();
-				}
-
 				ListenerTag listenerTag = itr.next();
-				ServletContextListener listenerImp = (ServletContextListener) createInstance(
-						webAppClassLoader, listenerTag.getListenerClass());
-				listenerImp.contextInitialized(contextEvent);
-				listenerList.add(listenerImp);
+				Object listenerImp =  createInstance(webAppClassLoader, listenerTag.getListenerClass());
+				listenerEventDispatcher.addListener(listenerImp);
 			}
+			//dispatch servletcontext event 
+			ServletContextEvent contextEvent = new ServletContextEvent(
+					this.servletContext);
+			listenerEventDispatcher.dispatchServletContextListener_contextInitialized(contextEvent);
+			
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
@@ -353,8 +351,8 @@ public class WebApplication {
 			return null;
 	}
 
-	public List<ServletContextListener> getListenerList() {
-		return listenerList;
+	public ListenerEventDispatcher getListenerEventDispatcher() {
+		return listenerEventDispatcher;
 	}
 
 	public List<Filter> getFilterList() {
