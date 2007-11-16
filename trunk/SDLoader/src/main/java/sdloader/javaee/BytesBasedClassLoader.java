@@ -53,17 +53,25 @@ public class BytesBasedClassLoader extends ClassLoader{
 			throws ClassNotFoundException {
 		Class c = findLoadedClass(name);
 		if (c != null) {
+			if (resolve) {
+				resolveClass(c);
+			}
 			return c;
 		}
 		c = findLoadedClass(getParent(), name);
 		if (c != null) {
 			return c;
-		}		
-		c = defineClass(name, resolve);
-		if (c != null) {
+		}
+		try{
+			c = findClass(name);
+			if (resolve) {
+				resolveClass(c);
+			}
 			return c;
 		}
-		return getParent().loadClass(name);
+		catch(ClassNotFoundException e){
+			return getParent().loadClass(name);
+		}
 	}
 	@Override
 	public URL getResource(String name) {
@@ -84,25 +92,27 @@ public class BytesBasedClassLoader extends ClassLoader{
 			}
 		};
 	}
-        
-	private Class defineClass(String name, boolean resolve) {
+	@Override
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
 		//メモリ上のリソースからロード
 		String classResourceName = name.replace(".","/")+".class";
 		Resource classResource = findClassPathResource(classResourceName);
 		if(classResource != null){
 			byte[] bytes = classResource.getResourceAsBytes();
 			Class c = defineClass(name, bytes, 0, bytes.length);
-			if (resolve) {
-				resolveClass(c);
-			}
-			if (c != null) {
-				return c;
-			}
-			return null;
+			return c;
+		}else{
+			throw new ClassNotFoundException(name);
 		}
-		return null;
 	}
-
+	
+	public URL[] getURLs(){
+		return classPathURLs;
+	}
+	public Map<URL, Resource> getResources(){
+		return resources;
+	}
+	
 	private static Class findLoadedClass(final ClassLoader classLoader,
 			final String className) {
 		for (ClassLoader loader = classLoader; loader != null; loader = loader
