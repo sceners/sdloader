@@ -31,6 +31,7 @@ import sdloader.util.DisposableUtil.Disposable;
  * 
  * @author c9katayama
  */
+@SuppressWarnings("deprecation")
 public class HttpSessionImpl implements HttpSession, Disposable {
 	private String id;
 
@@ -99,7 +100,7 @@ public class HttpSessionImpl implements HttpSession, Disposable {
 
 	public Enumeration getAttributeNames() {
 		checkInvalidate();
-		return new IteratorEnumeration(attributeMap.keySet().iterator());
+		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
 	}
 
 	public String[] getValueNames() {

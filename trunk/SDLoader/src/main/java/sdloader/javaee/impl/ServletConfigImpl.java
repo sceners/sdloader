@@ -55,7 +55,7 @@ public class ServletConfigImpl implements ServletConfig {
 	}
 
 	public Enumeration getInitParameterNames() {
-		return new IteratorEnumeration(initParameter.keySet().iterator());
+		return new IteratorEnumeration<String>(initParameter.keySet().iterator());
 	}
 
 	// non interface method

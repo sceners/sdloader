@@ -16,12 +16,10 @@
 package sdloader.javaee.impl;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -104,7 +102,12 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public URL getResource(String resource) throws MalformedURLException {
-		URL url = ResourceUtil.createURL(docBase,resource);
+		URL url = null;
+		if(ResourceUtil.isAbsoluteURL(resource)){
+			url = new URL(resource);
+		}else{
+			url = ResourceUtil.createURL(docBase,resource);
+		}
 		return ResourceUtil.isResourceExist(url) ? url : null;
 	}
 
@@ -131,14 +134,14 @@ public class ServletContextImpl implements ServletContext {
 	public Enumeration getServlets() {
 		if (servletMap == null)
 			return new IteratorEnumeration();
-		return new IteratorEnumeration(servletMap.values().iterator());
+		return new IteratorEnumeration<Servlet>(servletMap.values().iterator());
 	}
 
 	public Enumeration getServletNames() {
 		if (servletMap == null) {
 			return new IteratorEnumeration();
 		}
-		return new IteratorEnumeration(servletMap.keySet().iterator());
+		return new IteratorEnumeration<String>(servletMap.keySet().iterator());
 	}
 
 	public String getRealPath(String resource) {
@@ -155,7 +158,7 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public Enumeration getInitParameterNames() {
-		return new IteratorEnumeration(initParamMap.keySet().iterator());
+		return new IteratorEnumeration<String>(initParamMap.keySet().iterator());
 	}
 
 	public Object getAttribute(String key) {
@@ -163,7 +166,7 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public Enumeration getAttributeNames() {
-		return new IteratorEnumeration(attributeMap.keySet().iterator());
+		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
 	}
 
 	public void setAttribute(String key, Object value) {

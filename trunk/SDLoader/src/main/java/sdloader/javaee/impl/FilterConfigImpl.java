@@ -50,7 +50,7 @@ public class FilterConfigImpl implements FilterConfig {
 	}
 
 	public Enumeration getInitParameterNames() {
-		return new IteratorEnumeration(initParameter.keySet().iterator());
+		return new IteratorEnumeration<String>(initParameter.keySet().iterator());
 	}
 
 	// non interface method
