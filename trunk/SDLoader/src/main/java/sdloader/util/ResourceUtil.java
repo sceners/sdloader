@@ -73,6 +73,9 @@ public class ResourceUtil {
 			throw new RuntimeException(e);
 		}
 	}
+	public static boolean isAbsoluteURL(String url){
+		return (url.indexOf(":/") != -1); 
+	}
 	public static boolean isResourceExist(URL resource){
 		InputStream is = null;
 		try{
