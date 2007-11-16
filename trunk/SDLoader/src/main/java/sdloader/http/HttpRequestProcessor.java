@@ -211,10 +211,10 @@ public class HttpRequestProcessor extends Thread {
 		// service
 		try {
 			String servletName = mapping.getServletName();
-			List filterList = webapp.findFilters(resourcePath, servletName);
+			List<Filter> filterList = webapp.findFilters(resourcePath, servletName);
 			if (filterList.size() > 0) {
 				Filter[] filters = (Filter[]) filterList
-						.toArray(new Filter[] {});
+						.toArray(new Filter[]{});
 				FilterChainImpl filterChain = new FilterChainImpl(filters,
 						servlet);
 				filterChain.doFilter(request, response);
