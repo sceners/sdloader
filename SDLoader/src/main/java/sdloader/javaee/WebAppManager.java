@@ -32,7 +32,6 @@ import java.util.Map;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -48,6 +47,8 @@ import sdloader.internal.resource.LeafTypeResource;
 import sdloader.internal.resource.Resource;
 import sdloader.internal.resource.ResourceBuilder;
 import sdloader.internal.resource.ResourceBuilderImpl;
+import sdloader.internal.resource.ResourceURLConnection;
+import sdloader.javaee.jasper.InMemoryEmbeddedServletOptions;
 import sdloader.javaee.servlet.FileSavingServlet;
 import sdloader.javaee.servlet.InMemoryFileSavingServlet;
 import sdloader.javaee.servlet.WebAppListServlet;
@@ -394,6 +395,12 @@ public class WebAppManager {
 			jspServlet.addInitParam(new InitParamTag("validating", "false"));
 			jspServlet.addInitParam(new InitParamTag("fork", "false"));
 
+			//inmemory用TldLocationCache利用の為
+			if(isInmemoryExtract){
+				jspServlet.addInitParam(new InitParamTag("engineOptionsClass",
+						InMemoryEmbeddedServletOptions.class.getName()));
+			}
+			
 			// JSPコンパイルディレクトリの作成
 			jspServlet.addInitParam(new InitParamTag("scratchdir", "false"));
 			String jspWorkDirPath = System.getProperty("java.io.tmpdir")
@@ -519,22 +526,8 @@ public class WebAppManager {
 			}
 			ServletContextEvent contextEvent = new ServletContextEvent(webapp
 					.getServletContext());
-			List<ServletContextListener> listenerList = webapp
-					.getListenerList();
-			{
-				if (listenerList != null) {
-					for (Iterator<ServletContextListener> listenerItr = listenerList
-							.iterator(); listenerItr.hasNext();) {
-						ServletContextListener listener = (ServletContextListener) listenerItr
-								.next();
-						try {
-							listener.contextDestroyed(contextEvent);
-						} catch (Exception e) {
-							log.error(e.getMessage(), e);
-						}
-					}
-				}
-			}
+			webapp.getListenerEventDispatcher()
+				.dispatchServletContextListener_contextDestroyed(contextEvent);
 		}
 	}
 
@@ -552,19 +545,7 @@ public class WebAppManager {
 			}
 			final Resource resource = (resources != null) ? resources.get(u)
 					: null;
-			if (resource == null) {
-				return null;
-			}
-			return new URLConnection(resource.getURL()) {
-				@Override
-				public void connect() throws IOException {
-				}
-
-				@Override
-				public InputStream getInputStream() throws IOException {
-					return resource.getResourceAsInputStream();
-				}
-			};
+			return new ResourceURLConnection(resource);
 		}
 	}
 
@@ -581,7 +562,7 @@ public class WebAppManager {
 				}
 			}
 			if (resources == null) {
-				return null;
+				return new ResourceURLConnection(null);
 			}
 			String jarPath = u.toExternalForm();
 			String innerJar = jarPath.substring(0, jarPath.lastIndexOf("!"));
@@ -594,19 +575,10 @@ public class WebAppManager {
 				final Resource innerJarResource = jar
 						.getArchiveResource(resourceName);
 				if (innerJarResource != null) {
-					return new URLConnection(innerJarResource.getURL()) {
-						@Override
-						public void connect() throws IOException {
-						}
-
-						@Override
-						public InputStream getInputStream() throws IOException {
-							return innerJarResource.getResourceAsInputStream();
-						}
-					};
+					return new ResourceURLConnection(innerJarResource);
 				}
 			}
-			return null;
+			return new ResourceURLConnection(null);
 		}
 	}
 
