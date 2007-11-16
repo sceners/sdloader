@@ -337,7 +337,7 @@ public class InMemoryTldLocationsCache extends TldLocationsCache{
     }    
     
     //JSP1.2 compatible methods
-    private Hashtable tlds;
+    private Hashtable<String,TagLibraryInfo> tlds;
     
     public TagLibraryInfo getTagLibraryInfo(String uri) {
         if (!initialized){
