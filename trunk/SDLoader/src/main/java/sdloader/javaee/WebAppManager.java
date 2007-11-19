@@ -66,6 +66,7 @@ import sdloader.util.BooleanUtil;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.ResourceUtil;
+import sdloader.util.TextFormatUtil;
 import sdloader.util.WarUtil;
 import sdloader.util.WebUtils;
 
@@ -92,8 +93,6 @@ public class WebAppManager {
 	protected String webappDirPath;
 
 	protected List<PathPair> pathPairList;
-
-	protected List<String> contextPathList;
 
 	protected List<WebApplication> webAppList = CollectionsUtil.newArrayList();
 
@@ -157,17 +156,15 @@ public class WebAppManager {
 		}
 		// webapps以下のフォルダ
 		pathPairList = CollectionsUtil.newArrayList();
-		contextPathList = CollectionsUtil.newArrayList();
 		dirs = webappDir.listFiles(new DirFileFilter());
 		if (!isInmemoryExtract) {
 			if (dirs != null) {
 				for (int i = 0; i < dirs.length; i++) {
 					final String contextPath = "/" + dirs[i].getName();
 					final String docBase = webappDirPath + contextPath;
-					final PathPair pathPair = createPathPair(new File(docBase)
-							.toURL());
+					final PathPair pathPair = createPathPair(contextPath,
+							ResourceUtil.file2Url(docBase));
 					pathPairList.add(pathPair);
-					contextPathList.add(contextPath);
 					log.info("detect webapp context. contextPath="
 							+ contextPath + " docBase=" + docBase);
 				}
@@ -186,8 +183,10 @@ public class WebAppManager {
 			});
 			ResourceBuilder builder = new ResourceBuilderImpl();
 			for (File warfile : warFiles) {
+				final URL warDocRoot = ResourceUtil.createURL("war:" + warfile.toURI().toURL().toExternalForm());
+				final String contextPath = "/" + ResourceUtil.stripExtension(warfile.getName());
 				Map<URL, Resource> map = builder.build(warfile.getPath());
-				PathPair pair = createPathPairFromResources(map);
+				PathPair pair = createPathPair(contextPath, warDocRoot);
 				pathPairList.add(pair);
 				warInmemoryMap.put(pair.docBase, map);
 			}
@@ -197,24 +196,8 @@ public class WebAppManager {
 		parseContextXMLs(contextXMLs);
 	}
 
-	protected PathPair createPathPairFromResources(Map<URL, Resource> resources)
-			throws MalformedURLException {
-		if (resources == null || resources.isEmpty()) {
-			return null;
-		}
-		Resource r = resources.values().iterator().next();
-		URL u = r.getURL();
-		if (u == null) {
-			return null;
-		}
-		String baseurl = u.toExternalForm();
-		String s = baseurl.substring(0, baseurl.indexOf("!"));
-		URL url = new URL(s);
-		return createPathPair(url);
-	}
-
-	protected PathPair createPathPair(final URL url) {
-		return new PathPair(url);
+	protected PathPair createPathPair(final String contextPath,final URL url) {
+		return new PathPair(contextPath,url);
 	}
 
 	protected void initWebAppContext() throws Exception {
@@ -463,6 +446,10 @@ public class WebAppManager {
 	 * @return
 	 */
 	public List<String> getContextPathList() {
+		List<String> contextPathList = CollectionsUtil.newArrayList();
+		for(PathPair pathPair:pathPairList){
+			contextPathList.add(pathPair.contextPath);
+		}
 		return contextPathList;
 	}
 
@@ -586,8 +573,10 @@ public class WebAppManager {
 		URL docBase;// アプリケーションのドキュメントルート
 		String contextPath;// アプリケーションのコンテキストパス(/から始まるパス）
 
-		PathPair(final URL url) {
+		PathPair(final String contextPath,final URL url) {
 			this.docBase = Assertion.notNull(url);
+			this.contextPath = Assertion.notNull(contextPath);
+			/*
 			if (!isInmemoryExtract) {
 				final String urlStr = url.toExternalForm();
 				String s = urlStr.replace("file:/", "").replace(webappDirPath,
@@ -601,6 +590,7 @@ public class WebAppManager {
 				s = (s.endsWith("/")) ? s.substring(0, s.length() - 1) : s;
 				this.contextPath = Assertion.notNull(s);
 			}
+			*/
 		}
 	}
 
@@ -643,47 +633,44 @@ public class WebAppManager {
 						+ fileName.substring(0, fileName.length()
 								- ".xml".length());
 				parser.parse(contextXml, new DefaultHandler() {
-					@SuppressWarnings("deprecation")
 					public void startElement(String uri, String localName,
 							String qName, Attributes attributes)
 							throws SAXException {
 						if (qName.equals("Context")) {
-							String contextPath = attributes.getValue("path");
-							String docBase = attributes.getValue("docBase");
-							if (docBase == null) {
-								log.error("docBase attribute not found. file="
-										+ fileName);
-								return;
-							} else {
-								if (contextPath == null)
-									contextPath = contextPathFromFileName;
-								docBase = docBase.replace('\\', '/');
-								if (docBase.startsWith(".")) {// 相対パスの場合、webappsまでのパスを追加
-									docBase = webappDirPath + "/" + docBase;
-								}
-								if (!new File(docBase).exists()) {
-									log.error("docBase not exist.file="
-											+ fileName + " contextPath="
-											+ contextPath + " docBase="
-											+ docBase);
-									return;
-								} else {
-									log
-											.info("detect webapp context. contextPath="
-													+ contextPath
-													+ " docBase="
-													+ docBase);
-									try {
-										final PathPair pathPair = createPathPair(new File(
-												docBase).toURL());
-										pathPairList.add(pathPair);
-									} catch (MalformedURLException ignore) {
-										// TODO logging or throw exception.
-									}
-									contextPathList.add(contextPath);
-								}
-							}
+							processContextTag(attributes);
 						}
+					}
+					protected void processContextTag(Attributes attributes){
+						String contextPath = attributes.getValue("path");
+						String docBase = attributes.getValue("docBase");
+						if (docBase == null) {
+							log.error("docBase attribute not found. file="
+									+ fileName);
+							return;
+						}
+						if (contextPath == null)
+							contextPath = contextPathFromFileName;
+						
+						docBase = TextFormatUtil.formatTextBySystemProperties(docBase);
+						contextPath = TextFormatUtil.formatTextBySystemProperties(contextPath);
+						docBase = docBase.replace('\\', '/');
+						if (docBase.startsWith(".")) {// 相対パスの場合、webappsまでのパスを追加
+							docBase = webappDirPath + "/" + docBase;
+						}
+						if (!new File(docBase).exists()) {
+							log.error("docBase not exist.file="
+									+ fileName + " contextPath="
+									+ contextPath + " docBase="
+									+ docBase);
+							return;
+						}
+						log.info("detect webapp context. contextPath="
+										+ contextPath
+										+ " docBase="
+										+ docBase);
+						final PathPair pathPair = createPathPair(contextPath,
+								ResourceUtil.file2Url(docBase));
+						pathPairList.add(pathPair);
 					}
 				});
 			}
