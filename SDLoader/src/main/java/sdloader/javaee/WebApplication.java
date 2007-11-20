@@ -52,13 +52,9 @@ public class WebApplication {
 
 	/** web.xml定義 */
 	private WebXml webXml;
-
-	/** ドキュメントルート */
-	private URL docBase;
-
-	/** /から始まるコンテキストパス */
-	private String contextPath;
-
+	
+	private WebAppContext webAppContext;
+	
 	/** WebApplicationクラスローダー */
 	private ClassLoader webAppClassLoader;
 
@@ -80,11 +76,10 @@ public class WebApplication {
 	/**
 	 * WebAppクラス
 	 */
-	WebApplication(WebXml webXml, URL docBase, String contextPath,
+	WebApplication(WebXml webXml,WebAppContext webAppContext,
 			ClassLoader webAppClassLoader, WebAppManager manager) {
 		this.webXml = webXml;
-		this.docBase = docBase;
-		this.contextPath = contextPath;
+		this.webAppContext = webAppContext;
 		this.webAppClassLoader = webAppClassLoader;
 		this.manager = manager;
 		init();
@@ -93,13 +88,17 @@ public class WebApplication {
 	public WebAppManager getWebApplicationManager() {
 		return manager;
 	}
-
+	
+	public WebAppContext getWebAppContext() {
+		return webAppContext;
+	}
+	
 	public URL getDocBase() {
-		return docBase;
+		return getWebAppContext().getDocBase();
 	}
 
 	public String getContextPath() {
-		return contextPath;
+		return getWebAppContext().getContextPath();
 	}
 
 	public ClassLoader getWebAppClassLoader() {
@@ -123,8 +122,8 @@ public class WebApplication {
 
 	private void initServletContext() {
 		servletContext = new ServletContextImpl(this);
-		servletContext.setDocBase(docBase);
-		servletContext.setServletContextName(contextPath);
+		servletContext.setDocBase(getDocBase());
+		servletContext.setServletContextName(getContextPath());
 		for (Iterator<ContextParamTag> itr = webXml.getWebApp()
 				.getContextParam().iterator(); itr.hasNext();) {
 			ContextParamTag param = (ContextParamTag) itr.next();
