@@ -1,6 +1,8 @@
 v0_1_06
  Context.xmlにシステムプロパティを使用できるようにした。
  ${name}の形式でdocBaseを記述すると、nameをキーにしてSystemからプロパティを取得します。
+ PathPairクラスを外に出し、WebAppContextに名称変更。パース部分もWebAppManagerから
+ 分離。
 
 v0_1_05
  無解凍war機能を追加（Servlet動作のみ）
