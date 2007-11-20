@@ -98,7 +98,7 @@ public class HttpSessionImpl implements HttpSession, Disposable {
 		return getAttribute(key);
 	}
 
-	public Enumeration getAttributeNames() {
+	public Enumeration<String> getAttributeNames() {
 		checkInvalidate();
 		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
 	}

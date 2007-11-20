@@ -70,7 +70,7 @@ public class ServletContextImpl implements ServletContext {
 		return null;
 	}
 
-	public Set getResourcePaths(String path) {
+	public Set<String> getResourcePaths(String path) {
 		if (path == null)
 			return null;
 		if (path.endsWith("/"))
@@ -131,15 +131,15 @@ public class ServletContextImpl implements ServletContext {
 		return (Servlet) servletMap.get(name);
 	}
 
-	public Enumeration getServlets() {
+	public Enumeration<Servlet> getServlets() {
 		if (servletMap == null)
-			return new IteratorEnumeration();
+			return new IteratorEnumeration<Servlet>();
 		return new IteratorEnumeration<Servlet>(servletMap.values().iterator());
 	}
 
-	public Enumeration getServletNames() {
+	public Enumeration<String> getServletNames() {
 		if (servletMap == null) {
-			return new IteratorEnumeration();
+			return new IteratorEnumeration<String>();
 		}
 		return new IteratorEnumeration<String>(servletMap.keySet().iterator());
 	}
@@ -157,7 +157,7 @@ public class ServletContextImpl implements ServletContext {
 		return (String) initParamMap.get(key);
 	}
 
-	public Enumeration getInitParameterNames() {
+	public Enumeration<String> getInitParameterNames() {
 		return new IteratorEnumeration<String>(initParamMap.keySet().iterator());
 	}
 
@@ -165,7 +165,7 @@ public class ServletContextImpl implements ServletContext {
 		return this.attributeMap.get(key);
 	}
 
-	public Enumeration getAttributeNames() {
+	public Enumeration<String> getAttributeNames() {
 		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
 	}
 

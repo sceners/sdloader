@@ -17,7 +17,6 @@ package sdloader.javaee.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -54,18 +53,17 @@ public class WebAppListServlet extends HttpServlet {
 		throws ServletException, IOException {
 		
 		WebApplication webapp = ((ServletContextImpl)getServletContext()).getWebApplication();
-		List contextPathList = webapp.getWebApplicationManager().getContextPathList();
+		List<String> contextPathList = webapp.getWebApplicationManager().getContextPathList();
 		outputWebAppList(contextPathList, req, res);
 	}
-	protected void outputWebAppList(List contextPathList,HttpServletRequest req,HttpServletResponse res)
+	protected void outputWebAppList(List<String> contextPathList,HttpServletRequest req,HttpServletResponse res)
 																	throws ServletException, IOException {
 		PrintWriter writer = res.getWriter();
 		writer.write("<html><head><title>SDLoader -Web Application List-</title></head><body>");
 		writer.write("[Web Application List]<br/>");
 		writer.write("<a href=\"/\">ROOT</a><br/>");
 		if(contextPathList != null){
-			for(Iterator itr = contextPathList.iterator();itr.hasNext();){
-				String path = (String)itr.next();
+			for(String path : contextPathList){
 				if(!path.equals("/"+WebConstants.ROOT_DIR_NAME))
 					writer.write("<a href=\"" + path + "\">" + path + "</a><br/>");				
 			}

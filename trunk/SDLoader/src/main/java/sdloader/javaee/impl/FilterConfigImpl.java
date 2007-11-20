@@ -49,7 +49,7 @@ public class FilterConfigImpl implements FilterConfig {
 		return (String) initParameter.get(key);
 	}
 
-	public Enumeration getInitParameterNames() {
+	public Enumeration<String> getInitParameterNames() {
 		return new IteratorEnumeration<String>(initParameter.keySet().iterator());
 	}
 

@@ -25,7 +25,7 @@ public class SDLoaderLogSystemOutImpl implements SDLoaderLog {
 
 	private String className;;
 
-	public SDLoaderLogSystemOutImpl(Class c) {
+	public SDLoaderLogSystemOutImpl(Class<?> c) {
 		className = c.getName();
 	}
 

@@ -31,7 +31,7 @@ public class SDLoaderLogCommonsLoggingImpl implements SDLoaderLog {
 
 	private Log logger;
 
-	public SDLoaderLogCommonsLoggingImpl(Class c) {
+	public SDLoaderLogCommonsLoggingImpl(Class<?> c) {
 		this.logger = LogFactory.getLog(c);
 		DisposableUtil.add(new Disposable() {
 

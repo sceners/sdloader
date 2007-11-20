@@ -98,11 +98,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		return header.getHeader(paramName);
 	}
 
-	public Enumeration getHeaders(String arg0) {
+	public Enumeration<String> getHeaders(String arg0) {
 		return new IteratorEnumeration<String>(header.getHeaders().iterator());
 	}
 
-	public Enumeration getHeaderNames() {
+	public Enumeration<String> getHeaderNames() {
 		return new IteratorEnumeration<String>(header.getHeaderName().iterator());
 	}
 
@@ -125,7 +125,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		return attribute.get(key);
 	}
 
-	public Enumeration getAttributeNames() {
+	public Enumeration<String> getAttributeNames() {
 		return new IteratorEnumeration<String>(attribute.keySet().iterator());
 	}
 
@@ -171,7 +171,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		return body.getParameters().getParamter(key);
 	}
 
-	public Enumeration getParameterNames() {
+	public Enumeration<String> getParameterNames() {
 		Iterator<String> paramNameItr = body.getParameters().getParameterNames();
 		return new IteratorEnumeration<String>(paramNameItr);
 	}
@@ -180,7 +180,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		return body.getParameters().getParamterValues(key);
 	}
 
-	public Map getParameterMap() {
+	public Map<String,String[]> getParameterMap() {
 		return body.getParameters().getParamterMap();
 	}
 
@@ -290,7 +290,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		return localName;
 	}
 
-	public Enumeration getLocales() {
+	public Enumeration<Locale> getLocales() {
 		Vector<Locale> vec = CollectionsUtil.newVector();
 		Locale[] locales = Locale.getAvailableLocales();
 		if (locales != null) {
