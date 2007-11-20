@@ -32,7 +32,7 @@ import sdloader.util.CollectionsUtil;
  * @param <L>
  *            ListenerTest
  */
-public class EventDispatcher<L, E extends Event> {
+public class EventDispatcher<L, E extends Event<?>> {
 
 	private String invokeMethodName;
 	private Map<String, List<L>> listenerMap = CollectionsUtil.newHashMap();
