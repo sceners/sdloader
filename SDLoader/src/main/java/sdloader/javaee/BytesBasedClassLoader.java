@@ -51,7 +51,7 @@ public class BytesBasedClassLoader extends ClassLoader{
 
 	public synchronized Class<?> loadClass(String name, boolean resolve)
 			throws ClassNotFoundException {
-		Class c = findLoadedClass(name);
+		Class<?> c = findLoadedClass(name);
 		if (c != null) {
 			if (resolve) {
 				resolveClass(c);
@@ -99,7 +99,7 @@ public class BytesBasedClassLoader extends ClassLoader{
 		Resource classResource = findClassPathResource(classResourceName);
 		if(classResource != null){
 			byte[] bytes = classResource.getResourceAsBytes();
-			Class c = defineClass(name, bytes, 0, bytes.length);
+			Class<?> c = defineClass(name, bytes, 0, bytes.length);
 			return c;
 		}else{
 			throw new ClassNotFoundException(name);
@@ -113,13 +113,13 @@ public class BytesBasedClassLoader extends ClassLoader{
 		return resources;
 	}
 	
-	private static Class findLoadedClass(final ClassLoader classLoader,
+	private static Class<?> findLoadedClass(final ClassLoader classLoader,
 			final String className) {
 		for (ClassLoader loader = classLoader; loader != null; loader = loader
 				.getParent()) {
-			Class clazz = null;
+			Class<?> clazz = null;
 			try {
-				clazz = (Class) findLoadedClassMethod.invoke(loader,
+				clazz = (Class<?>) findLoadedClassMethod.invoke(loader,
 						new Object[] { className });
 			} catch (Exception ignore) {
 			}

@@ -159,7 +159,7 @@ public class WebAppClassLoader extends URLClassLoader {
 		protected Method getURLs;
 		ApplicationLoader(ClassLoader cl){
 			classLoader = cl;
-			Class clClass = cl.getClass();
+			Class<?> clClass = cl.getClass();
 			findClass = ClassUtil.getMethod(clClass,"findClass",new Class[]{String.class});
 			resolveClass = ClassUtil.getMethod(clClass,"resolveClass",new Class[]{Class.class});
 			findLoadedClass = ClassUtil.getMethod(clClass,"findLoadedClass",new Class[]{String.class});
@@ -172,7 +172,7 @@ public class WebAppClassLoader extends URLClassLoader {
 				throw new ClassNotFoundException(name);
 			}
 		}
-		void resolveClass(Class c) {
+		void resolveClass(Class<?> c) {
 			ClassUtil.invoke(classLoader,resolveClass,new Object[]{c});
 		}
 		Class<?> findLoadedClass(String name){

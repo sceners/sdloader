@@ -23,7 +23,7 @@ import java.util.Iterator;
  * 
  * @author c9katayama
  */
-public class IteratorEnumeration<T> implements Enumeration {
+public class IteratorEnumeration<T> implements Enumeration<T> {
 
 	private Iterator<T> itr;
 
