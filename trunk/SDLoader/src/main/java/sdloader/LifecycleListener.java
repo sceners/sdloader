@@ -23,5 +23,5 @@ public interface LifecycleListener {
 	/**
 	 * イベントをハンドリングします。
 	 */
-	void handleLifecycle(LifecycleEvent event);
+	void handleLifecycle(LifecycleEvent<?> event);
 }
