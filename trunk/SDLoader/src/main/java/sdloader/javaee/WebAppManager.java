@@ -36,9 +36,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import sdloader.SDLoader;
 import sdloader.internal.resource.ArchiveTypeResource;
@@ -66,7 +64,6 @@ import sdloader.util.BooleanUtil;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.ResourceUtil;
-import sdloader.util.TextFormatUtil;
 import sdloader.util.WarUtil;
 import sdloader.util.WebUtils;
 
@@ -92,7 +89,7 @@ public class WebAppManager {
 
 	protected String webappDirPath;
 
-	protected List<PathPair> pathPairList;
+	protected List<WebAppContext> webAppContextList;
 
 	protected List<WebApplication> webAppList = CollectionsUtil.newArrayList();
 
@@ -115,12 +112,6 @@ public class WebAppManager {
 
 	public void init() {
 		try {
-			this.webappDirPath = getWebAppDirPath();
-			File webappDir = new File(webappDirPath);
-			if (!webappDir.exists()) {
-				throw new RuntimeException("webapps directory not exists.path="
-						+ webappDirPath);
-			}
 			String extractStr = server
 					.getConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
 			isInmemoryExtract = BooleanUtil.toBoolean(extractStr);
@@ -138,12 +129,15 @@ public class WebAppManager {
 		return homeDirPath + "/" + webAppPath;
 	}
 
-	@SuppressWarnings("deprecation")
 	protected void detectWebApps() throws Exception {
+		this.webappDirPath = getWebAppDirPath();
 		File webappDir = new File(webappDirPath);
-
+		if (!webappDir.exists()) {
+			throw new RuntimeException("webapps directory not exists.path="
+					+ webappDirPath);
+		}
+		
 		File[] dirs = webappDir.listFiles(new DirFileFilter());
-
 		File[] warFiles = webappDir.listFiles(new WarFileFilter());
 
 		if (!isInmemoryExtract) {
@@ -155,16 +149,16 @@ public class WebAppManager {
 			}
 		}
 		// webapps以下のフォルダ
-		pathPairList = CollectionsUtil.newArrayList();
+		webAppContextList = CollectionsUtil.newArrayList();
 		dirs = webappDir.listFiles(new DirFileFilter());
 		if (!isInmemoryExtract) {
 			if (dirs != null) {
 				for (int i = 0; i < dirs.length; i++) {
 					final String contextPath = "/" + dirs[i].getName();
 					final String docBase = webappDirPath + contextPath;
-					final PathPair pathPair = createPathPair(contextPath,
-							ResourceUtil.file2Url(docBase));
-					pathPairList.add(pathPair);
+					final WebAppContext context 
+						= new WebAppContext(contextPath,ResourceUtil.file2Url(docBase));
+					webAppContextList.add(context);
 					log.info("detect webapp context. contextPath="
 							+ contextPath + " docBase=" + docBase);
 				}
@@ -173,9 +167,9 @@ public class WebAppManager {
 			URL.setURLStreamHandlerFactory(new URLStreamHandlerFactory() {
 				public URLStreamHandler createURLStreamHandler(
 						final String protocol) {
-					if (protocol.startsWith("war")) {
+					if (protocol.equals(WarURLStreamHandler.PROTOCOL)) {
 						return new WarURLStreamHandler();
-					} else if (protocol.startsWith("innerjar")) {
+					} else if (protocol.equals(InnerJarURLStreamHandler.PROTOCOL)) {
 						return new InnerJarURLStreamHandler();
 					}
 					return null;
@@ -183,12 +177,14 @@ public class WebAppManager {
 			});
 			ResourceBuilder builder = new ResourceBuilderImpl();
 			for (File warfile : warFiles) {
-				final URL warDocRoot = ResourceUtil.createURL("war:" + warfile.toURI().toURL().toExternalForm());
+				final URL warDocRoot = 
+					ResourceUtil.createURL(WarURLStreamHandler.PROTOCOL+":" 
+							+ warfile.toURI().toURL().toExternalForm());
 				final String contextPath = "/" + ResourceUtil.stripExtension(warfile.getName());
 				Map<URL, Resource> map = builder.build(warfile.getPath());
-				PathPair pair = createPathPair(contextPath, warDocRoot);
-				pathPairList.add(pair);
-				warInmemoryMap.put(pair.docBase, map);
+				WebAppContext context = new WebAppContext(contextPath, warDocRoot);
+				webAppContextList.add(context);
+				warInmemoryMap.put(context.getDocBase(), map);
 			}
 		}
 		// コンテキストXML
@@ -196,23 +192,17 @@ public class WebAppManager {
 		parseContextXMLs(contextXMLs);
 	}
 
-	protected PathPair createPathPair(final String contextPath,final URL url) {
-		return new PathPair(contextPath,url);
-	}
-
 	protected void initWebAppContext() throws Exception {
-		for (Iterator<PathPair> itr = pathPairList.iterator(); itr.hasNext();) {
-			final PathPair pathPair = itr.next();
-			final URL docBase = pathPair.docBase;
-			final String contextPath = pathPair.contextPath;
+		for (WebAppContext context : webAppContextList) {
+			final URL docBase = context.getDocBase();
+			final String contextPath = context.getContextPath();
 			WebXml webxml = buildWebXml(docBase);
 
 			setDefaultServlet(webxml, docBase, contextPath, isInmemoryExtract);
 			// create WebApplication
 			ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase)
 					: createInMemoryWebAppClassLoader(docBase);
-			WebApplication webapp = new WebApplication(webxml, docBase,
-					contextPath, webAppClassLoader, this);
+			WebApplication webapp = new WebApplication(webxml,context, webAppClassLoader, this);
 			this.webAppList.add(webapp);
 
 			log.info("create webapp [" + contextPath + "]");
@@ -264,10 +254,12 @@ public class WebAppManager {
 		final String docBaseStr = "file:/" + webappDirPath + "/"
 				+ WebConstants.ROOT_DIR_NAME + "/";
 		URL docBase = ResourceUtil.createURL(docBaseStr);
-		setDefaultServlet(webXmlTag, docBase, contextPath, false);
+		if(ResourceUtil.isResourceExist(docBase)){
+			setDefaultServlet(webXmlTag, docBase, contextPath, false);
+		}
 		final ClassLoader webAppClassLoader = createWebAppClassLoader(docBase);
-		final WebApplication webapp = new WebApplication(webXmlTag, docBase,
-				"/", webAppClassLoader, this);
+		WebAppContext context = new WebAppContext(contextPath,docBase);
+		final WebApplication webapp = new WebApplication(webXmlTag,context,webAppClassLoader, this);
 
 		return webapp;
 	}
@@ -439,16 +431,29 @@ public class WebAppManager {
 		}
 		return extracted;
 	}
-
+	protected void parseContextXMLs(File[] contextXMLs) throws Exception {
+		if (contextXMLs != null) {
+			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();			
+			for (int i = 0; i < contextXMLs.length; i++) {
+				final File contextXml = contextXMLs[i];
+				final String fileName = contextXml.getName();
+				WebAppContextXmlParserHandler contextXmlParserHandler 
+					= new WebAppContextXmlParserHandler(fileName,webappDirPath);
+				parser.parse(contextXml, contextXmlParserHandler);
+				webAppContextList.add(Assertion.notNull(contextXmlParserHandler.getWebAppContext()));
+			}
+		}
+	}
+		
 	/**
-	 * webapps以下のフォルダをコンテキストパスとして認識し、/をつけて返します。
+	 * /から始まるコンテキストパスを返します。
 	 * 
 	 * @return
 	 */
 	public List<String> getContextPathList() {
 		List<String> contextPathList = CollectionsUtil.newArrayList();
-		for(PathPair pathPair:pathPairList){
-			contextPathList.add(pathPair.contextPath);
+		for(WebAppContext context:webAppContextList){
+			contextPathList.add(context.getContextPath());
 		}
 		return contextPathList;
 	}
@@ -477,37 +482,29 @@ public class WebAppManager {
 		}
 		return null;
 	}
-
+	
 	public void close() {
 		List<WebApplication> webAppList = getWebAppList();
 		for (Iterator<WebApplication> itr = webAppList.iterator(); itr
 				.hasNext();) {
 			WebApplication webapp = itr.next();
 			List<Servlet> servletList = webapp.getServletList();
-			{
-				if (servletList != null) {
-					for (Iterator<Servlet> servletItr = servletList.iterator(); servletItr
-							.hasNext();) {
-						Servlet servlet = servletItr.next();
-						try {
-							servlet.destroy();
-						} catch (Exception e) {
-							log.error(e.getMessage(), e);
-						}
+			if (servletList != null) {
+				for (Servlet servlet:servletList){
+					try {
+						servlet.destroy();
+					} catch (Exception e) {
+						log.error(e.getMessage(), e);
 					}
 				}
 			}
 			List<Filter> filterList = webapp.getFilterList();
-			{
-				if (filterList != null) {
-					for (Iterator<Filter> filterItr = filterList.iterator(); filterItr
-							.hasNext();) {
-						Filter filter = filterItr.next();
-						try {
-							filter.destroy();
-						} catch (Exception e) {
-							log.error(e.getMessage(), e);
-						}
+			if (filterList != null) {
+				for (Filter filter:filterList){
+					try {
+						filter.destroy();
+					} catch (Exception e) {
+						log.error(e.getMessage(), e);
 					}
 				}
 			}
@@ -519,6 +516,7 @@ public class WebAppManager {
 	}
 
 	private final class WarURLStreamHandler extends URLStreamHandler {
+		public static final String PROTOCOL = "war";
 		@Override
 		protected URLConnection openConnection(URL u) throws IOException {
 			String warPath = u.toExternalForm();
@@ -537,6 +535,7 @@ public class WebAppManager {
 	}
 
 	private final class InnerJarURLStreamHandler extends URLStreamHandler {
+		public static final String PROTOCOL = "innerjar";
 		@Override
 		protected URLConnection openConnection(URL u) throws IOException {
 			String warPath = u.getPath();
@@ -569,31 +568,6 @@ public class WebAppManager {
 		}
 	}
 
-	private class PathPair {
-		URL docBase;// アプリケーションのドキュメントルート
-		String contextPath;// アプリケーションのコンテキストパス(/から始まるパス）
-
-		PathPair(final String contextPath,final URL url) {
-			this.docBase = Assertion.notNull(url);
-			this.contextPath = Assertion.notNull(contextPath);
-			/*
-			if (!isInmemoryExtract) {
-				final String urlStr = url.toExternalForm();
-				String s = urlStr.replace("file:/", "").replace(webappDirPath,
-						"");
-				s = (s.endsWith("/")) ? s.substring(0, s.length() - 1) : s;
-				this.contextPath = Assertion.notNull(s);
-			} else {
-				final String urlStr = url.toExternalForm();
-				String s = Assertion.notNull(urlStr.replace("war:file:/", ""));
-				s = s.replace(webappDirPath, "").replace(".war", "");
-				s = (s.endsWith("/")) ? s.substring(0, s.length() - 1) : s;
-				this.contextPath = Assertion.notNull(s);
-			}
-			*/
-		}
-	}
-
 	private class DirFileFilter implements FileFilter {
 		public boolean accept(File file) {
 			return file.isDirectory() && !file.getName().equals("CVS")
@@ -621,60 +595,5 @@ public class WebAppManager {
 			else
 				return false;
 		}
-	}
-
-	protected void parseContextXMLs(File[] contextXMLs) throws Exception {
-		if (contextXMLs != null) {
-			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
-			for (int i = 0; i < contextXMLs.length; i++) {
-				File contextXml = contextXMLs[i];
-				final String fileName = contextXml.getName();
-				final String contextPathFromFileName = "/"
-						+ fileName.substring(0, fileName.length()
-								- ".xml".length());
-				parser.parse(contextXml, new DefaultHandler() {
-					public void startElement(String uri, String localName,
-							String qName, Attributes attributes)
-							throws SAXException {
-						if (qName.equals("Context")) {
-							processContextTag(attributes);
-						}
-					}
-					protected void processContextTag(Attributes attributes){
-						String contextPath = attributes.getValue("path");
-						String docBase = attributes.getValue("docBase");
-						if (docBase == null) {
-							log.error("docBase attribute not found. file="
-									+ fileName);
-							return;
-						}
-						if (contextPath == null)
-							contextPath = contextPathFromFileName;
-						
-						docBase = TextFormatUtil.formatTextBySystemProperties(docBase);
-						contextPath = TextFormatUtil.formatTextBySystemProperties(contextPath);
-						docBase = docBase.replace('\\', '/');
-						if (docBase.startsWith(".")) {// 相対パスの場合、webappsまでのパスを追加
-							docBase = webappDirPath + "/" + docBase;
-						}
-						if (!new File(docBase).exists()) {
-							log.error("docBase not exist.file="
-									+ fileName + " contextPath="
-									+ contextPath + " docBase="
-									+ docBase);
-							return;
-						}
-						log.info("detect webapp context. contextPath="
-										+ contextPath
-										+ " docBase="
-										+ docBase);
-						final PathPair pathPair = createPathPair(contextPath,
-								ResourceUtil.file2Url(docBase));
-						pathPairList.add(pathPair);
-					}
-				});
-			}
-		}
-
 	}
 }
