@@ -89,7 +89,7 @@ public class WebAppManager {
 
 	protected String webappDirPath;
 
-	protected List<WebAppContext> webAppContextList;
+	protected List<WebAppContext> webAppContextList = CollectionsUtil.newArrayList();
 
 	protected List<WebApplication> webAppList = CollectionsUtil.newArrayList();
 
@@ -149,7 +149,6 @@ public class WebAppManager {
 			}
 		}
 		// webapps以下のフォルダ
-		webAppContextList = CollectionsUtil.newArrayList();
 		dirs = webappDir.listFiles(new DirFileFilter());
 		if (!isInmemoryExtract) {
 			if (dirs != null) {
