@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- 
- path属性・・・ アプリケーションのコンテキストパス。省略すると、このファイル名がコンテキストパスとなります。
- docBase・・・ アプリケーションのあるフォルダのパス。WEB-INFの入っているフォルダを指定します。
-               パスは、.(ドット）表記からはじめるとwebappsフォルダからの相対パスとなります。
--->
-<Context path="/test" docBase="${sdloaderwebapp}"/>
-
