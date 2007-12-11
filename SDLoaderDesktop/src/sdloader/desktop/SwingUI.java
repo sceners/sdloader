@@ -26,6 +26,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.BindException;
 import java.util.Properties;
 
 import javax.swing.JButton;
@@ -110,8 +111,12 @@ public class SwingUI extends JFrame{
 		try{
 			server.start();
 		}catch(Exception e){
-			e.printStackTrace();
-			throw new RuntimeException("エラーが発生しました。\n"+e.getMessage());
+			if(e.getCause()!=null&&e.getCause() instanceof BindException){
+				throw new RuntimeException("2重起動は出来ません。");
+			}else{
+				e.printStackTrace();
+				throw new RuntimeException("エラーが発生しました。\n"+e.getMessage());
+			}
 		}
 	}
 	protected void showUI(){
