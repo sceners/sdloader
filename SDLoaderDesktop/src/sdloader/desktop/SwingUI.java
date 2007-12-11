@@ -37,11 +37,13 @@ import sdloader.LifecycleListener;
 import sdloader.SDLoader;
 import sdloader.util.MiscUtils;
 import sdloader.util.ResourceUtil;
+import sdloader.util.TextFormatUtil;
 /**
  * Swingで起動するSDLoaderのUI
  * @author AKatayama
  *
  */
+@SuppressWarnings("serial")
 public class SwingUI extends JFrame{
 
 	private SDLoader server;
@@ -58,10 +60,13 @@ public class SwingUI extends JFrame{
 	}
 
 	public void start(){
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(300,200);
-		setLocationRelativeTo(null);//画面の真ん中
-		
+		initProperty();
+		initSystemProperty();
+		showLoadingWindow();
+		initServer();
+		startServer();
+	}
+	protected void initProperty(){		
 		InputStream app = ResourceUtil.getResourceAsStream("application.properties",SwingUI.class);
 		if(app == null){
 			throw new RuntimeException("application.propertiesがありません");
@@ -71,20 +76,37 @@ public class SwingUI extends JFrame{
 			appProperties.load(app);
 		}catch(IOException ioe){
 			throw new RuntimeException("application.propertiesがありません");
-		}		
+		}
+	}
+	protected void initSystemProperty(){
+		System.setProperty("webapps",(System.getProperty("user.dir")+"/webapps").replace("\\","/"));
+	}
+	protected void showLoadingWindow(){
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(300,200);
+		setLocationRelativeTo(null);//画面の真ん中
 		String title = appProperties.getProperty("title","SDLoaderDesktop");
 		setTitle(title);
-	
-		getContentPane().add(new Label("起動中です・・・"),BorderLayout.CENTER);		
+		getContentPane().add(new Label("起動中です・・・"),BorderLayout.CENTER);
 		setVisible(true);
+	}
+	protected void initServer(){
 		
 		server = new SDLoader();
-		server.setAutoPortDetect(true);
+		String port = appProperties.getProperty("port");
+		if(port != null){
+			server.setPort(Integer.parseInt(port));
+			server.setAutoPortDetect(false);
+		}else{
+			server.setAutoPortDetect(true);
+		}
 		server.addEventListener(LifecycleEvent.AFTER_START,new LifecycleListener(){
-			public void handleLifecycle(LifecycleEvent arg0) {
+			public void handleLifecycle(LifecycleEvent<?> arg0) {
 				showUI();
 			}
 		});
+	}
+	protected void startServer(){
 		try{
 			server.start();
 		}catch(Exception e){
@@ -92,7 +114,7 @@ public class SwingUI extends JFrame{
 			throw new RuntimeException("エラーが発生しました。\n"+e.getMessage());
 		}
 	}
-	private void showUI(){
+	protected void showUI(){
 		this.getContentPane().removeAll();
 		addCloseHandler();
 		addAppButton();
@@ -103,7 +125,7 @@ public class SwingUI extends JFrame{
 	 */
 	private void addAppButton(){
 		int port = server.getPort();
-		final String baseurl = "http://localhost:"+port;
+		String baseurl = "http://localhost:"+port;
 		String prefix = "app";		
 		getContentPane().setLayout(new GridBagLayout());
 		GridBagConstraints constraint = new GridBagConstraints();
@@ -114,9 +136,11 @@ public class SwingUI extends JFrame{
 		
 		for(int i = 1; ;i++){
 			String name = appProperties.getProperty(prefix+i+".name");
-			final String url = appProperties.getProperty(prefix+i+".url");	
+			final String url = appProperties.getProperty(prefix+i+".url");
+			final String exec = appProperties.getProperty(prefix+i+".exec");
 			final String autorun = appProperties.getProperty(prefix+i+".autorun","false");
-			if(name != null && url != null){
+			if(name != null && ( url != null || exec != null)){
+				final String absoluteUrl = baseurl+url;
 				JButton button =new JButton(name);
 				constraint = new GridBagConstraints();
 				constraint.gridx=0;
@@ -128,22 +152,31 @@ public class SwingUI extends JFrame{
 				getContentPane().add(button,constraint);
 				button.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent e) {
-						try{
-							MiscUtils.openBrowser(baseurl+url);
-						}catch(IOException ioe){
-							JOptionPane.showMessageDialog(SwingUI.this,url+"の起動に失敗しました。");
-						}
+						openApplication(absoluteUrl,exec);
 					}
 				});
 				if(autorun.equals("true")){
-					try{
-						MiscUtils.openBrowser(baseurl+url);
-					}catch(IOException ioe){
-						JOptionPane.showMessageDialog(SwingUI.this,url+"の起動に失敗しました。");
-					}
+					openApplication(absoluteUrl,exec);
 				}
 			}else{
 				break;
+			}
+		}
+	}
+	private void openApplication(String url,String exec){
+		if(exec != null && exec.length()>0){
+			String exePath = exec;
+			try{				
+				exePath = TextFormatUtil.formatTextBySystemProperties(exec);
+				Runtime.getRuntime().exec(exePath);
+			}catch(Throwable t){
+				JOptionPane.showMessageDialog(SwingUI.this,exePath+"の起動に失敗しました。");
+			}
+		}else{
+			try{
+				MiscUtils.openBrowser(url);
+			}catch(IOException ioe){
+				JOptionPane.showMessageDialog(SwingUI.this,url+"の起動に失敗しました。");
 			}
 		}
 	}
