@@ -42,5 +42,6 @@
 	<exec executable="./exewrap/exewrap.exe">
 		<arg line="-g -e SINGLE ${dist}/SDLoaderDesktop.jar"/>  	
 	</exec>
+  	<!-- <delete file="${dist}/SDLoaderDesktop.jar"></delete> -->
   </target>	
 </project>
