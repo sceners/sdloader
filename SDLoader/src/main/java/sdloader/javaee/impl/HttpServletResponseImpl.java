@@ -110,7 +110,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	public void sendRedirect(String path) throws IOException {
 		header.addHeader(HttpConst.LOCATION,path);
-		setStatus(HttpConst.SC_TEMPORARY_REDIRECT);
+		setStatus(HttpConst.SC_MOVED_TEMPORARILY);
 		this.servletOutputStream.flush();
 		this.servletOutputStream.close();
 	}
