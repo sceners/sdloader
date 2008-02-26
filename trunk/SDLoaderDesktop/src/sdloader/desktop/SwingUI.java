@@ -81,6 +81,8 @@ public class SwingUI extends JFrame{
 	}
 	protected void initSystemProperty(){
 		System.setProperty("webapps",(System.getProperty("user.dir")+"/webapps").replace("\\","/"));
+		String inMemoryWar = appProperties.getProperty("inMemoryWAR","false");
+		System.setProperty(SDLoader.KEY_WAR_INMEMORY_EXTRACT, inMemoryWar);
 	}
 	protected void showLoadingWindow(){
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
