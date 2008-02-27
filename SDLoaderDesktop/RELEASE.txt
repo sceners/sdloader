@@ -1,5 +1,13 @@
 v0_1_03
- inMemoryWarモードをapplication.propertiesにセットできるようにした。
+ デフォルトリクエストエンコーディングを設定可能にした。
+ application.propertiesにsdloader.request.defaultEncode=ISO-8859-1の
+ 形で記述。デフォルトはISO-8859-1
+ HttpServletRequest.setCharacterEncodingでセットしたエンコードを
+ GETパラメータに適用するかどうかを決めるフラグを設定可能にした。
+ sdloader.request.request.useBodyEncodeForURI=true
+ の形で記述。デフォルトはtrue
+ inMemoryWarモードを設定可能にした。
+ dloader.warInMeoryExtract=falseの形で記述。デフォルトはfalse
 
 v0_1_02
  exeを起動できるように修正。SDLoaderをv0_1_06に変更。

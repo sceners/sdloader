@@ -27,6 +27,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.BindException;
+import java.util.Iterator;
 import java.util.Properties;
 
 import javax.swing.JButton;
@@ -62,7 +63,6 @@ public class SwingUI extends JFrame{
 
 	public void start(){
 		initProperty();
-		initSystemProperty();
 		showLoadingWindow();
 		initServer();
 		startServer();
@@ -78,11 +78,14 @@ public class SwingUI extends JFrame{
 		}catch(IOException ioe){
 			throw new RuntimeException("application.propertiesがありません");
 		}
-	}
-	protected void initSystemProperty(){
-		System.setProperty("webapps",(System.getProperty("user.dir")+"/webapps").replace("\\","/"));
-		String inMemoryWar = appProperties.getProperty("inMemoryWAR","false");
-		System.setProperty(SDLoader.KEY_WAR_INMEMORY_EXTRACT, inMemoryWar);
+		Iterator<?> keyItr = appProperties.keySet().iterator();
+		while(keyItr.hasNext()){
+			String key = (String)keyItr.next();
+			if(key.startsWith(SDLoader.CONFIG_KEY_PREFIX)){
+				String value = appProperties.getProperty(key);
+				server.setConfig(key,value);
+			}
+		}
 	}
 	protected void showLoadingWindow(){
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
