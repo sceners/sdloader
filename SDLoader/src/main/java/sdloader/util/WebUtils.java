@@ -20,8 +20,11 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.UnsupportedCharsetException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,7 +52,38 @@ public class WebUtils {
 	private WebUtils() {
 		super();
 	}
-
+	/**
+	 * ContentType(text/html;charse=UTF-8など)からUTF-8部分を取り出します。
+	 * @param value
+	 * @return
+	 */
+	public static String parseCharsetFromContentType(String value){
+		final String sepString = "charset=";
+		int sep = value.indexOf(sepString);
+		if(sep != -1){
+			sep += sepString.length(); 
+			int endIndex = value.length();
+			int scIndex = value.indexOf(";",sep);
+			if(scIndex!=-1)
+				endIndex = scIndex;
+			String charSet = value.substring(sep,endIndex);
+			return charSet.trim();
+		}else{
+			return null;
+		}
+	}
+	/**
+	 * サポートされているエンコードかどうか
+	 * サポートされていない場合、UnsupportedEncodingExceptionが発生します。
+	 * @param encoding
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	public static void checkSupportedEndcoding(String encoding) throws UnsupportedEncodingException{
+		if(encoding==null)
+			throw new UnsupportedCharsetException("Charset is null.");
+		URLDecoder.decode("", encoding);
+	}
 	/**
 	 * ヘッダー用の日付文字を、ミリ秒フォーマットに変換します。
 	 * 

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Enumeration;
@@ -78,6 +77,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	private String localName;
 	
+	//未セット時にはnullを返す為、HttpParemetersのbodyEncodingと2重持ち
 	private String characterEncoding;
 
 	private Locale locale = Locale.getDefault();
@@ -136,8 +136,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public void setCharacterEncoding(String encoding)
 			throws UnsupportedEncodingException {
-		// check
-		URLDecoder.decode("", encoding);
+		WebUtils.checkSupportedEndcoding(encoding);
 		httpRequest.getParameters().setBodyEncoding(encoding);
 		this.characterEncoding = encoding;
 	}

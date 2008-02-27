@@ -288,9 +288,10 @@ public class HttpRequestProcessor extends Thread {
 		}
 
 		// Content-Length
+		// Chunked以外はセット
 		HttpResponseHeader resHeader = response.getResponseHeader();
-		if (resHeader.getHeader(HttpConst.TRANSFERENCODING) == null
-				&& resHeader.getHeader(HttpConst.CONTENTLENGTH) == null){
+		String transferEncoding = resHeader.getHeader(HttpConst.TRANSFERENCODING);
+		if(transferEncoding==null || !transferEncoding.equalsIgnoreCase(HttpConst.CHUNKED)){
 			response.setHeader(HttpConst.CONTENTLENGTH, String
 					.valueOf(response.getBodyData().length));
 		}

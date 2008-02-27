@@ -377,10 +377,11 @@ public class WebAppManager {
 			jspWorkDir.mkdirs();
 			jspServlet.addInitParam(new InitParamTag("scratchdir",
 					jspWorkDirPath));
-			String jspClassPath = server.getConfig(SDLoader.KEY_SDLOADER_JSP_LIBPATH);
-			if (jspClassPath != null){
+			String jspLibPath = server.getConfig(SDLoader.KEY_SDLOADER_JSP_LIBPATH);
+			if (jspLibPath != null){
+				jspLibPath = PathUtils.replaceFileSeparator(jspLibPath);
 				jspServlet.addInitParam(new InitParamTag("classpath",
-						jspClassPath));
+						jspLibPath));
 			}
 
 			ServletMappingTag jspMapping = new ServletMappingTag();
