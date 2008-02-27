@@ -130,23 +130,20 @@ public class HttpRequestProcessor extends Thread {
 	}
 
 	protected boolean processServlet(InputStream is, OutputStream os,int requestCount) throws Throwable {
-		HttpRequestHeader header = null;
-		HttpRequestBody body = null;
+		HttpRequest httpRequest;
 		try {
 			if (requestCount!=1)
 				socket.setSoTimeout(keepAliveTimeout);
 
 			HttpInput input = new HttpInput(is);
-			HttpRequest request = new HttpRequest(input);
+			httpRequest = new HttpRequest(input);
 			
-			header = request.getHeader();
-			if (header == null)
+			if (httpRequest.getHeader() == null)
 				return false;// empty request;
 
 			if (log.isDebugEnabled())
-				log.debug("<REQUEST_HEADER>\n" + header.getHeader());
-			
-			body = request.getBody();
+				log.debug("<REQUEST_HEADER>\n" + httpRequest.getHeader());
+
 		} catch (SocketException e) {
 			throw new SocketTimeoutException();
 		} finally {
@@ -155,9 +152,9 @@ public class HttpRequestProcessor extends Thread {
 			else
 				socket.setSoTimeout(socketTimeout);
 		}
-
+		HttpRequestHeader header = httpRequest.getHeader();
 		// request
-		HttpServletRequestImpl request =createServletRequestImp(header, body);		
+		HttpServletRequestImpl request =createServletRequestImp(httpRequest);		
 		// response
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
 		
@@ -233,10 +230,8 @@ public class HttpRequestProcessor extends Thread {
 		processDataOutput(response, os);
 		return header.isKeepAlive();
 	}
-	private HttpServletRequestImpl createServletRequestImp(HttpRequestHeader header,HttpRequestBody body){
-		HttpServletRequestImpl request = new HttpServletRequestImpl();
-		request.setHeader(header);
-		request.setBody(body);
+	private HttpServletRequestImpl createServletRequestImp(HttpRequest httpRequest){
+		HttpServletRequestImpl request = new HttpServletRequestImpl(httpRequest);
 		
 		request.setServerPort(loader.getPort());		
 		request.setLocalPort(socket.getLocalPort());

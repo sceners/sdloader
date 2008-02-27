@@ -62,7 +62,7 @@ public class HttpRequestHeader {
 				HttpConst.CRLF_STRING, false);
 		if (token.hasMoreTokens()) {
 			String requestLine = token.nextToken();
-			parseRequestLine(requestLine);
+			parseRequestPathLine(requestLine);
 		} else
 			throw new IllegalArgumentException("Invalid http request.");
 
@@ -84,7 +84,7 @@ public class HttpRequestHeader {
 		}
 	}
 
-	private void parseRequestLine(String requestLine) {
+	private void parseRequestPathLine(String requestLine) {
 		StringTokenizer token = new StringTokenizer(requestLine, " ", false);
 
 		if (token.hasMoreTokens())
@@ -92,7 +92,7 @@ public class HttpRequestHeader {
 		else
 			throw new IllegalArgumentException(
 					"Invalid http request. method not found.");
-
+		//parse query part
 		if (token.hasMoreTokens()) {
 			String request = token.nextToken().trim();
 			int paramDelim = request.indexOf("?");

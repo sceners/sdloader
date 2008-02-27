@@ -24,14 +24,20 @@ import java.io.IOException;
 public class HttpRequest {
 	
 	private HttpInput input;
+	
 	private HttpRequestHeader header;
 	private HttpRequestBody body;
+	private HttpParameters parameters;
 	
 	public HttpRequest(HttpInput input) throws IOException{
 		this.input = input;
 		createHttpRequestHeader();
 		if(header != null)
-			creaheHttpRequestBody();		
+			creaheHttpRequestBody();
+		parameters = new HttpParameters(header,body);
+	}
+	public HttpParameters getParameters(){
+		return parameters;
 	}
 	public HttpRequestHeader getHeader(){
 		return header;
@@ -73,6 +79,6 @@ public class HttpRequest {
 			b = new byte[contentLength];
 			input.readBody(b);
 		}
-		body = new HttpRequestBody(header, b);
+		body = new HttpRequestBody(b);
 	}
 }
