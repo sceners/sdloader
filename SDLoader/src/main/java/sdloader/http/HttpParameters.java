@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import sdloader.SDLoader;
+import sdloader.util.BooleanUtil;
 import sdloader.util.CollectionsUtil;
 
 /**
@@ -37,13 +39,13 @@ public class HttpParameters {
 	private List<String> paramNameList;
 
 	// パラメータをデコードする際のデフォルトエンコーディング
-	private String defaultEncoding = "ISO-8859-1";
+	private String defaultEncoding;
 
 	// body部分のエンコーディング
-	private String bodyEncoding = defaultEncoding;
+	private String bodyEncoding;
 
 	// GETのQueryに対して、bodyEncodingを使用するかどうか
-	private boolean useBodyEncodingForURI = true;
+	private boolean useBodyEncodingForURI;
 
 	private HttpRequestHeader header;
 	private HttpRequestBody body;
@@ -53,6 +55,20 @@ public class HttpParameters {
 	public HttpParameters(HttpRequestHeader header, HttpRequestBody body) {
 		this.header = header;
 		this.body = body;
+
+		// TODO RequestScopeからのパラメータ取得はどこかにまとめるべき
+		String encode = "ISO-8859-1";
+		boolean useBodyEncode = true;
+		SDLoader loader = RequestScopeContext.getContext().getAttribute(
+				SDLoader.class);
+		if (loader != null) {
+			encode = loader.getConfig(HttpRequest.KEY_REQUEST_DEFAULT_ENCODE,encode);
+			useBodyEncode = BooleanUtil.toBoolean(loader.getConfig(
+					HttpRequest.KEY_REQUEST_USE_BODY_ENCODE_FOR_URI,String.valueOf(useBodyEncode)));
+
+		}
+		setDefaultEncoding(encode);
+		setUseBodyEncodingForURI(useBodyEncode);
 	}
 
 	protected void initIfNeed() {
@@ -111,8 +127,8 @@ public class HttpParameters {
 
 	private String decode(String value, String encode)
 			throws UnsupportedEncodingException {
-		//ISO-8859-1を使用すると、ダイレクトに入力バイトが取れる。
-		//バイトを取ってエンコード
+		// ISO-8859-1を使用すると、ダイレクトに入力バイトが取れる。
+		// バイトを取ってエンコード
 		value = URLDecoder.decode(value, "ISO-8859-1");
 		value = new String(value.getBytes("ISO-8859-1"), encode);
 		return value;

@@ -63,6 +63,7 @@ import sdloader.util.Assertion;
 import sdloader.util.BooleanUtil;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
+import sdloader.util.PathUtils;
 import sdloader.util.ResourceUtil;
 import sdloader.util.WarUtil;
 import sdloader.util.WebUtils;
@@ -122,15 +123,8 @@ public class WebAppManager {
 		}
 	}
 
-	protected String getWebAppDirPath() {
-		final String homeDirPath = server.getConfig(SDLoader.KEY_SDLOADER_HOME);
-		final String webAppPath = server
-				.getConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
-		return homeDirPath + "/" + webAppPath;
-	}
-
 	protected void detectWebApps() throws Exception {
-		this.webappDirPath = getWebAppDirPath();
+		this.webappDirPath = server.getConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
 		File webappDir = new File(webappDirPath);
 		if (!webappDir.exists()) {
 			throw new RuntimeException("webapps directory not exists.path="
@@ -277,7 +271,7 @@ public class WebAppManager {
 			File classesDir = new File(docBase.getFile() + "/WEB-INF/classes");
 			if (classesDir.exists()) {
 				String dirPath = classesDir.getAbsolutePath();
-				dirPath = WebUtils.replaceFileSeparator(dirPath) + "/";
+				dirPath = PathUtils.replaceFileSeparator(dirPath) + "/";
 				urlList.add(new URL("file:///" + dirPath));
 			}
 			// WEB-INF/lib

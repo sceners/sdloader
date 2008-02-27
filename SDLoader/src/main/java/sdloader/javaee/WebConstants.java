@@ -22,9 +22,9 @@ public interface WebConstants {
 	/**
 	 * ルートのディレクトリ名
 	 */
-	String ROOT_DIR_NAME = "ROOT";
+	public static final String ROOT_DIR_NAME = "ROOT";
 	/**
 	 * Webアプリの格納ディレクトリ名
 	 */
-	String WEBAPP_DIR_NAME = "webapps";
+	public static final String WEBAPP_DIR_NAME = "webapps";
 }

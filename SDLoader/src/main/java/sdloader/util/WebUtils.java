@@ -122,7 +122,7 @@ public class WebUtils {
 		if (libs != null) {
 			for (int i = 0; i < libs.length; i++) {
 				String libPath = libs[i].getAbsolutePath();
-				libPath = WebUtils.replaceFileSeparator(libPath);
+				libPath = PathUtils.replaceFileSeparator(libPath);
 				urlList.add(new URL("file:///" + libPath));
 			}
 		}
@@ -322,16 +322,6 @@ public class WebUtils {
 	}
 
 	/**
-	 * パス中の\\を/に置き換えます。
-	 * 
-	 * @param filepath
-	 * @return
-	 */
-	public static final String replaceFileSeparator(String filepath) {
-		return filepath.replace('\\', '/');
-	}
-
-	/**
 	 * Query部分を取り除きます
 	 * 
 	 * @param requestURI
@@ -364,23 +354,49 @@ public class WebUtils {
 	/**
 	 * RequestURLを構築します。
 	 * 
-	 * @param schema
-	 * @param localName
+	 * @param scheme
+	 * @param host
 	 * @param port
 	 * @param requestURI
 	 * @return
 	 */
-	public static StringBuffer buildRequestURL(String schema, String localName,
+	public static StringBuffer buildRequestURL(String scheme, String host,
 			int port, String requestURI) {
 		String portString;
-		if (port == 80 && schema.equals("http"))
+		if (port == 80 && scheme.equals("http"))
 			portString = "";
-		else if (port == 443 && schema.equals("https"))
+		else if (port == 443 && scheme.equals("https"))
 			portString = "";
 		else
 			portString = ":" + port;
 		requestURI = stripQueryPart(requestURI);
-		return new StringBuffer(schema + "://" + localName + portString
+		return new StringBuffer(scheme + "://" + host + portString
 				+ requestURI);
+	}
+	/**
+	 * RequestURLを構築します。
+	 * host部分にポート指定が無い場合、schemeからポートを
+	 * 設定します。
+	 * @param scheme
+	 * @param host
+	 * @param port
+	 * @param requestURI
+	 * @return
+	 */
+	public static StringBuffer buildRequestURL(String scheme, String host,String requestURI) {
+		int portSep = host.indexOf(":");
+		String portString;
+		if(portSep != -1){
+			portString = host.substring(portSep+1);
+			host = host.substring(0,portSep);
+		}else{
+			if (scheme.equals("http"))
+				portString = "";
+			else if (scheme.equals("https"))
+				portString = "";
+			else
+				throw new RuntimeException("schema:"+scheme+" not support.");
+		}
+		return buildRequestURL(scheme, host,Integer.parseInt(portString),requestURI);
 	}
 }
