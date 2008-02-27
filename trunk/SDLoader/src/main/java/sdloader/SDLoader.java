@@ -31,6 +31,7 @@ import sdloader.javaee.WebAppManager;
 import sdloader.javaee.WebConstants;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+import sdloader.util.BooleanUtil;
 import sdloader.util.DisposableUtil;
 import sdloader.util.PathUtils;
 import sdloader.util.SocketUtil;
@@ -62,6 +63,8 @@ public class SDLoader implements Lifecycle {
 	public static final String KEY_WAR_INMEMORY_EXTRACT = CONFIG_KEY_PREFIX+"warInMeoryExtract";
 
 	public static final String KEY_SDLOADER_WEBAPP_PATH = CONFIG_KEY_PREFIX+"webAppPath";
+	
+	public static final String KEY_SDLOADER_USE_OUTSIDE_PORT = CONFIG_KEY_PREFIX+"useOutSidePort";
 
 	private int maxThreadPoolNum = 5;
 
@@ -223,25 +226,19 @@ public class SDLoader implements Lifecycle {
 		if (isRunnnig)
 			return;
 
+		initConfig();
+		
 		// TODO AOP
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.BEFORE_START, this));
 
-		ServerSocket initSocket = null;
 		long t = System.currentTimeMillis();
 
-		log.info("Bind start.Port=" + port);
-		bindToFreePort();
-		try {
-			initSocket = new ServerSocket(getPort(), backLogNum, InetAddress
-					.getByName(host));
-			log.info("Bind success.port=" + port);
-		} catch (IOException ioe) {
-			log.error("Bind fail.Port=" + port, ioe);
-			throw new RuntimeException(ioe);
-		}
-
-		init();
+		ServerSocket initSocket = initServerSocket();
+		
+		initWebApp();
+		initSocketProcessor();
+		initShutdown();
 
 		this.sdLoaderThread = new SDLoaderThread(initSocket);
 
@@ -295,14 +292,6 @@ public class SDLoader implements Lifecycle {
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.AFTER_STOP, this));
 	}
-
-	protected void init() {
-		initConfig();
-		initWebApp();
-		initSocketProcessor();
-		initShutdown();
-	}
-
 	protected void initConfig() {
 		//init home
 		String homeDir = getConfig(KEY_SDLOADER_HOME);
@@ -335,23 +324,19 @@ public class SDLoader implements Lifecycle {
 		setConfig(KEY_SDLOADER_WEBAPP_PATH,webappPath);
 		log.info(KEY_SDLOADER_WEBAPP_PATH + "=" + webappPath);
 		
-		//init jsp lib path		
-		String jspLibPath = getConfig(KEY_SDLOADER_JSP_LIBPATH);
-		if(jspLibPath==null){
-			jspLibPath = System.getProperty(KEY_SDLOADER_JSP_LIBPATH);
-			if(jspLibPath!=null){
-				setConfig(KEY_SDLOADER_JSP_LIBPATH,PathUtils.replaceFileSeparator(jspLibPath));
-			}
-		}
-		
+		//init jsp lib path
+		setSystemConfigWhenNoConfig(KEY_SDLOADER_JSP_LIBPATH);
 		//init inMemoryWar
-		String inmemoryExtract = getConfig(KEY_WAR_INMEMORY_EXTRACT);
-		if(inmemoryExtract==null){
-			inmemoryExtract = System
-				.getProperty(KEY_WAR_INMEMORY_EXTRACT);
-			if(inmemoryExtract!=null){
-				setConfig(KEY_WAR_INMEMORY_EXTRACT, inmemoryExtract);
-			}
+		setSystemConfigWhenNoConfig(KEY_WAR_INMEMORY_EXTRACT);
+		//init outside port
+		setSystemConfigWhenNoConfig(KEY_SDLOADER_USE_OUTSIDE_PORT);
+	}
+	protected void setSystemConfigWhenNoConfig(String key){
+		String value = getConfig(key);
+		if(value==null){
+			value = System.getProperty(key);
+			if(value != null)
+				setConfig(key,value);
 		}
 	}
 
@@ -366,7 +351,27 @@ public class SDLoader implements Lifecycle {
 			throw e;
 		}
 	}
-
+	
+	protected ServerSocket initServerSocket(){
+		ServerSocket initSocket = null;		
+		bindToFreePort();
+		log.info("Bind start.Port=" + port);
+		try {
+			String useOutSidePort = getConfig(KEY_SDLOADER_USE_OUTSIDE_PORT);
+			if(BooleanUtil.toBoolean(useOutSidePort)){
+				initSocket = new ServerSocket(getPort());
+			}else{
+				//default
+				initSocket = new ServerSocket(getPort(), backLogNum, InetAddress
+					.getByName(host));			
+			}
+			log.info("Bind success.port=" + port);
+		} catch (IOException ioe) {
+			log.error("Bind fail.Port=" + port, ioe);
+			throw new RuntimeException(ioe);
+		}
+		return initSocket;
+	}
 	protected void initSocketProcessor() {
 		socketProcessorPool = new HttpRequestProcessorPool(
 				this.maxThreadPoolNum);

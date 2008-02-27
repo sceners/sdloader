@@ -15,7 +15,9 @@
  */
 package sdloader.javaee.impl;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Locale;
@@ -36,12 +38,13 @@ import sdloader.util.WebUtils;
 public class HttpServletResponseImpl implements HttpServletResponse {
 	private Locale locale = Locale.getDefault();
 	
-	private String characterEncoding = "UTF-8";//HttpParameters.DEFAULT_CHAR_ENCODE;
+	private String characterEncoding = "ISO-8859-1";//J2EE specification
 
 	private HttpResponseHeader header = new HttpResponseHeader();
 
 	private ServletOutputStreamImpl servletOutputStream = new ServletOutputStreamImpl();
 
+	private ServletOutputStream outputStream;
 	private PrintWriter writer;
 
 	private int bufferSize;
@@ -68,6 +71,9 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	public void setContentType(String type) {
 		header.addHeader(HttpConst.CONTENTTYPE, type);
+		String encodeInContentType = WebUtils.parseCharsetFromContentType(type);
+		if(encodeInContentType != null)
+			characterEncoding = encodeInContentType;
 	}
 
 	public void setStatus(int sc) {
@@ -98,21 +104,18 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	public void sendError(int error, String message) throws IOException {
 		setStatus(error,message);
-		this.servletOutputStream.flush();
-		this.servletOutputStream.close();
+		commitOutputStream();
 	}
 
 	public void sendError(int error) throws IOException {
 		setStatus(error);
-		this.servletOutputStream.flush();
-		this.servletOutputStream.close();
+		commitOutputStream();
 	}
 
 	public void sendRedirect(String path) throws IOException {
 		header.addHeader(HttpConst.LOCATION,path);
 		setStatus(HttpConst.SC_MOVED_TEMPORARILY);
-		this.servletOutputStream.flush();
-		this.servletOutputStream.close();
+		commitOutputStream();
 	}
 
 	public void setDateHeader(String name, long time) {
@@ -144,12 +147,23 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public ServletOutputStream getOutputStream() throws IOException {
-		return servletOutputStream;
+		if(writer!=null){
+			throw new IllegalStateException("getOutputStream was called.");
+		}
+		outputStream = servletOutputStream;
+		return outputStream;
 	}
 
-	public PrintWriter getWriter() throws IOException {		
-		if (writer == null)
-			writer = new PrintWriter(servletOutputStream);
+	public PrintWriter getWriter() throws IOException {
+		if(outputStream!=null){
+			throw new IllegalStateException("getOutputStream was called.");
+		}
+		WebUtils.checkSupportedEndcoding(characterEncoding);		
+		if (writer == null){			
+			writer = new PrintWriter(
+					new BufferedWriter(
+							new OutputStreamWriter(servletOutputStream,characterEncoding)));
+		}
 		return writer;
 	}
 
@@ -172,6 +186,8 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void resetBuffer() {
+		outputStream=null;
+		writer=null;
 		servletOutputStream = new ServletOutputStreamImpl();
 	}
 
@@ -200,5 +216,10 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	public HttpResponseHeader getResponseHeader() {
 		return header;
+	}
+	
+	protected void commitOutputStream() throws IOException{
+		this.servletOutputStream.flush();
+		this.servletOutputStream.close();
 	}
 }
