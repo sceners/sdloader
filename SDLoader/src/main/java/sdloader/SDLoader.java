@@ -44,21 +44,24 @@ public class SDLoader implements Lifecycle {
 
 	private static final SDLoaderLog log = SDLoaderLogFactory
 			.getLog(SDLoader.class);
-
+	
+	public static final String CONFIG_KEY_PREFIX = "sdloader.";
 	/**
 	 * JSPコンパイル用のライブラリパス SDLoader呼び出し前にSystem.setPropertyでセットすると、このパスの
 	 * ライブラリを利用します。
-	 */
-	public static final String SDLOADER_JSP_LIBPATH = "sdloader.jsp.libpath";
-
+	 */	
+	public static final String KEY_SDLOADER_JSP_LIBPATH = CONFIG_KEY_PREFIX+"jsp.libpath";
+	//@duplecated
+	public static final String SDLOADER_JSP_LIBPATH = KEY_SDLOADER_JSP_LIBPATH;	
+	
 	/**
 	 * SDLoaderのベースディレクトリパス
 	 */
-	public static final String KEY_SDLOADER_HOME = "SDLoader.home";
+	public static final String KEY_SDLOADER_HOME = CONFIG_KEY_PREFIX+"home";
 
-	public static final String KEY_WAR_INMEMORY_EXTRACT = "SDLoader.warInMeoryExtract";
+	public static final String KEY_WAR_INMEMORY_EXTRACT = CONFIG_KEY_PREFIX+"warInMeoryExtract";
 
-	public static final String KEY_SDLOADER_WEBAPP_PATH = "SDLoader.webAppPath";
+	public static final String KEY_SDLOADER_WEBAPP_PATH = CONFIG_KEY_PREFIX+"webAppPath";
 
 	private int maxThreadPoolNum = 5;
 
@@ -302,9 +305,9 @@ public class SDLoader implements Lifecycle {
 
 	protected void initConfig() {
 		//init home
-		String homeDir = getConfig(SDLoader.KEY_SDLOADER_HOME);
+		String homeDir = getConfig(KEY_SDLOADER_HOME);
 		if(homeDir==null){
-			homeDir = System.getProperty(SDLoader.KEY_SDLOADER_HOME);
+			homeDir = System.getProperty(KEY_SDLOADER_HOME);
 			if (homeDir == null) {
 				homeDir = System.getProperty("user.dir");// +"/sdloader";
 			}
@@ -313,13 +316,13 @@ public class SDLoader implements Lifecycle {
 		if (homeDir.endsWith("/")) {
 			homeDir = homeDir.substring(0, homeDir.length() - 1);
 		}
-		setConfig(SDLoader.KEY_SDLOADER_HOME, homeDir);
+		setConfig(KEY_SDLOADER_HOME, homeDir);
 		log.info("SDLOADER_HOME=" + homeDir);
 		
 		//init webappDir
-		String webappPath = getConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
+		String webappPath = getConfig(KEY_SDLOADER_WEBAPP_PATH);
 		if(webappPath==null){
-			webappPath = System.getProperty(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
+			webappPath = System.getProperty(KEY_SDLOADER_WEBAPP_PATH);
 			if (webappPath == null) {
 				webappPath = WebConstants.WEBAPP_DIR_NAME;
 			}
@@ -329,16 +332,25 @@ public class SDLoader implements Lifecycle {
 			//homeからの絶対パスに変換
 			webappPath = homeDir + "/" + webappPath;			
 		}
-		setConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH,webappPath);
+		setConfig(KEY_SDLOADER_WEBAPP_PATH,webappPath);
 		log.info(KEY_SDLOADER_WEBAPP_PATH + "=" + webappPath);
 		
+		//init jsp lib path		
+		String jspLibPath = getConfig(KEY_SDLOADER_JSP_LIBPATH);
+		if(jspLibPath==null){
+			jspLibPath = System.getProperty(KEY_SDLOADER_JSP_LIBPATH);
+			if(jspLibPath!=null){
+				setConfig(KEY_SDLOADER_JSP_LIBPATH,PathUtils.replaceFileSeparator(jspLibPath));
+			}
+		}
+		
 		//init inMemoryWar
-		String inmemoryExtract = getConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
+		String inmemoryExtract = getConfig(KEY_WAR_INMEMORY_EXTRACT);
 		if(inmemoryExtract==null){
 			inmemoryExtract = System
-				.getProperty(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
+				.getProperty(KEY_WAR_INMEMORY_EXTRACT);
 			if(inmemoryExtract!=null){
-				setConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT, inmemoryExtract);
+				setConfig(KEY_WAR_INMEMORY_EXTRACT, inmemoryExtract);
 			}
 		}
 	}

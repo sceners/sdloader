@@ -16,6 +16,8 @@
 package sdloader.http;
 
 import java.io.IOException;
+
+import sdloader.SDLoader;
 /**
  * HTTPリクエスト
  * ヘッダーパートとボディーパートを生成します。
@@ -26,11 +28,11 @@ public class HttpRequest {
 	/**
 	 * デフォルトリクエストエンコード指定用キー
 	 */
-	public static final String KEY_REQUEST_DEFAULT_ENCODE = "SDLoader.request.defaultEncode";
+	public static final String KEY_REQUEST_DEFAULT_ENCODE = SDLoader.CONFIG_KEY_PREFIX+"request.defaultEncode";
 	/**
 	 * GETパラメータにBODYのエンコードを適用するかどうかを指定するキー
 	 */
-	public static final String KEY_REQUEST_USE_BODY_ENCODE_FOR_URI = "SDLoader.request.useBodyEncodeForURI";
+	public static final String KEY_REQUEST_USE_BODY_ENCODE_FOR_URI = SDLoader.CONFIG_KEY_PREFIX+"request.useBodyEncodeForURI";
 	
 	private HttpInput input;
 	
