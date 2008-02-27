@@ -8,7 +8,7 @@
   <property name="srctestresources" value="./src/test/resources" />	
   <property name="lib" value="./lib" />	
   <property name="distbase"  value="dist" />
-  <property file="META-INF/sdloaderversion.txt" />
+  <property file="sdloaderversion.txt" />
   
   <property name="mainclass" value="sdloader.BrowserOpen"/>
 	
@@ -29,9 +29,9 @@
     		<exclude name="dev/**" />
     		<exclude name="**/*Test" />
     	</fileset>
-		<fileset dir=".">
-			<include name="META-INF/sdloaderversion.txt" />
-		</fileset>
+    	<metainf dir=".">
+		    <include name="sdloaderversion.txt"/>
+    	</metainf>
     	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar">
     		<exclude name="*.html"/>
     	</zipfileset>
@@ -46,9 +46,9 @@
     		<exclude name="dev/**" />
     		<exclude name="**/*Test" />
     	</fileset>
-		<fileset dir=".">
-			<include name="META-INF/sdloaderversion.txt" />
-		</fileset>
+    	<metainf dir=".">
+		    <include name="sdloaderversion.txt"/>
+    	</metainf>
     	<zipfileset src="lib/Servlet2.3_JSP1.2/ant.jar"/>
     	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-compiler.jar"/>
     	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-runtime.jar"/>
@@ -65,9 +65,9 @@
     		<exclude name="dev/**" />
        		<exclude name="**/*Test" />    		
     	</fileset>
-		<fileset dir=".">
-			<include name="META-INF/sdloaderversion.txt" />
-		</fileset>
+    	<metainf dir=".">
+		    <include name="sdloaderversion.txt"/>
+    	</metainf>
     	<zipfileset src="lib/Servlet2.4_JSP2.0/commons-el.jar"/>
     	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-compiler.jar"/>
     	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-compiler-jdt.jar"/>
@@ -95,6 +95,9 @@
 		<fileset dir="${srctestresources}">
 			<include name="**/*" />
 		</fileset>
+    	<metainf dir=".">
+		    <include name="sdloaderversion.txt"/>
+    	</metainf>  		
   	</jar>
   	
     <copy todir="${distbin}" >
