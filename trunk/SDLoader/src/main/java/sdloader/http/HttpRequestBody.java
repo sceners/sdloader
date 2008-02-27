@@ -15,9 +15,6 @@
  */
 package sdloader.http;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.StringTokenizer;
 
 /**
  * HTTPリクエストのボディー部分
@@ -25,83 +22,13 @@ import java.util.StringTokenizer;
  * @author c9katayama
  */
 public class HttpRequestBody {
-	private HttpParameters parameters;
-
-	private HttpRequestHeader header;
 
 	private byte[] bodyData;
 
-	public HttpRequestBody(HttpRequestHeader header) {
-		this.header = header;
-		parameters = new HttpParameters(this);
-
-	}
-
-	public HttpRequestBody(HttpRequestHeader header, byte[] bodyData) {
-		this.header = header;
+	public HttpRequestBody(byte[] bodyData) {
 		this.bodyData = bodyData;
-		parameters = new HttpParameters(this);
 	}
-
-	/**
-	 * HttpParameters#getParameterが呼ばれた初回に呼ばれます。
-	 */
-	void initParameters() {
-		if (header.getQueryString() != null)
-			parseRequestQuery(header.getQueryString(), "UTF-8");// GETはUTF-8
-		if (bodyData != null && header.getMethod().equals(HttpConst.POST)) {
-			String contType = header.getHeader(HttpConst.CONTENTTYPE);
-			if (contType != null
-					&& contType.equals(HttpConst.WWW_FORM_URLENCODE)) {
-				try {
-					parseRequestQuery(new String(bodyData,
-							HttpParameters.DEFAULT_CHAR_ENCODE), parameters
-							.getCharacterEncoding());
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-	}
-
-	private void parseRequestQuery(String query, String encode) {
-		StringTokenizer paramToken = new StringTokenizer(query, "&", false);
-
-		while (paramToken.hasMoreElements()) {
-			String param = paramToken.nextToken();
-			StringTokenizer token = new StringTokenizer(param, "=", false);
-			String key = token.nextToken();
-			String value = null;
-			if (token.hasMoreTokens()) {
-				value = token.nextToken();
-				try {
-					key = decode(key, encode);
-					value = decode(value, encode);
-				} catch (UnsupportedEncodingException e) {
-					throw new IllegalArgumentException(e.getMessage());
-				}
-			}
-			parameters.addParameter(key, value);
-		}
-	}
-
-	private String decode(String value, String encode)
-			throws UnsupportedEncodingException {
-		value = URLDecoder.decode(value, HttpParameters.DEFAULT_CHAR_ENCODE);
-		value = new String(value.getBytes(HttpParameters.DEFAULT_CHAR_ENCODE),
-				encode);
-		return value;
-	}
-
 	public byte[] getBodyData() {
 		return bodyData;
-	}
-
-	public HttpRequestHeader getHeader() {
-		return header;
-	}
-
-	public HttpParameters getParameters() {
-		return parameters;
 	}
 }

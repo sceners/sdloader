@@ -1,5 +1,7 @@
 package sdloader.http;
 
+import com.sun.net.httpserver.HttpHandler;
+
 import junit.framework.TestCase;
 
 public class HttpParametersTest extends TestCase {
@@ -15,15 +17,15 @@ public class HttpParametersTest extends TestCase {
 		"Proxy-Connection: Keep-Alive\n"+
 		"Host: www.google.co.jp\n";
 
-	HttpRequestHeader header;
-	HttpRequestBody body;
 	HttpParameters params;
 
 	@Override
 	protected void setUp() throws Exception {
-		header = new HttpRequestHeader(headerString);
-		body =new HttpRequestBody(header);
-		params = body.getParameters();
+		HttpRequestHeader header = new HttpRequestHeader(headerString);
+		HttpRequestBody body =new HttpRequestBody(null);
+		params = new HttpParameters(header,body);
+		params.setBodyEncoding("UTF-8");
+		params.setUseBodyEncodingForURI(true);
 	}
 	public void testParameter(){
 		String hlValue = params.getParamter("hl");

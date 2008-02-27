@@ -15,9 +15,12 @@
  */
 package sdloader.http;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import sdloader.util.CollectionsUtil;
 
@@ -28,26 +31,91 @@ import sdloader.util.CollectionsUtil;
  * @author shot
  */
 public class HttpParameters {
-	public static final String DEFAULT_CHAR_ENCODE = "ISO-8859-1";
 
 	private Map<String, String[]> paramMap;
 
 	private List<String> paramNameList;
 
-	private String characterEncoding = DEFAULT_CHAR_ENCODE;
+	// パラメータをデコードする際のデフォルトエンコーディング
+	private String defaultEncoding = "ISO-8859-1";
 
+	// body部分のエンコーディング
+	private String bodyEncoding = defaultEncoding;
+
+	// GETのQueryに対して、bodyEncodingを使用するかどうか
+	private boolean useBodyEncodingForURI = true;
+
+	private HttpRequestHeader header;
 	private HttpRequestBody body;
 
-	public HttpParameters(HttpRequestBody body) {
+	private boolean parameterInitialized;
+
+	public HttpParameters(HttpRequestHeader header, HttpRequestBody body) {
+		this.header = header;
 		this.body = body;
 	}
 
 	protected void initIfNeed() {
-		if (paramMap == null) {
-			paramMap = CollectionsUtil.newHashMap();
-			paramNameList = CollectionsUtil.newLinkedList();
-			body.initParameters();
+		if (!parameterInitialized) {
+			initParameters();
+			parameterInitialized = true;
 		}
+	}
+
+	/**
+	 * HttpParameters#getParameterが呼ばれた初回に呼ばれます。
+	 */
+	private void initParameters() {
+		paramMap = CollectionsUtil.newHashMap();
+		paramNameList = CollectionsUtil.newLinkedList();
+		if (header.getQueryString() != null) {
+			String queryEncoding = (isUseBodyEncodingForURI()) ? bodyEncoding
+					: defaultEncoding;
+			parseRequestQuery(header.getQueryString(), queryEncoding);
+		}
+		byte[] bodyData = body.getBodyData();
+		if (bodyData != null && header.getMethod().equals(HttpConst.POST)) {
+			String contType = header.getHeader(HttpConst.CONTENTTYPE);
+			if (contType != null
+					&& contType.equals(HttpConst.WWW_FORM_URLENCODE)) {
+				try {
+					String bodyPartQueryString = new String(bodyData);
+					parseRequestQuery(bodyPartQueryString, bodyEncoding);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
+
+	private void parseRequestQuery(String query, String encode) {
+		StringTokenizer paramToken = new StringTokenizer(query, "&", false);
+
+		while (paramToken.hasMoreElements()) {
+			String param = paramToken.nextToken();
+			StringTokenizer token = new StringTokenizer(param, "=", false);
+			String key = token.nextToken();
+			String value = null;
+			if (token.hasMoreTokens()) {
+				value = token.nextToken();
+				try {
+					key = decode(key, encode);
+					value = decode(value, encode);
+				} catch (UnsupportedEncodingException e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+			addParameter(key, value);
+		}
+	}
+
+	private String decode(String value, String encode)
+			throws UnsupportedEncodingException {
+		//ISO-8859-1を使用すると、ダイレクトに入力バイトが取れる。
+		//バイトを取ってエンコード
+		value = URLDecoder.decode(value, "ISO-8859-1");
+		value = new String(value.getBytes("ISO-8859-1"), encode);
+		return value;
 	}
 
 	public String getParamter(String key) {
@@ -65,7 +133,7 @@ public class HttpParameters {
 		String[] params = paramMap.get(key);
 		if (params == null) {
 			return null;
-		}		
+		}
 		return params;
 	}
 
@@ -75,35 +143,66 @@ public class HttpParameters {
 	}
 
 	public Map<String, String[]> getParamterMap() {
-		initIfNeed();		
+		initIfNeed();
 		Map<String, String[]> newMap = CollectionsUtil.newHashMap();
 		newMap.putAll(paramMap);
 		return newMap;
 	}
 
-	public void setCharacterEncoding(String encoding) {
-		this.characterEncoding = encoding;
+	/**
+	 * デフォルトのエンコーディングをセットします。 bodyEncodingもこのエンコーディングに変更されます。
+	 * 
+	 * @param defaultEncoding
+	 */
+	public void setDefaultEncoding(String defaultEncoding) {
+		this.defaultEncoding = defaultEncoding;
+		setBodyEncoding(defaultEncoding);
 	}
 
-	public String getCharacterEncoding() {
-		return characterEncoding;
+	public String getDefaultEncoding() {
+		return defaultEncoding;
 	}
 
-	void addParameter(String key, String value) {
-		if(value==null){
+	/**
+	 * <pre>
+	 * body部分のエンコーディングをセットします。 
+	 * useBodyEncodingForURIがtrueの場合は、GETパラメータにもこのエンコードが適用されます。
+	 * </pre>
+	 * 
+	 * @param bodyEncoding
+	 */
+	public void setBodyEncoding(String bodyEncoding) {
+		this.bodyEncoding = bodyEncoding;
+		parameterInitialized = false;
+	}
+
+	public String getBodyEncoding() {
+		return bodyEncoding;
+	}
+
+	public void setUseBodyEncodingForURI(boolean useBodyEncodingForURI) {
+		this.useBodyEncodingForURI = useBodyEncodingForURI;
+		parameterInitialized = false;
+	}
+
+	public boolean isUseBodyEncodingForURI() {
+		return useBodyEncodingForURI;
+	}
+
+	private void addParameter(String key, String value) {
+		if (value == null) {
 			return;
 		}
 		String[] params = paramMap.get(key);
 		if (params == null) {
-			params = new String[]{value};
-			paramMap.put(key,params);
+			params = new String[] { value };
+			paramMap.put(key, params);
 			paramNameList.add(key);
-		}else{
-			String[] newParams = new String[params.length+1];
-			System.arraycopy(params,0,newParams,0,params.length);
-			newParams[newParams.length-1] = value;
-			paramMap.put(key,newParams);
+		} else {
+			String[] newParams = new String[params.length + 1];
+			System.arraycopy(params, 0, newParams, 0, params.length);
+			newParams[newParams.length - 1] = value;
+			paramMap.put(key, newParams);
 		}
 	}
-
 }

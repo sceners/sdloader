@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import sdloader.http.HttpConst;
+import sdloader.http.HttpRequest;
 import sdloader.http.HttpRequestBody;
 import sdloader.http.HttpRequestHeader;
 import sdloader.javaee.SessionManager;
@@ -76,49 +77,46 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private String remoteHost;
 
 	private String localName;
+	
+	private String characterEncoding;
 
 	private Locale locale = Locale.getDefault();
 
 	private Map<String, Object> attribute = CollectionsUtil.newHashMap();
 
-	private HttpRequestHeader header;
-
-	private HttpRequestBody body;
-
+	private HttpRequest httpRequest;
+	
 	private ServletContext servletContext;
 
-	// TODO
-	private String characterEncoding = "UTF-8";
-
-	public HttpServletRequestImpl() {
-		super();
+	public HttpServletRequestImpl(HttpRequest httpRequest) {
+		this.httpRequest = httpRequest;
 	}
 
 	public String getHeader(String paramName) {
-		return header.getHeader(paramName);
+		return httpRequest.getHeader().getHeader(paramName);
 	}
 
 	public Enumeration<String> getHeaders(String arg0) {
-		return new IteratorEnumeration<String>(header.getHeaders().iterator());
+		return new IteratorEnumeration<String>(httpRequest.getHeader().getHeaders().iterator());
 	}
 
 	public Enumeration<String> getHeaderNames() {
-		return new IteratorEnumeration<String>(header.getHeaderName().iterator());
+		return new IteratorEnumeration<String>(httpRequest.getHeader().getHeaderName().iterator());
 	}
 
 	public int getIntHeader(String paramName) {
-		String val = header.getHeader(paramName);
+		String val = httpRequest.getHeader().getHeader(paramName);
 		if (val != null)
 			return Integer.parseInt(val);
 		return -1;
 	}
 
 	public String getMethod() {
-		return header.getMethod();
+		return httpRequest.getHeader().getMethod();
 	}
 
 	public String getQueryString() {
-		return header.getQueryString();
+		return httpRequest.getHeader().getQueryString();
 	}
 
 	public Object getAttribute(String key) {
@@ -128,15 +126,19 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	public Enumeration<String> getAttributeNames() {
 		return new IteratorEnumeration<String>(attribute.keySet().iterator());
 	}
-
+	/**
+	 * 文字エンコードを返す。
+	 * setCharacterEncodingが呼ばれていない場合はnullを返す。
+	 */
 	public String getCharacterEncoding() {
-		return this.characterEncoding;
+		return characterEncoding;
 	}
 
 	public void setCharacterEncoding(String encoding)
 			throws UnsupportedEncodingException {
 		// check
 		URLDecoder.decode("", encoding);
+		httpRequest.getParameters().setBodyEncoding(encoding);
 		this.characterEncoding = encoding;
 	}
 
@@ -149,11 +151,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getContentType() {
-		return header.getHeader(HttpConst.CONTENTTYPE);
+		return httpRequest.getHeader().getHeader(HttpConst.CONTENTTYPE);
 	}
 
 	public ServletInputStream getInputStream() throws IOException {
-		byte[] data = body.getBodyData();
+		byte[] data = httpRequest.getBody().getBodyData();
 		if (data == null)
 			data = new byte[] {};
 		final byte[] isData = data;
@@ -168,20 +170,20 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getParameter(String key) {
-		return body.getParameters().getParamter(key);
+		return httpRequest.getParameters().getParamter(key);
 	}
 
 	public Enumeration<String> getParameterNames() {
-		Iterator<String> paramNameItr = body.getParameters().getParameterNames();
+		Iterator<String> paramNameItr = httpRequest.getParameters().getParameterNames();
 		return new IteratorEnumeration<String>(paramNameItr);
 	}
 
 	public String[] getParameterValues(String key) {
-		return body.getParameters().getParamterValues(key);
+		return httpRequest.getParameters().getParamterValues(key);
 	}
 
 	public Map<String,String[]> getParameterMap() {
-		return body.getParameters().getParamterMap();
+		return httpRequest.getParameters().getParamterMap();
 	}
 
 	public String getProtocol() {
@@ -189,7 +191,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public BufferedReader getReader() throws IOException {
-		byte[] data = body.getBodyData();
+		byte[] data = httpRequest.getBody().getBodyData();
 		ByteArrayInputStream bin = new ByteArrayInputStream(data);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(bin));
 		return reader;
@@ -216,7 +218,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public Cookie[] getCookies() {
-		List<Cookie> cookieList = header.getCookieList();
+		List<Cookie> cookieList = httpRequest.getHeader().getCookieList();
 		Cookie[] cookies = cookieList.toArray(new Cookie[] {});
 		return cookies;
 	}
@@ -230,10 +232,10 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		HttpSession session = SessionManager.getInstance().getSession(
 				sessionId, create, servletContext);
 		if (session == null) {
-			header.addCookie(HttpConst.SESSIONID_KEY, null);
+			httpRequest.getHeader().addCookie(HttpConst.SESSIONID_KEY, null);
 			return null;
 		} else {
-			header.addCookie(HttpConst.SESSIONID_KEY, session.getId());
+			httpRequest.getHeader().addCookie(HttpConst.SESSIONID_KEY, session.getId());
 			return session;
 		}
 	}
@@ -243,7 +245,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getRequestedSessionId() {
-		Cookie cookie = header.getCookie(HttpConst.SESSIONID_KEY);
+		Cookie cookie = httpRequest.getHeader().getCookie(HttpConst.SESSIONID_KEY);
 		if (cookie != null)
 			return cookie.getValue();
 		else
@@ -251,7 +253,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getRequestURI() {
-		return header.getRequestURI();
+		return httpRequest.getHeader().getRequestURI();
 	}
 
 	public String getServletPath() {
@@ -263,7 +265,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getServerName() {
-		String host = header.getHeader(HttpConst.HOST);
+		String host = httpRequest.getHeader().getHeader(HttpConst.HOST);
 		if (host.indexOf(":") > 0)
 			return host.substring(0, host.indexOf(":"));
 		else
@@ -386,20 +388,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		this.pathInfo = pathInfo;
 	}
 
-	public void setHeader(HttpRequestHeader header) {
-		this.header = header;
-	}
-
 	public HttpRequestHeader getHeader() {
-		return this.header;
-	}
-
-	public void setBody(HttpRequestBody body) {
-		this.body = body;
+		return this.httpRequest.getHeader();
 	}
 
 	public HttpRequestBody getBody() {
-		return this.body;
+		return this.httpRequest.getBody();
 	}
 
 	public void setServletContext(ServletContext servletContext) {
