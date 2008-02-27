@@ -1,4 +1,5 @@
 v0_1_03
+ SDLoaderをv
  デフォルトリクエストエンコーディングを設定可能にした。
  application.propertiesにsdloader.request.defaultEncode=ISO-8859-1の
  形で記述。デフォルトはISO-8859-1
