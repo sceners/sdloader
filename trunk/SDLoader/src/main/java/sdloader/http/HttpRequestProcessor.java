@@ -57,7 +57,7 @@ public class HttpRequestProcessor extends Thread {
 	
 	private Socket socket;
 
-	private SDLoader loader;
+	private SDLoader sdLoader;
 
 	private boolean stop;
 
@@ -77,7 +77,7 @@ public class HttpRequestProcessor extends Thread {
 	public void process(Socket socket, SDLoader loader) {
 		synchronized (this) {
 			this.socket = socket;
-			this.loader = loader;
+			this.sdLoader = loader;
 			notify();
 		}
 	}
@@ -105,7 +105,10 @@ public class HttpRequestProcessor extends Thread {
 				int requestCount = 1;
 				boolean keepAlive = true;
 				while(keepAlive){
+					RequestScopeContext.init();
+					RequestScopeContext.getContext().setAttribute(SDLoader.class,sdLoader);
 					keepAlive = processServlet(is, os, requestCount);
+					RequestScopeContext.destroy();
 					requestCount++;
 				}				
 			} catch (SocketTimeoutException e) {
@@ -118,12 +121,13 @@ public class HttpRequestProcessor extends Thread {
 				try{is.close();}catch(IOException ioe){}
 				try{os.flush();os.close();}catch(IOException ioe){}
 				try{socket.close();}catch(IOException ioe){}
+				RequestScopeContext.destroy();				
 			}
 			is = null;
 			os = null;
 			socket = null;
-			SDLoader localLoader = this.loader;
-			loader=null;
+			SDLoader localLoader = this.sdLoader;
+			sdLoader=null;
 			localLoader.returnProcessor(this);
 			localLoader = null;			
 		}
@@ -161,14 +165,18 @@ public class HttpRequestProcessor extends Thread {
 		String requestURI = header.getRequestURI();
 		String resourcePath = WebUtils.getResourcePath(requestURI);
 		String contextPath = WebUtils.getContextPath(requestURI);
-		WebApplication webapp = loader.getWebAppManager().findWebApp(contextPath);
+		WebApplication webapp = sdLoader.getWebAppManager().findWebApp(contextPath);
 		
 		if(webapp != null){
 			//contextpathだけのパターン (/testのようなパターン）の場合、contextpathに/をつけてリダイレクト
 			if(!requestURI.equals("/") && resourcePath == null){
 				response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
 				resourcePath = requestURI+"/";
-				response.addHeader(HttpConst.LOCATION,request.getScheme()+"://"+request.getLocalName()+":"+request.getLocalPort()+resourcePath);
+				String host = request.getHeader(HttpConst.HOST);
+				if(host == null)
+					host = request.getLocalName()+":"+request.getLocalPort();
+				String scheme = request.getScheme();
+				response.addHeader(HttpConst.LOCATION,WebUtils.buildRequestURL(scheme, host,resourcePath).toString());
 				processDataOutput(response, os);
 				return header.isKeepAlive();
 			}
@@ -177,7 +185,7 @@ public class HttpRequestProcessor extends Thread {
 		if (webapp == null) {
 			contextPath = "/";
 			resourcePath = requestURI;
-			webapp = loader.getWebAppManager().findWebApp(contextPath);
+			webapp = sdLoader.getWebAppManager().findWebApp(contextPath);
 		}
 		//デフォルトもなければ404
 		if(webapp == null){
@@ -233,7 +241,7 @@ public class HttpRequestProcessor extends Thread {
 	private HttpServletRequestImpl createServletRequestImp(HttpRequest httpRequest){
 		HttpServletRequestImpl request = new HttpServletRequestImpl(httpRequest);
 		
-		request.setServerPort(loader.getPort());		
+		request.setServerPort(sdLoader.getPort());		
 		request.setLocalPort(socket.getLocalPort());
 		request.setLocalAddr(socket.getLocalAddress().getHostAddress());
 		request.setLocalName(socket.getLocalAddress().getHostName());
@@ -264,7 +272,7 @@ public class HttpRequestProcessor extends Thread {
 	}
 	private void setDefaultResponseHeader(HttpServletRequestImpl request,HttpServletResponseImpl response,int requestCount) throws IOException {
 		response.setHeader(HttpConst.DATE, WebUtils.formatHeaderDate(Calendar.getInstance().getTime()));
-		response.setHeader(HttpConst.SERVER, loader.getServerName());
+		response.setHeader(HttpConst.SERVER, sdLoader.getServerName());
 		String sessionId = request.getRequestedSessionId();
 		if (sessionId != null) {
 			Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY,sessionId);

@@ -32,8 +32,8 @@ import sdloader.javaee.WebConstants;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.DisposableUtil;
+import sdloader.util.PathUtils;
 import sdloader.util.SocketUtil;
-import sdloader.util.WebUtils;
 
 /**
  * SDLoader ローカル動作のアプリケーションサーバー
@@ -52,13 +52,13 @@ public class SDLoader implements Lifecycle {
 	public static final String SDLOADER_JSP_LIBPATH = "sdloader.jsp.libpath";
 
 	/**
-	 * SDLoaderのベースディレクトリパス このパス以下のwebappsディレクトに対して動作します。
+	 * SDLoaderのベースディレクトリパス
 	 */
-	public static final String KEY_SDLOADER_HOME = "SDLOADER_HOME";
+	public static final String KEY_SDLOADER_HOME = "SDLoader.home";
 
-	public static final String KEY_WAR_INMEMORY_EXTRACT = "SDLOADER_WAR_INMEMORY_EXTRACT";
+	public static final String KEY_WAR_INMEMORY_EXTRACT = "SDLoader.warInMeoryExtract";
 
-	public static final String KEY_SDLOADER_WEBAPP_PATH = "SDLOADER_WEBAPP_PATH";
+	public static final String KEY_SDLOADER_WEBAPP_PATH = "SDLoader.webAppPath";
 
 	private int maxThreadPoolNum = 5;
 
@@ -69,18 +69,6 @@ public class SDLoader implements Lifecycle {
 	private String host = "127.0.0.1";
 
 	public static boolean isRunnnig = false;
-
-	private static ThreadLocal<SDLoader> threadLocal = new ThreadLocal<SDLoader>();
-
-	public static void setSDLoader(SDLoader loader) {
-		if (isRunnnig) {
-			threadLocal.set(loader);
-		}
-	}
-
-	public static SDLoader getSdLoader() {
-		return threadLocal.get();
-	}
 
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうか
@@ -126,8 +114,21 @@ public class SDLoader implements Lifecycle {
 		return (String) config.get(key);
 	}
 
+	public String getConfig(String key,String defaultValue) {
+		String value = (String) config.get(key);
+		return (value==null) ? defaultValue : value;
+	}
+
 	public void setConfig(String key, String value) {
 		config.put(key, value);
+	}
+
+	public void setConfig(String key, String value,String defaultValue) {
+		if(value!=null){
+			config.put(key, value);
+		}else{
+			config.put(key, defaultValue);
+		}
 	}
 
 	/**
@@ -300,28 +301,46 @@ public class SDLoader implements Lifecycle {
 	}
 
 	protected void initConfig() {
-		String homeDir = System.getProperty(SDLoader.KEY_SDLOADER_HOME);
-		if (homeDir == null) {
-			homeDir = System.getProperty("user.dir");// +"/sdloader";
+		//init home
+		String homeDir = getConfig(SDLoader.KEY_SDLOADER_HOME);
+		if(homeDir==null){
+			homeDir = System.getProperty(SDLoader.KEY_SDLOADER_HOME);
+			if (homeDir == null) {
+				homeDir = System.getProperty("user.dir");// +"/sdloader";
+			}
 		}
-		homeDir = WebUtils.replaceFileSeparator(homeDir);
+		homeDir = PathUtils.replaceFileSeparator(homeDir);
 		if (homeDir.endsWith("/")) {
 			homeDir = homeDir.substring(0, homeDir.length() - 1);
 		}
-		log.info("SDLOADER_HOME=" + homeDir);
-
-		String webappPath = System
-				.getProperty(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
-		if (webappPath == null) {
-			webappPath = WebConstants.WEBAPP_DIR_NAME;
-		}
-		log.info(KEY_SDLOADER_WEBAPP_PATH + "=" + webappPath);
-
-		String inmemoryExtract = System
-				.getProperty(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
 		setConfig(SDLoader.KEY_SDLOADER_HOME, homeDir);
-		setConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT, inmemoryExtract);
-		setConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH, webappPath);
+		log.info("SDLOADER_HOME=" + homeDir);
+		
+		//init webappDir
+		String webappPath = getConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
+		if(webappPath==null){
+			webappPath = System.getProperty(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
+			if (webappPath == null) {
+				webappPath = WebConstants.WEBAPP_DIR_NAME;
+			}
+		}
+		webappPath = PathUtils.replaceFileSeparator(webappPath);
+		if(!PathUtils.isAbsolutePath(webappPath)){
+			//homeからの絶対パスに変換
+			webappPath = homeDir + "/" + webappPath;			
+		}
+		setConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH,webappPath);
+		log.info(KEY_SDLOADER_WEBAPP_PATH + "=" + webappPath);
+		
+		//init inMemoryWar
+		String inmemoryExtract = getConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
+		if(inmemoryExtract==null){
+			inmemoryExtract = System
+				.getProperty(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
+			if(inmemoryExtract!=null){
+				setConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT, inmemoryExtract);
+			}
+		}
 	}
 
 	protected void initWebApp() {

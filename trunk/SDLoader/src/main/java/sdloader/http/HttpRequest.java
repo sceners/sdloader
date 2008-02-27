@@ -22,6 +22,15 @@ import java.io.IOException;
  * @author c9katayama
  */
 public class HttpRequest {
+
+	/**
+	 * デフォルトリクエストエンコード指定用キー
+	 */
+	public static final String KEY_REQUEST_DEFAULT_ENCODE = "SDLoader.request.defaultEncode";
+	/**
+	 * GETパラメータにBODYのエンコードを適用するかどうかを指定するキー
+	 */
+	public static final String KEY_REQUEST_USE_BODY_ENCODE_FOR_URI = "SDLoader.request.useBodyEncodeForURI";
 	
 	private HttpInput input;
 	
