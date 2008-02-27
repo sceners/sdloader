@@ -1,1 +1,0 @@
-java -cp .;sdloader.jar sdloader.Open
