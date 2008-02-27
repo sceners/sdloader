@@ -57,4 +57,14 @@ public class WebUtilsTest extends TestCase{
 		
 	}
 
+	public void testParseCharsetFromContentType(){
+		String v = 	"text/html;charset=Windows-31J";
+		assertEquals("Windows-31J",WebUtils.parseCharsetFromContentType(v));
+
+		v = "text/html;charset= Windows-31J ";
+		assertEquals("Windows-31J",WebUtils.parseCharsetFromContentType(v));
+
+		v = "text/html;charset= Windows-31J ; ";
+		assertEquals("Windows-31J",WebUtils.parseCharsetFromContentType(v));
+	}
 }
