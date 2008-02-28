@@ -63,6 +63,7 @@ public class SwingUI extends JFrame{
 
 	public void start(){
 		initProperty();
+		initSystemProperty();
 		showLoadingWindow();
 		initServer();
 		startServer();
@@ -86,6 +87,12 @@ public class SwingUI extends JFrame{
 				server.setConfig(key,value);
 			}
 		}
+	}
+	/**
+	 * application.propertiesで使う変数を登録
+	 */
+	protected void initSystemProperty(){
+		System.setProperty("webapps",(System.getProperty("user.dir")+"/webapps").replace("\\","/"));
 	}
 	protected void showLoadingWindow(){
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
