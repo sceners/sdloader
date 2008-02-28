@@ -58,6 +58,7 @@ public class WebAppListServlet extends HttpServlet {
 	}
 	protected void outputWebAppList(List<String> contextPathList,HttpServletRequest req,HttpServletResponse res)
 																	throws ServletException, IOException {
+		res.setContentType("text/html;charset=UTF-8");
 		PrintWriter writer = res.getWriter();
 		writer.write("<html><head><title>SDLoader -Web Application List-</title></head><body>");
 		writer.write("[Web Application List]<br/>");
@@ -69,5 +70,6 @@ public class WebAppListServlet extends HttpServlet {
 			}
 		}
 		writer.write("</body></html>");
+		writer.flush();
 	}
 }
