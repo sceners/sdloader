@@ -150,7 +150,7 @@ public class WebAppManager {
 					final String contextPath = "/" + dirs[i].getName();
 					final String docBase = webappDirPath + contextPath;
 					final WebAppContext context 
-						= new WebAppContext(contextPath,ResourceUtil.file2Url(docBase));
+						= new WebAppContext(contextPath,PathUtils.file2URL(docBase));
 					webAppContextList.add(context);
 					log.info("detect webapp context. contextPath="
 							+ contextPath + " docBase=" + docBase);
@@ -244,9 +244,7 @@ public class WebAppManager {
 
 		// Default servlet
 		final String contextPath = "/";
-		final String docBaseStr = "file:/" + webappDirPath + "/"
-				+ WebConstants.ROOT_DIR_NAME + "/";
-		URL docBase = ResourceUtil.createURL(docBaseStr);
+		URL docBase = PathUtils.file2URL(webappDirPath+ "/"+ WebConstants.ROOT_DIR_NAME);
 		if(ResourceUtil.isResourceExist(docBase)){
 			setDefaultServlet(webXmlTag, docBase, contextPath, false);
 		}
@@ -265,34 +263,29 @@ public class WebAppManager {
 	 * @throws MalformedURLException
 	 */
 	protected ClassLoader createWebAppClassLoader(URL docBase) {
-		try {
-			List<URL> urlList = CollectionsUtil.newArrayList();
-			// classes
-			File classesDir = new File(docBase.getFile() + "/WEB-INF/classes");
-			if (classesDir.exists()) {
-				String dirPath = classesDir.getAbsolutePath();
-				dirPath = PathUtils.replaceFileSeparator(dirPath) + "/";
-				urlList.add(new URL("file:///" + dirPath));
-			}
-			// WEB-INF/lib
-			String webinfLibDir = docBase.getFile() + "/WEB-INF/lib";
-			URL[] libs = WebUtils.createClassPaths(webinfLibDir,
-					new ArchiveFileFilter(), false);
-			if (libs != null) {
-				for (int i = 0; i < libs.length; i++)
-					urlList.add(libs[i]);
-			}
-			URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-			ClassLoader webinfClassLoader = new URLClassLoader(urls,
-					ClassLoader.getSystemClassLoader());
-			ClassLoader parentClassLoader = Thread.currentThread()
-					.getContextClassLoader();
-			WebAppClassLoader webAppClassLoader = new WebAppClassLoader(
-					parentClassLoader, webinfClassLoader);
-			return webAppClassLoader;
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
+		List<URL> urlList = CollectionsUtil.newArrayList();
+		// classes
+		File docBaseDir = PathUtils.url2File(docBase);
+		File classesDir = new File(docBaseDir,"/WEB-INF/classes/");
+		if (classesDir.exists()) {
+			urlList.add(PathUtils.file2URL(classesDir));
 		}
+		// WEB-INF/lib
+		File webinfLibDir = new File(docBaseDir,"/WEB-INF/lib");
+		URL[] libs = WebUtils.createClassPaths(webinfLibDir,new ArchiveFileFilter(), false);
+		if (libs != null) {
+			for (int i = 0; i < libs.length; i++){
+				urlList.add(libs[i]);
+			}
+		}
+		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
+		ClassLoader webinfClassLoader = new URLClassLoader(urls,
+				ClassLoader.getSystemClassLoader());
+		ClassLoader parentClassLoader = Thread.currentThread()
+				.getContextClassLoader();
+		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(
+				parentClassLoader, webinfClassLoader);
+		return webAppClassLoader;
 	}
 
 	/**

@@ -134,7 +134,10 @@ public class WebUtils {
 			return COOKIE_DATE_FORMAT.format(date);
 		}
 	}
-
+	
+	public static URL[] createClassPaths(String targetDir, FileFilter fileFilter,boolean recursive){
+		return createClassPaths(new File(targetDir), fileFilter, recursive);		
+	}
 	/**
 	 * 対象ディレクトリ中のファイルへのURLを生成します。
 	 * 
@@ -144,24 +147,21 @@ public class WebUtils {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public static URL[] createClassPaths(String targetDir, FileFilter fileFilter,boolean recursive)
-			throws MalformedURLException {
-		File libDir = new File(targetDir);
-		if (!libDir.exists())
+	public static URL[] createClassPaths(File targetDir, FileFilter fileFilter,boolean recursive){			
+
+		if (!targetDir.exists())
 			return null;
 
 		List<URL> urlList = CollectionsUtil.newArrayList();
 
-		File[] libs = libDir.listFiles(fileFilter);
+		File[] libs = targetDir.listFiles(fileFilter);
 		if (libs != null) {
 			for (int i = 0; i < libs.length; i++) {
-				String libPath = libs[i].getAbsolutePath();
-				libPath = PathUtils.replaceFileSeparator(libPath);
-				urlList.add(new URL("file:///" + libPath));
+				urlList.add(PathUtils.file2URL(libs[i]));
 			}
 		}
 		if(recursive){
-			File[] dirs = libDir.listFiles();
+			File[] dirs = targetDir.listFiles();
 			if (dirs != null) {
 				for (int i = 0; i < dirs.length; i++) {
 					if (dirs[i].isDirectory()) {
