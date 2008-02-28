@@ -46,16 +46,7 @@ public class ResourceUtil {
 	public static String stripFirstProtocolPart(String path){
 		return path.substring(path.indexOf(":")+1,path.length());
 	}
-	public static URL file2Url(final String filePath){
-		return file2Url(new File(filePath));
-	}
-	public static URL file2Url(final File file){
-		try{
-			return file.toURI().toURL();
-		}catch(MalformedURLException e){
-			throw new RuntimeException(e);
-		}
-	}
+
 	public static String stripExtension(String value){
 		int dot = value.lastIndexOf(".");
 		if(dot>=0){

@@ -23,7 +23,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
-import sdloader.util.ResourceUtil;
+import sdloader.util.PathUtils;
 import sdloader.util.TextFormatUtil;
 /**
  * @author c9Katayama
@@ -78,7 +78,7 @@ public class WebAppContextXmlParserHandler extends DefaultHandler {
 		}
 		log.info("detect webapp context. contextPath=" + contextPath
 				+ " docBase=" + docBase);
-		webAppContext = new WebAppContext(contextPath, ResourceUtil.file2Url(docBase));
+		webAppContext = new WebAppContext(contextPath, PathUtils.file2URL(docBase));
 	}
 
 	protected String contextPathFromFileName() {
