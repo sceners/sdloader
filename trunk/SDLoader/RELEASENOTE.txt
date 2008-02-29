@@ -9,8 +9,8 @@ v1_0_7
  ・デフォルトエンコーディング、GETパラメータにbodyエンコーディングを使うかどうかを設定できるようにした。
  ・レスポンスのデフォルトエンコーディングをISO-8859-1に変更し、setContentTypeとsetCharacterEncodingで
  セットしたエンコードを文字エンコードに使用するようにした。
- ・レスポンスのTransfer-EncodingがChunkedで無い場合、Content-Lengthをセットするようにした。
- ・外向けポートをListen出来るようにした。request.usetOutSidePortせ設定可能。
+ ・レスポンスのTransfer-EncodingがChunkedで無い場合、Content-LengthをSDLoaderでセットするようにした。
+ ・外向けポートをListen出来るようにした。request.usetOutSidePortで設定可能。
 
 v0_1_06
  Context.xmlにシステムプロパティを使用できるようにした。
