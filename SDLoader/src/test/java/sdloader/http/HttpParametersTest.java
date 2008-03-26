@@ -1,7 +1,5 @@
 package sdloader.http;
 
-import com.sun.net.httpserver.HttpHandler;
-
 import junit.framework.TestCase;
 
 public class HttpParametersTest extends TestCase {
