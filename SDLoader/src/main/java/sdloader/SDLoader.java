@@ -325,13 +325,13 @@ public class SDLoader implements Lifecycle {
 		log.info(KEY_SDLOADER_WEBAPP_PATH + "=" + webappPath);
 		
 		//init jsp lib path
-		setSystemConfigWhenNoConfig(KEY_SDLOADER_JSP_LIBPATH);
+		setSystemConfigIfNoConfig(KEY_SDLOADER_JSP_LIBPATH);
 		//init inMemoryWar
-		setSystemConfigWhenNoConfig(KEY_WAR_INMEMORY_EXTRACT);
+		setSystemConfigIfNoConfig(KEY_WAR_INMEMORY_EXTRACT);
 		//init outside port
-		setSystemConfigWhenNoConfig(KEY_SDLOADER_USE_OUTSIDE_PORT);
+		setSystemConfigIfNoConfig(KEY_SDLOADER_USE_OUTSIDE_PORT);
 	}
-	protected void setSystemConfigWhenNoConfig(String key){
+	protected void setSystemConfigIfNoConfig(String key){
 		String value = getConfig(key);
 		if(value==null){
 			value = System.getProperty(key);

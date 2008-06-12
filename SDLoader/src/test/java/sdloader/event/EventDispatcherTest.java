@@ -17,7 +17,7 @@ public class EventDispatcherTest extends TestCase{
 	}
 	
 	public void testDispatch(){
-		EventDispatcher<ListenerTest,EventTest> dispatcher = new EventDispatcher<ListenerTest,EventTest>("handle");
+		EventDispatcher dispatcher = new EventDispatcher<ListenerTest,EventTest>("handle");
 		final List<String> handleString = new ArrayList<String>();
 		
 		dispatcher.addEventListener("handle",new ListenerTest(){
