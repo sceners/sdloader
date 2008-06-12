@@ -49,6 +49,7 @@ import sdloader.log.SDLoaderLogFactory;
  * InMemory動作用のTldLocationCache
  * @author c9katayama
  */
+@SuppressWarnings("unchecked")
 public class InMemoryTldLocationsCache extends TldLocationsCache{
 
 	private static SDLoaderLog log = SDLoaderLogFactory.getLog(InMemoryTldLocationsCache.class);

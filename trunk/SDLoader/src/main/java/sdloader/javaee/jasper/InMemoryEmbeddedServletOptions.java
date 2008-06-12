@@ -45,6 +45,7 @@ import org.apache.jasper.xmlparser.ParserUtils;
  * @author Hans Bergsten
  * @author Pierre Delisle
  */
+@SuppressWarnings("unchecked")
 public class InMemoryEmbeddedServletOptions implements Options {
     
     // Logger
