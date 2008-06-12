@@ -54,6 +54,7 @@
     <mkdir dir="${distbin}" />  	
   	
     <jar jarfile="${distbin}/sdloader.jar">
+    	<fileset dir="${build}"/>
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
     	</metainf>
@@ -66,6 +67,7 @@
     </jar>
   	
     <jar jarfile="${distbin}/sdloader-jsp12.jar">
+    	<fileset dir="${build}"/>    	
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
     	</metainf>
@@ -80,6 +82,7 @@
     </jar>
   	
     <jar jarfile="${distbin}/sdloader-jsp20.jar" >
+    	<fileset dir="${build}"/>    	
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
     	</metainf>
