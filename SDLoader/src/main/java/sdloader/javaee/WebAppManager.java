@@ -16,7 +16,6 @@
 package sdloader.javaee;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -63,21 +62,38 @@ import sdloader.util.Assertion;
 import sdloader.util.BooleanUtil;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
+import sdloader.util.FileFilterUtils;
 import sdloader.util.PathUtils;
 import sdloader.util.ResourceUtil;
 import sdloader.util.WarUtil;
 import sdloader.util.WebUtils;
 
 /**
- * Webアプリケーションのマネージャークラス webapps以下のWebアプリケーションを読み込み、 初期化します。
- * webアプリは、3つの方法で配置できます。 ・warファイル ・ディレクトリ ・xmlファイル
- * warファイルは、ファイル名と同じディレクトリがない場合はその場で解凍されます。 warファイル名がコンテキストパスとなります。
- * ディレクトリは、ディレクトリ名がコンテキストパスになります。 xmlファイルは、コンテキストパスとドキュメントベースを指定できます。 ファイルに<Context
- * path="/コンテキストパス" docBase="Webアプリのドキュメントベース"/> という内容でファイルを記述すると、そこからロードを行います。
- * コンテキストパスがない場合は、xmlファイル名がコンテキストパスになります
+ * <pre>
+ * Webアプリケーションのマネージャークラス
+ * webapps以下のWebアプリケーションを読み込み、 初期化します。
+ * 
+ * webアプリは、4つの方法で配置できます。 
+ *  ・warファイル 
+ *  ・ディレクトリ
+ *  ・xmlファイル
+ *  ・WebAppContext
+ * warファイルは、ファイル名と同じディレクトリがない場合はその場で解凍されます。
+ * warファイル名がコンテキストパスとなります。
+ * 
+ * ディレクトリは、ディレクトリ名がコンテキストパスになります。
+ * 
+ * xmlファイルは、コンテキストパスとドキュメントベースを指定できます。 
+ * ファイルに<Context path="/コンテキストパス" docBase="Webアプリのドキュメントベース"/>
+ *  という内容でファイルを記述すると、そこからロードを行います。
+ * コンテキストパスがない場合は、xmlファイル名がコンテキストパスになります。
  * docBaseは、.からはじめると相対パス、そうでない場合は絶対パスとして取り扱います。
  * 相対パスの場合は、xmlファイルのある位置からの相対パスを記述します。
  * 
+ * WebAppContextを使用する場合は、WebAppContextをインスタンス化後、addWebAppContext()を使い
+ * アプリケーションを登録します。
+ * 
+ * </pre>
  * @author c9katayama
  * @author shot
  */
@@ -90,7 +106,8 @@ public class WebAppManager {
 
 	protected String webappDirPath;
 
-	protected List<WebAppContext> webAppContextList = CollectionsUtil.newArrayList();
+	protected List<WebAppContext> webAppContextList = CollectionsUtil
+			.newArrayList();
 
 	protected List<WebApplication> webAppList = CollectionsUtil.newArrayList();
 
@@ -103,6 +120,8 @@ public class WebAppManager {
 
 	private static final boolean JASPER_SUPPORT;
 
+	private boolean initialized;
+
 	static {
 		JASPER_SUPPORT = ClassUtil.hasClass(JASPER_SERVLET_CLASS);
 	}
@@ -113,26 +132,32 @@ public class WebAppManager {
 
 	public void init() {
 		try {
-			String extractStr = server
-					.getConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
-			isInmemoryExtract = BooleanUtil.toBoolean(extractStr);
+			initConfig();
 			detectWebApps();
 			initWebAppContext();
+			initialized = true;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	protected void initConfig() {
+		String extractStr = server.getConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
+		isInmemoryExtract = BooleanUtil.toBoolean(extractStr);
+	}
+
 	protected void detectWebApps() throws Exception {
-		this.webappDirPath = server.getConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
+		this.webappDirPath = server
+				.getConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
 		File webappDir = new File(webappDirPath);
 		if (!webappDir.exists()) {
-			throw new RuntimeException("webapps directory not exists.path="
-					+ webappDirPath);
+			log.info("webapps directory not exists.path=" + webappDirPath);
+			return;
 		}
-		
-		File[] dirs = webappDir.listFiles(new DirFileFilter());
-		File[] warFiles = webappDir.listFiles(new WarFileFilter());
+
+		File[] dirs = webappDir
+				.listFiles(FileFilterUtils.IGNORE_DIR_FILEFILTER);
+		File[] warFiles = webappDir.listFiles(FileFilterUtils.WAR_FILEFILETR);
 
 		if (!isInmemoryExtract) {
 			if (warFiles != null) {
@@ -143,15 +168,15 @@ public class WebAppManager {
 			}
 		}
 		// webapps以下のフォルダ
-		dirs = webappDir.listFiles(new DirFileFilter());
+		dirs = webappDir.listFiles(FileFilterUtils.IGNORE_DIR_FILEFILTER);
 		if (!isInmemoryExtract) {
 			if (dirs != null) {
 				for (int i = 0; i < dirs.length; i++) {
 					final String contextPath = "/" + dirs[i].getName();
 					final String docBase = webappDirPath + contextPath;
-					final WebAppContext context 
-						= new WebAppContext(contextPath,PathUtils.file2URL(docBase));
-					webAppContextList.add(context);
+					final WebAppContext context = new WebAppContext(
+							contextPath, PathUtils.file2URL(docBase));
+					addWebAppContext(context);
 					log.info("detect webapp context. contextPath="
 							+ contextPath + " docBase=" + docBase);
 				}
@@ -162,7 +187,8 @@ public class WebAppManager {
 						final String protocol) {
 					if (protocol.equals(WarURLStreamHandler.PROTOCOL)) {
 						return new WarURLStreamHandler();
-					} else if (protocol.equals(InnerJarURLStreamHandler.PROTOCOL)) {
+					} else if (protocol
+							.equals(InnerJarURLStreamHandler.PROTOCOL)) {
 						return new InnerJarURLStreamHandler();
 					}
 					return null;
@@ -170,38 +196,48 @@ public class WebAppManager {
 			});
 			ResourceBuilder builder = new ResourceBuilderImpl();
 			for (File warfile : warFiles) {
-				final URL warDocRoot = 
-					ResourceUtil.createURL(WarURLStreamHandler.PROTOCOL+":" 
-							+ warfile.toURI().toURL().toExternalForm());
-				final String contextPath = "/" + ResourceUtil.stripExtension(warfile.getName());
+				final URL warDocRoot = ResourceUtil
+						.createURL(WarURLStreamHandler.PROTOCOL + ":"
+								+ warfile.toURI().toURL().toExternalForm());
+				final String contextPath = "/"
+						+ ResourceUtil.stripExtension(warfile.getName());
 				Map<URL, Resource> map = builder.build(warfile.getPath());
-				WebAppContext context = new WebAppContext(contextPath, warDocRoot);
-				webAppContextList.add(context);
+				WebAppContext context = new WebAppContext(contextPath,
+						warDocRoot);
+				addWebAppContext(context);
 				warInmemoryMap.put(context.getDocBase(), map);
 			}
 		}
 		// コンテキストXML
-		File[] contextXMLs = webappDir.listFiles(new ContextXMLFileFilter());
+		File[] contextXMLs = webappDir
+				.listFiles(FileFilterUtils.XML_FILEFILTER);
 		parseContextXMLs(contextXMLs);
 	}
 
 	protected void initWebAppContext() throws Exception {
-		for (WebAppContext context : webAppContextList) {
-			final URL docBase = context.getDocBase();
-			final String contextPath = context.getContextPath();
-			WebXml webxml = buildWebXml(docBase);
-
-			setDefaultServlet(webxml, docBase, contextPath, isInmemoryExtract);
-			// create WebApplication
-			ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase)
-					: createInMemoryWebAppClassLoader(docBase);
-			WebApplication webapp = new WebApplication(webxml,context, webAppClassLoader, this);
-			this.webAppList.add(webapp);
-
-			log.info("create webapp [" + contextPath + "]");
+		if(webAppContextList.size()==0){
+			throw new RuntimeException("There are no Web Application.");
 		}
-
+		for (WebAppContext context : webAppContextList) {
+			_initWebAppContext(context);
+		}
 		this.webAppList.add(getRootWebApplication());
+	}
+
+	protected void _initWebAppContext(WebAppContext context) throws Exception {
+		final URL docBase = context.getDocBase();
+		final String contextPath = context.getContextPath();
+		WebXml webxml = buildWebXml(docBase);
+
+		setDefaultServlet(webxml, docBase, contextPath, isInmemoryExtract);
+		// create WebApplication
+		ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase)
+				: createInMemoryWebAppClassLoader(docBase);
+		WebApplication webapp = new WebApplication(webxml, context,
+				webAppClassLoader, this);
+		this.webAppList.add(webapp);
+
+		log.info("create webapp [" + contextPath + "]");
 	}
 
 	protected WebXml buildWebXml(URL url) throws SAXException,
@@ -244,13 +280,15 @@ public class WebAppManager {
 
 		// Default servlet
 		final String contextPath = "/";
-		URL docBase = PathUtils.file2URL(webappDirPath+ "/"+ WebConstants.ROOT_DIR_NAME);
-		if(ResourceUtil.isResourceExist(docBase)){
+		URL docBase = PathUtils.file2URL(webappDirPath + "/"
+				+ WebConstants.ROOT_DIR_NAME);
+		if (ResourceUtil.isResourceExist(docBase)) {
 			setDefaultServlet(webXmlTag, docBase, contextPath, false);
 		}
 		final ClassLoader webAppClassLoader = createWebAppClassLoader(docBase);
-		WebAppContext context = new WebAppContext(contextPath,docBase);
-		final WebApplication webapp = new WebApplication(webXmlTag,context,webAppClassLoader, this);
+		WebAppContext context = new WebAppContext(contextPath, docBase);
+		final WebApplication webapp = new WebApplication(webXmlTag, context,
+				webAppClassLoader, this);
 
 		return webapp;
 	}
@@ -266,21 +304,22 @@ public class WebAppManager {
 		List<URL> urlList = CollectionsUtil.newArrayList();
 		// classes
 		File docBaseDir = PathUtils.url2File(docBase);
-		File classesDir = new File(docBaseDir,"/WEB-INF/classes/");
+		File classesDir = new File(docBaseDir, "/WEB-INF/classes/");
 		if (classesDir.exists()) {
 			urlList.add(PathUtils.file2URL(classesDir));
 		}
 		// WEB-INF/lib
-		File webinfLibDir = new File(docBaseDir,"/WEB-INF/lib");
-		URL[] libs = WebUtils.createClassPaths(webinfLibDir,new ArchiveFileFilter(), false);
+		File webinfLibDir = new File(docBaseDir, "/WEB-INF/lib");
+		URL[] libs = WebUtils.createClassPaths(webinfLibDir,
+				FileFilterUtils.JAR_ZIP_FILEFILTER, false);
 		if (libs != null) {
-			for (int i = 0; i < libs.length; i++){
+			for (int i = 0; i < libs.length; i++) {
 				urlList.add(libs[i]);
 			}
 		}
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-		ClassLoader webinfClassLoader = new URLClassLoader(urls,
-				ClassLoader.getSystemClassLoader());
+		ClassLoader webinfClassLoader = new URLClassLoader(urls, ClassLoader
+				.getSystemClassLoader());
 		ClassLoader parentClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(
@@ -356,12 +395,12 @@ public class WebAppManager {
 			jspServlet.addInitParam(new InitParamTag("validating", "false"));
 			jspServlet.addInitParam(new InitParamTag("fork", "false"));
 
-			//inmemory用TldLocationCache利用の為
-			if(isInmemoryExtract){
+			// inmemory用TldLocationCache利用の為
+			if (isInmemoryExtract) {
 				jspServlet.addInitParam(new InitParamTag("engineOptionsClass",
 						InMemoryEmbeddedServletOptions.class.getName()));
 			}
-			
+
 			// JSPコンパイルディレクトリの作成
 			jspServlet.addInitParam(new InitParamTag("scratchdir", "false"));
 			String jspWorkDirPath = System.getProperty("java.io.tmpdir")
@@ -370,8 +409,9 @@ public class WebAppManager {
 			jspWorkDir.mkdirs();
 			jspServlet.addInitParam(new InitParamTag("scratchdir",
 					jspWorkDirPath));
-			String jspLibPath = server.getConfig(SDLoader.KEY_SDLOADER_JSP_LIBPATH);
-			if (jspLibPath != null){
+			String jspLibPath = server
+					.getConfig(SDLoader.KEY_SDLOADER_JSP_LIBPATH);
+			if (jspLibPath != null) {
 				jspLibPath = PathUtils.replaceFileSeparator(jspLibPath);
 				jspServlet.addInitParam(new InitParamTag("classpath",
 						jspLibPath));
@@ -418,20 +458,22 @@ public class WebAppManager {
 		}
 		return extracted;
 	}
+
 	protected void parseContextXMLs(File[] contextXMLs) throws Exception {
 		if (contextXMLs != null) {
-			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();			
+			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
 			for (int i = 0; i < contextXMLs.length; i++) {
 				final File contextXml = contextXMLs[i];
 				final String fileName = contextXml.getName();
-				WebAppContextXmlParserHandler contextXmlParserHandler 
-					= new WebAppContextXmlParserHandler(fileName,webappDirPath);
+				WebAppContextXmlParserHandler contextXmlParserHandler = new WebAppContextXmlParserHandler(
+						fileName, webappDirPath);
 				parser.parse(contextXml, contextXmlParserHandler);
-				webAppContextList.add(Assertion.notNull(contextXmlParserHandler.getWebAppContext()));
+				addWebAppContext(Assertion.notNull(contextXmlParserHandler
+						.getWebAppContext()));
 			}
 		}
 	}
-		
+
 	/**
 	 * /から始まるコンテキストパスを返します。
 	 * 
@@ -439,7 +481,7 @@ public class WebAppManager {
 	 */
 	public List<String> getContextPathList() {
 		List<String> contextPathList = CollectionsUtil.newArrayList();
-		for(WebAppContext context:webAppContextList){
+		for (WebAppContext context : webAppContextList) {
 			contextPathList.add(context.getContextPath());
 		}
 		return contextPathList;
@@ -452,6 +494,24 @@ public class WebAppManager {
 	 */
 	public List<WebApplication> getWebAppList() {
 		return webAppList;
+	}
+
+	/**
+	 * 初期化後かどうか
+	 * 
+	 * @return
+	 */
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+	/**
+	 * WebAppContextを追加します。
+	 * 
+	 * @param context
+	 */
+	public void addWebAppContext(WebAppContext context) {
+		this.webAppContextList.add(context);
 	}
 
 	/**
@@ -469,7 +529,7 @@ public class WebAppManager {
 		}
 		return null;
 	}
-	
+
 	public void close() {
 		List<WebApplication> webAppList = getWebAppList();
 		for (Iterator<WebApplication> itr = webAppList.iterator(); itr
@@ -477,7 +537,7 @@ public class WebAppManager {
 			WebApplication webapp = itr.next();
 			List<Servlet> servletList = webapp.getServletList();
 			if (servletList != null) {
-				for (Servlet servlet:servletList){
+				for (Servlet servlet : servletList) {
 					try {
 						servlet.destroy();
 					} catch (Exception e) {
@@ -487,7 +547,7 @@ public class WebAppManager {
 			}
 			List<Filter> filterList = webapp.getFilterList();
 			if (filterList != null) {
-				for (Filter filter:filterList){
+				for (Filter filter : filterList) {
 					try {
 						filter.destroy();
 					} catch (Exception e) {
@@ -498,12 +558,14 @@ public class WebAppManager {
 			ServletContextEvent contextEvent = new ServletContextEvent(webapp
 					.getServletContext());
 			webapp.getListenerEventDispatcher()
-				.dispatchServletContextListener_contextDestroyed(contextEvent);
+					.dispatchServletContextListener_contextDestroyed(
+							contextEvent);
 		}
 	}
 
 	private final class WarURLStreamHandler extends URLStreamHandler {
 		public static final String PROTOCOL = "war";
+
 		@Override
 		protected URLConnection openConnection(URL u) throws IOException {
 			String warPath = u.toExternalForm();
@@ -523,6 +585,7 @@ public class WebAppManager {
 
 	private final class InnerJarURLStreamHandler extends URLStreamHandler {
 		public static final String PROTOCOL = "innerjar";
+
 		@Override
 		protected URLConnection openConnection(URL u) throws IOException {
 			String warPath = u.getPath();
@@ -552,35 +615,6 @@ public class WebAppManager {
 				}
 			}
 			return new ResourceURLConnection(null);
-		}
-	}
-
-	private class DirFileFilter implements FileFilter {
-		public boolean accept(File file) {
-			return file.isDirectory() && !file.getName().equals("CVS")
-					&& !file.getName().startsWith(".");
-		}
-	}
-
-	private class WarFileFilter implements FileFilter {
-		public boolean accept(File file) {
-			return file.getName().endsWith(".war");
-		}
-	}
-
-	private class ContextXMLFileFilter implements FileFilter {
-		public boolean accept(File file) {
-			return file.getName().endsWith(".xml");
-		}
-	}
-
-	private class ArchiveFileFilter implements FileFilter {
-		public boolean accept(File pathname) {
-			if (pathname.getName().endsWith(".jar")
-					|| pathname.getName().endsWith(".zip"))
-				return true;
-			else
-				return false;
 		}
 	}
 }

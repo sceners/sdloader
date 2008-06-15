@@ -15,20 +15,33 @@
  */
 package sdloader.javaee;
 /**
+ * Webアプリケーションのコンテキスト設定データ
  * c9katayama
  */
+import java.io.File;
 import java.net.URL;
 
 import sdloader.util.Assertion;
+import sdloader.util.PathUtils;
 
 public class WebAppContext {
 	
 	private URL docBase;// アプリケーションのドキュメントルート
 	private String contextPath;// アプリケーションのコンテキストパス(/から始まるパス）
 
+	public WebAppContext(final String contextPath,final String dirPath) {
+		this(contextPath,new File(dirPath));
+	}
+	public WebAppContext(final String contextPath,final File dir) {
+		this(contextPath,PathUtils.file2URL(dir));
+	}	
 	public WebAppContext(final String contextPath,final URL docBase) {
 		this.docBase = Assertion.notNull(docBase);
-		this.contextPath = Assertion.notNull(contextPath);
+		this.contextPath = checkContextPath(contextPath);
+	}
+	private static String checkContextPath(String contextPath){
+		Assertion.notNull(contextPath);
+		return contextPath.startsWith("/") ? contextPath : "/"+contextPath;
 	}
 	public String getContextPath() {
 		return contextPath;

@@ -1,3 +1,7 @@
+v1_0_10
+WebAppContextクラスをnewし、SDLoaderにaddすることでWebアプリをデプロイできるようにした。
+（使い方はSDLoaderWebAppContextDeployTestを参照）
+
 v1_0_9
 メンテナンスリリース
 
