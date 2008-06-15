@@ -4,15 +4,7 @@
   "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-	<servlet>
-		<servlet-name>sessionTest</servlet-name>
-		<servlet-class>sdloader.javaee.servlet.SharedSessionTestServlet</servlet-class>
-		<load-on-startup>2</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>sessionTest</servlet-name>
-		<url-pattern>/test</url-pattern>
-	</servlet-mapping>
+
 	
     <welcome-file-list>
         <welcome-file>index1.html</welcome-file>

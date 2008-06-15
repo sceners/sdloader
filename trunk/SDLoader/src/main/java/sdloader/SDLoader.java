@@ -27,6 +27,7 @@ import sdloader.event.EventDispatcher;
 import sdloader.exception.IORuntimeException;
 import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
+import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
 import sdloader.javaee.WebConstants;
 import sdloader.log.SDLoaderLog;
@@ -87,7 +88,7 @@ public class SDLoader implements Lifecycle {
 
 	private SDLoaderThread sdLoaderThread;
 
-	protected WebAppManager webAppManager;
+	protected WebAppManager webAppManager = new WebAppManager(this);
 
 	private Map<String, String> config = new HashMap<String, String>();
 
@@ -159,6 +160,13 @@ public class SDLoader implements Lifecycle {
 
 	public WebAppManager getWebAppManager() {
 		return webAppManager;
+	}
+	
+	public void addWebAppContext(WebAppContext context){
+		if(webAppManager.isInitialized()){
+			throw new RuntimeException("WebAppManager already initialized.");
+		}
+		webAppManager.addWebAppContext(context);
 	}
 
 	/**
@@ -342,8 +350,7 @@ public class SDLoader implements Lifecycle {
 
 	protected void initWebApp() {
 		try {
-			log.info("WebApplication initialize start.");
-			webAppManager = new WebAppManager(this);
+			log.info("WebApplication initialize start.");			
 			webAppManager.init();
 			log.info("WebApplication initialize success.");
 		} catch (RuntimeException e) {
