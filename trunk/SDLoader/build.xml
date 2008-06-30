@@ -35,7 +35,7 @@
   	<mkdir dir="${build}"/>
     <javac 
     	encoding="UTF-8" 
-    	destdir="${build}" nowarn="true" deprecation="false" debug="false" optimize="true" 
+    	destdir="${build}" nowarn="true" deprecation="false" debug="true" optimize="false" 
     	source="1.5" target="1.5">
       <src>
         <pathelement location="src/main/java"/>
