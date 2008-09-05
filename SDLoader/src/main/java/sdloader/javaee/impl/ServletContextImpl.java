@@ -215,6 +215,12 @@ public class ServletContextImpl implements ServletContext {
 		Servlet servlet = webapp.findServlet(mapping.getServletName());
 		if (servlet == null)
 			return null;
+		String contextPath = webapp.getContextPath();
+		
+		if(!contextPath.endsWith("/") && !requestPath.startsWith("/")){
+			requestPath = "/"+requestPath;
+		}
+		
 		String requestURI = webapp.getContextPath() + requestPath;
 		return new RequestDispatcherImpl(mapping, servlet, webapp
 				.getServletContext(), requestURI);
