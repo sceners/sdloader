@@ -32,9 +32,14 @@ public class Open {
 		try {
 			SDLoader server = new SDLoader();
 			CommandMonitor.monitor(8089, "SDLoader", server);
+			server.addEventListener(LifecycleEvent.AFTER_STOP,new LifecycleListener(){
+				public void handleLifecycle(LifecycleEvent<?> event) {
+					System.exit(0);					
+				}
+			});
 			server.start();
 		} catch (Throwable e) {
-			log.error("SDLoader catch error.",e);
+			log.error("SDLoader catch error.",e);			
 		}
 	}
 }
