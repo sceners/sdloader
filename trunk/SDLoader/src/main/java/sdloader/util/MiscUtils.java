@@ -22,17 +22,19 @@ import sdloader.exception.NotImplementedYetException;
 public class MiscUtils {
 
 	public static void openBrowser(String url) throws IOException {
-		final String os = PropertiesUtil.getValueFromSystem("os.name");
-		if (os != null && os.startsWith("Windows")) {
-			if(os.indexOf("2000") >= 0){
-				//2000の場合、htmlもしくはhtmで終わるとブラウザが開かない為、ダミーの#をつける
-				if(url.toLowerCase().endsWith(".html") ||
-						url.toLowerCase().endsWith(".htm")){
-					url +="#";
+		final String os = PropertiesUtil.getValueFromSystem("os.name").toLowerCase();		
+		if (os.indexOf("windows") != -1) {
+			if (os.indexOf("2000") != -1) {
+				// 2000の場合、htmlもしくはhtmで終わるとブラウザが開かない為、ダミーの#をつける
+				if (url.toLowerCase().endsWith(".html")
+						|| url.toLowerCase().endsWith(".htm")) {
+					url += "#";
 				}
 			}
 			Runtime.getRuntime().exec(
 					"rundll32 url.dll,FileProtocolHandler " + url);
+		} else if (os.indexOf("mac") != -1) {
+			Runtime.getRuntime().exec(new String[] { "open", url });
 		} else {
 			throw new NotImplementedYetException();
 		}
