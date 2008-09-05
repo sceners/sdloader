@@ -223,7 +223,7 @@
 		</fileset>
     </copy>
   	
-  	<copy todir="${distbuild}/doc" >
+  	<copy todir="${distbuild}" >
   		<fileset dir=".">
   			<include name="*README.txt"/>
   		</fileset>
