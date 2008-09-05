@@ -67,7 +67,7 @@ public class SDLoader implements Lifecycle {
 	
 	public static final String KEY_SDLOADER_USE_OUTSIDE_PORT = CONFIG_KEY_PREFIX+"useOutSidePort";
 
-	private int maxThreadPoolNum = 5;
+	private int maxThreadPoolNum = 4;
 
 	private int backLogNum = -1;// -1でデフォルト値を使用する
 
