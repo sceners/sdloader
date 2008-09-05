@@ -1,3 +1,8 @@
+v1_0_11
+SWTを使い、タスクトレーにアイコンをしまうようにした。
+RequestDispatcherで、引数パスの先頭に/がついていない場合でも
+/をつけるように修正。
+
 v1_0_10
 WebAppContextクラスをnewし、SDLoaderにaddすることでWebアプリをデプロイできるようにした。
 （使い方はSDLoaderWebAppContextDeployTestを参照）
