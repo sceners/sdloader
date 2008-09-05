@@ -4,7 +4,11 @@ import java.io.IOException;
 
 public class Browser {
 
-	public static void open(String url) throws IOException {
-		MiscUtils.openBrowser(url);
+	public static void open(String url){
+		try{
+			MiscUtils.openBrowser(url);
+		}catch(IOException ioe){
+			throw new RuntimeException(ioe);
+		}
 	}
 }

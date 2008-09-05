@@ -96,8 +96,8 @@ public class SystemTrayOpen {
 			int port = server.getPort();
 			String url = "http://localhost:" + port;
 			Browser.open(url);
-		} catch (IOException ioe) {
-			log.error(ioe.getMessage(), ioe);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 	}
 	/**
