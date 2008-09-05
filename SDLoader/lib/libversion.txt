@@ -4,7 +4,7 @@ logging=1.1
 jasper-compile=tomcat5.5.17
 jasper-runtime=tomcat5.5.17
 jasper-jdt=tomcat5.5.17
-servlet-api=2.4EEEsdloader.jar‚É“¯«
+servlet-api=2.4ï¿½Eï¿½Eï¿½Esdloader.jarï¿½É“ï¿½ï¿½ï¿½
 jsp-api=2.0
 
 #Servlet2.3_JSP1.2
@@ -13,3 +13,6 @@ jasper-compile=tomcat4.1.31
 jasper-runtime=tomcat4.1.31
 servlet=2.3(jsp1.2)
 tools=JDK1.4.2_02,JDK1.5.0_07
+
+#swt
+swt3.4

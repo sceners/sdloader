@@ -15,10 +15,9 @@
  */
 package sdloader;
 
-import sdloader.SDLoader;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
-import sdloader.util.MiscUtils;
+import sdloader.util.Browser;
 /**
  * SDLoaderをオープンし、デプロイしたアプリの一覧をブラウザに表示します。
  * 
@@ -33,7 +32,6 @@ public class BrowserOpen {
 
 		try {
 			SDLoader server = new SDLoader();
-			CommandMonitor.monitor(8089, "SDLoader", server);
 			server.setAutoPortDetect(true);
 			
 			server.start();
@@ -41,7 +39,7 @@ public class BrowserOpen {
 			int port = server.getPort();
 			String url = "http://localhost:"+port;
 			
-			MiscUtils.openBrowser(url);
+			Browser.open(url);
 			
 		} catch (Throwable e) {			
 			log.error("SDLoader catch error.",e);

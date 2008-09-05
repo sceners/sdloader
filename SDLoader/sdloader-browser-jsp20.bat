@@ -1,1 +1,0 @@
-java -cp .;sdloader-jsp20.jar sdloader.BrowserOpen

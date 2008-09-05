@@ -50,10 +50,10 @@
   <target name="dist" depends="init,compile">
 	<echo message="${libversion}"/>
   	
-	<property name="distbin"  value="${dist}/bin" />
-    <mkdir dir="${distbin}" />  	
+	<property name="distbuild"  value="${dist}/build" />
+    <mkdir dir="${distbuild}" />  	
   	
-    <jar jarfile="${distbin}/sdloader.jar">
+    <jar jarfile="${distbuild}/sdloader.jar">
     	<fileset dir="${build}"/>
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -66,7 +66,7 @@
 		</manifest>
     </jar>
   	
-    <jar jarfile="${distbin}/sdloader-jsp12.jar">
+    <jar jarfile="${distbuild}/sdloader-jsp12.jar">
     	<fileset dir="${build}"/>    	
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -81,7 +81,7 @@
 		</manifest>
     </jar>
   	
-    <jar jarfile="${distbin}/sdloader-jsp20.jar" >
+    <jar jarfile="${distbuild}/sdloader-jsp20.jar" >
     	<fileset dir="${build}"/>    	
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -100,7 +100,7 @@
 		</manifest>
     </jar>
 
-  	<jar jarfile="${distbin}/sdloadersrc.jar">
+  	<jar jarfile="${distbuild}/sdloadersrc.jar">
 		<fileset dir="${src}">
 			<include name="**/*" />
 		</fileset>
@@ -118,7 +118,8 @@
     	</metainf>  		
   	</jar>
   	
-    <copy todir="${distbin}" >
+  	<mkdir dir="${distbuild}/doc"/>
+    <copy todir="${distbuild}/doc" >
 		<fileset dir=".">
 			<include name="*.txt"/>
 			<include name="context-xml-sample.xml"/>
