@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="lib/Servlet2.4_JSP2.0/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/h2.jar"/>
+	<classpathentry kind="lib" path="lib/swt.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.TrayItem;
 
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
-import sdloader.util.MiscUtils;
+import sdloader.util.Browser;
 
 /**
  * SDLoaderをオープンします。 システムトレーにコンソールを入れます。
@@ -49,7 +49,7 @@ public class SystemTrayOpen {
 		new SystemTrayOpen().start();
 	}
 
-	SDLoader server;
+	private SDLoader server;
 
 	public void start() {
 		try {
@@ -67,7 +67,12 @@ public class SystemTrayOpen {
 			System.exit(0);
 		}
 	}
-
+	/**
+	 * アイコンのInputStreamを返します。
+	 * はじめにtrayicon.gifの名前でFileを検索します。
+	 * ない場合、クラスパスから/sdloader/resource/trayicon.gifを探します。
+	 * @return
+	 */
 	private InputStream getIconInputStream() {
 		try {
 			InputStream iconStream = null;
@@ -76,24 +81,29 @@ public class SystemTrayOpen {
 				iconStream = new FileInputStream(icon);
 			} else {
 				iconStream = SystemTrayOpen.class
-						.getResourceAsStream("trayicon.gif");
+						.getResourceAsStream("/sdloader/resource/trayicon.gif");
 			}
 			return iconStream;
 		} catch (IOException ioe) {
 			return null;
 		}
 	}
-
+	/**
+	 * デフォルトＵＲＬをブラウザをオープンします。
+	 */
 	private void openBrowser() {
 		try {
 			int port = server.getPort();
 			String url = "http://localhost:" + port;
-			MiscUtils.openBrowser(url);
+			Browser.open(url);
 		} catch (IOException ioe) {
 			log.error(ioe.getMessage(), ioe);
 		}
 	}
-
+	/**
+	 * システムトレーを作成します。
+	 * @param sdLoader
+	 */
 	private void createSystemTray(final SDLoader sdLoader) {
 		final Display display = new Display();
 		Shell shell = new Shell(display);
@@ -129,7 +139,7 @@ public class SystemTrayOpen {
 					openBrowser();
 				}
 			});
-			
+
 			MenuItem browserItem = new MenuItem(menu, SWT.PUSH);
 			browserItem.setText("open browser");
 			browserItem.addListener(SWT.Selection, new Listener() {
