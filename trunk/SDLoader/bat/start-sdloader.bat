@@ -1,1 +1,1 @@
-java -cp .;sdloader.jar;swt.jar sdloader.SystemTrayOpen
+start javaw -cp .;sdloader.jar sdloader.SystemTrayOpen

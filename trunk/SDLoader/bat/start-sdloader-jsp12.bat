@@ -1,1 +1,1 @@
-java -cp .;sdloader-jsp12.jar;tools.jar;swt.jar sdloader.SystemTrayOpen
+start javaw -cp .;sdloader-jsp12.jar;tools.jar sdloader.SystemTrayOpen
