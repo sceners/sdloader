@@ -3,14 +3,11 @@ package sdloader.desktopswt;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.OpenWindowListener;
-import org.eclipse.swt.browser.VisibilityWindowListener;
 import org.eclipse.swt.browser.WindowEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -35,13 +32,11 @@ public class BrowserView {
 	private Button reloadButton = null;
 
 	private String url;
-	private boolean showButtons;
-
+	
 	public Composite createPartControl(Composite parent, String initUril,
 			boolean showButtons) {
 		this.parent = parent;
 		this.url = initUril;
-		this.showButtons = showButtons;
 
 		top = new Composite(parent, SWT.NONE);
 

@@ -95,7 +95,7 @@ public class DesktopSWTMain {
 
 		tabFolder.addCTabFolderListener(new CTabFolderAdapter() {
 			public void itemClosed(CTabFolderEvent event) {
-				event.doit = false; // タブを閉ないようにする
+				event.doit = false; // タブをとじないようにする
 			}
 		});
 		try {
