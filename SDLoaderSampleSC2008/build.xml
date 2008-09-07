@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="SDLoaderSampleSC2008" default="dist" basedir=".">
+
+  <property name="docroot" value="./WebContents" />
+  <property name="build" value="${docroot}/WEB-INF/classes" />
+  <property name="src" value="${docroot}/WEB-INF/src" /> 	
+  <property name="lib" value="${docroot}/WEB-INF/lib" />	
+  <property name="dist"  value="dist" />
+  <property name="warname" value="sdloadersample.war"/>
+
+  <path id="build.classpath">
+    <fileset dir="${docroot}/WEB-INF/lib">
+      <include name="*.jar" />
+    </fileset>
+    <fileset dir="sdloader">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+	
+  <target name="dist">
+  	<mkdir dir="${dist}" />
+    <mkdir dir="${build}" />  	
+    <javac encoding="UTF-8" 
+   	  destdir="${build}" deprecation="false" debug="true" optimize="true" 
+  	  source="1.5" target="1.5">
+      <src>
+        <pathelement location="${src}"/>
+      </src>
+      <classpath refid="build.classpath" />
+    </javac>
+  	<copy todir="${build}">
+  	  <fileset dir="${src}">
+  	    <exclude name="**/*.java"/>
+  	  </fileset>
+  	</copy>
+
+  	<war destfile="${dist}/${warname}" webxml="${docroot}/WEB-INF/web.xml">
+		<fileset dir="${docroot}">
+			<exclude name="WEB-INF/web.xml"/>
+		</fileset>
+	</war>
+
+  </target>
+</project>
