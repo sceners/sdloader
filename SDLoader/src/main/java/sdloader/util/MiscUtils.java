@@ -22,7 +22,8 @@ import sdloader.exception.NotImplementedYetException;
 public class MiscUtils {
 
 	public static void openBrowser(String url) throws IOException {
-		final String os = PropertiesUtil.getValueFromSystem("os.name").toLowerCase();		
+		final String os = PropertiesUtil.getValueFromSystem("os.name")
+				.toLowerCase();
 		if (os.indexOf("windows") != -1) {
 			if (os.indexOf("2000") != -1) {
 				// 2000の場合、htmlもしくはhtmで終わるとブラウザが開かない為、ダミーの#をつける
@@ -36,8 +37,18 @@ public class MiscUtils {
 		} else if (os.indexOf("mac") != -1) {
 			Runtime.getRuntime().exec(new String[] { "open", url });
 		} else {
-			throw new NotImplementedYetException();
+			String[] browsers = { "firefox", "mozilla-firefox", "mozilla",
+					"konqueror", "netscape", "opera" };
+			Runtime runtime = Runtime.getRuntime();
+			for (int i = 0; i < browsers.length; i++) {
+				try {
+					runtime.exec(new String[] { browsers[i], url });
+					return;
+				} catch (Exception e) {
+				}
+			}
 		}
+		throw new NotImplementedYetException();
 	}
 
 }
