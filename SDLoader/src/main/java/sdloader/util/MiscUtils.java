@@ -34,8 +34,10 @@ public class MiscUtils {
 			}
 			Runtime.getRuntime().exec(
 					"rundll32 url.dll,FileProtocolHandler " + url);
+			return ;
 		} else if (os.indexOf("mac") != -1) {
 			Runtime.getRuntime().exec(new String[] { "open", url });
+			return ;
 		} else {
 			String[] browsers = { "firefox", "mozilla-firefox", "mozilla",
 					"konqueror", "netscape", "opera" };
