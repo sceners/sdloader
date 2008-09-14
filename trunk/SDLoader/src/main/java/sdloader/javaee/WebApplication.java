@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
@@ -52,9 +53,9 @@ public class WebApplication {
 
 	/** web.xml定義 */
 	private WebXml webXml;
-	
+
 	private WebAppContext webAppContext;
-	
+
 	/** WebApplicationクラスローダー */
 	private ClassLoader webAppClassLoader;
 
@@ -69,14 +70,14 @@ public class WebApplication {
 
 	/** Filter Map */
 	private Map<String, Filter> filterMap;
-	
+
 	/** ListenerEventDispatcher */
 	private ListenerEventDispatcher listenerEventDispatcher;
-	
+
 	/**
 	 * WebAppクラス
 	 */
-	WebApplication(WebXml webXml,WebAppContext webAppContext,
+	WebApplication(WebXml webXml, WebAppContext webAppContext,
 			ClassLoader webAppClassLoader, WebAppManager manager) {
 		this.webXml = webXml;
 		this.webAppContext = webAppContext;
@@ -88,11 +89,11 @@ public class WebApplication {
 	public WebAppManager getWebApplicationManager() {
 		return manager;
 	}
-	
+
 	public WebAppContext getWebAppContext() {
 		return webAppContext;
 	}
-	
+
 	public URL getDocBase() {
 		return getWebAppContext().getDocBase();
 	}
@@ -138,18 +139,20 @@ public class WebApplication {
 		Thread.currentThread().setContextClassLoader(webAppClassLoader);
 		try {
 			listenerEventDispatcher = new ListenerEventDispatcher();
-			
+
 			for (Iterator<ListenerTag> itr = webXml.getWebApp().getListener()
 					.iterator(); itr.hasNext();) {
 				ListenerTag listenerTag = itr.next();
-				Object listenerImp =  createInstance(webAppClassLoader, listenerTag.getListenerClass());
+				Object listenerImp = createInstance(webAppClassLoader,
+						listenerTag.getListenerClass());
 				listenerEventDispatcher.addListener(listenerImp);
 			}
-			//dispatch servletcontext event 
+			// dispatch servletcontext event
 			ServletContextEvent contextEvent = new ServletContextEvent(
 					this.servletContext);
-			listenerEventDispatcher.dispatchServletContextListener_contextInitialized(contextEvent);
-			
+			listenerEventDispatcher
+					.dispatchServletContextListener_contextInitialized(contextEvent);
+
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
@@ -256,18 +259,32 @@ public class WebApplication {
 	 * 
 	 * @param resourcePath
 	 * @param servletName
+	 * @param dispatcherType
+	 *            REQUEST,FORWARD,INCLUDE,ERROR
 	 * @return List フィルターのリスト フィルターがない場合、空のリストを返します。
 	 * @throws ServletException
 	 */
-	public List<Filter> findFilters(String resourcePath, String servletName)
-			throws ServletException {
+	public List<Filter> findFilters(String resourcePath, String servletName,
+			String dispatcherType) throws ServletException {
 		List<Filter> filterList = CollectionsUtil.newArrayList();
 		if (resourcePath != null && filterMap != null) {
 			List<FilterMappingTag> mappingList = webXml.getWebApp()
 					.getFilterMapping();
-			for (Iterator<FilterMappingTag> mappingItr = mappingList.iterator(); mappingItr
-					.hasNext();) {
+			search: for (Iterator<FilterMappingTag> mappingItr = mappingList
+					.iterator(); mappingItr.hasNext();) {
 				FilterMappingTag mapping = mappingItr.next();
+				Set<String> dispatchers = mapping.getDispatchers();
+				// dispatcherがない場合はREQUESTのみが対象 ある場合はdispatcherTypeが含まれているかチェック
+				if (dispatchers.isEmpty()) {
+					if (!dispatcherType
+							.equals(JavaEEConstants.DISPATCHER_TYPE_REQUEST)) {
+						continue search;
+					}
+				} else {
+					if (!dispatchers.contains(dispatcherType)) {
+						continue search;
+					}
+				}
 				String patternText = mapping.getUrlPattern();
 				if (patternText != null) {
 					if (WebUtils.matchPattern(patternText, resourcePath) != WebUtils.PATTERN_NOMATCH) {
@@ -303,7 +320,7 @@ public class WebApplication {
 
 			List<ServletMappingTag> mappingList = webXml.getWebApp()
 					.getServletMapping();
-			//servlet
+			// servlet
 			for (Iterator<ServletMappingTag> mappingItr = mappingList
 					.iterator(); mappingItr.hasNext();) {
 				ServletMappingTag mapping = mappingItr.next();

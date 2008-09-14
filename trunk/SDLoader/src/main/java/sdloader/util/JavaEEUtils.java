@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.exception;
+package sdloader.util;
+
+import javax.servlet.http.HttpServletRequest;
+
+import sdloader.javaee.JavaEEConstants;
 
 /**
+ * Utility for JavaEE.
  * @author c9katayama
- * @author shot
  */
-public class NotImplementedYetException extends RuntimeException {
+public class JavaEEUtils {
 
-	private static final long serialVersionUID = 1L;
-
-	public NotImplementedYetException() {
+	public static boolean isForwardRequest(HttpServletRequest request){
+		return (request.getAttribute(JavaEEConstants.JAVAX_FORWARD_SERVLET_PATH) != null);
 	}
-	public NotImplementedYetException(String msg) {
-		super(msg);
+	public static boolean isIncludeRequest(HttpServletRequest request){
+		return (request.getAttribute(JavaEEConstants.JAVAX_INCLUDE_SERVLET_PATH) != null);
 	}
 }

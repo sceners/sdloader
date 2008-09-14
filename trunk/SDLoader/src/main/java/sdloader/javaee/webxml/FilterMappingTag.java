@@ -15,6 +15,13 @@
  */
 package sdloader.javaee.webxml;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import sdloader.exception.NotImplementedYetException;
+import sdloader.javaee.JavaEEConstants;
+import sdloader.util.CollectionsUtil;
+
 /**
  * filter-mappingタグ
  * 
@@ -23,11 +30,21 @@ package sdloader.javaee.webxml;
  */
 public class FilterMappingTag implements WebXmlTagElement {
 
+	private static final Set<String> SUPPORT_DISPATCHERS = new HashSet<String>();
+	static {
+		SUPPORT_DISPATCHERS.add(JavaEEConstants.DISPATCHER_TYPE_REQUEST);
+		SUPPORT_DISPATCHERS.add(JavaEEConstants.DISPATCHER_TYPE_FORWARD);
+		SUPPORT_DISPATCHERS.add(JavaEEConstants.DISPATCHER_TYPE_INCLUDE);
+		SUPPORT_DISPATCHERS.add(JavaEEConstants.DISPATCHER_TYPE_ERROR);
+	}
+
 	private String filterName;
 
 	private String urlPattern;
 
 	private String servletName;
+
+	private Set<String> dispatchers = CollectionsUtil.newHashSet();
 
 	public FilterMappingTag() {
 		super();
@@ -57,4 +74,15 @@ public class FilterMappingTag implements WebXmlTagElement {
 		this.urlPattern = urlPattern;
 	}
 
+	public Set<String> getDispatchers() {
+		return dispatchers;
+	}
+
+	public void addDispatcher(String dispatcher) {
+		if (!SUPPORT_DISPATCHERS.contains(dispatcher)) {
+			throw new NotImplementedYetException("dispatcher value ["
+					+ dispatcher + "] not support.");
+		}
+		this.dispatchers.add(dispatcher);
+	}
 }
