@@ -44,6 +44,7 @@ import sdloader.http.HttpRequestHeader;
 import sdloader.javaee.SessionManager;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
+import sdloader.util.PathUtils;
 import sdloader.util.WebUtils;
 
 /**
@@ -76,8 +77,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private String remoteHost;
 
 	private String localName;
-	
-	//未セット時にはnullを返す為、HttpParemetersのbodyEncodingと2重持ち
+
+	// 未セット時にはnullを返す為、HttpParemetersのbodyEncodingと2重持ち
 	private String characterEncoding;
 
 	private Locale locale = Locale.getDefault();
@@ -85,7 +86,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private Map<String, Object> attribute = CollectionsUtil.newHashMap();
 
 	private HttpRequest httpRequest;
-	
+
 	private ServletContext servletContext;
 
 	public HttpServletRequestImpl(HttpRequest httpRequest) {
@@ -97,11 +98,13 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public Enumeration<String> getHeaders(String arg0) {
-		return new IteratorEnumeration<String>(httpRequest.getHeader().getHeaders().iterator());
+		return new IteratorEnumeration<String>(httpRequest.getHeader()
+				.getHeaders().iterator());
 	}
 
 	public Enumeration<String> getHeaderNames() {
-		return new IteratorEnumeration<String>(httpRequest.getHeader().getHeaderName().iterator());
+		return new IteratorEnumeration<String>(httpRequest.getHeader()
+				.getHeaderName().iterator());
 	}
 
 	public int getIntHeader(String paramName) {
@@ -126,9 +129,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	public Enumeration<String> getAttributeNames() {
 		return new IteratorEnumeration<String>(attribute.keySet().iterator());
 	}
+
 	/**
-	 * 文字エンコードを返す。
-	 * setCharacterEncodingが呼ばれていない場合はnullを返す。
+	 * 文字エンコードを返す。 setCharacterEncodingが呼ばれていない場合はnullを返す。
 	 */
 	public String getCharacterEncoding() {
 		return characterEncoding;
@@ -173,7 +176,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public Enumeration<String> getParameterNames() {
-		Iterator<String> paramNameItr = httpRequest.getParameters().getParameterNames();
+		Iterator<String> paramNameItr = httpRequest.getParameters()
+				.getParameterNames();
 		return new IteratorEnumeration<String>(paramNameItr);
 	}
 
@@ -181,7 +185,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		return httpRequest.getParameters().getParamterValues(key);
 	}
 
-	public Map<String,String[]> getParameterMap() {
+	public Map<String, String[]> getParameterMap() {
 		return httpRequest.getParameters().getParamterMap();
 	}
 
@@ -234,7 +238,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			httpRequest.getHeader().addCookie(HttpConst.SESSIONID_KEY, null);
 			return null;
 		} else {
-			httpRequest.getHeader().addCookie(HttpConst.SESSIONID_KEY, session.getId());
+			httpRequest.getHeader().addCookie(HttpConst.SESSIONID_KEY,
+					session.getId());
 			return session;
 		}
 	}
@@ -244,7 +249,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getRequestedSessionId() {
-		Cookie cookie = httpRequest.getHeader().getCookie(HttpConst.SESSIONID_KEY);
+		Cookie cookie = httpRequest.getHeader().getCookie(
+				HttpConst.SESSIONID_KEY);
 		if (cookie != null)
 			return cookie.getValue();
 		else
@@ -295,13 +301,17 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		Vector<Locale> vec = CollectionsUtil.newVector();
 		Locale[] locales = Locale.getAvailableLocales();
 		if (locales != null) {
-			for (int i = 0; i < locales.length; i++)
+			for (int i = 0; i < locales.length; i++) {
 				vec.add(locales[i]);
+			}
 		}
 		return vec.elements();
 	}
 
 	public RequestDispatcher getRequestDispatcher(String path) {
+		if (!PathUtils.startsWithSlash(path)) {
+			path = PathUtils.computeRelativePath(getRequestURI(), path);
+		}
 		return servletContext.getRequestDispatcher(path);
 	}
 

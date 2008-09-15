@@ -15,30 +15,131 @@
  */
 package sdloader.javaee.impl;
 
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 import sdloader.util.CollectionsUtil;
+import sdloader.util.IteratorEnumeration;
 
 /**
  * RequestDispatcher#include利用時のリクエストラッパー
+ * 
  * @author c9katayama
  * @author shot
  */
+@SuppressWarnings("unchecked")
 public class IncludeRequestWrapper extends HttpServletRequestWrapper {
 
-	private Map<String, String> includeAttributeMap;
-	
+	private Map<String, Object> includeAttributeMap = CollectionsUtil
+			.newHashMap();
+	private Map<String, String[]> includeParameterMap = CollectionsUtil
+			.newHashMap();
+
 	public IncludeRequestWrapper(HttpServletRequest req) {
 		super(req);
 	}
-	
-	void setIncludeRequestParameter(String key,String value){
-		if(includeAttributeMap==null) {
-			includeAttributeMap = CollectionsUtil.newHashMap();
+
+	void setIncludeAttribute(String key, Object value) {
+		includeAttributeMap.put(key, value);
+	}
+
+	void addIncludeParameter(String key, String value) {
+		if (value == null) {
+			value = "";
 		}
-		includeAttributeMap.put(key,value);
+		String[] params = includeParameterMap.get(key);
+		if (params == null) {
+			params = new String[] { value };
+		} else {
+			String[] newParams = new String[params.length + 1];
+			System.arraycopy(params, 0, newParams, 0, params.length);
+			newParams[newParams.length - 1] = value;
+			params = newParams;
+		}
+		includeParameterMap.put(key, params);
+	}
+
+	@Override
+	public String getParameter(String name) {
+		String param = null;
+		String[] includeParam = includeParameterMap.get(name);
+		if (includeParam != null) {
+			param = includeParam[0];
+		}
+		if (param == null) {
+			param = super.getParameter(name);
+		}
+		return param;
+	}
+
+	@Override
+	public String[] getParameterValues(String name) {
+		List<String> paramValues = CollectionsUtil.newArrayList();
+		String[] includeValues = includeParameterMap.get(name);
+		if (includeValues != null) {
+			for (int i = 0; i < includeValues.length; i++) {
+				paramValues.add(includeValues[i]);
+			}
+		}
+		String[] values = super.getParameterValues(name);
+		if (values != null) {
+			for (int i = 0; i < values.length; i++) {
+				paramValues.add(values[i]);
+			}
+		}
+		return paramValues.size() == 0 ? null : paramValues
+				.toArray(new String[] {});
+	}
+
+	@Override
+	public Enumeration getParameterNames() {
+		Enumeration<String> names = super.getParameterNames();
+		Set<String> includeNames = new HashSet<String>(includeParameterMap
+				.keySet());
+		if (names != null) {
+			while (names.hasMoreElements()) {
+				includeNames.add(names.nextElement());
+			}
+		}
+		return new IteratorEnumeration(includeNames.iterator());
+	}
+
+	@Override
+	public Map getParameterMap() {
+		Map paramMap = CollectionsUtil.newHashMap();
+		Enumeration names = getParameterNames();
+		while (names.hasMoreElements()) {
+			String name = (String) names.nextElement();
+			paramMap.put(name, getParameterValues(name));
+		}
+		return paramMap;
+	}
+
+	@Override
+	public Object getAttribute(String name) {
+		Object value = includeAttributeMap.get(name);
+		if (value == null) {
+			value = super.getAttribute(name);
+		}
+		return value;
+	}
+
+	@Override
+	public Enumeration getAttributeNames() {
+		Enumeration<String> names = super.getAttributeNames();
+		Set<String> includeNames = new HashSet<String>(includeAttributeMap
+				.keySet());
+		if (names != null) {
+			while (names.hasMoreElements()) {
+				includeNames.add(names.nextElement());
+			}
+		}
+		return new IteratorEnumeration(includeNames.iterator());
 	}
 }

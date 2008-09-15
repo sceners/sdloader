@@ -265,7 +265,7 @@ public class WebApplication {
 	 * @throws ServletException
 	 */
 	public List<Filter> findFilters(String resourcePath, String servletName,
-			String dispatcherType) throws ServletException {
+			String dispatcherType) {
 		List<Filter> filterList = CollectionsUtil.newArrayList();
 		if (resourcePath != null && filterMap != null) {
 			List<FilterMappingTag> mappingList = webXml.getWebApp()

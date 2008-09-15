@@ -38,11 +38,9 @@ public class CollectionsUtil {
 	public static <T> LinkedList<T> newLinkedList() {
 		return new LinkedList<T>();
 	}
-
 	public static <K, V> HashMap<K, V> newHashMap() {
 		return new HashMap<K, V>();
 	}
-
 	public static <K, V> HashMap<K, V> newHashMap(final int capacity) {
 		return new HashMap<K, V>(capacity);
 	}
@@ -71,5 +69,5 @@ public class CollectionsUtil {
 	public static <T> Stack<T> newStack() {
 		return new Stack<T>();
 	}
-	
+
 }
