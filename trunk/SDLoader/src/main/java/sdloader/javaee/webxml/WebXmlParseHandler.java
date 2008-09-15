@@ -30,8 +30,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import sdloader.util.Assertion;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
-import sdloader.util.DisposableUtil;
-import sdloader.util.DisposableUtil.Disposable;
 
 /**
  * web-xmlパース用ハンドラ タグをパースし、xmlをインスタンス化します。 タグは、次のように解析します。
@@ -45,10 +43,10 @@ import sdloader.util.DisposableUtil.Disposable;
  */
 public class WebXmlParseHandler extends DefaultHandler {
 
-	private static final Map<String, Class<? extends WebXmlTagElement>> tag2classMap = CollectionsUtil
+	private Map<String, Class<? extends WebXmlTagElement>> tag2classMap = CollectionsUtil
 			.newHashMap();
 
-	static {
+	{
 		tag2classMap.put("web-app", WebAppTag.class);
 		tag2classMap.put("context-param", ContextParamTag.class);
 		tag2classMap.put("filter", FilterTag.class);
@@ -70,21 +68,6 @@ public class WebXmlParseHandler extends DefaultHandler {
 	private String characters;
 
 	private Object rootObject;
-
-	public WebXmlParseHandler() {
-		DisposableUtil.add(new Disposable() {
-
-			public void dispose() {
-				tag2classMap.clear();
-				resolveMap.clear();
-				tagInstanceMap.clear();
-				tagNameStack.clear();
-				characters = null;
-				rootObject = null;
-			}
-
-		});
-	}
 
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
