@@ -1,10 +1,9 @@
-<%@page contentType="text/html"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jstl/core"%>
+<%@page language="java" contentType="text/html"%>
 <html>
 <head><title>JSP Page</title></head>
 <body>
 <h1>c:out</h1>
-test:<c:out value="writing"/><br>
+test:${writing}<br>
 <br>
 <%
 request.setAttribute("sss","t<u>es</u>t");
@@ -14,8 +13,8 @@ request.setAttribute("sss","t<u>es</u>t");
 <%="ServerName=" + request.getServerName() %><br>
 <%="ServerPort=" + request.getServerPort() %><br>
 expression:<%=request.getAttribute("sss")%><br>
-tag:<c:out value="${sss}"/><br>
-tag(not escape):<c:out value="${sss}" escapeXml="false"/><br>
+tag:${requestScope.sss}<br>
+tag(not escape):${sss}<br>
 </body>
 </html>
 
