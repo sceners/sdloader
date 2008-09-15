@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader;
+package sdloader.command;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,8 +23,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import sdloader.command.Command;
-import sdloader.command.CommandFactory;
+import sdloader.Lifecycle;
 /**
  * @author shot
  */

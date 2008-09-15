@@ -15,6 +15,7 @@
  */
 package sdloader.util;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,21 +25,26 @@ import java.util.jar.JarInputStream;
 
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+
 /**
  * WarUtil
+ * 
  * @author c9katayama
  */
 public class WarUtil {
 
 	private static SDLoaderLog log = SDLoaderLogFactory.getLog(WarUtil.class);
+
 	/**
 	 * Warの名前を返します。
+	 * 
 	 * @param warFileName
 	 * @return
 	 */
 	public static String getArchiveName(final String warFileName) {
 		return warFileName.substring(0, warFileName.length() - ".war".length());
 	}
+
 	/**
 	 * WARファイルを解凍します。
 	 * 
@@ -51,8 +57,8 @@ public class WarUtil {
 		log.info("war extract start. warfile=" + warFile.getName());
 
 		try {
-			JarInputStream jin = new JarInputStream(
-					new FileInputStream(warFile));
+			JarInputStream jin = new JarInputStream(new BufferedInputStream(
+					new FileInputStream(warFile)));
 			JarEntry entry = null;
 
 			File webAppDir = new File(directory, getArchiveName(warFile
@@ -63,25 +69,28 @@ public class WarUtil {
 				File file = new File(webAppDir, entry.getName());
 
 				if (entry.isDirectory()) {
-					if (!file.exists())
+					if (!file.exists()) {
 						file.mkdirs();
+					}
 				} else {
 					File dir = new File(file.getParent());
-					if (!dir.exists())
+					if (!dir.exists()) {
 						dir.mkdirs();
+					}
 
 					FileOutputStream fout = null;
 					try {
 						fout = new FileOutputStream(file);
-						WebUtils.copyStream(jin, fout);
+						ResourceUtil.copyStream(jin, fout);
 					} finally {
 						fout.flush();
 						fout.close();
 						fout = null;
 					}
 
-					if (entry.getTime() >= 0)
+					if (entry.getTime() >= 0) {
 						file.setLastModified(entry.getTime());
+					}
 				}
 			}
 			log.info("war extract success.");

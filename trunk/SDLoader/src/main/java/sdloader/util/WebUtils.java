@@ -17,9 +17,6 @@ package sdloader.util;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -333,26 +330,6 @@ public class WebUtils {
 			}
 		}
 		return PATTERN_NOMATCH;
-	}
-
-	/**
-	 * ストリームをコピーします。
-	 * 
-	 * @param in
-	 * @param out
-	 * @return コピーしたバイト数
-	 * @throws IOException
-	 */
-	public static final int copyStream(InputStream in, OutputStream out)
-			throws IOException {
-		byte[] buf = new byte[8196];
-		int totalSize = 0;
-		int size = 0;
-		while ((size = in.read(buf)) != -1) {
-			out.write(buf, 0, size);
-			totalSize += size;
-		}
-		return totalSize;
 	}
 
 	/**

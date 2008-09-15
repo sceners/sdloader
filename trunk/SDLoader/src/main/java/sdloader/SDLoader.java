@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sdloader.event.EventDispatcher;
-import sdloader.exception.IORuntimeException;
 import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
 import sdloader.javaee.WebAppContext;
@@ -46,34 +45,33 @@ public class SDLoader implements Lifecycle {
 
 	private static final SDLoaderLog log = SDLoaderLogFactory
 			.getLog(SDLoader.class);
-	
+
 	public static final String CONFIG_KEY_PREFIX = "sdloader.";
 	/**
 	 * JSPコンパイル用のライブラリパス SDLoader呼び出し前にSystem.setPropertyでセットすると、このパスの
 	 * ライブラリを利用します。
-	 */	
-	public static final String KEY_SDLOADER_JSP_LIBPATH = CONFIG_KEY_PREFIX+"jsp.libpath";
-	//@duplecated
-	public static final String SDLOADER_JSP_LIBPATH = KEY_SDLOADER_JSP_LIBPATH;	
-	
+	 */
+	public static final String KEY_SDLOADER_JSP_LIBPATH = CONFIG_KEY_PREFIX
+			+ "jsp.libpath";
 	/**
 	 * SDLoaderのベースディレクトリパス
 	 */
-	public static final String KEY_SDLOADER_HOME = CONFIG_KEY_PREFIX+"home";
+	public static final String KEY_SDLOADER_HOME = CONFIG_KEY_PREFIX + "home";
 
-	public static final String KEY_WAR_INMEMORY_EXTRACT = CONFIG_KEY_PREFIX+"warInMeoryExtract";
+	public static final String KEY_WAR_INMEMORY_EXTRACT = CONFIG_KEY_PREFIX
+			+ "warInMemoryExtract";
 
-	public static final String KEY_SDLOADER_WEBAPP_PATH = CONFIG_KEY_PREFIX+"webAppPath";
-	
-	public static final String KEY_SDLOADER_USE_OUTSIDE_PORT = CONFIG_KEY_PREFIX+"useOutSidePort";
+	public static final String KEY_SDLOADER_WEBAPP_PATH = CONFIG_KEY_PREFIX
+			+ "webAppPath";
+
+	public static final String KEY_SDLOADER_USE_OUTSIDE_PORT = CONFIG_KEY_PREFIX
+			+ "useOutSidePort";
 
 	private int maxThreadPoolNum = 4;
 
 	private int backLogNum = -1;// -1でデフォルト値を使用する
 
 	private int port = 30000;
-
-	private String host = "127.0.0.1";
 
 	public static boolean isRunnnig = false;
 
@@ -112,28 +110,23 @@ public class SDLoader implements Lifecycle {
 		this.port = port;
 	}
 
-	public SDLoader(String host, int port) {
-		this.host = host;
-		this.port = port;
-	}
-
 	public String getConfig(String key) {
 		return (String) config.get(key);
 	}
 
-	public String getConfig(String key,String defaultValue) {
+	public String getConfig(String key, String defaultValue) {
 		String value = (String) config.get(key);
-		return (value==null) ? defaultValue : value;
+		return (value == null) ? defaultValue : value;
 	}
 
 	public void setConfig(String key, String value) {
 		config.put(key, value);
 	}
 
-	public void setConfig(String key, String value,String defaultValue) {
-		if(value!=null){
+	public void setConfig(String key, String value, String defaultValue) {
+		if (value != null) {
 			config.put(key, value);
-		}else{
+		} else {
 			config.put(key, defaultValue);
 		}
 	}
@@ -161,9 +154,9 @@ public class SDLoader implements Lifecycle {
 	public WebAppManager getWebAppManager() {
 		return webAppManager;
 	}
-	
-	public void addWebAppContext(WebAppContext context){
-		if(webAppManager.isInitialized()){
+
+	public void addWebAppContext(WebAppContext context) {
+		if (webAppManager.isInitialized()) {
 			throw new RuntimeException("WebAppManager already initialized.");
 		}
 		webAppManager.addWebAppContext(context);
@@ -231,19 +224,19 @@ public class SDLoader implements Lifecycle {
 	 * ソケットをオープンし、サーバを開始します。
 	 */
 	public void start() {
-		if (isRunnnig)
+		if (isRunnnig) {
 			return;
+		}
 
 		initConfig();
-		
-		// TODO AOP
+
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.BEFORE_START, this));
 
 		long t = System.currentTimeMillis();
 
 		ServerSocket initSocket = initServerSocket();
-		
+
 		initWebApp();
 		initSocketProcessor();
 		initShutdown();
@@ -254,26 +247,11 @@ public class SDLoader implements Lifecycle {
 
 		log.info("SDLoader startup in " + (System.currentTimeMillis() - t)
 				+ " ms.");
+
 		isRunnnig = true;
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.AFTER_START, this));
-	}
-
-	protected void bindToFreePort() {
-		if (!isAutoPortDetect()) {
-			return;
-		}
-		while (true) {
-			try {
-				port = SocketUtil.findFreePort();
-				if (port < Constants.MAX_PORT_ADDRESS) {
-					break;
-				}
-			} catch (IORuntimeException expected) {
-				log.info(expected.getMessage());
-			}
-		}
 	}
 
 	/**
@@ -283,7 +261,7 @@ public class SDLoader implements Lifecycle {
 		if (!isRunnnig) {
 			return;
 		}
-		// TODO AOP
+
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.BEFORE_STOP, this));
 
@@ -293,64 +271,65 @@ public class SDLoader implements Lifecycle {
 		try {
 			sdLoaderThread.close();
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			log.error(ioe);
 		}
 		isRunnnig = false;
-		// TODO AOP
+
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.AFTER_STOP, this));
 	}
+
 	protected void initConfig() {
-		//init home
+		// init home
 		String homeDir = getConfig(KEY_SDLOADER_HOME);
-		if(homeDir==null){
+		if (homeDir == null) {
 			homeDir = System.getProperty(KEY_SDLOADER_HOME);
 			if (homeDir == null) {
 				homeDir = System.getProperty("user.dir");// +"/sdloader";
 			}
 		}
 		homeDir = PathUtils.replaceFileSeparator(homeDir);
-		if (homeDir.endsWith("/")) {
-			homeDir = homeDir.substring(0, homeDir.length() - 1);
-		}
+		homeDir = PathUtils.removeEndSlashIfNeed(homeDir);
+
 		setConfig(KEY_SDLOADER_HOME, homeDir);
 		log.info("SDLOADER_HOME=" + homeDir);
-		
-		//init webappDir
+
+		// init webappDir
 		String webappPath = getConfig(KEY_SDLOADER_WEBAPP_PATH);
-		if(webappPath==null){
+		if (webappPath == null) {
 			webappPath = System.getProperty(KEY_SDLOADER_WEBAPP_PATH);
 			if (webappPath == null) {
 				webappPath = WebConstants.WEBAPP_DIR_NAME;
 			}
 		}
 		webappPath = PathUtils.replaceFileSeparator(webappPath);
-		if(!PathUtils.isAbsolutePath(webappPath)){
-			//homeからの絶対パスに変換
-			webappPath = homeDir + "/" + webappPath;			
+		if (!PathUtils.isAbsolutePath(webappPath)) {
+			// homeからの絶対パスに変換
+			webappPath = homeDir + "/" + webappPath;
 		}
-		setConfig(KEY_SDLOADER_WEBAPP_PATH,webappPath);
+		setConfig(KEY_SDLOADER_WEBAPP_PATH, webappPath);
 		log.info(KEY_SDLOADER_WEBAPP_PATH + "=" + webappPath);
-		
-		//init jsp lib path
+
+		// init jsp lib path
 		setSystemConfigIfNoConfig(KEY_SDLOADER_JSP_LIBPATH);
-		//init inMemoryWar
+		// init inMemoryWar
 		setSystemConfigIfNoConfig(KEY_WAR_INMEMORY_EXTRACT);
-		//init outside port
+		// init outside port
 		setSystemConfigIfNoConfig(KEY_SDLOADER_USE_OUTSIDE_PORT);
 	}
-	protected void setSystemConfigIfNoConfig(String key){
+
+	protected void setSystemConfigIfNoConfig(String key) {
 		String value = getConfig(key);
-		if(value==null){
+		if (value == null) {
 			value = System.getProperty(key);
-			if(value != null)
-				setConfig(key,value);
+			if (value != null)
+				setConfig(key, value);
 		}
 	}
 
 	protected void initWebApp() {
 		try {
-			log.info("WebApplication initialize start.");			
+			log.info("WebApplication initialize start.");
 			webAppManager.init();
 			log.info("WebApplication initialize success.");
 		} catch (RuntimeException e) {
@@ -358,27 +337,33 @@ public class SDLoader implements Lifecycle {
 			throw e;
 		}
 	}
-	
-	protected ServerSocket initServerSocket(){
-		ServerSocket initSocket = null;		
-		bindToFreePort();
-		log.info("Bind start.Port=" + port);
+
+	protected ServerSocket initServerSocket() {
+		ServerSocket initSocket = null;
+
+		boolean useOutSidePort = BooleanUtil
+				.toBoolean(getConfig(KEY_SDLOADER_USE_OUTSIDE_PORT));
+		String portMessage = autoPortDetect ? "AutoDetect" : String
+				.valueOf(port);
+		log.info("Bind start. Port=" + portMessage + " useOutSidePort="
+				+ useOutSidePort);
 		try {
-			String useOutSidePort = getConfig(KEY_SDLOADER_USE_OUTSIDE_PORT);
-			if(BooleanUtil.toBoolean(useOutSidePort)){
-				initSocket = new ServerSocket(getPort());
-			}else{
-				//default
-				initSocket = new ServerSocket(getPort(), backLogNum, InetAddress
-					.getByName(host));			
+			int bindPort = autoPortDetect ? 0 : getPort();
+			if (useOutSidePort) {
+				initSocket = new ServerSocket(bindPort);
+			} else {
+				initSocket = new ServerSocket(bindPort, backLogNum, InetAddress
+						.getByName("localhost"));
 			}
-			log.info("Bind success.port=" + port);
+			setPort(initSocket.getLocalPort());
+			log.info("Bind success. Port=" + getPort());
 		} catch (IOException ioe) {
-			log.error("Bind fail.Port=" + port, ioe);
+			log.error("Bind fail. Port=" + portMessage, ioe);
 			throw new RuntimeException(ioe);
 		}
 		return initSocket;
 	}
+
 	protected void initSocketProcessor() {
 		socketProcessorPool = new HttpRequestProcessorPool(
 				this.maxThreadPoolNum);
@@ -424,7 +409,6 @@ public class SDLoader implements Lifecycle {
 				} catch (IOException ioe) {
 					if (shutdown)
 						break;
-
 					log.error("Socket accept error.", ioe);
 					continue;
 				}
@@ -434,29 +418,16 @@ public class SDLoader implements Lifecycle {
 			}
 		}
 
-		public void close() throws IOException {
+		public synchronized void close() throws IOException {
 			if (serverSocket != null) {
-				serverSocket.close();
+				SocketUtil.closeServerSocketNoException(serverSocket);
 				serverSocket = null;
 			}
 			shutdown = true;
 		}
 	}
 
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
 	public boolean isRunning() {
-		// return (sdLoaderThread != null && sdLoaderThread.isAlive())
-		// && (sdLoaderThread.serverSocket != null &&
-		// sdLoaderThread.serverSocket
-		// .isClosed());
 		return isRunnnig;
 	}
-
 }

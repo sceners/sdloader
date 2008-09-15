@@ -17,6 +17,7 @@ package sdloader;
 
 import java.net.Inet4Address;
 
+import sdloader.command.CommandMonitor;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.MiscUtils;
