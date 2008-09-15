@@ -224,9 +224,6 @@ public class ServletContextImpl implements ServletContext {
 		}
 		String servletName = mapping.getServletName();
 		Servlet servlet = webapp.findServlet(servletName);
-		if (servlet == null){
-			return null;
-		}
 		List<Filter> forwardFilters = webapp.findFilters(requestPath, servletName,JavaEEConstants.DISPATCHER_TYPE_FORWARD);
 		List<Filter> includeFilters = webapp.findFilters(requestPath, servletName,JavaEEConstants.DISPATCHER_TYPE_INCLUDE);
 

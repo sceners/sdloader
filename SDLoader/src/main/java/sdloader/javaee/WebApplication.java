@@ -290,13 +290,23 @@ public class WebApplication {
 					if (WebUtils.matchPattern(patternText, resourcePath) != WebUtils.PATTERN_NOMATCH) {
 						String filterName = mapping.getFilterName();
 						Filter filter = (Filter) filterMap.get(filterName);
+						if (filter == null) {
+							throw new RuntimeException(
+									"Filter not found. filterName="
+											+ filterName);
+						}
 						filterList.add(filter);
+						continue search;
 					}
 				}
 				String nameTest = mapping.getServletName();
 				if (nameTest != null && nameTest.equals(servletName)) {
 					String filterName = mapping.getFilterName();
 					Filter filter = (Filter) filterMap.get(filterName);
+					if (filter == null) {
+						throw new RuntimeException(
+								"Filter not found. filterName=" + filterName);
+					}
 					filterList.add(filter);
 				}
 			}
@@ -354,10 +364,15 @@ public class WebApplication {
 	 * サーブレット名に該当するサーブレットを返します。
 	 * 
 	 * @param servletName
-	 * @return servlet 見つからなかった場合、nullを返します。
+	 * @return servlet 見つからなかった場合、RuntimeExceptionをスローします。
 	 */
 	public Servlet findServlet(String servletName) {
-		return (Servlet) servletMap.get(servletName);
+		Servlet servlet = servletMap.get(servletName);
+		if (servlet == null) {
+			throw new RuntimeException("Servlet not found. servletName="
+					+ servletName);
+		}
+		return servlet;
 	}
 
 	public List<Servlet> getServletList() {

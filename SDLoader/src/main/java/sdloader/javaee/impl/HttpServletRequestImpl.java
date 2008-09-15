@@ -310,7 +310,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public RequestDispatcher getRequestDispatcher(String path) {
 		if (!PathUtils.startsWithSlash(path)) {
-			path = PathUtils.computeRelativePath(getRequestURI(), path);
+			String servletAndPathInfo = getServletPath();
+			if(getPathInfo() != null){
+				servletAndPathInfo += getPathInfo();
+			}
+			path = PathUtils.computeRelativePath(servletAndPathInfo, path);
 		}
 		return servletContext.getRequestDispatcher(path);
 	}

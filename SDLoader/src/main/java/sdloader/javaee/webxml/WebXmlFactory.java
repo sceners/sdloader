@@ -75,7 +75,8 @@ public class WebXmlFactory {
 		}
 		sax.parse(is, handler);
 		WebXml webxml = new WebXml();
-		webxml.setWebApp((WebAppTag) handler.getRootObject());
+		WebAppTag webAppTag = (WebAppTag) handler.getRootObject();
+		webxml.setWebApp(webAppTag);
 		return webxml;
 	}
 }
