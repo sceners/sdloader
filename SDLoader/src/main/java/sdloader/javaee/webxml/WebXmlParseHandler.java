@@ -56,6 +56,7 @@ public class WebXmlParseHandler extends DefaultHandler {
 		tag2classMap.put("servlet-mapping", ServletMappingTag.class);
 		tag2classMap.put("init-param", InitParamTag.class);
 		tag2classMap.put("welcome-file-list", WelcomeFileListTag.class);
+		tag2classMap.put("error-page", ErrorPageTag.class);
 	}
 
 	private Map<String, URL> resolveMap = CollectionsUtil.newHashMap();
