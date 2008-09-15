@@ -225,7 +225,7 @@ public class FileSavingServlet extends HttpServlet {
 		FileInputStream fin = new FileInputStream(file);
 		ServletOutputStream sout = res.getOutputStream();
 		try {
-			int size = WebUtils.copyStream(fin, sout);
+			int size = ResourceUtil.copyStream(fin, sout);
 			setContentType(res, file.getName());
 			res.setContentLength(size);
 			res.setStatus(HttpServletResponse.SC_OK);

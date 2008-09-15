@@ -16,6 +16,7 @@
 package sdloader;
 
 import sdloader.SDLoader;
+import sdloader.command.CommandMonitor;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 /**

@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import sdloader.util.ResourceUtil;
-import sdloader.util.WebUtils;
 
 /**
  * メモリ上のリソース出力サーブレット リクエストパスからファイルを検索し、返します。
@@ -76,7 +75,7 @@ public class InMemoryFileSavingServlet extends FileSavingServlet {
 		InputStream is = resource.openStream();
 		ServletOutputStream sout = res.getOutputStream();
 		try {
-			int size = WebUtils.copyStream(is, sout);
+			int size = ResourceUtil.copyStream(is, sout);
 			setContentType(res, resource.toExternalForm());
 			res.setContentLength(size);
 			res.setStatus(HttpServletResponse.SC_OK);
