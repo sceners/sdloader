@@ -97,10 +97,6 @@ public class HttpResponseHeader {
 
 	public List<String> getHeaders() {
 		return CollectionsUtil.newArrayList(headerFieldMap.values());
-		// List list = new ArrayList();
-		// for (Iterator itr = headerFieldNameList.iterator(); itr.hasNext();)
-		// list.add(headerFieldMap.get(itr.next()));
-		// return list;
 	}
 
 	public void removeHeader(String paramName) {
