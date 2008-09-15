@@ -26,7 +26,9 @@ public final class DisposableUtil {
 	protected static final LinkedList<Disposable> disposables = CollectionsUtil
 			.newLinkedList();
 
-	protected static boolean DEBUG = false;
+	public static interface Disposable {
+		void dispose();
+	}
 
 	public static synchronized void add(final Disposable disposable) {
 		disposables.add(disposable);
@@ -50,9 +52,6 @@ public final class DisposableUtil {
 	}
 
 	private static void listDisposables() {
-		if (!DEBUG) {
-			return;
-		}
 		for (Iterator<Disposable> iterator = disposables.iterator(); iterator
 				.hasNext();) {
 			Disposable disposable = iterator.next();
@@ -60,14 +59,4 @@ public final class DisposableUtil {
 					.println("[Disposable] dipose : " + disposable.toString());
 		}
 	}
-
-	public static void setDebugMode(final boolean debug) {
-		DEBUG = debug;
-	}
-
-	public static interface Disposable {
-
-		void dispose();
-	}
-
 }

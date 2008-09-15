@@ -28,7 +28,6 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 
 import sdloader.SDLoader;
 import sdloader.javaee.JavaEEConstants;
@@ -39,7 +38,6 @@ import sdloader.javaee.impl.HttpServletRequestImpl;
 import sdloader.javaee.impl.HttpServletResponseImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
-import sdloader.util.JavaEEUtils;
 import sdloader.util.WebUtils;
 
 /**
@@ -218,9 +216,8 @@ public class HttpRequestProcessor extends Thread {
 
 		// service
 		try {
-			String servletName = mapping.getServletName();
-			String dispatcherType = getDispatcherType(request);
-			List<Filter> filterList = webapp.findFilters(resourcePath, servletName,dispatcherType);
+			String servletName = mapping.getServletName(); 
+			List<Filter> filterList = webapp.findFilters(resourcePath, servletName,JavaEEConstants.DISPATCHER_TYPE_REQUEST);
 			if (filterList.size() > 0) {
 				Filter[] filters = (Filter[]) filterList
 						.toArray(new Filter[]{});
@@ -241,15 +238,6 @@ public class HttpRequestProcessor extends Thread {
 		setDefaultResponseHeader(request, response,requestCount);
 		processDataOutput(response, os);
 		return header.isKeepAlive();
-	}
-	private String getDispatcherType(HttpServletRequest request){
-		if(JavaEEUtils.isForwardRequest(request)){
-			return JavaEEConstants.DISPATCHER_TYPE_FORWARD;
-		}else if(JavaEEUtils.isIncludeRequest(request)){
-			return JavaEEConstants.DISPATCHER_TYPE_INCLUDE;
-		}else{
-			return JavaEEConstants.DISPATCHER_TYPE_REQUEST;
-		}
 	}
 	private HttpServletRequestImpl createServletRequestImp(HttpRequest httpRequest){
 		HttpServletRequestImpl request = new HttpServletRequestImpl(httpRequest);

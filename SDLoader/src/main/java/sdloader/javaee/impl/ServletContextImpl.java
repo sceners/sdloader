@@ -20,20 +20,24 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.Filter;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import sdloader.javaee.JavaEEConstants;
 import sdloader.javaee.ServletMapping;
 import sdloader.javaee.WebApplication;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
+import sdloader.util.PathUtils;
 import sdloader.util.ResourceUtil;
 
 /**
@@ -42,6 +46,7 @@ import sdloader.util.ResourceUtil;
  * @author c9katayama
  */
 public class ServletContextImpl implements ServletContext {
+	
 	private static final SDLoaderLog log = SDLoaderLogFactory
 			.getLog(ServletConfigImpl.class);
 
@@ -204,25 +209,31 @@ public class ServletContextImpl implements ServletContext {
 	public String getMimeType(String arg0) {
 		return null;
 	}
-
+	/**
+	 * パス名は "/" で始める必要があり、現在のコンテキストルートに対する相対パスとして解釈されます。
+	 */
 	public RequestDispatcher getRequestDispatcher(String requestPath) {
-
+		if(!PathUtils.startsWithSlash(requestPath)){
+			throw new IllegalArgumentException("dispatch path is not start with \"/\".");
+		}
 		WebApplication webapp = webApp.getWebApplicationManager().findWebApp(
 				this.servletContextName);
 		ServletMapping mapping = webapp.findServletMapping(requestPath);
-		if (mapping == null)
+		if (mapping == null){
 			return null;
-		Servlet servlet = webapp.findServlet(mapping.getServletName());
-		if (servlet == null)
-			return null;
-		String contextPath = webapp.getContextPath();
-		
-		if(!contextPath.endsWith("/") && !requestPath.startsWith("/")){
-			requestPath = "/"+requestPath;
 		}
+		String servletName = mapping.getServletName();
+		Servlet servlet = webapp.findServlet(servletName);
+		if (servlet == null){
+			return null;
+		}
+		List<Filter> forwardFilters = webapp.findFilters(requestPath, servletName,JavaEEConstants.DISPATCHER_TYPE_FORWARD);
+		List<Filter> includeFilters = webapp.findFilters(requestPath, servletName,JavaEEConstants.DISPATCHER_TYPE_INCLUDE);
+
+		String contextPath = webapp.getContextPath();
+		String requestURI = PathUtils.jointPathWithSlash(contextPath,requestPath);
 		
-		String requestURI = webapp.getContextPath() + requestPath;
-		return new RequestDispatcherImpl(mapping, servlet, webapp
+		return new RequestDispatcherImpl(mapping, servlet,forwardFilters,includeFilters, webapp
 				.getServletContext(), requestURI);
 	}
 

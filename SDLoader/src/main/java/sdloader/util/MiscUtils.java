@@ -21,6 +21,9 @@ import sdloader.exception.NotImplementedYetException;
 
 public class MiscUtils {
 
+	private static String[] browserNames = { "firefox", "mozilla-firefox",
+			"mozilla", "konqueror", "netscape", "opera" };
+
 	public static void openBrowser(String url) throws IOException {
 		final String os = PropertiesUtil.getValueFromSystem("os.name")
 				.toLowerCase();
@@ -34,17 +37,15 @@ public class MiscUtils {
 			}
 			Runtime.getRuntime().exec(
 					"rundll32 url.dll,FileProtocolHandler " + url);
-			return ;
+			return;
 		} else if (os.indexOf("mac") != -1) {
 			Runtime.getRuntime().exec(new String[] { "open", url });
-			return ;
+			return;
 		} else {
-			String[] browsers = { "firefox", "mozilla-firefox", "mozilla",
-					"konqueror", "netscape", "opera" };
 			Runtime runtime = Runtime.getRuntime();
-			for (int i = 0; i < browsers.length; i++) {
+			for (int i = 0; i < browserNames.length; i++) {
 				try {
-					runtime.exec(new String[] { browsers[i], url });
+					runtime.exec(new String[] { browserNames[i], url });
 					return;
 				} catch (Exception e) {
 				}
