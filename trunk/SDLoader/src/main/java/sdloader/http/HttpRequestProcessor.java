@@ -246,8 +246,9 @@ public class HttpRequestProcessor extends Thread {
 				FilterChainImpl filterChain = new FilterChainImpl(filters,
 						servlet);
 				filterChain.doFilter(request, response);
-			} else
+			} else{
 				servlet.service(request, response);
+			}
 		} catch (ServletException se) {
 			log.error(se.getMessage(), se);
 			response.setStatus(HttpConst.SC_INTERNAL_SERVER_ERROR);
