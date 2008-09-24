@@ -84,7 +84,7 @@ import sdloader.util.WebUtils;
  * ディレクトリは、ディレクトリ名がコンテキストパスになります。
  * 
  * xmlファイルは、コンテキストパスとドキュメントベースを指定できます。 
- * ファイルに<Context path="/コンテキストパス" docBase="Webアプリのドキュメントベース"/>
+ * ファイルに&lt;Context path=&quot;/コンテキストパス&quot; docBase=&quot;Webアプリのドキュメントベース&quot;/&gt;
  *  という内容でファイルを記述すると、そこからロードを行います。
  * コンテキストパスがない場合は、xmlファイル名がコンテキストパスになります。
  * docBaseは、.からはじめると相対パス、そうでない場合は絶対パスとして取り扱います。
@@ -94,6 +94,7 @@ import sdloader.util.WebUtils;
  * アプリケーションを登録します。
  * 
  * </pre>
+ * 
  * @author c9katayama
  * @author shot
  */
@@ -215,7 +216,7 @@ public class WebAppManager {
 	}
 
 	protected void initWebAppContext() throws Exception {
-		if(webAppContextList.size()==0){
+		if (webAppContextList.size() == 0) {
 			throw new RuntimeException("There are no Web Application.");
 		}
 		for (WebAppContext context : webAppContextList) {
@@ -318,10 +319,10 @@ public class WebAppManager {
 			}
 		}
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-		ClassLoader webinfClassLoader = new URLClassLoader(urls, ClassLoader
-				.getSystemClassLoader());
-		ClassLoader parentClassLoader = SDLoader.class.getClassLoader();
-		//Thread.currentThread().getContextClassLoader();
+		ClassLoader webinfClassLoader = new URLClassLoader(urls, SDLoader.class
+				.getClassLoader());
+		ClassLoader parentClassLoader = Thread.currentThread()
+				.getContextClassLoader();
 		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(
 				parentClassLoader, webinfClassLoader);
 		return webAppClassLoader;
