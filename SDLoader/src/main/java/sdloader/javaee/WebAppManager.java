@@ -134,7 +134,9 @@ public class WebAppManager {
 	public void init() {
 		try {
 			initConfig();
-			detectWebApps();
+			if (webAppContextList.size() == 0) {
+				detectWebApps();
+			}
 			initWebAppContext();
 			initialized = true;
 		} catch (Exception e) {
