@@ -37,12 +37,9 @@ public class WebAppContext {
 	}	
 	public WebAppContext(final String contextPath,final URL docBase) {
 		this.docBase = Assertion.notNull(docBase);
-		this.contextPath = checkContextPath(contextPath);
+		this.contextPath = PathUtils.appendStartSlashIfNeed(contextPath);
 	}
-	private static String checkContextPath(String contextPath){
-		Assertion.notNull(contextPath);
-		return contextPath.startsWith("/") ? contextPath : "/"+contextPath;
-	}
+
 	public String getContextPath() {
 		return contextPath;
 	}
