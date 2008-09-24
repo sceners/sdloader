@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="SDLoader" default="dist" basedir=".">
 
-  <property name="build" value="./bin" />
+  <property name="build" value="./dist/bin" />
   <property name="src" value="./src/main/java" /> 	
   <property name="srcresources" value="./src/main/resources" /> 		
   <property name="srctest" value="./src/test/java" />
