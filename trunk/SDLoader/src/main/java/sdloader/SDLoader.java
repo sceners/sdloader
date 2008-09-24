@@ -285,7 +285,7 @@ public class SDLoader implements Lifecycle {
 		if (homeDir == null) {
 			homeDir = System.getProperty(KEY_SDLOADER_HOME);
 			if (homeDir == null) {
-				homeDir = System.getProperty("user.dir");// +"/sdloader";
+				homeDir = System.getProperty("user.dir");
 			}
 		}
 		homeDir = PathUtils.replaceFileSeparator(homeDir);
