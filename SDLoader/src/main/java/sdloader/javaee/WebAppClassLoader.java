@@ -169,7 +169,7 @@ public class WebAppClassLoader extends URLClassLoader {
 			try{
 				return (Class<?>)ClassUtil.invoke(classLoader,findClass,new Object[]{name});
 			}catch(RuntimeException e){				
-				throw new ClassNotFoundException(name);
+				throw new ClassNotFoundException(name,e);
 			}
 		}
 		void resolveClass(Class<?> c) {
