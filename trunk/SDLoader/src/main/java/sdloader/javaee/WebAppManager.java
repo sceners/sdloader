@@ -320,8 +320,8 @@ public class WebAppManager {
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
 		ClassLoader webinfClassLoader = new URLClassLoader(urls, ClassLoader
 				.getSystemClassLoader());
-		ClassLoader parentClassLoader = Thread.currentThread()
-				.getContextClassLoader();
+		ClassLoader parentClassLoader = SDLoader.class.getClassLoader();
+		//Thread.currentThread().getContextClassLoader();
 		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(
 				parentClassLoader, webinfClassLoader);
 		return webAppClassLoader;
