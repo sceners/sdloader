@@ -5,6 +5,8 @@ SDLoader.class.getClassLoader()を使用するように修正）
 
 lifecycle系のインターフェースをsdloader.lifecycleパッケージに移動
 
+web.xmlのfilter-mapping（REQUEST,INCLUDE,FORWARD)に対応
+
 v0_1_11
 SWTを使い、タスクトレーにアイコンをしまうようにした。
 RequestDispatcherで、引数パスの先頭に/がついていない場合でも
