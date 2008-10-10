@@ -63,12 +63,12 @@ public class DesktopSWTMain {
 
 		splash.pack();
 
-		// ƒXƒvƒ‰ƒbƒVƒ…ƒEƒBƒ“ƒhƒE‚ğ’†‰›‚É”z’u
+		// ã‚¹ãƒ—ãƒ©ãƒƒã‚·ãƒ¥ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ä¸­å¤®ã«é…ç½®
 		Rectangle shellRect = splash.getBounds();
 		Rectangle dispRect = display.getBounds();
 		int x = (dispRect.width - shellRect.width) / 2;
 		int y = (dispRect.height - shellRect.height) / 2;
-		// ˆÊ’u‚Ìw’è‚Ípack()‚Ì‚ ‚Æ‚ÉŒÄ‚Ô•K—v‚ª‚ ‚é
+		// ä½ç½®ã®æŒ‡å®šã¯pack()ã®ã‚ã¨ã«å‘¼ã¶å¿…è¦ãŒã‚ã‚‹
 		splash.setLocation(x, y);
 		splash.open();
 	}
@@ -86,7 +86,7 @@ public class DesktopSWTMain {
 		tabFolder.setMaximizeVisible(true);
 		tabFolder.setMinimizeVisible(true);
 		tabFolder.setTabHeight(24);
-		// ‘I‘ğƒ^ƒu‚Ì”wŒiF‚ÉƒOƒ‰ƒf[ƒVƒ‡ƒ“‚ğİ’è
+		// é¸æŠã‚¿ãƒ–ã®èƒŒæ™¯è‰²ã«ã‚°ãƒ©ãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’è¨­å®š
 		tabFolder.setSelectionBackground(new Color[] {
 				display.getSystemColor(SWT.COLOR_TITLE_BACKGROUND),
 				display.getSystemColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT) },
@@ -96,7 +96,7 @@ public class DesktopSWTMain {
 
 		tabFolder.addCTabFolderListener(new CTabFolderAdapter() {
 			public void itemClosed(CTabFolderEvent event) {
-				event.doit = false; // ƒ^ƒu‚ğ‚Æ‚¶‚È‚¢‚æ‚¤‚É‚·‚é
+				event.doit = false; // ã‚¿ãƒ–ã‚’ã¨ã˜ãªã„ã‚ˆã†ã«ã™ã‚‹
 			}
 		});
 		try {
@@ -110,7 +110,7 @@ public class DesktopSWTMain {
 			}
 		} catch (Exception e) {
 			MessageBox msg = new MessageBox(shell, SWT.ICON_ERROR);
-			msg.setMessage("ƒGƒ‰[");
+			msg.setMessage("ã‚¨ãƒ©ãƒ¼");
 			msg.setMessage(e.getMessage());
 			msg.open();
 		} finally {
@@ -141,15 +141,15 @@ public class DesktopSWTMain {
 		InputStream app = ResourceUtil.getResourceAsStream(
 				"application.properties", DesktopSWTMain.class);
 		if (app == null) {
-			throw new RuntimeException("application.properties‚ª‚ ‚è‚Ü‚¹‚ñ");
+			throw new RuntimeException("application.propertiesãŒã‚ã‚Šã¾ã›ã‚“");
 		}
 		appProperties = new Properties();
 		try {
 			appProperties.load(app);
 		} catch (IOException ioe) {
-			throw new RuntimeException("application.properties‚ª‚ ‚è‚Ü‚¹‚ñ");
+			throw new RuntimeException("application.propertiesãŒã‚ã‚Šã¾ã›ã‚“");
 		}
-		Iterator keyItr = appProperties.keySet().iterator();
+		Iterator<Object> keyItr = appProperties.keySet().iterator();
 		while (keyItr.hasNext()) {
 			String key = (String) keyItr.next();
 			if (key.startsWith(SDLoader.CONFIG_KEY_PREFIX)) {
@@ -160,7 +160,7 @@ public class DesktopSWTMain {
 	}
 
 	/**
-	 * application.properties‚Åg‚¤•Ï”‚ğ“o˜^
+	 * application.propertiesã§ä½¿ã†å¤‰æ•°ã‚’ç™»éŒ²
 	 */
 	protected void initSystemProperty() {
 		System.setProperty("webapps",
@@ -197,10 +197,10 @@ public class DesktopSWTMain {
 			server.start();
 		} catch (Exception e) {
 			if (e.getCause() != null && e.getCause() instanceof BindException) {
-				throw new RuntimeException("2d‹N“®‚Ío—ˆ‚Ü‚¹‚ñB");
+				throw new RuntimeException("2é‡èµ·å‹•ã¯å‡ºæ¥ã¾ã›ã‚“ã€‚");
 			} else {
 				e.printStackTrace();
-				throw new RuntimeException("ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B\n" + e.getMessage());
+				throw new RuntimeException("ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚\n" + e.getMessage());
 			}
 		}
 	}
@@ -212,8 +212,8 @@ public class DesktopSWTMain {
 			viewconfigDir = new File(durl);
 		} catch (Exception e) {
 			MessageBox msg = new MessageBox(shell, SWT.ICON_ERROR);
-			msg.setMessage("ƒGƒ‰[");
-			msg.setMessage("viewconfig‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB " + durl);
+			msg.setMessage("ã‚¨ãƒ©ãƒ¼");
+			msg.setMessage("viewconfigãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚ " + durl);
 			msg.open();
 			return;
 		}
@@ -225,8 +225,8 @@ public class DesktopSWTMain {
 		});
 		if (configfiles == null || configfiles.length == 0) {
 			MessageBox msg = new MessageBox(shell, SWT.ICON_ERROR);
-			msg.setMessage("ƒGƒ‰[");
-			msg.setText("viewconfig‚ª‚ ‚è‚Ü‚¹‚ñB " + durl);
+			msg.setMessage("ã‚¨ãƒ©ãƒ¼");
+			msg.setText("viewconfigãŒã‚ã‚Šã¾ã›ã‚“ã€‚ " + durl);
 			msg.open();
 		}
 		for (int i = 0; i < configfiles.length; i++) {
@@ -241,7 +241,7 @@ public class DesktopSWTMain {
 						p.getProperty("buttons", "false")).booleanValue();
 				String title = p.getProperty("title", "    ");
 
-				// ƒCƒ[ƒW•t‚«‚Ìƒ^ƒu‚ğì¬
+				// ã‚¤ãƒ¡ãƒ¼ã‚¸ä»˜ãã®ã‚¿ãƒ–ã‚’ä½œæˆ
 				final CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 				tabItem.setText(title);
 				Image image = new Image(display, DesktopSWTMain.class
