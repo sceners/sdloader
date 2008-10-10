@@ -18,9 +18,10 @@ package sdloader.http;
 import java.io.IOException;
 
 import sdloader.SDLoader;
+
 /**
- * HTTPリクエスト
- * ヘッダーパートとボディーパートを生成します。
+ * HTTPリクエスト ヘッダーパートとボディーパートを生成します。
+ * 
  * @author c9katayama
  */
 public class HttpRequest {
@@ -28,65 +29,77 @@ public class HttpRequest {
 	/**
 	 * デフォルトリクエストエンコード指定用キー
 	 */
-	public static final String KEY_REQUEST_DEFAULT_ENCODE = SDLoader.CONFIG_KEY_PREFIX+"request.defaultEncode";
+	public static final String KEY_REQUEST_DEFAULT_ENCODE = SDLoader.CONFIG_KEY_PREFIX
+			+ "request.defaultEncode";
 	/**
 	 * GETパラメータにBODYのエンコードを適用するかどうかを指定するキー
 	 */
-	public static final String KEY_REQUEST_USE_BODY_ENCODE_FOR_URI = SDLoader.CONFIG_KEY_PREFIX+"request.useBodyEncodeForURI";
-	
+	public static final String KEY_REQUEST_USE_BODY_ENCODE_FOR_URI = SDLoader.CONFIG_KEY_PREFIX
+			+ "request.useBodyEncodeForURI";
+
 	private HttpInput input;
-	
+
 	private HttpRequestHeader header;
 	private HttpRequestBody body;
 	private HttpParameters parameters;
-	
-	public HttpRequest(HttpInput input) throws IOException{
+
+	public HttpRequest(HttpInput input) throws IOException {
 		this.input = input;
 		createHttpRequestHeader();
-		if(header != null)
+		if (header != null) {
 			creaheHttpRequestBody();
-		parameters = new HttpParameters(header,body);
+		}
+		parameters = new HttpParameters(header, body);
 	}
-	public HttpParameters getParameters(){
+
+	public HttpParameters getParameters() {
 		return parameters;
 	}
-	public HttpRequestHeader getHeader(){
+
+	public HttpRequestHeader getHeader() {
 		return header;
 	}
+
 	public HttpRequestBody getBody() {
 		return body;
 	}
+
 	private void createHttpRequestHeader() throws IOException {
-		StringBuffer httpHeaderBuf = null;
+		StringBuilder httpHeaderBuf = null;
 		String line = null;
-		
+
 		while ((line = input.readHeaderLine()) != null) {
 			line = line.trim();
 			// 空白行で終了
-			if (line.length() <= 0)
+			if (line.length() <= 0) {
 				break;
+			}
 
-			if (httpHeaderBuf == null)
-				httpHeaderBuf = new StringBuffer();
+			if (httpHeaderBuf == null) {
+				httpHeaderBuf = new StringBuilder();
+			}
 
 			httpHeaderBuf.append(line);
 			httpHeaderBuf.append(HttpConst.CRLF_STRING);
 		}
-		if (httpHeaderBuf == null)
+		if (httpHeaderBuf == null) {
 			return;
+		}
 
 		header = new HttpRequestHeader(new String(httpHeaderBuf));
 	}
+
 	private void creaheHttpRequestBody() throws IOException {
-		String contentLengthHeader = header
-				.getHeader(HttpConst.CONTENTLENGTH);
+		String contentLengthHeader = header.getHeader(HttpConst.CONTENTLENGTH);
 		byte[] b = null;
 		if (contentLengthHeader != null) {
 			int contentLength = Integer.parseInt(contentLengthHeader);
 			long trueContentLength = Long.parseLong(contentLengthHeader);
-			if (trueContentLength > contentLength)
-				throw new IllegalArgumentException("ContentLenght too long.Max size = "+ Integer.MAX_VALUE);
-
+			if (trueContentLength > contentLength) {
+				throw new IllegalArgumentException(
+						"ContentLenght too long.Max size = "
+								+ Integer.MAX_VALUE);
+			}
 			b = new byte[contentLength];
 			input.readBody(b);
 		}

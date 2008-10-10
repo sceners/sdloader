@@ -23,7 +23,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import sdloader.Lifecycle;
+import sdloader.lifecycle.Lifecycle;
+
 /**
  * @author shot
  */

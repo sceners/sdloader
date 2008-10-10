@@ -20,20 +20,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import sdloader.util.CollectionsUtil;
+
 /**
  * @author shot
  * @author c9katayama
  */
 public final class CommandFactory {
 
-	private static final Map<String, Command> commands = CollectionsUtil.newHashMap();
+	private static final Map<String, Command> commands = CollectionsUtil
+			.newHashMap();
 	static {
 		commands.put(Command.STOP.toString(), Command.STOP);
 		commands.put(Command.RESTART.toString(), Command.RESTART);
 	}
 
-	private static Pattern httpPattern = Pattern.compile("(GET|POST) /(.*) HTTP/.*");
-	
+	private static Pattern httpPattern = Pattern
+			.compile("(GET|POST) /(.*) HTTP/.*");
+
 	public static void addCommand(Command command) {
 		if (command != null) {
 			commands.put(command.toString(), command);
@@ -45,11 +48,11 @@ public final class CommandFactory {
 		return commands.get(key);
 	}
 
-	private static String stripHttp(final String key){
+	private static String stripHttp(final String key) {
 		Matcher match = httpPattern.matcher(key);
-		if(match.find()){
+		if (match.find()) {
 			return match.group(2);
-		}else{
+		} else {
 			return key;
 		}
 	}

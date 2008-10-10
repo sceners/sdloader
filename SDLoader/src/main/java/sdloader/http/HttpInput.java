@@ -30,31 +30,33 @@ public class HttpInput {
 
 	private InputStream inputStream;
 	private boolean skipFirstLF = true;
-	
+
 	public HttpInput(InputStream is) {
 		super();
 		this.inputStream = is;
 	}
+
 	public String readHeaderLine() throws IOException {
 		StringBuffer s = new StringBuffer();
 		for (;;) {
 			int readChar = inputStream.read();
 
-			if (readChar < 0)// eof
+			if (readChar < 0) {// eof
 				return s.toString();
+			}
 
 			char c = (char) readChar;
-			
-			if(c == CR){
+
+			if (c == CR) {
 				skipFirstLF = true;// CRで終わった次のLFを読み込まない
 				return s.toString();
 			}
-			if(c == LF ){
-				if (skipFirstLF && s.length()==0) {
+			if (c == LF) {
+				if (skipFirstLF && s.length() == 0) {
 					skipFirstLF = false;
 					continue;
-				}else{
-					//CRなしでLFが来るパターン（例外パターン）
+				} else {
+					// CRなしでLFが来るパターン（例外パターン）
 					skipFirstLF = false;
 					return s.toString();
 				}
@@ -62,23 +64,25 @@ public class HttpInput {
 			s.append(c);
 		}
 	}
-	public void readBody(byte[] body) throws IOException{
-		if(body.length==0)
+
+	public void readBody(byte[] body) throws IOException {
+		if (body.length == 0) {
 			return;
+		}
 
 		int b = inputStream.read();
 		int mark = 0;
-		if(skipFirstLF && ((char)b) == LF){
-			//CRで終わったLFなので読み飛ばす
-		}else{
-			body[0] = (byte)b;
+		if (skipFirstLF && ((char) b) == LF) {
+			// CRで終わったLFなので読み飛ばす
+		} else {
+			body[0] = (byte) b;
 			mark++;
 		}
 		skipFirstLF = false;
-		
+
 		int maxLength = body.length;
-		for(;mark < maxLength;mark++){
-			body[mark] = (byte)inputStream.read();
+		for (; mark < maxLength; mark++) {
+			body[mark] = (byte) inputStream.read();
 		}
 	}
 }

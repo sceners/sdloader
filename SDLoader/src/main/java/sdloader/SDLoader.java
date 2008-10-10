@@ -29,6 +29,9 @@ import sdloader.http.HttpRequestProcessorPool;
 import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
 import sdloader.javaee.WebConstants;
+import sdloader.lifecycle.Lifecycle;
+import sdloader.lifecycle.LifecycleEvent;
+import sdloader.lifecycle.LifecycleListener;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.BooleanUtil;
@@ -407,8 +410,9 @@ public class SDLoader implements Lifecycle {
 							+ ace.getMessage(), ace);
 					continue;
 				} catch (IOException ioe) {
-					if (shutdown)
+					if (shutdown) {
 						break;
+					}
 					log.error("Socket accept error.", ioe);
 					continue;
 				}

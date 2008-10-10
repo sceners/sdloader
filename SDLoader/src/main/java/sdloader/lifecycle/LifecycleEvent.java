@@ -13,15 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader;
+package sdloader.lifecycle;
+
+import sdloader.event.Event;
+
 /**
- * ライフサイクルリスナー
+ * ライフサイクルイベント
+ * 
  * @author AKatayama
- *
  */
-public interface LifecycleListener {
-	/**
-	 * イベントをハンドリングします。
-	 */
-	void handleLifecycle(LifecycleEvent<?> event);
+public class LifecycleEvent<S> extends Event<S>{
+
+	public static final String AFTER_START = "AFTER_START"; 
+	public static final String AFTER_STOP = "AFTER_STOP";
+	public static final String BEFORE_START = "BEFORE_START"; 
+	public static final String BEFORE_STOP = "BEFORE_STOP"; 
+	
+	public LifecycleEvent(String type,S target){
+		super(type,target);
+	}
 }

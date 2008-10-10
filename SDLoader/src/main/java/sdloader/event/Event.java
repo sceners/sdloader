@@ -17,24 +17,27 @@ package sdloader.event;
 
 /**
  * イベント
+ * 
  * @author AKatayama
- *
+ * 
  * @param <S>
  */
-public class Event<S>{
+public class Event<S> {
 
 	private String type;
 	private S source;
-	
-	public Event(String type,S source) {
+
+	public Event(String type, S source) {
 		this.type = type;
 		this.source = source;
 	}
+
 	public S getSource() {
 		return source;
 	}
+
 	public String getType() {
 		return type;
 	}
-	
+
 }
