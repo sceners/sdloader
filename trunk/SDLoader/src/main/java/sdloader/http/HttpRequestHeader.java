@@ -51,8 +51,9 @@ public class HttpRequestHeader {
 	private String header;
 
 	public HttpRequestHeader(String httpHeader) {
-		if (httpHeader == null)
+		if (httpHeader == null) {
 			throw new IllegalArgumentException("Http header is null.");
+		}
 		this.header = httpHeader;
 		parseHttpRequest(httpHeader);
 	}
@@ -63,36 +64,41 @@ public class HttpRequestHeader {
 		if (token.hasMoreTokens()) {
 			String requestLine = token.nextToken();
 			parseRequestPathLine(requestLine);
-		} else
+		} else {
 			throw new IllegalArgumentException("Invalid http request.");
+		}
 
 		while (token.hasMoreTokens()) {
 			String line = token.nextToken();
-			if (line.trim().length() <= 0)
+			if (line.trim().length() <= 0) {
 				break;
+			}
 			int nameEnd = line.indexOf(HttpConst.COLON_STRING);
 			String name = line.substring(0, nameEnd);
 			String value = null;
 			int valueStart = nameEnd + HttpConst.COLON_STRING.length();
-			if (line.length() > valueStart)
+			if (line.length() > valueStart) {
 				value = line.substring(valueStart, line.length());
+			}
 
-			if (name.equals(HttpConst.COOKIE))
+			if (name.equals(HttpConst.COOKIE)) {
 				parseCookie(value);
-			else
+			} else {
 				addHeader(name, value);
+			}
 		}
 	}
 
 	private void parseRequestPathLine(String requestLine) {
 		StringTokenizer token = new StringTokenizer(requestLine, " ", false);
 
-		if (token.hasMoreTokens())
+		if (token.hasMoreTokens()) {
 			method = token.nextToken().trim();
-		else
+		} else {
 			throw new IllegalArgumentException(
 					"Invalid http request. method not found.");
-		//parse query part
+		}
+		// parse query part
 		if (token.hasMoreTokens()) {
 			String request = token.nextToken().trim();
 			int paramDelim = request.indexOf("?");
@@ -100,23 +106,26 @@ public class HttpRequestHeader {
 				requestURI = request.substring(0, paramDelim);
 				queryString = request.substring(paramDelim + 1, request
 						.length());
-			} else
+			} else {
 				requestURI = request;
-		} else
+			}
+		} else {
 			throw new IllegalArgumentException(
 					"Invalid http request. requestURI not found.");
+		}
 
-		if (token.hasMoreTokens())
+		if (token.hasMoreTokens()) {
 			version = token.nextToken().trim();
-		else
+		} else {
 			throw new IllegalArgumentException(
 					"Invalid http request. version not found.");
+		}
 	}
 
 	private void parseCookie(String cookieValue) {
-		if (cookieValue == null || cookieValue.length() <= 0)
+		if (cookieValue == null || cookieValue.length() <= 0) {
 			return;
-
+		}
 		StringTokenizer token = new StringTokenizer(cookieValue,
 				HttpConst.SEMI_COLON_STRING, false);
 		while (token.hasMoreTokens()) {
@@ -145,8 +154,9 @@ public class HttpRequestHeader {
 	public List<String> getHeaders() {
 		List<String> list = CollectionsUtil.newArrayList();
 		for (Iterator<String> itr = headerFieldNameList.iterator(); itr
-				.hasNext();)
+				.hasNext();) {
 			list.add(headerFieldMap.get(itr.next()));
+		}
 		return list;
 	}
 
@@ -193,15 +203,18 @@ public class HttpRequestHeader {
 	public boolean isKeepAlive() {
 		String keepAliveHeader = getHeader(HttpConst.KEEPALIVE);
 		if (keepAliveHeader != null
-				&& keepAliveHeader.equalsIgnoreCase(HttpConst.CLOSE))
+				&& keepAliveHeader.equalsIgnoreCase(HttpConst.CLOSE)) {
 			return false;
+		}
 
-		if (version.endsWith("1.1"))
+		if (version.endsWith("1.1")) {
 			return true;
+		}
 
 		String connection = getHeader(HttpConst.CONNECTION);
-		if (connection.equals(HttpConst.KEEPALIVE))
+		if (connection.equals(HttpConst.KEEPALIVE)) {
 			return true;
+		}
 		return false;
 	}
 

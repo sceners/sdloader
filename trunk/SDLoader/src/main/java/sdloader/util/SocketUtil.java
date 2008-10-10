@@ -17,6 +17,7 @@ package sdloader.util;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * @author c9katayama
@@ -32,5 +33,15 @@ public class SocketUtil {
 			} catch (IOException e) {
 			}
 		}
+	}	
+	public static void closeSocketNoException(
+			final Socket socket) {
+		if (socket != null) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+			}
+		}
 	}
+
 }

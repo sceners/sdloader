@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2008 the original author or authors.
+ * Copyright 2005-2007 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,31 @@
  */
 package sdloader.util;
 
+import java.io.Closeable;
+import java.io.Flushable;
+import java.io.IOException;
 /**
- * @author shot
+ * 
+ * @author c9katayama
  */
-public class Assertion {
+public class IOUtil {
 
-	public static <T> T notNull(T target) {
-		return notNull(target, null);
-	}
-	
-	public static <T> T notNull(T target, String message) {
-		if (target == null) {
-			throw new NullPointerException(message);
+	public static void flushNoException(Flushable flushable){
+		if(flushable != null){
+			try{
+				flushable.flush();
+			}catch(IOException ioe){
+				return ;
+			}
 		}
-		return target;
 	}
-
-	public static <T> T[] notNull(T... args) {
-		for (int i = 0; i < args.length; i++) {
-			notNull(args[i]);
+	public static void closeNoException(Closeable closeable){
+		if(closeable != null){
+			try{
+				closeable.close();
+			}catch(IOException ioe){
+				return ;
+			}
 		}
-		return args;
 	}
-	
 }

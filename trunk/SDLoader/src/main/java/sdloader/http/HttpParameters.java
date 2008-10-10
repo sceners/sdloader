@@ -62,9 +62,11 @@ public class HttpParameters {
 		SDLoader loader = RequestScopeContext.getContext().getAttribute(
 				SDLoader.class);
 		if (loader != null) {
-			encode = loader.getConfig(HttpRequest.KEY_REQUEST_DEFAULT_ENCODE,encode);
+			encode = loader.getConfig(HttpRequest.KEY_REQUEST_DEFAULT_ENCODE,
+					encode);
 			useBodyEncode = BooleanUtil.toBoolean(loader.getConfig(
-					HttpRequest.KEY_REQUEST_USE_BODY_ENCODE_FOR_URI,String.valueOf(useBodyEncode)));
+					HttpRequest.KEY_REQUEST_USE_BODY_ENCODE_FOR_URI, String
+							.valueOf(useBodyEncode)));
 
 		}
 		setDefaultEncoding(encode);

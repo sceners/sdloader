@@ -15,7 +15,6 @@
  */
 package sdloader.http;
 
-
 /**
  * HTTPリクエストのボディー部分
  * 
@@ -28,6 +27,7 @@ public class HttpRequestBody {
 	public HttpRequestBody(byte[] bodyData) {
 		this.bodyData = bodyData;
 	}
+
 	public byte[] getBodyData() {
 		return bodyData;
 	}

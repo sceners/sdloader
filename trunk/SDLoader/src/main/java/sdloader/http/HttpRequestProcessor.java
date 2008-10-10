@@ -38,10 +38,12 @@ import sdloader.javaee.impl.HttpServletRequestImpl;
 import sdloader.javaee.impl.HttpServletResponseImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+import sdloader.util.IOUtil;
+import sdloader.util.SocketUtil;
 import sdloader.util.WebUtils;
 
 /**
- * ソケット接続に対して、処理を行います。 リクエスト解析＞サーブレット呼び出し＞レスポンスの順に 処理を行います。
+ * ソケット接続に対して、処理を行います. リクエスト解析＞サーブレット呼び出し＞レスポンスの順に 処理を行います。
  * 
  * @author c9katayama
  */
@@ -95,8 +97,9 @@ public class HttpRequestProcessor extends Thread {
 				log.warn("SocketProcessor interrupetd", e);
 				return;
 			}
-			if (stop)
+			if (stop) {
 				return;
+			}
 
 			InputStream is = null;
 			OutputStream os = null;
@@ -122,19 +125,10 @@ public class HttpRequestProcessor extends Thread {
 			} catch (Throwable t) {
 				log.error(t.getMessage(), t);
 			} finally {
-				try {
-					is.close();
-				} catch (IOException ioe) {
-				}
-				try {
-					os.flush();
-					os.close();
-				} catch (IOException ioe) {
-				}
-				try {
-					socket.close();
-				} catch (IOException ioe) {
-				}
+				IOUtil.closeNoException(is);
+				IOUtil.flushNoException(os);
+				IOUtil.closeNoException(os);
+				SocketUtil.closeSocketNoException(socket);
 				RequestScopeContext.destroy();
 			}
 			is = null;
@@ -151,25 +145,26 @@ public class HttpRequestProcessor extends Thread {
 			int requestCount) throws Throwable {
 		HttpRequest httpRequest;
 		try {
-			if (requestCount != 1)
+			if (requestCount != 1) {
 				socket.setSoTimeout(keepAliveTimeout);
-
+			}
 			HttpInput input = new HttpInput(is);
 			httpRequest = new HttpRequest(input);
 
 			if (httpRequest.getHeader() == null)
 				return false;// empty request;
 
-			if (log.isDebugEnabled())
+			if (log.isDebugEnabled()) {
 				log.debug("<REQUEST_HEADER>\n" + httpRequest.getHeader());
-
+			}
 		} catch (SocketException e) {
-			throw new SocketTimeoutException();
+			throw new SocketTimeoutException(e.getMessage());
 		} finally {
-			if (socket.isClosed())
+			if (socket.isClosed()) {
 				return false;
-			else
+			} else {
 				socket.setSoTimeout(socketTimeout);
+			}
 		}
 		HttpRequestHeader header = httpRequest.getHeader();
 		// request
@@ -189,9 +184,10 @@ public class HttpRequestProcessor extends Thread {
 				response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
 				resourcePath = requestURI + "/";
 				String host = request.getHeader(HttpConst.HOST);
-				if (host == null)
+				if (host == null){
 					host = request.getLocalName() + ":"
 							+ request.getLocalPort();
+				}
 				String scheme = request.getScheme();
 				response
 						.addHeader(HttpConst.LOCATION, WebUtils
