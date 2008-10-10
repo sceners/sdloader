@@ -37,6 +37,7 @@
     		<include name="lib/**" />
     		<include name="jre/**" />    		
   			<include name="README.txt" />
+    		<include name="RELEASENOTE.txt" />
   			<include name="version.txt" />
     		<include name="splash.bmp" />
     	</fileset>

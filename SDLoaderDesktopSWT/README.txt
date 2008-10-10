@@ -1,27 +1,27 @@
-SDLoaderDesktopSWT�̎g����
+SDLoaderDesktopSWTの使い方
 
-SDLoaderDesktopSWT���g�p����O�ɁA���̐ݒ���s���܂��B
+SDLoaderDesktopSWTを使用する前に、次の設定を行います。
 
-�Eweb�A�v���̔z�u
-exe�Ɠ����ꏊ��webapps�t�H���_���쐬���A����war�t�@�C���������͓W�J�ς݂�Web�A�v��
-��z�u���܂��B
+・webアプリの配置
+exeと同じ場所にwebappsフォルダを作成し、中にwarファイルもしくは展開済みのWebアプリ
+を配置します。
 
-�Eapplication.properties
-�A�v���P�[�V�����̐ݒ�t�@�C���ł��B
-exe�Ɠ����ꏊ�ɔz�u���܂��B
-���݂̂Ƃ���A2�̐ݒ肪����܂��B
-title�́A�A�v���P�[�V������Window�̃^�C�g���ł��B
-port�́ASDLoader�ŗ��p����|�[�g�ԍ��ł��B
-�R�����g�A�E�g����ƁA�����_���ȃ|�[�g�ԍ����g�p���܂��B
+・application.properties
+アプリケーションの設定ファイルです。
+exeと同じ場所に配置します。
+現在のところ、2つの設定があります。
+titleは、アプリケーションのWindowのタイトルです。
+portは、SDLoaderで利用するポート番号です。
+コメントアウトすると、ランダムなポート番号を使用します。
 
-�Eviewconfig
-�A�v���P�[�V�����E�B���h�E���ɕ\������^�u�̐ݒ�ł��B
-exe�Ɠ����ꏊ�ɁAviewconfig�Ƃ����t�H���_������A���̒���
-�v���p�e�B�t�@�C�����쐬���܂��B
-�P�̃v���p�e�B�t�@�C���ŁA1�̃^�u���쐬����܂��B�v���p�e�B�t�@�C���ɂ�
-�R�̐ݒ���L�q���܂��B
-buttons�E�E�E�i�r�Q�[�V�����{�^���i�߂�A�����[�h�A�z�[���j��\�����邩�ǂ����@true��false
-url=�͂��߂Ƀu���E�U�ɕ\������URL
-title=�^�u�ɕ\�����閼��
+・viewconfig
+アプリケーションウィンドウ内に表示するタブの設定です。
+exeと同じ場所に、viewconfigというフォルダをつくり、その中に
+プロパティファイルを作成します。
+１つのプロパティファイルで、1つのタブが作成されます。プロパティファイルには
+３つの設定を記述します。
+buttons・・・ナビゲーションボタン（戻る、リロード、ホーム）を表示するかどうか　trueかfalse
+url=はじめにブラウザに表示するURL
+title=タブに表示する名称
 
-�ݒ��Aexe���_�u���N���b�N���ċN�����܂��B
+設定後、exeをダブルクリックして起動します。
