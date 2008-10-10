@@ -28,11 +28,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import sdloader.LifecycleEvent;
-import sdloader.LifecycleListener;
 import sdloader.SDLoader;
 import sdloader.internal.SDLoaderInitializer;
 import sdloader.javaee.impl.SessionManagerImpl;
+import sdloader.lifecycle.LifecycleEvent;
+import sdloader.lifecycle.LifecycleListener;
 import sdloader.util.ResourceUtil;
 
 public class DesktopSWTMain {
@@ -48,34 +48,35 @@ public class DesktopSWTMain {
 	public static void main(String[] args) {
 		new DesktopSWTMain().open();
 	}
-    private void openSplashWindow() {
-        splash = new Shell(SWT.ON_TOP);
-        splash.setText("loading");
-        splash.setLayout(new GridLayout(1, false));
-        Image img = new Image(display, "splash.bmp");
-        Label label = new Label(splash, SWT.NONE);
-        label.setImage(img);
 
-        Label loadLabel = new Label(splash, SWT.NONE);
-        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-        loadLabel.setLayoutData(gd);
+	private void openSplashWindow() {
+		splash = new Shell(SWT.ON_TOP);
+		splash.setText("loading");
+		splash.setLayout(new GridLayout(1, false));
+		Image img = new Image(display, "splash.bmp");
+		Label label = new Label(splash, SWT.NONE);
+		label.setImage(img);
 
-        splash.pack();
+		Label loadLabel = new Label(splash, SWT.NONE);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		loadLabel.setLayoutData(gd);
 
-        //スプラッシュウィンドウを中央に配置
-        Rectangle shellRect = splash.getBounds();
-        Rectangle dispRect = display.getBounds();
-        int x = (dispRect.width - shellRect.width) / 2;
-        int y = (dispRect.height - shellRect.height) / 2;
-        //位置の指定はpack()のあとに呼ぶ必要がある
-        splash.setLocation(x, y);
-        splash.open();
-    }
+		splash.pack();
+
+		// スプラッシュウィンドウを中央に配置
+		Rectangle shellRect = splash.getBounds();
+		Rectangle dispRect = display.getBounds();
+		int x = (dispRect.width - shellRect.width) / 2;
+		int y = (dispRect.height - shellRect.height) / 2;
+		// 位置の指定はpack()のあとに呼ぶ必要がある
+		splash.setLocation(x, y);
+		splash.open();
+	}
 
 	public void open() {
 		display = new Display();
 		openSplashWindow();
-		
+
 		shell = new Shell(display);
 		shell.setText("SDLoaderDesktopSWT");
 		FillLayout layout = new FillLayout(SWT.VERTICAL);
@@ -101,27 +102,25 @@ public class DesktopSWTMain {
 		try {
 
 			initSDLoader();
-		
+
 			while (!shell.isDisposed()) {
 				if (!display.readAndDispatch()) {
 					display.sleep();
 				}
 			}
-		}
-		catch(Exception e){
+		} catch (Exception e) {
 			MessageBox msg = new MessageBox(shell, SWT.ICON_ERROR);
 			msg.setMessage("エラー");
 			msg.setMessage(e.getMessage());
 			msg.open();
-		}
-		finally {
+		} finally {
 			try {
 				display.dispose();
 			} catch (Exception e) {
 			}
-			try{
+			try {
 				splash.close();
-			}catch(Exception e){				
+			} catch (Exception e) {
 			}
 			try {
 				server.stop();
@@ -171,7 +170,7 @@ public class DesktopSWTMain {
 
 	protected void initServer() {
 		SDLoaderInitializer.setSessionManager(new SessionManagerImpl());
-		server = new SDLoader();		
+		server = new SDLoader();
 		String port = appProperties.getProperty("port");
 		if (port != null) {
 			server.setPort(Integer.parseInt(port));
@@ -187,7 +186,7 @@ public class DesktopSWTMain {
 				});
 	}
 
-	protected void showUI() {		
+	protected void showUI() {
 		init();
 		splash.close();
 		shell.open();
@@ -235,8 +234,8 @@ public class DesktopSWTMain {
 			try {
 				p.load(new FileInputStream(configfiles[i]));
 				String url = p.getProperty("url", "about:blank");
-				if(!url.startsWith("http")){
-					url = "http://localhost:"+server.getPort()+url;
+				if (!url.startsWith("http")) {
+					url = "http://localhost:" + server.getPort() + url;
 				}
 				boolean showButtons = Boolean.valueOf(
 						p.getProperty("buttons", "false")).booleanValue();
@@ -255,16 +254,16 @@ public class DesktopSWTMain {
 						showButtons);
 
 				tabItem.setControl(comp);
-				 
+
 				tabFolder.addSelectionListener(new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent event) {
-						if(event.item==tabItem){
+						if (event.item == tabItem) {
 							view.home();
 							tabFolder.removeSelectionListener(this);
 						}
 					}
 				});
-				
+
 			} catch (Exception ioe) {
 				ioe.printStackTrace();
 			}
