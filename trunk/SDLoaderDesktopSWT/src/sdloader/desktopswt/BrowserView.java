@@ -112,7 +112,7 @@ public class BrowserView {
 	}
 
 	private void addBrowserEvent(Browser browser) {
-		// ウィンドウオープンのリスナ追加
+		// 繧ｦ繧｣繝ｳ繝峨え繧ｪ繝ｼ繝励Φ縺ｮ繝ｪ繧ｹ繝願ｿｽ蜉
 		browser.addOpenWindowListener(new OpenWindowListener() {
 			public void open(WindowEvent event) {
 				Shell shell = new Shell(parent.getShell(),SWT.CLOSE|SWT.MIN|SWT.MAX|SWT.RESIZE);
