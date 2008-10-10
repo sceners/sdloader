@@ -1,0 +1,1 @@
+start javaw -cp .;sdloader.jar sdloader.SystemTrayOpen
