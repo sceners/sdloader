@@ -41,8 +41,8 @@ import sdloader.internal.resource.BranchTypeResource;
 import sdloader.internal.resource.DirectoryTypeResource;
 import sdloader.internal.resource.LeafTypeResource;
 import sdloader.internal.resource.Resource;
-import sdloader.javaee.BytesBasedClassLoader;
-import sdloader.javaee.WebAppClassLoader;
+import sdloader.javaee.classloader.BytesBasedClassLoader;
+import sdloader.javaee.classloader.WebAppClassLoader;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 /**

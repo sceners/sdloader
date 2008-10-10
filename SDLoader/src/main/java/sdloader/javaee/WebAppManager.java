@@ -45,6 +45,8 @@ import sdloader.internal.resource.Resource;
 import sdloader.internal.resource.ResourceBuilder;
 import sdloader.internal.resource.ResourceBuilderImpl;
 import sdloader.internal.resource.ResourceURLConnection;
+import sdloader.javaee.classloader.BytesBasedClassLoader;
+import sdloader.javaee.classloader.WebAppClassLoader;
 import sdloader.javaee.jasper.InMemoryEmbeddedServletOptions;
 import sdloader.javaee.servlet.FileSavingServlet;
 import sdloader.javaee.servlet.InMemoryFileSavingServlet;
