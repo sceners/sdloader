@@ -229,6 +229,11 @@
   		</fileset>
   	</copy>
   	
+  	<!-- release archive -->
+  	<zip zipfile="${dist}/sdloader-${libversion}.zip">
+  		<zipfileset dir="${distbuild}"/>
+  	</zip>
+  	
   	<!--project-->
 	<property name="distproject"  value="${dist}/project" />
     <mkdir dir="${distproject}" /> 
