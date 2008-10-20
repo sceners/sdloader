@@ -1,1 +1,0 @@
-start javaw -cp .;sdloader-jsp20.jar sdloader.SystemTrayOpen
