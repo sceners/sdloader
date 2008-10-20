@@ -1,13 +1,4 @@
-#summary One-sentence summary of this page.
-
-= Introduction =
-
-Add your content here.
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+=== v0_0_02 ===
+ * SDLoaderをv0_1_12に変更
+=== v0_0_01 ===
+ * 最初のリリース
