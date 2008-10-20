@@ -234,12 +234,12 @@ public class ServletContextImpl implements ServletContext {
 				.getServletContext(), requestURI);
 	}
 
-	public RequestDispatcher getNamedDispatcher(String arg0) {
+	public RequestDispatcher getNamedDispatcher(String servletName) {
 		return null;
 	}
 
 	public String getServerInfo() {
-		return null;
+		return "SDLoader";
 	}
 
 	// /non interface method

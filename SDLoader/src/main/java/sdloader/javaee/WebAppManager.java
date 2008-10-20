@@ -254,7 +254,9 @@ public class WebAppManager {
 					ParserConfigurationException {
 				try {
 					InputStream is = webXmlUrl.openStream();
-					return WebXmlFactory.createWebXml(is);
+					WebXml webxml = WebXmlFactory.createWebXml(is);
+					log.info("load web.xml. Path="+webXmlUrl);
+					return webxml;
 				} catch (Exception ignore) {
 					WebXml webxml = new WebXml();
 					webxml.setWebApp(new WebAppTag());
