@@ -112,6 +112,9 @@ public class SDLoader implements Lifecycle {
 	public SDLoader(int port) {
 		this.port = port;
 	}
+	public SDLoader(boolean autoPortDetect) {
+		this.autoPortDetect = autoPortDetect;
+	}
 
 	public String getConfig(String key) {
 		return (String) config.get(key);

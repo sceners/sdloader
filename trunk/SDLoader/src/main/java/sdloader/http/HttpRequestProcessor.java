@@ -231,6 +231,10 @@ public class HttpRequestProcessor extends Thread {
 		ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(webClassLoader);
 
+		RequestScopeContext requestScopeContext = RequestScopeContext.getContext();
+		requestScopeContext.setRequest(request);
+		requestScopeContext.setResponse(response);
+		
 		// service
 		try {
 			String servletName = mapping.getServletName();
@@ -252,6 +256,7 @@ public class HttpRequestProcessor extends Thread {
 			log.error(ioe.getMessage(), ioe);
 			response.setStatus(HttpConst.SC_INTERNAL_SERVER_ERROR);
 		} finally {
+			RequestScopeContext.destroy();
 			Thread.currentThread().setContextClassLoader(oldLoader);
 		}
 		setDefaultResponseHeader(request, response, requestCount);
