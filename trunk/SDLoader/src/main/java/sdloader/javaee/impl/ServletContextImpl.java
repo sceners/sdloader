@@ -54,7 +54,7 @@ public class ServletContextImpl implements ServletContext {
 
 	private String servletContextName;// コンテキスト名 /で始まるコンテキストディレクトリ名
 
-	private URL docBase;// ドキュメントルート
+	private URL[] docBase;// ドキュメントルート
 
 	private Map<String, Servlet> servletMap;
 
@@ -110,10 +110,16 @@ public class ServletContextImpl implements ServletContext {
 		URL url = null;
 		if(ResourceUtil.isAbsoluteURL(resource)){
 			url = new URL(resource);
+			return ResourceUtil.isResourceExist(url) ? url : null;
 		}else{
-			url = ResourceUtil.createURL(docBase,resource);
+			for(int i = 0;i < docBase.length;i++){
+				url = ResourceUtil.createURL(docBase[i],resource);
+				if(ResourceUtil.isResourceExist(url)){
+					return url;
+				}
+			}
+			return null;
 		}
-		return ResourceUtil.isResourceExist(url) ? url : null;
 	}
 
 	public InputStream getResourceAsStream(String resource) {
@@ -150,7 +156,21 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public String getRealPath(String resource) {
-		URL url = ResourceUtil.createURL(docBase,resource);
+		if(docBase.length==0){
+			URL url = ResourceUtil.createURL(docBase[0],resource);
+			return toRealPath(url);
+		}else{
+			for(int i = 0;i < docBase.length;i++){
+				URL url = ResourceUtil.createURL(docBase[i],resource);
+				if(ResourceUtil.isResourceExist(url)){
+					return toRealPath(url);
+				}
+			}
+			URL url = ResourceUtil.createURL(docBase[0],resource);
+			return toRealPath(url);
+		}
+	}
+	protected String toRealPath(URL url){
 		if(url.getProtocol().startsWith("file")){
 			return url.getFile();
 		}else{
@@ -255,7 +275,7 @@ public class ServletContextImpl implements ServletContext {
 		this.servletContextName = servletContextName;
 	}
 
-	public void setDocBase(URL absoluteContextPath) {
+	public void setDocBase(URL[] absoluteContextPath) {
 		this.docBase = absoluteContextPath;
 	}
 

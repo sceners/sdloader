@@ -26,16 +26,24 @@ import sdloader.util.PathUtils;
 
 public class WebAppContext {
 	
-	private URL docBase;// アプリケーションのドキュメントルート
+	private URL[] docBase;// アプリケーションのドキュメントルート
 	private String contextPath;// アプリケーションのコンテキストパス(/から始まるパス）
 
-	public WebAppContext(final String contextPath,final String dirPath) {
-		this(contextPath,new File(dirPath));
+	public WebAppContext(final String contextPath,final String... dirPath) {
+		docBase = new URL[dirPath.length];
+		for(int i = 0;i < dirPath.length;i++){
+			docBase[i] = PathUtils.file2URL(dirPath[i]);
+		}
+		this.contextPath = PathUtils.appendStartSlashIfNeed(contextPath);
 	}
-	public WebAppContext(final String contextPath,final File dir) {
-		this(contextPath,PathUtils.file2URL(dir));
+	public WebAppContext(final String contextPath,final File... dir) {
+		docBase = new URL[dir.length];
+		for(int i = 0;i < dir.length;i++){
+			docBase[i] = PathUtils.file2URL(dir[i]);
+		}
+		this.contextPath = PathUtils.appendStartSlashIfNeed(contextPath);
 	}	
-	public WebAppContext(final String contextPath,final URL docBase) {
+	public WebAppContext(final String contextPath,final URL... docBase) {		
 		this.docBase = Assertion.notNull(docBase);
 		this.contextPath = PathUtils.appendStartSlashIfNeed(contextPath);
 	}
@@ -43,7 +51,7 @@ public class WebAppContext {
 	public String getContextPath() {
 		return contextPath;
 	}
-	public URL getDocBase() {
+	public URL[] getDocBase() {
 		return docBase;
 	}
 }

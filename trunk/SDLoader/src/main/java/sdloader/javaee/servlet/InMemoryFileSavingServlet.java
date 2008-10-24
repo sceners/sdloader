@@ -52,19 +52,22 @@ public class InMemoryFileSavingServlet extends FileSavingServlet {
 		}
 		
 		if(!uri.endsWith("/")){
-			URL file = ResourceUtil.createURL(docRootPath,uri);
-			
-			if (ResourceUtil.isResourceExist(file)) {
-				outputResource(file, req, res);
-				return;
+			for(int i = 0;i < docRootPath.length;i++){
+				URL file = ResourceUtil.createURL(docRootPath[i],uri);				
+				if (ResourceUtil.isResourceExist(file)) {
+					outputResource(file, req, res);
+					return;
+				}
 			}
 			uri += "/";
-		}		
-		URL dir = ResourceUtil.createURL(docRootPath,uri);
-		if (ResourceUtil.isResourceExist(dir)) {
-			if (welcomeFileListTag != null) {
-				processWelcomeFile(dir, req, res);
-				return;
+		}
+		for(int i = 0;i < docRootPath.length;i++){
+			URL dir = ResourceUtil.createURL(docRootPath[i],uri);
+			if (ResourceUtil.isResourceExist(dir)) {
+				if (welcomeFileListTag != null) {
+					processWelcomeFile(dir, req, res);
+					return;
+				}
 			}
 		}
 		res.setStatus(HttpServletResponse.SC_NOT_FOUND);

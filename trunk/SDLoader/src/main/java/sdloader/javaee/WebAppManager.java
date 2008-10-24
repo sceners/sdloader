@@ -17,7 +17,6 @@ package sdloader.javaee;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -54,10 +53,9 @@ import sdloader.javaee.servlet.WebAppListServlet;
 import sdloader.javaee.webxml.InitParamTag;
 import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.ServletTag;
+import sdloader.javaee.webxml.WebXmlBuilder;
 import sdloader.javaee.webxml.WebAppTag;
 import sdloader.javaee.webxml.WebXml;
-import sdloader.javaee.webxml.WebXmlBuilder;
-import sdloader.javaee.webxml.WebXmlFactory;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.Assertion;
@@ -210,7 +208,7 @@ public class WebAppManager {
 				WebAppContext context = new WebAppContext(contextPath,
 						warDocRoot);
 				addWebAppContext(context);
-				warInmemoryMap.put(context.getDocBase(), map);
+				warInmemoryMap.put(warDocRoot, map);
 			}
 		}
 		// コンテキストXML
@@ -230,14 +228,14 @@ public class WebAppManager {
 	}
 
 	protected void _initWebAppContext(WebAppContext context) throws Exception {
-		final URL docBase = context.getDocBase();
+		final URL[] docBase = context.getDocBase();
 		final String contextPath = context.getContextPath();
 		WebXml webxml = buildWebXml(docBase);
 
 		setDefaultServlet(webxml, docBase, contextPath, isInmemoryExtract);
 		// create WebApplication
 		ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase)
-				: createInMemoryWebAppClassLoader(docBase);
+				: createInMemoryWebAppClassLoader(docBase[0]);
 		WebApplication webapp = new WebApplication(webxml, context,
 				webAppClassLoader, this);
 		this.webAppList.add(webapp);
@@ -245,26 +243,18 @@ public class WebAppManager {
 		log.info("create webapp [" + contextPath + "]");
 	}
 
-	protected WebXml buildWebXml(URL url) throws SAXException,
-			ParserConfigurationException, MalformedURLException {
-		URL webXmlUrl = ResourceUtil.createURL(url, "WEB-INF/web.xml");
-		return new WebXmlBuilder() {
-
-			public WebXml build(final URL webXmlUrl) throws SAXException,
-					ParserConfigurationException {
-				try {
-					InputStream is = webXmlUrl.openStream();
-					WebXml webxml = WebXmlFactory.createWebXml(is);
-					log.info("load web.xml. Path="+webXmlUrl);
-					return webxml;
-				} catch (Exception ignore) {
-					WebXml webxml = new WebXml();
-					webxml.setWebApp(new WebAppTag());
-					return webxml;
-				}
+	protected WebXml buildWebXml(URL[] url) throws SAXException,
+			ParserConfigurationException, IOException, MalformedURLException {
+		for (int i = 0; i < url.length; i++) {
+			URL webXmlUrl = ResourceUtil.createURL(url[i], "WEB-INF/web.xml");
+			if (ResourceUtil.isResourceExist(webXmlUrl)) {
+				return new WebXmlBuilder().build(webXmlUrl);
 			}
-
-		}.build(webXmlUrl);
+		}
+		// default
+		WebXml webxml = new WebXml();
+		webxml.setWebApp(new WebAppTag());
+		return webxml;
 	}
 
 	protected WebApplication getRootWebApplication() {
@@ -290,9 +280,10 @@ public class WebAppManager {
 		URL docBase = PathUtils.file2URL(webappDirPath + "/"
 				+ WebConstants.ROOT_DIR_NAME);
 		if (ResourceUtil.isResourceExist(docBase)) {
-			setDefaultServlet(webXmlTag, docBase, contextPath, false);
+			setDefaultServlet(webXmlTag, new URL[] { docBase }, contextPath,
+					false);
 		}
-		final ClassLoader webAppClassLoader = createWebAppClassLoader(docBase);
+		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase });
 		WebAppContext context = new WebAppContext(contextPath, docBase);
 		final WebApplication webapp = new WebApplication(webXmlTag, context,
 				webAppClassLoader, this);
@@ -307,21 +298,23 @@ public class WebAppManager {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	protected ClassLoader createWebAppClassLoader(URL docBase) {
+	protected ClassLoader createWebAppClassLoader(URL[] docBase) {
 		List<URL> urlList = CollectionsUtil.newArrayList();
 		// classes
-		File docBaseDir = PathUtils.url2File(docBase);
-		File classesDir = new File(docBaseDir, "/WEB-INF/classes/");
-		if (classesDir.exists()) {
-			urlList.add(PathUtils.file2URL(classesDir));
-		}
-		// WEB-INF/lib
-		File webinfLibDir = new File(docBaseDir, "/WEB-INF/lib");
-		URL[] libs = WebUtils.createClassPaths(webinfLibDir,
-				FileFilterUtils.JAR_ZIP_FILEFILTER, false);
-		if (libs != null) {
-			for (int i = 0; i < libs.length; i++) {
-				urlList.add(libs[i]);
+		for (int i = 0; i < docBase.length; i++) {
+			File docBaseDir = PathUtils.url2File(docBase[i]);
+			File classesDir = new File(docBaseDir, "/WEB-INF/classes/");
+			if (classesDir.exists()) {
+				urlList.add(PathUtils.file2URL(classesDir));
+			}
+			// WEB-INF/lib
+			File webinfLibDir = new File(docBaseDir, "/WEB-INF/lib");
+			URL[] libs = WebUtils.createClassPaths(webinfLibDir,
+					FileFilterUtils.JAR_ZIP_FILEFILTER, false);
+			if (libs != null) {
+				for (int j = 0; j < libs.length; j++) {
+					urlList.add(libs[j]);
+				}
 			}
 		}
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
@@ -387,7 +380,7 @@ public class WebAppManager {
 	 *            コンテキストパス
 	 * @param warInMemory
 	 */
-	private void setDefaultServlet(WebXml webxml, URL docBase,
+	private void setDefaultServlet(WebXml webxml, URL[] docBase,
 			String contextPath, boolean warInMemory) {
 
 		if (JASPER_SUPPORT) {
@@ -444,8 +437,15 @@ public class WebAppManager {
 			fileServletTag.setServletClass(FileSavingServlet.class.getName());
 		}
 		fileServletTag.setServletName(fileSavingServletName);
+		String docRoots = "";
+		for (int i = 0; i < docBase.length; i++) {
+			if (i != 0) {
+				docRoots += ",";
+			}
+			docRoots += docBase[i].toExternalForm();
+		}
 		fileServletTag.addInitParam(new InitParamTag(
-				FileSavingServlet.PARAM_DOC_ROOT, docBase.toExternalForm()));
+				FileSavingServlet.PARAM_DOC_ROOT, docRoots));
 		ServletMappingTag mappingTag = new ServletMappingTag();
 		mappingTag.setServletName(fileSavingServletName);
 		mappingTag.setUrlPattern("/*");

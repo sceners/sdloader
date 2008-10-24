@@ -278,6 +278,9 @@ public class HttpRequestProcessor extends Thread {
 		request.setRemoteHost(socket.getInetAddress().getHostName());
 
 		request.setScheme("http");
+		
+		request.setUriEncoding(sdLoader.getConfig(HttpRequest.KEY_REQUEST_URI_ENCODING));
+		
 		return request;
 	}
 
