@@ -56,9 +56,9 @@ import sdloader.javaee.servlet.WebAppListServlet;
 import sdloader.javaee.webxml.InitParamTag;
 import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.ServletTag;
-import sdloader.javaee.webxml.WebXmlBuilder;
 import sdloader.javaee.webxml.WebAppTag;
 import sdloader.javaee.webxml.WebXml;
+import sdloader.javaee.webxml.WebXmlBuilder;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.Assertion;
@@ -227,9 +227,9 @@ public class WebAppManager {
 		for (WebAppContext context : webAppContextList) {
 			_initWebAppContext(context);
 		}
-		this.webAppList.add(getRootWebApplication());		
-		//コンテキストパスの長い順にソート
-		Collections.sort(webAppList,new Comparator<WebApplication>(){
+		this.webAppList.add(getRootWebApplication());
+		// コンテキストパスの長い順にソート
+		Collections.sort(webAppList, new Comparator<WebApplication>() {
 			public int compare(WebApplication o1, WebApplication o2) {
 				return o2.getContextPath().compareTo(o1.getContextPath());
 			}
@@ -536,12 +536,20 @@ public class WebAppManager {
 	 * @param requestURI
 	 * @return 該当するWebAppがない場合、null
 	 */
-	public WebApplication findWebApp(String requestURI) {
+	public WebApplication findWebApp(final String requestURI) {
 		for (Iterator<WebApplication> itr = getWebAppList().iterator(); itr
 				.hasNext();) {
 			WebApplication webapp = itr.next();
-			if (requestURI.startsWith(webapp.getContextPath())){
+			String contextPath = webapp.getContextPath();
+			if (requestURI.equals(contextPath)) {
 				return webapp;
+			}
+			if (requestURI.startsWith(contextPath)) {
+				String contextStripPath = requestURI.substring(contextPath
+						.length());
+				if (contextStripPath.startsWith("/")) {
+					return webapp;
+				}
 			}
 		}
 		return null;

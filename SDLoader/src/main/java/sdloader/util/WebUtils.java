@@ -221,7 +221,8 @@ public class WebUtils {
 	}
 
 	/**
-	 * リクエストURI中のコンテキストパス以外の部分を返します。 resoucePath = servletpath + pathinfo
+	 * リクエストURI中のコンテキストパス以外の部分を返します.
+	 * resoucePath = servletpath + pathinfo
 	 * 
 	 * @param requestURI
 	 * @return resourcePath
