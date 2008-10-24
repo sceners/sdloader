@@ -30,9 +30,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 
 import sdloader.SDLoader;
-import sdloader.javaee.JavaEEConstants;
 import sdloader.javaee.ServletMapping;
 import sdloader.javaee.WebApplication;
+import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.javaee.impl.FilterChainImpl;
 import sdloader.javaee.impl.HttpServletRequestImpl;
 import sdloader.javaee.impl.HttpServletResponseImpl;
@@ -173,43 +173,35 @@ public class HttpRequestProcessor extends Thread {
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
 
 		String requestURI = header.getRequestURI();
-		String resourcePath = WebUtils.getResourcePath(requestURI);
-		String contextPath = WebUtils.getContextPath(requestURI);
-		WebApplication webapp = sdLoader.getWebAppManager().findWebApp(
-				contextPath);
-
-		if (webapp != null) {
-			// contextpathだけのパターン (/testのようなパターン）の場合、contextpathに/をつけてリダイレクト
-			if (!requestURI.equals("/") && resourcePath == null) {
-				response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
-				resourcePath = requestURI + "/";
-				String host = request.getHeader(HttpConst.HOST);
-				if (host == null){
-					host = request.getLocalName() + ":"
-							+ request.getLocalPort();
-				}
-				String scheme = request.getScheme();
-				response
-						.addHeader(HttpConst.LOCATION, WebUtils
-								.buildRequestURL(scheme, host, resourcePath)
-								.toString());
-				processDataOutput(response, os);
-				return header.isKeepAlive();
-			}
-		}
-		// 処理するwebappがない場合、デフォルトのwebappで処理
-		if (webapp == null) {
-			contextPath = "/";
-			resourcePath = requestURI;
-			webapp = sdLoader.getWebAppManager().findWebApp(contextPath);
-		}
+		WebApplication webapp = sdLoader.getWebAppManager().findWebApp(requestURI);
 		// デフォルトもなければ404
 		if (webapp == null) {
 			response.setStatus(HttpConst.SC_NOT_FOUND);
 			setDefaultResponseHeader(request, response, requestCount);
 			processDataOutput(response, os);
 			return header.isKeepAlive();
+		}		
+
+		String contextPath = webapp.getContextPath();
+		String resourcePath = WebUtils.getResourcePath(contextPath,requestURI);
+		// contextpathだけのパターン (/testのようなパターン）の場合、contextpathに/をつけてリダイレクト
+		if (!requestURI.equals("/") && resourcePath == null) {
+			response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
+			resourcePath = requestURI + "/";
+			String host = request.getHeader(HttpConst.HOST);
+			if (host == null){
+				host = request.getLocalName() + ":"
+						+ request.getLocalPort();
+			}
+			String scheme = request.getScheme();
+			response
+					.addHeader(HttpConst.LOCATION, WebUtils
+							.buildRequestURL(scheme, host, resourcePath)
+							.toString());
+			processDataOutput(response, os);
+			return header.isKeepAlive();
 		}
+
 		ServletMapping mapping = webapp.findServletMapping(resourcePath);
 		Servlet servlet = null;
 		if (mapping == null) {

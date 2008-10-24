@@ -23,6 +23,8 @@ import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +48,7 @@ import sdloader.internal.resource.ResourceBuilderImpl;
 import sdloader.internal.resource.ResourceURLConnection;
 import sdloader.javaee.classloader.BytesBasedClassLoader;
 import sdloader.javaee.classloader.WebAppClassLoader;
+import sdloader.javaee.constants.WebConstants;
 import sdloader.javaee.jasper.InMemoryEmbeddedServletOptions;
 import sdloader.javaee.servlet.FileSavingServlet;
 import sdloader.javaee.servlet.InMemoryFileSavingServlet;
@@ -224,7 +227,13 @@ public class WebAppManager {
 		for (WebAppContext context : webAppContextList) {
 			_initWebAppContext(context);
 		}
-		this.webAppList.add(getRootWebApplication());
+		this.webAppList.add(getRootWebApplication());		
+		//コンテキストパスの長い順にソート
+		Collections.sort(webAppList,new Comparator<WebApplication>(){
+			public int compare(WebApplication o1, WebApplication o2) {
+				return o2.getContextPath().compareTo(o1.getContextPath());
+			}
+		});
 	}
 
 	protected void _initWebAppContext(WebAppContext context) throws Exception {
@@ -524,15 +533,16 @@ public class WebAppManager {
 	/**
 	 * コンテキストパスに対するWebAppを検索します。
 	 * 
-	 * @param contextPath
+	 * @param requestURI
 	 * @return 該当するWebAppがない場合、null
 	 */
-	public WebApplication findWebApp(String contextPath) {
+	public WebApplication findWebApp(String requestURI) {
 		for (Iterator<WebApplication> itr = getWebAppList().iterator(); itr
 				.hasNext();) {
 			WebApplication webapp = itr.next();
-			if (webapp.getContextPath().equals(contextPath))
+			if (requestURI.startsWith(webapp.getContextPath())){
 				return webapp;
+			}
 		}
 		return null;
 	}

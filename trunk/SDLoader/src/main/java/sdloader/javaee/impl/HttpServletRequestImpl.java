@@ -449,10 +449,15 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 	
 	public void setUriEncoding(String uriEncoding) {
-		this.uriEncoding = uriEncoding;
+		if(uriEncoding != null){
+			this.uriEncoding = uriEncoding;
+		}
 	}
 	
 	protected String decodeURI(String path){
+		if(path==null){
+			return null;
+		}
 		try{
 			return URLDecoder.decode(path,uriEncoding);
 		}catch(UnsupportedEncodingException e){
