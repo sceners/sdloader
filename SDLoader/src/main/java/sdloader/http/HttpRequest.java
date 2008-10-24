@@ -37,6 +37,12 @@ public class HttpRequest {
 	public static final String KEY_REQUEST_USE_BODY_ENCODE_FOR_URI = SDLoader.CONFIG_KEY_PREFIX
 			+ "request.useBodyEncodeForURI";
 
+	/**
+	 * URIをエンコードするエンコード
+	 */
+	public static final String KEY_REQUEST_URI_ENCODING = SDLoader.CONFIG_KEY_PREFIX
+			+ "request.uriEncoding";
+	
 	private HttpInput input;
 
 	private HttpRequestHeader header;

@@ -94,7 +94,7 @@ public class WebApplication {
 		return webAppContext;
 	}
 
-	public URL getDocBase() {
+	public URL[] getDocBase() {
 		return getWebAppContext().getDocBase();
 	}
 

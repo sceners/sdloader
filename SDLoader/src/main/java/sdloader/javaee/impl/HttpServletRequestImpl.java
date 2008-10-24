@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Enumeration;
@@ -88,7 +89,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private HttpRequest httpRequest;
 
 	private ServletContext servletContext;
-
+	
+	private String uriEncoding = "ISO-8859-1";
+	
 	public HttpServletRequestImpl(HttpRequest httpRequest) {
 		this.httpRequest = httpRequest;
 	}
@@ -217,7 +220,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			requestURL = WebUtils.buildRequestURL(getScheme(), getLocalName(),
 					getServerPort(), getRequestURI());
 		}
-		return requestURL;
+		return new StringBuffer(decodeURI(requestURL.toString()));
 	}
 
 	public Cookie[] getCookies() {
@@ -258,11 +261,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getRequestURI() {
-		return httpRequest.getHeader().getRequestURI();
+		return decodeURI(httpRequest.getHeader().getRequestURI());
 	}
 
 	public String getServletPath() {
-		return servletPath;
+		return decodeURI(servletPath);
 	}
 
 	public String getScheme() {
@@ -328,7 +331,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getPathInfo() {
-		return pathInfo;
+		return decodeURI(pathInfo);
 	}
 
 	public boolean isSecure() {
@@ -443,5 +446,17 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public void setLocalName(String localName) {
 		this.localName = localName;
+	}
+	
+	public void setUriEncoding(String uriEncoding) {
+		this.uriEncoding = uriEncoding;
+	}
+	
+	protected String decodeURI(String path){
+		try{
+			return URLDecoder.decode(path,uriEncoding);
+		}catch(UnsupportedEncodingException e){
+			throw new IllegalStateException(e);
+		}
 	}
 }

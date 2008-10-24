@@ -112,6 +112,7 @@ public class SDLoader implements Lifecycle {
 	public SDLoader(int port) {
 		this.port = port;
 	}
+
 	public SDLoader(boolean autoPortDetect) {
 		this.autoPortDetect = autoPortDetect;
 	}
@@ -157,10 +158,11 @@ public class SDLoader implements Lifecycle {
 		this.autoPortDetect = autoPortDetect;
 	}
 
-	public WebAppManager getWebAppManager() {
-		return webAppManager;
-	}
-
+	/**
+	 * Webアプリケーションコンテキストを追加します。
+	 * 
+	 * @param context
+	 */
 	public void addWebAppContext(WebAppContext context) {
 		if (webAppManager.isInitialized()) {
 			throw new RuntimeException("WebAppManager already initialized.");
@@ -222,8 +224,18 @@ public class SDLoader implements Lifecycle {
 		this.serverName = serverName;
 	}
 
+	/**
+	 * イベントリスナーを追加します。
+	 * 
+	 * @param type
+	 * @param listener
+	 */
 	public void addEventListener(String type, LifecycleListener listener) {
 		dispatcher.addEventListener(type, listener);
+	}
+
+	public boolean isRunning() {
+		return isRunnnig;
 	}
 
 	/**
@@ -258,31 +270,6 @@ public class SDLoader implements Lifecycle {
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.AFTER_START, this));
-	}
-
-	/**
-	 * ソケットを閉じ、サーバを終了します。
-	 */
-	public void stop() {
-		if (!isRunnnig) {
-			return;
-		}
-
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
-				LifecycleEvent.BEFORE_STOP, this));
-
-		// destroy webapps
-		webAppManager.close();
-		// close socket
-		try {
-			sdLoaderThread.close();
-		} catch (IOException ioe) {
-			log.error(ioe);
-		}
-		isRunnnig = false;
-
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
-				LifecycleEvent.AFTER_STOP, this));
 	}
 
 	protected void initConfig() {
@@ -390,6 +377,10 @@ public class SDLoader implements Lifecycle {
 		});
 	}
 
+	public WebAppManager getWebAppManager() {
+		return webAppManager;
+	}
+
 	public void returnProcessor(HttpRequestProcessor processor) {
 		socketProcessorPool.returnProcessor(processor);
 	}
@@ -434,7 +425,28 @@ public class SDLoader implements Lifecycle {
 		}
 	}
 
-	public boolean isRunning() {
-		return isRunnnig;
+	/**
+	 * ソケットを閉じ、サーバを終了します。
+	 */
+	public void stop() {
+		if (!isRunnnig) {
+			return;
+		}
+
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+				LifecycleEvent.BEFORE_STOP, this));
+
+		// destroy webapps
+		webAppManager.close();
+		// close socket
+		try {
+			sdLoaderThread.close();
+		} catch (IOException ioe) {
+			log.error(ioe);
+		}
+		isRunnnig = false;
+
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+				LifecycleEvent.AFTER_STOP, this));
 	}
 }

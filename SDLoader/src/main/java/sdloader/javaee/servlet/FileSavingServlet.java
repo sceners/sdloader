@@ -58,32 +58,35 @@ public class FileSavingServlet extends HttpServlet {
 	/**
 	 * ドキュメントルート（絶対パス）
 	 */
-	protected URL docRootPath;
+	protected URL[] docRootPath;
 
 	protected Map<String, String> mimeTypeMap = CollectionsUtil.newHashMap();
 
 	protected WelcomeFileListTag welcomeFileListTag;
-	
+
 	protected WebApplication webApp;
-	
+
 	public FileSavingServlet() {
 		super();
 
 	}
 
 	public void init() throws ServletException {
-		String docRootStr = getInitParameter(PARAM_DOC_ROOT); 
-		if ( docRootStr == null)
+		String docRootStr = getInitParameter(PARAM_DOC_ROOT);
+		if (docRootStr == null)
 			throw new ServletException("InitParameter [docRootPath] not found.");
-		
-		this.docRootPath = ResourceUtil.createURL(docRootStr);
-
+		String[] paths = docRootStr.split(",");
+		this.docRootPath = new URL[paths.length];
+		for (int i = 0; i < paths.length; i++) {
+			docRootPath[i] = ResourceUtil.createURL(paths[i]);
+		}
 		// load mimetype
 		initMime();
 
 		ServletContextImpl servletContext = (ServletContextImpl) getServletContext();
 		webApp = servletContext.getWebApplication();
-		welcomeFileListTag = webApp.getWebXml().getWebApp().getWelcomeFileList();
+		welcomeFileListTag = webApp.getWebXml().getWebApp()
+				.getWelcomeFileList();
 	}
 
 	/**
@@ -132,13 +135,20 @@ public class FileSavingServlet extends HttpServlet {
 			res.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-
-		File fileOrDir = PathUtils.url2File(this.docRootPath.toExternalForm()+uri);
-		if (!fileOrDir.exists()) {
+		File fileOrDir = null;
+		for (int i = 0; i < docRootPath.length; i++) {
+			File testFile = PathUtils.url2File(this.docRootPath[i]
+					.toExternalForm()
+					+ uri);
+			if (testFile.exists()) {
+				fileOrDir = testFile;
+				break;
+			}
+		}
+		if (fileOrDir == null) {
 			res.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-
 		if (fileOrDir.isFile()) {
 			File file = fileOrDir;
 			outputFile(file, req, res);
@@ -165,8 +175,9 @@ public class FileSavingServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	protected void processWelcomeFile(final URL dir,final HttpServletRequest req,
-			final HttpServletResponse res) throws ServletException, IOException {
+	protected void processWelcomeFile(final URL dir,
+			final HttpServletRequest req, final HttpServletResponse res)
+			throws ServletException, IOException {
 		String basePath = req.getPathInfo();
 		if (!basePath.endsWith("/"))
 			basePath += "/";
@@ -192,11 +203,11 @@ public class FileSavingServlet extends HttpServlet {
 				}
 			}
 			// find file
-			URL welcomeFile = ResourceUtil.createURL(dir,welcomefileName);
+			URL welcomeFile = ResourceUtil.createURL(dir, welcomefileName);
 			if (ResourceUtil.isResourceExist(welcomeFile)) {
 				context.getRequestDispatcher(path).forward(req, res);
 				return;
-			}			
+			}
 		}
 		res.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		return;
