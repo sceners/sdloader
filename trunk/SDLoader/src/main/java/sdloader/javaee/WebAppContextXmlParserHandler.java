@@ -16,6 +16,7 @@
 package sdloader.javaee;
 
 import java.io.File;
+import java.net.URL;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -62,23 +63,36 @@ public class WebAppContextXmlParserHandler extends DefaultHandler {
 			log.error("docBase attribute not found. file=" + fileName);
 			return;
 		}
-		if (contextPath == null)
+		if (contextPath == null){
 			contextPath = contextPathFromFileName();
-
-		docBase = TextFormatUtil.formatTextBySystemProperties(docBase);
-		contextPath = TextFormatUtil.formatTextBySystemProperties(contextPath);
-		docBase = docBase.replace('\\', '/');
-		if (docBase.startsWith(".")) {// 相対パスの場合、webappsまでのパスを追加
-			docBase = webAppDirPath + "/" + docBase;
 		}
-		if (!new File(docBase).exists()) {
-			log.error("docBase not exist. file=" + fileName + " contextPath="
-					+ contextPath + " docBase=" + docBase);
-			return;
+		contextPath = TextFormatUtil.formatTextBySystemProperties(contextPath);
+		
+		docBase = TextFormatUtil.formatTextBySystemProperties(docBase);
+		String[] bases = docBase.replace('\\', '/').split(",");
+		URL[] baseURLs = new URL[bases.length];
+		
+		for(int i = 0;i < bases.length;i++){
+			String base = bases[i];
+			if (base.startsWith(".")) {// 相対パスの場合、webappsまでのパスを追加
+				base = webAppDirPath + "/" + base;
+			}
+			File baseDir = new File(base); 
+			if (!baseDir.exists()) {
+				log.error("docBase not exist. file=" + fileName + " contextPath="
+						+ contextPath + " docBase=" + base);
+				return;
+			}
+			if (baseDir.isFile()) {
+				log.error("docBase is File path. file=" + fileName + " contextPath="
+						+ contextPath + " docBase=" + base);
+			}
+			baseURLs[i] = PathUtils.file2URL(base);
 		}
 		log.info("detect webapp context. contextPath=" + contextPath
-				+ " docBase=" + docBase);
-		webAppContext = new WebAppContext(contextPath, PathUtils.file2URL(docBase));
+					+ " docBase=" + docBase);
+		
+		webAppContext = new WebAppContext(contextPath,baseURLs);
 	}
 
 	protected String contextPathFromFileName() {
