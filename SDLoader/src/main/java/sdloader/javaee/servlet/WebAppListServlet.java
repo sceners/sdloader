@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import sdloader.javaee.WebApplication;
-import sdloader.javaee.WebConstants;
+import sdloader.javaee.constants.WebConstants;
 import sdloader.javaee.impl.ServletContextImpl;
 
 

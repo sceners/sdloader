@@ -174,29 +174,6 @@ public class WebUtils {
 		}
 		return (URL[]) urlList.toArray(new URL[] {});
 	}
-
-	/**
-	 * リクエストURI中のコンテキストパス部分を返します。 requestURI = contextPath + servletPath +
-	 * pathInfo
-	 * 
-	 * @param requestURI
-	 * @return contextPath
-	 */
-	public static String getContextPath(String requestURI) {
-		if (requestURI == null)
-			return null;
-
-		if (requestURI.startsWith("/")) {
-			if (requestURI.indexOf("/", 1) != -1) {
-				String contextPath = requestURI.substring(0, requestURI
-						.indexOf("/", 1));
-				return contextPath;
-			}
-			return requestURI;
-		}
-		return null;
-	}
-
 	/**
 	 * リクエストURI中のコンテキストパス以外の部分を返します。 resoucePath = servletpath + pathinfo
 	 * ただし、requestURIが"/"の場合(ルートアプリケーション）のみ、"/"を返します。
@@ -204,20 +181,18 @@ public class WebUtils {
 	 * @param requestURI
 	 * @return resourcePath
 	 */
-	public static String getResourcePath(String requestURI) {
+	public static String getResourcePath(String contextPath,String requestURI) {		
 		if (requestURI == null)
 			return null;
 		if (requestURI.equals("/")) {
 			return "/";
 		}
-
-		if (requestURI.startsWith("/") && requestURI.length() > 1
-				&& requestURI.indexOf("/", 1) >= 1) {
-			String servletPath = requestURI.substring(requestURI
-					.indexOf("/", 1), requestURI.length());
+		if(contextPath.equals(requestURI)){
+			return null;
+		}else{
+			String servletPath = requestURI.substring(contextPath.length(), requestURI.length());
 			return servletPath;
 		}
-		return null;
 	}
 
 	/**

@@ -28,7 +28,7 @@ import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
 import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
-import sdloader.javaee.WebConstants;
+import sdloader.javaee.constants.WebConstants;
 import sdloader.lifecycle.Lifecycle;
 import sdloader.lifecycle.LifecycleEvent;
 import sdloader.lifecycle.LifecycleListener;
@@ -157,7 +157,14 @@ public class SDLoader implements Lifecycle {
 	public void setAutoPortDetect(boolean autoPortDetect) {
 		this.autoPortDetect = autoPortDetect;
 	}
-
+	/**
+	 * ポートを外部からの接続に応答するようにするかどうかをセットします。
+	 * @param useOutSizePort
+	 */
+	public void setUseOutSidePort(boolean useOutSizePort){
+		setConfig(KEY_SDLOADER_USE_OUTSIDE_PORT,Boolean.toString(useOutSizePort));
+	}
+	
 	/**
 	 * Webアプリケーションコンテキストを追加します。
 	 * 

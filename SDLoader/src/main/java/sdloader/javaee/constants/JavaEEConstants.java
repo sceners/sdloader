@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.javaee;
+package sdloader.javaee.constants;
 
 /**
  * JavaEEで定義されている定数.

@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import sdloader.exception.NotImplementedYetException;
-import sdloader.javaee.JavaEEConstants;
+import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.util.CollectionsUtil;
 
 /**

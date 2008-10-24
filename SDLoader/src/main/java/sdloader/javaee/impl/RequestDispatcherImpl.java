@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import sdloader.javaee.JavaEEConstants;
 import sdloader.javaee.ServletMapping;
+import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.util.WebUtils;
 
 /**
@@ -45,6 +45,7 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 	private List<Filter> forwardFilterList;
 	private List<Filter> includeFilterList;
 	private ServletMapping dispatchServletMapping;
+	private String contextPath;
 	/** dispatch先のURI(コンテキストパス、クエリー込みのURI） */
 	private String requestURI;
 	private String queryString;
@@ -52,12 +53,15 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 	RequestDispatcherImpl(ServletMapping dispatchServletMapping,
 			Servlet dispatchServlet, List<Filter> forwardFilterList,
 			List<Filter> includeFilterList,
-			ServletContext dispatchServletContext, String dispatchURI) {
+			ServletContext dispatchServletContext, 
+			String contextPath,
+			String dispatchURI) {
 		this.dispatchServletContext = dispatchServletContext;
 		this.dispatchServletMapping = dispatchServletMapping;
 		this.dispatchServlet = dispatchServlet;
 		this.forwardFilterList = forwardFilterList;
 		this.includeFilterList = includeFilterList;
+		this.contextPath = contextPath;
 		this.requestURI = WebUtils.stripQueryPart(dispatchURI);
 		this.queryString = WebUtils.getQueryPart(dispatchURI);
 	}
@@ -90,8 +94,7 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 					JavaEEConstants.JAVAX_FORWARD_QUERY_STRING, firstRequest
 							.getQueryString());
 		}
-		String contextPath = WebUtils.getContextPath(requestURI);
-		String resourcePath = WebUtils.getResourcePath(requestURI);
+		String resourcePath = WebUtils.getResourcePath(contextPath,requestURI);
 		String servletPath = WebUtils.getServletPath(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
 		String pathInfo = WebUtils.getPathInfo(dispatchServletMapping
@@ -118,8 +121,7 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 		IncludeResponseWrapper responseWrapper = new IncludeResponseWrapper(
 				(HttpServletResponse) response);
 
-		String contextPath = WebUtils.getContextPath(requestURI);
-		String resourcePath = WebUtils.getResourcePath(requestURI);
+		String resourcePath = WebUtils.getResourcePath(contextPath,requestURI);
 		String servletPath = WebUtils.getServletPath(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
 		String pathInfo = WebUtils.getPathInfo(dispatchServletMapping

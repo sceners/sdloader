@@ -30,9 +30,9 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
-import sdloader.javaee.JavaEEConstants;
 import sdloader.javaee.ServletMapping;
 import sdloader.javaee.WebApplication;
+import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;
@@ -251,7 +251,7 @@ public class ServletContextImpl implements ServletContext {
 		String requestURI = PathUtils.jointPathWithSlash(contextPath,requestPath);
 		
 		return new RequestDispatcherImpl(mapping, servlet,forwardFilters,includeFilters, webapp
-				.getServletContext(), requestURI);
+				.getServletContext(),contextPath, requestURI);
 	}
 
 	public RequestDispatcher getNamedDispatcher(String servletName) {
