@@ -8,6 +8,7 @@ HttpServletRequestからパスを取る部分をURIDecoderでコードするよ�
 その際の文字エンコードを、HttpRequest.sdloader.http.HttpRequest.KEY_REQUEST_URI_ENCODINGで指定できるようにした。
 デフォルトはISO-8859-1を使用。
 
+HttpRequest.KEY_REQUEST_USE_BODY_ENCODE_FOR_URIをKEY_REQUEST_USE_BODY_ENCODEING_FOR_URIに修正
 
 v0_1_13
 SDLoaderのコンストラクタ引数にポートを自動取得するかどうかのフラグを渡せるコンストラクタを追加。
