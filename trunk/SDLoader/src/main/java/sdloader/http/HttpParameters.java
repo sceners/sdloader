@@ -65,7 +65,7 @@ public class HttpParameters {
 			encode = loader.getConfig(HttpRequest.KEY_REQUEST_DEFAULT_ENCODE,
 					encode);
 			useBodyEncode = BooleanUtil.toBoolean(loader.getConfig(
-					HttpRequest.KEY_REQUEST_USE_BODY_ENCODE_FOR_URI, String
+					HttpRequest.KEY_REQUEST_USE_BODY_ENCODEING_FOR_URI, String
 							.valueOf(useBodyEncode)));
 
 		}

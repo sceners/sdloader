@@ -34,14 +34,14 @@ public class HttpRequest {
 	/**
 	 * GETパラメータにBODYのエンコードを適用するかどうかを指定するキー
 	 */
-	public static final String KEY_REQUEST_USE_BODY_ENCODE_FOR_URI = SDLoader.CONFIG_KEY_PREFIX
-			+ "request.useBodyEncodeForURI";
+	public static final String KEY_REQUEST_USE_BODY_ENCODEING_FOR_URI = SDLoader.CONFIG_KEY_PREFIX
+			+ "request.useBodyEncodingURI";
 
 	/**
 	 * URIをエンコードするエンコード
 	 */
 	public static final String KEY_REQUEST_URI_ENCODING = SDLoader.CONFIG_KEY_PREFIX
-			+ "request.uriEncoding";
+			+ "request.URIEncoding";
 	
 	private HttpInput input;
 

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sdloader.event.EventDispatcher;
+import sdloader.http.HttpRequest;
 import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
 import sdloader.javaee.WebAppContext;
@@ -116,6 +117,8 @@ public class SDLoader implements Lifecycle {
 	public SDLoader(boolean autoPortDetect) {
 		this.autoPortDetect = autoPortDetect;
 	}
+	
+	//----Configuration
 
 	public String getConfig(String key) {
 		return (String) config.get(key);
@@ -137,17 +140,6 @@ public class SDLoader implements Lifecycle {
 			config.put(key, defaultValue);
 		}
 	}
-
-	/**
-	 * ポートが使用中の場合、使用できるポートを探すかどうかを返します。
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public boolean isAutoPortDetect() {
-		return autoPortDetect;
-	}
-
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうかをセットします。
 	 * 
@@ -157,12 +149,64 @@ public class SDLoader implements Lifecycle {
 	public void setAutoPortDetect(boolean autoPortDetect) {
 		this.autoPortDetect = autoPortDetect;
 	}
+	
 	/**
 	 * ポートを外部からの接続に応答するようにするかどうかをセットします。
 	 * @param useOutSizePort
 	 */
 	public void setUseOutSidePort(boolean useOutSizePort){
 		setConfig(KEY_SDLOADER_USE_OUTSIDE_PORT,Boolean.toString(useOutSizePort));
+	}
+	/**
+	 * 最大スレッドプール数を設定します。 open前にセットしてください。
+	 * 
+	 * @param maxThreadPoolNum
+	 */
+	public void setMaxThreadPoolNum(int maxThreadPoolNum) {
+		this.maxThreadPoolNum = maxThreadPoolNum;
+	}
+	/**
+	 * URIのエンコードをセットします。
+	 * @param encoding
+	 */
+	public void setURIEncoding(String uriEncoding){
+		setConfig(HttpRequest.KEY_REQUEST_URI_ENCODING,uriEncoding);
+	}
+	/**
+	 * trueの場合、Body部分のエンコードをGETパラメータにも適用します。
+	 * @param encoding
+	 */
+	public void setuseBodyEncodingURI(boolean useBodyEncodingForURI){
+		setConfig(HttpRequest.KEY_REQUEST_USE_BODY_ENCODEING_FOR_URI,Boolean.toString(useBodyEncodingForURI));
+	}	
+	
+	/**
+	 * Listenするポート番号を設定します。 open前にセットしてください。
+	 * 
+	 * @param port
+	 */
+	public void setPort(int port) {
+		this.port = port;
+	}	
+	/**
+	 * サーバ名を設定します。レスポンスのServerヘッダーに この名前が入ります。
+	 * 
+	 * @param serverName
+	 */
+	public void setServerName(String serverName) {
+		this.serverName = serverName;
+	}
+	
+	
+	
+	/**
+	 * ポートが使用中の場合、使用できるポートを探すかどうかを返します。
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean isAutoPortDetect() {
+		return autoPortDetect;
 	}
 	
 	/**
@@ -176,7 +220,6 @@ public class SDLoader implements Lifecycle {
 		}
 		webAppManager.addWebAppContext(context);
 	}
-
 	/**
 	 * 最大プールスレッド数を返します。
 	 * 
@@ -185,16 +228,6 @@ public class SDLoader implements Lifecycle {
 	public int getMaxThreadPoolNum() {
 		return maxThreadPoolNum;
 	}
-
-	/**
-	 * 最大スレッドプール数を設定します。 open前にセットしてください。
-	 * 
-	 * @param maxThreadPoolNum
-	 */
-	public void setMaxThreadPoolNum(int maxThreadPoolNum) {
-		this.maxThreadPoolNum = maxThreadPoolNum;
-	}
-
 	/**
 	 * Listenするポート番号を返します。
 	 * 
@@ -203,16 +236,6 @@ public class SDLoader implements Lifecycle {
 	public int getPort() {
 		return port;
 	}
-
-	/**
-	 * Listenするポート番号を設定します。 open前にセットしてください。
-	 * 
-	 * @param port
-	 */
-	public void setPort(int port) {
-		this.port = port;
-	}
-
 	/**
 	 * サーバ名を返します。
 	 * 
@@ -221,16 +244,6 @@ public class SDLoader implements Lifecycle {
 	public String getServerName() {
 		return serverName;
 	}
-
-	/**
-	 * サーバ名を設定します。レスポンスのServerヘッダーに この名前が入ります。
-	 * 
-	 * @param serverName
-	 */
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
-	}
-
 	/**
 	 * イベントリスナーを追加します。
 	 * 
