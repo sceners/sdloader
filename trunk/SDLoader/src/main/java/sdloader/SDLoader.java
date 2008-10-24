@@ -176,7 +176,7 @@ public class SDLoader implements Lifecycle {
 	 * trueの場合、Body部分のエンコードをGETパラメータにも適用します。
 	 * @param encoding
 	 */
-	public void setuseBodyEncodingURI(boolean useBodyEncodingForURI){
+	public void setUseBodyEncodingURI(boolean useBodyEncodingForURI){
 		setConfig(HttpRequest.KEY_REQUEST_USE_BODY_ENCODEING_FOR_URI,Boolean.toString(useBodyEncodingForURI));
 	}	
 	
