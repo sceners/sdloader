@@ -17,6 +17,7 @@ package sdloader;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.AccessControlException;
@@ -27,6 +28,7 @@ import sdloader.event.EventDispatcher;
 import sdloader.http.HttpRequest;
 import sdloader.http.HttpRequestProcessor;
 import sdloader.http.HttpRequestProcessorPool;
+import sdloader.http.HttpResponse;
 import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
 import sdloader.javaee.constants.WebConstants;
@@ -73,8 +75,6 @@ public class SDLoader implements Lifecycle {
 
 	private int maxThreadPoolNum = 4;
 
-	private int backLogNum = -1;// -1でデフォルト値を使用する
-
 	private int port = 30000;
 
 	public static boolean isRunnnig = false;
@@ -117,8 +117,8 @@ public class SDLoader implements Lifecycle {
 	public SDLoader(boolean autoPortDetect) {
 		this.autoPortDetect = autoPortDetect;
 	}
-	
-	//----Configuration
+
+	// ----Configuration
 
 	public String getConfig(String key) {
 		return (String) config.get(key);
@@ -140,6 +140,7 @@ public class SDLoader implements Lifecycle {
 			config.put(key, defaultValue);
 		}
 	}
+
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうかをセットします。
 	 * 
@@ -149,14 +150,17 @@ public class SDLoader implements Lifecycle {
 	public void setAutoPortDetect(boolean autoPortDetect) {
 		this.autoPortDetect = autoPortDetect;
 	}
-	
+
 	/**
 	 * ポートを外部からの接続に応答するようにするかどうかをセットします。
+	 * 
 	 * @param useOutSizePort
 	 */
-	public void setUseOutSidePort(boolean useOutSizePort){
-		setConfig(KEY_SDLOADER_USE_OUTSIDE_PORT,Boolean.toString(useOutSizePort));
+	public void setUseOutSidePort(boolean useOutSizePort) {
+		setConfig(KEY_SDLOADER_USE_OUTSIDE_PORT, Boolean
+				.toString(useOutSizePort));
 	}
+
 	/**
 	 * 最大スレッドプール数を設定します。 open前にセットしてください。
 	 * 
@@ -165,21 +169,31 @@ public class SDLoader implements Lifecycle {
 	public void setMaxThreadPoolNum(int maxThreadPoolNum) {
 		this.maxThreadPoolNum = maxThreadPoolNum;
 	}
+
 	/**
 	 * URIのエンコードをセットします。
+	 * 
 	 * @param encoding
 	 */
-	public void setURIEncoding(String uriEncoding){
-		setConfig(HttpRequest.KEY_REQUEST_URI_ENCODING,uriEncoding);
+	public void setURIEncoding(String uriEncoding) {
+		setConfig(HttpRequest.KEY_REQUEST_URI_ENCODING, uriEncoding);
 	}
+
 	/**
 	 * trueの場合、Body部分のエンコードをGETパラメータにも適用します。
+	 * 
 	 * @param encoding
 	 */
-	public void setUseBodyEncodingURI(boolean useBodyEncodingForURI){
-		setConfig(HttpRequest.KEY_REQUEST_USE_BODY_ENCODEING_FOR_URI,Boolean.toString(useBodyEncodingForURI));
-	}	
-	
+	public void setUseBodyEncodingURI(boolean useBodyEncodingForURI) {
+		setConfig(HttpRequest.KEY_REQUEST_USE_BODY_ENCODEING_FOR_URI, Boolean
+				.toString(useBodyEncodingForURI));
+	}
+
+	public void setUseNoCacheMode(boolean useNoCacheMode) {
+		setConfig(HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE, Boolean
+				.toString(useNoCacheMode));
+	}
+
 	/**
 	 * Listenするポート番号を設定します。 open前にセットしてください。
 	 * 
@@ -187,7 +201,8 @@ public class SDLoader implements Lifecycle {
 	 */
 	public void setPort(int port) {
 		this.port = port;
-	}	
+	}
+
 	/**
 	 * サーバ名を設定します。レスポンスのServerヘッダーに この名前が入ります。
 	 * 
@@ -196,9 +211,7 @@ public class SDLoader implements Lifecycle {
 	public void setServerName(String serverName) {
 		this.serverName = serverName;
 	}
-	
-	
-	
+
 	/**
 	 * ポートが使用中の場合、使用できるポートを探すかどうかを返します。
 	 * 
@@ -208,7 +221,7 @@ public class SDLoader implements Lifecycle {
 	public boolean isAutoPortDetect() {
 		return autoPortDetect;
 	}
-	
+
 	/**
 	 * Webアプリケーションコンテキストを追加します。
 	 * 
@@ -220,6 +233,7 @@ public class SDLoader implements Lifecycle {
 		}
 		webAppManager.addWebAppContext(context);
 	}
+
 	/**
 	 * 最大プールスレッド数を返します。
 	 * 
@@ -228,6 +242,7 @@ public class SDLoader implements Lifecycle {
 	public int getMaxThreadPoolNum() {
 		return maxThreadPoolNum;
 	}
+
 	/**
 	 * Listenするポート番号を返します。
 	 * 
@@ -236,6 +251,7 @@ public class SDLoader implements Lifecycle {
 	public int getPort() {
 		return port;
 	}
+
 	/**
 	 * サーバ名を返します。
 	 * 
@@ -244,6 +260,7 @@ public class SDLoader implements Lifecycle {
 	public String getServerName() {
 		return serverName;
 	}
+
 	/**
 	 * イベントリスナーを追加します。
 	 * 
@@ -362,11 +379,13 @@ public class SDLoader implements Lifecycle {
 				+ useOutSidePort);
 		try {
 			int bindPort = autoPortDetect ? 0 : getPort();
+			initSocket = new ServerSocket();
+			initSocket.setReuseAddress(true);
 			if (useOutSidePort) {
-				initSocket = new ServerSocket(bindPort);
+				initSocket.bind(new InetSocketAddress(bindPort));
 			} else {
-				initSocket = new ServerSocket(bindPort, backLogNum, InetAddress
-						.getByName("localhost"));
+				initSocket.bind(new InetSocketAddress(InetAddress
+						.getByName("localhost"), bindPort));
 			}
 			setPort(initSocket.getLocalPort());
 			log.info("Bind success. Port=" + getPort());

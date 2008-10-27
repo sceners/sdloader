@@ -16,15 +16,15 @@
 package sdloader.http;
 
 /**
- * HTTPリクエストのボディー部分
+ * HTTPのボディー部分
  * 
  * @author c9katayama
  */
-public class HttpRequestBody {
+public class HttpBody {
 
 	private byte[] bodyData;
 
-	public HttpRequestBody(byte[] bodyData) {
+	public HttpBody(byte[] bodyData) {
 		this.bodyData = bodyData;
 	}
 

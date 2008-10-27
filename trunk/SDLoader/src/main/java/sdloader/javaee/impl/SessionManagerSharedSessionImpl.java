@@ -34,43 +34,41 @@ public class SessionManagerSharedSessionImpl extends SessionManager {
 
 	public SessionManagerSharedSessionImpl() {
 		DisposableUtil.add(new Disposable() {
-
 			public void dispose() {
 				session.dispose();
 				session = null;
 			}
-			
+
 		});
 	}
+
 	public HttpSession getSession(String sessionId, boolean createNew,
 			ServletContext servletContext) {
 		if (session != null) {
-			if (!session.isInvalidate())
+			if (!session.isInvalidate()) {
 				return session;
-			else {
-				if (createNew)
+			} else {
+				session = null;
+				if (createNew) {
 					return createNewSession(servletContext);
-				else
+				} else {
 					return null;
+				}
 			}
 		} else {
-			if (createNew)
+			if (createNew) {
 				return createNewSession(servletContext);
-			else
+			} else {
 				return null;
+			}
 		}
 	}
 
 	private HttpSession createNewSession(ServletContext servletContext) {
-		try {
-			lock.lock();
-			String sessionId = createNewSessionId();
-			HttpSessionImpl ses = new HttpSessionImpl(sessionId);
-			ses.setServletContext(servletContext);
-			session = ses;
-			return ses;
-		} finally {
-			lock.unlock();
-		}
+		String sessionId = createNewSessionId();
+		HttpSessionImpl ses = new HttpSessionImpl(sessionId);
+		ses.setServletContext(servletContext);
+		session = ses;
+		return ses;
 	}
 }

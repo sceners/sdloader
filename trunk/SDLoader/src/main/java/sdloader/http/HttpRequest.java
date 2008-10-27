@@ -42,73 +42,71 @@ public class HttpRequest {
 	 */
 	public static final String KEY_REQUEST_URI_ENCODING = SDLoader.CONFIG_KEY_PREFIX
 			+ "request.URIEncoding";
-	
-	private HttpInput input;
 
-	private HttpRequestHeader header;
-	private HttpRequestBody body;
-	private HttpParameters parameters;
+	private HttpRequestReader requestReader;
 
-	public HttpRequest(HttpInput input) throws IOException {
-		this.input = input;
+	private HttpHeader header;
+	private HttpBody body;
+	private HttpRequestParameters parameters;
+
+	public HttpRequest(HttpRequestReader requestReader) throws IOException {
+		this.requestReader = requestReader;
 		createHttpRequestHeader();
-		if (header != null) {
-			creaheHttpRequestBody();
-		}
-		parameters = new HttpParameters(header, body);
+		createHttpRequestBody();
+		parameters = new HttpRequestParameters(header, body);
 	}
 
-	public HttpParameters getParameters() {
+	public HttpRequestParameters getParameters() {
 		return parameters;
 	}
 
-	public HttpRequestHeader getHeader() {
+	public HttpHeader getHeader() {
 		return header;
 	}
 
-	public HttpRequestBody getBody() {
+	public HttpBody getBody() {
 		return body;
 	}
 
 	private void createHttpRequestHeader() throws IOException {
-		StringBuilder httpHeaderBuf = null;
+		StringBuilder httpHeaderBuf = new StringBuilder();
 		String line = null;
 
-		while ((line = input.readHeaderLine()) != null) {
-			line = line.trim();
-			// 空白行で終了
-			if (line.length() <= 0) {
+		// skip blank line
+		while (true) {
+			line = requestReader.readHeaderLine();
+			if (line.length() != 0) {
 				break;
 			}
-
-			if (httpHeaderBuf == null) {
-				httpHeaderBuf = new StringBuilder();
+		}
+		while (true) {
+			if (line.length() == 0) {
+				break;
 			}
-
 			httpHeaderBuf.append(line);
 			httpHeaderBuf.append(HttpConst.CRLF_STRING);
-		}
-		if (httpHeaderBuf == null) {
-			return;
-		}
 
-		header = new HttpRequestHeader(new String(httpHeaderBuf));
+			line = requestReader.readHeaderLine();
+		}
+		header = new HttpHeader(new String(httpHeaderBuf));
 	}
 
-	private void creaheHttpRequestBody() throws IOException {
-		String contentLengthHeader = header.getHeader(HttpConst.CONTENTLENGTH);
+	private void createHttpRequestBody() throws IOException {
+		String contentLengthHeader = header
+				.getHeaderValue(HttpConst.CONTENTLENGTH);
 		byte[] b = null;
+		int contentLength = 0;
 		if (contentLengthHeader != null) {
-			int contentLength = Integer.parseInt(contentLengthHeader);
+			contentLength = Integer.parseInt(contentLengthHeader);
 			long trueContentLength = Long.parseLong(contentLengthHeader);
 			if (trueContentLength > contentLength) {
 				throw new IllegalArgumentException(
 						"ContentLenght too long.Max size = "
 								+ Integer.MAX_VALUE);
 			}
-			b = new byte[contentLength];
-			input.readBody(b);
 		}
-		body = new HttpRequestBody(b);
+		b = new byte[contentLength];
+		requestReader.readBody(b);
+		body = new HttpBody(b);
 	}
 }

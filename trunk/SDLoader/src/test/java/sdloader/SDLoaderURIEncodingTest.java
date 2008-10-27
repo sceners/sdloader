@@ -1,18 +1,15 @@
 package sdloader;
 
-import sdloader.http.HttpRequest;
+import junit.framework.TestCase;
 import sdloader.javaee.WebAppContext;
 import sdloader.util.MiscUtils;
-import junit.framework.TestCase;
 
 public class SDLoaderURIEncodingTest extends TestCase {
 
 	public static void main(String[] args){
 		SDLoader sdloader = new SDLoader(true);
-		sdloader.setConfig(HttpRequest.KEY_REQUEST_URI_ENCODING,"UTF-8");
-		
-		WebAppContext webapp = new WebAppContext("/testwebapp","testwebapp");
-		
+		sdloader.setURIEncoding("UTF-8");
+		WebAppContext webapp = new WebAppContext("/testwebapp","testwebapp");		
 		sdloader.addWebAppContext(webapp);
 		
 		sdloader.start();

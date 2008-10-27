@@ -33,48 +33,45 @@ import sdloader.util.DisposableUtil.Disposable;
 public class SessionManagerImpl extends SessionManager {
 
 	protected Map<String, HttpSessionImpl> sessionMap = CollectionsUtil
-			.newConcurrentHashMap();
+			.newHashMap();
 
 	public SessionManagerImpl() {
 		DisposableUtil.add(new Disposable() {
-
 			public void dispose() {
 				sessionMap.clear();
 			}
-			
+
 		});
 	}
-	
+
 	public HttpSession getSession(String sessionId, boolean createNew,
 			ServletContext servletContext) {
 		HttpSessionImpl session = (HttpSessionImpl) sessionMap.get(sessionId);
 		if (session != null) {
-			if (!session.isInvalidate())
+			if (!session.isInvalidate()) {
 				return session;
-			else {
-				if (createNew)
+			} else {
+				sessionMap.remove(sessionId);
+				if (createNew) {
 					return createNewSession(servletContext);
-				else
+				} else {
 					return null;
+				}
 			}
 		} else {
-			if (createNew)
+			if (createNew) {
 				return createNewSession(servletContext);
-			else
+			} else {
 				return null;
+			}
 		}
 	}
 
 	private HttpSession createNewSession(ServletContext servletContext) {
-		try {
-			lock.lock();
-			String sessionId = createNewSessionId();
-			HttpSessionImpl ses = new HttpSessionImpl(sessionId);
-			ses.setServletContext(servletContext);
-			sessionMap.put(sessionId, ses);
-			return ses;
-		} finally {
-			lock.unlock();
-		}
+		String sessionId = createNewSessionId();
+		HttpSessionImpl ses = new HttpSessionImpl(sessionId);
+		ses.setServletContext(servletContext);
+		sessionMap.put(sessionId, ses);
+		return ses;
 	}
 }

@@ -28,6 +28,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpSession;
 
 import sdloader.SDLoader;
 import sdloader.javaee.ServletMapping;
@@ -38,6 +39,7 @@ import sdloader.javaee.impl.HttpServletRequestImpl;
 import sdloader.javaee.impl.HttpServletResponseImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+import sdloader.util.BooleanUtil;
 import sdloader.util.IOUtil;
 import sdloader.util.SocketUtil;
 import sdloader.util.WebUtils;
@@ -53,7 +55,7 @@ public class HttpRequestProcessor extends Thread {
 
 	private int socketTimeout = 60 * 1000;
 
-	private int keepAliveTimeout = 3 * 1000;// Apache 15
+	private int keepAliveTimeout = 1 * 1000;// Apache 15
 
 	private int keppAliveMaxRequests = 5;// Apache 5
 
@@ -87,6 +89,13 @@ public class HttpRequestProcessor extends Thread {
 		}
 	}
 
+	void stopProcessor() {
+		synchronized (this) {
+			stop = true;
+			notifyAll();
+		}
+	}
+
 	public void run() {
 		while (!stop) {
 			try {
@@ -100,47 +109,49 @@ public class HttpRequestProcessor extends Thread {
 			if (stop) {
 				return;
 			}
-
-			InputStream is = null;
-			OutputStream os = null;
-			try {
-				socket.setTcpNoDelay(true);
-				socket.setSoTimeout(socketTimeout);
-				is = socket.getInputStream();
-				os = socket.getOutputStream();
-				int requestCount = 1;
-				boolean keepAlive = true;
-				while (keepAlive) {
-					RequestScopeContext.init();
-					RequestScopeContext.getContext().setAttribute(
-							SDLoader.class, sdLoader);
-					keepAlive = processServlet(is, os, requestCount);
-					RequestScopeContext.destroy();
-					requestCount++;
-				}
-			} catch (SocketTimeoutException e) {
-				log.debug("socket timeout.");
-			} catch (SocketException e) {
-				log.debug("socket close.");
-			} catch (Throwable t) {
-				log.error(t.getMessage(), t);
-			} finally {
-				IOUtil.closeNoException(is);
-				IOUtil.flushNoException(os);
-				IOUtil.closeNoException(os);
-				SocketUtil.closeSocketNoException(socket);
-				RequestScopeContext.destroy();
-			}
-			is = null;
-			os = null;
-			socket = null;
-			SDLoader localLoader = this.sdLoader;
-			sdLoader = null;
-			localLoader.returnProcessor(this);
-			localLoader = null;
+			processSocket();
 		}
 	}
 
+	protected void processSocket(){
+		InputStream is = null;
+		OutputStream os = null;
+		try {
+			socket.setTcpNoDelay(true);
+			socket.setSoTimeout(socketTimeout);
+			is = socket.getInputStream();
+			os = socket.getOutputStream();
+			int requestCount = 1;
+			boolean keepAlive = true;
+			while (keepAlive) {
+				RequestScopeContext.init();
+				RequestScopeContext.getContext().setAttribute(
+						SDLoader.class, sdLoader);
+				keepAlive = processServlet(is, os, requestCount);
+				RequestScopeContext.destroy();
+				requestCount++;
+			}
+		} catch (SocketTimeoutException e) {
+			log.debug("socket timeout.");
+		} catch (SocketException e) {
+			log.debug("socket close.");
+		} catch (Throwable t) {
+			log.error(t.getMessage(), t);
+		} finally {
+			IOUtil.closeNoException(is);
+			IOUtil.flushNoException(os);
+			IOUtil.closeNoException(os);
+			SocketUtil.closeSocketNoException(socket);
+			RequestScopeContext.destroy();
+		}
+		is = null;
+		os = null;
+		socket = null;
+		SDLoader localLoader = this.sdLoader;
+		sdLoader = null;
+		localLoader.returnProcessor(this);
+	}
+	
 	protected boolean processServlet(InputStream is, OutputStream os,
 			int requestCount) throws Throwable {
 		HttpRequest httpRequest;
@@ -148,17 +159,10 @@ public class HttpRequestProcessor extends Thread {
 			if (requestCount != 1) {
 				socket.setSoTimeout(keepAliveTimeout);
 			}
-			HttpInput input = new HttpInput(is);
-			httpRequest = new HttpRequest(input);
-
-			if (httpRequest.getHeader() == null)
-				return false;// empty request;
-
+			httpRequest = new HttpRequest(new HttpRequestReader(is));
 			if (log.isDebugEnabled()) {
 				log.debug("<REQUEST_HEADER>\n" + httpRequest.getHeader());
 			}
-		} catch (SocketException e) {
-			throw new SocketTimeoutException(e.getMessage());
 		} finally {
 			if (socket.isClosed()) {
 				return false;
@@ -166,10 +170,9 @@ public class HttpRequestProcessor extends Thread {
 				socket.setSoTimeout(socketTimeout);
 			}
 		}
-		HttpRequestHeader header = httpRequest.getHeader();
-		// request
+
+		HttpHeader header = httpRequest.getHeader();
 		HttpServletRequestImpl request = createServletRequestImp(httpRequest);
-		// response
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
 
 		String requestURI = header.getRequestURI();
@@ -180,24 +183,20 @@ public class HttpRequestProcessor extends Thread {
 			setDefaultResponseHeader(request, response, requestCount);
 			processDataOutput(response, os);
 			return header.isKeepAlive();
-		}		
+		}
 
 		String contextPath = webapp.getContextPath();
-		String resourcePath = WebUtils.getResourcePath(contextPath,requestURI);
+		String resourcePath = WebUtils.getResourcePath(contextPath, requestURI);
 		// contextpathだけのパターン (/testのようなパターン）の場合、contextpathに/をつけてリダイレクト
 		if (!requestURI.equals("/") && resourcePath == null) {
 			response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
 			resourcePath = requestURI + "/";
 			String host = request.getHeader(HttpConst.HOST);
-			if (host == null){
-				host = request.getLocalName() + ":"
-						+ request.getLocalPort();
+			if (host == null) {
+				host = request.getLocalName() + ":" + request.getLocalPort();
 			}
-			String scheme = request.getScheme();
-			response
-					.addHeader(HttpConst.LOCATION, WebUtils
-							.buildRequestURL(scheme, host, resourcePath)
-							.toString());
+			response.addHeader(HttpConst.LOCATION, WebUtils.buildRequestURL(
+					request.getScheme(), host, resourcePath).toString());
 			processDataOutput(response, os);
 			return header.isKeepAlive();
 		}
@@ -223,10 +222,11 @@ public class HttpRequestProcessor extends Thread {
 		ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(webClassLoader);
 
-		RequestScopeContext requestScopeContext = RequestScopeContext.getContext();
+		RequestScopeContext requestScopeContext = RequestScopeContext
+				.getContext();
 		requestScopeContext.setRequest(request);
 		requestScopeContext.setResponse(response);
-		
+
 		// service
 		try {
 			String servletName = mapping.getServletName();
@@ -238,7 +238,7 @@ public class HttpRequestProcessor extends Thread {
 				FilterChainImpl filterChain = new FilterChainImpl(filters,
 						servlet);
 				filterChain.doFilter(request, response);
-			} else{
+			} else {
 				servlet.service(request, response);
 			}
 		} catch (ServletException se) {
@@ -270,16 +270,26 @@ public class HttpRequestProcessor extends Thread {
 		request.setRemoteHost(socket.getInetAddress().getHostName());
 
 		request.setScheme("http");
-		
-		request.setUriEncoding(sdLoader.getConfig(HttpRequest.KEY_REQUEST_URI_ENCODING));
-		
+
+		request.setUriEncoding(sdLoader
+				.getConfig(HttpRequest.KEY_REQUEST_URI_ENCODING));
+
 		return request;
 	}
 
 	private void processDataOutput(HttpServletResponseImpl response,
 			OutputStream os) throws IOException {
-		HttpResponseHeader resHeader = response.getResponseHeader();
-		byte[] headerData = resHeader.getHeaderString().getBytes();
+
+		if (BooleanUtil.toBoolean(sdLoader
+				.getConfig(HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE))) {
+			response.setHeader("Pragma", "no-cache");
+			response.setDateHeader("Expires", 1L);
+			response.setHeader("Cache-Control", "no-cache");
+			response.addHeader("Cache-Control", "no-store");
+		}
+
+		HttpHeader resHeader = response.getResponseHeader();
+		byte[] headerData = resHeader.buildHeader().getBytes();
 		byte[] bodyData = response.getBodyData();
 		if (headerData != null) {
 			os.write(headerData);
@@ -291,7 +301,7 @@ public class HttpRequestProcessor extends Thread {
 		if (bodyData != null) {
 			os.write(bodyData);
 		}
-		os.flush();
+		IOUtil.flushNoException(os);
 	}
 
 	private void setDefaultResponseHeader(HttpServletRequestImpl request,
@@ -300,10 +310,12 @@ public class HttpRequestProcessor extends Thread {
 		response.setHeader(HttpConst.DATE, WebUtils.formatHeaderDate(Calendar
 				.getInstance().getTime()));
 		response.setHeader(HttpConst.SERVER, sdLoader.getServerName());
-		String sessionId = request.getRequestedSessionId();
-		if (sessionId != null) {
-			Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY,
-					sessionId);
+
+		// session
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY, session
+					.getId());
 			response.addCookie(sessionCookie);
 		}
 
@@ -319,9 +331,9 @@ public class HttpRequestProcessor extends Thread {
 
 		// Content-Length
 		// Chunked以外はセット
-		HttpResponseHeader resHeader = response.getResponseHeader();
+		HttpHeader resHeader = response.getResponseHeader();
 		String transferEncoding = resHeader
-				.getHeader(HttpConst.TRANSFERENCODING);
+				.getHeaderValue(HttpConst.TRANSFERENCODING);
 		if (transferEncoding == null
 				|| !transferEncoding.equalsIgnoreCase(HttpConst.CHUNKED)) {
 			response.setHeader(HttpConst.CONTENTLENGTH, String.valueOf(response
@@ -329,10 +341,4 @@ public class HttpRequestProcessor extends Thread {
 		}
 	}
 
-	void stopProcessor() {
-		synchronized (this) {
-			stop = true;
-			notifyAll();
-		}
-	}
 }

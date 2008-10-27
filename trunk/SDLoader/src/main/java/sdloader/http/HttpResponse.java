@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.internal;
+package sdloader.http;
 
-import sdloader.javaee.SessionManager;
-import sdloader.javaee.impl.SessionManagerImpl;
+import sdloader.SDLoader;
 
 /**
- * @author shot
+ * HTTPレスポンス
+ * 
+ * @author c9katayama
  */
-public abstract class SDLoaderInitializer {
+public class HttpResponse {
 
-	private static SessionManager sessionManager;
-	
-	//TODO SDLoaderの初期化処理の整理・分離
-	
-	//TODO もっと汎用的なロードの仕組みを作る
-	public static SessionManager createSessionManager() {
-		if(sessionManager != null) {
-			return sessionManager;
-		}
-		return new SessionManagerImpl();
-	}
-	
-	public static void setSessionManager(SessionManager sessionManager) {
-		SDLoaderInitializer.sessionManager = sessionManager;
-	}
+	/**
+	 * すべてのレスポンスにNoCacheヘッダーを付与します。
+	 */
+	public static final String KEY_RESPONSE_USE_NOCACHE_MODE = SDLoader.CONFIG_KEY_PREFIX
+			+ "response.useNoCacheMode";
 }

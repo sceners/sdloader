@@ -34,8 +34,8 @@ public class HttpRequestProcessorPool {
 
 	private int maxThreadPoolNum;
 
-	//TODO change list to concurrent queue.
-	private List<HttpRequestProcessor> processorPool = CollectionsUtil.newLinkedList();
+	private List<HttpRequestProcessor> processorPool = CollectionsUtil
+			.newLinkedList();
 
 	public HttpRequestProcessorPool(int maxThreadPoolNum) {
 		this.maxThreadPoolNum = maxThreadPoolNum;

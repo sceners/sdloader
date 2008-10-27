@@ -4,13 +4,14 @@ WebAppContextを使用する際、複数のドキュメントルートをして�
 
 コンテキストパスに"/"が入っているものでも動作するように修正。
 
-WebApplicationクラスをWebAppに変更
-
 HttpServletRequestからパスを取る部分をURIDecoderでコードするように修正。
 その際の文字エンコードを、HttpRequest.sdloader.http.HttpRequest.KEY_REQUEST_URI_ENCODINGで指定できるようにした。
 デフォルトはISO-8859-1を使用。
 
-HttpRequest.KEY_REQUEST_USE_BODY_ENCODE_FOR_URIをKEY_REQUEST_USE_BODY_ENCODEING_FOR_URIに修正
+WebApplicationクラスをWebAppに変更
+HttpRequest.KEY_REQUEST_USE_BODY_ENCODE_FOR_URIをKEY_REQUEST_USE_BODY_ENCODEING_FOR_URIに変更
+HttpReqeustHeaderとHttpResponseHeaderをHttpHeaderに統合
+HttpInputをHttpRequestReaderに変更
 
 v0_1_13
 SDLoaderのコンストラクタ引数にポートを自動取得するかどうかのフラグを渡せるコンストラクタを追加。
