@@ -15,13 +15,13 @@ public class HttpParametersTest extends TestCase {
 		"Proxy-Connection: Keep-Alive\n"+
 		"Host: www.google.co.jp\n";
 
-	HttpParameters params;
+	HttpRequestParameters params;
 
 	@Override
 	protected void setUp() throws Exception {
-		HttpRequestHeader header = new HttpRequestHeader(headerString);
-		HttpRequestBody body =new HttpRequestBody(null);
-		params = new HttpParameters(header,body);
+		HttpHeader header = new HttpHeader(headerString);
+		HttpBody body =new HttpBody(null);
+		params = new HttpRequestParameters(header,body);
 		params.setBodyEncoding("UTF-8");
 		params.setUseBodyEncodingForURI(true);
 	}

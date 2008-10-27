@@ -6,13 +6,9 @@ import sdloader.util.MiscUtils;
 public class SDLoaderWebAppContextDeployTest {
 
 	public static void main(String[] args) {
-		SDLoader sdloader = new SDLoader();
-		sdloader.setAutoPortDetect(true);
-		
+		SDLoader sdloader = new SDLoader(8080);
 		WebAppContext webapp = new WebAppContext("/testwebapp","testwebapp");
-		
 		sdloader.addWebAppContext(webapp);
-		
 		sdloader.start();
 		try{
 			MiscUtils.openBrowser("http://localhost:"+sdloader.getPort());

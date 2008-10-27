@@ -17,8 +17,6 @@ package sdloader.javaee;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -45,8 +43,6 @@ public abstract class SessionManager {
 
 	private static final MessageDigest digest;
 
-	protected static final Lock lock = new ReentrantLock();
-
 	static {
 		digest = MessageDigestUtil.createMessageDigest();
 	}
@@ -61,8 +57,8 @@ public abstract class SessionManager {
 
 	public abstract HttpSession getSession(String sessionId, boolean createNew,
 			ServletContext servletContext);
-
-	protected String createNewSessionId() {
+	
+	protected synchronized String createNewSessionId() {
 		String sessionId = null;
 		long sesIdSeed = ++sessionIdSeed;
 		byte[] digestId = digest.digest(Long.toString(sesIdSeed).getBytes());

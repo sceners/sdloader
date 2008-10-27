@@ -17,71 +17,70 @@ package sdloader.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketException;
 
 /**
- * HttpInputStreamクラス
+ * HttpRequestReader
  * 
  * @author c9katayama
  */
-public class HttpInput {
+public class HttpRequestReader {
 
 	private static final char CR = '\r';
 	private static final char LF = '\n';
 
 	private InputStream inputStream;
-	private boolean skipFirstLF = true;
+	private boolean skipNextLF = true;
 
-	public HttpInput(InputStream is) {
+	public HttpRequestReader(InputStream is) {
 		super();
 		this.inputStream = is;
 	}
 
 	public String readHeaderLine() throws IOException {
-		StringBuffer s = new StringBuffer();
+		StringBuffer line = new StringBuffer();
+
 		for (;;) {
 			int readChar = inputStream.read();
 
 			if (readChar < 0) {// eof
-				return s.toString();
+				throw new SocketException("EOF");
 			}
 
 			char c = (char) readChar;
 
 			if (c == CR) {
-				skipFirstLF = true;// CRで終わった次のLFを読み込まない
-				return s.toString();
+				skipNextLF = true;// CRで終わった次のLFを読み込まない
+				return line.toString();
 			}
-			if (c == LF) {
-				if (skipFirstLF && s.length() == 0) {
-					skipFirstLF = false;
+			if (c == LF) {				
+				if (skipNextLF && line.length() == 0) {
+					skipNextLF = false;
 					continue;
-				} else {
-					// CRなしでLFが来るパターン（例外パターン）
-					skipFirstLF = false;
-					return s.toString();
 				}
+				// CRなしでLFが来るパターン（例外パターン）
+				skipNextLF = false;
+				return line.toString();
 			}
-			s.append(c);
+			line.append(c);
 		}
 	}
 
 	public void readBody(byte[] body) throws IOException {
-		if (body.length == 0) {
-			return;
-		}
-
-		int b = inputStream.read();
 		int mark = 0;
-		if (skipFirstLF && ((char) b) == LF) {
-			// CRで終わったLFなので読み飛ばす
-		} else {
-			body[0] = (byte) b;
-			mark++;
+		if (skipNextLF) {
+			int b = inputStream.read();
+			if (((char) b) == LF) {
+				// CRで終わったLFなので読み飛ばす
+			} else if (body.length > 0) {
+				body[0] = (byte) b;
+				mark++;
+			}
 		}
-		skipFirstLF = false;
+		skipNextLF = false;
 
-		int maxLength = body.length;
-		for (; mark < maxLength; mark++) {
+		int size = body.length;
+		for (; mark < size; mark++) {
 			body[mark] = (byte) inputStream.read();
 		}
 	}

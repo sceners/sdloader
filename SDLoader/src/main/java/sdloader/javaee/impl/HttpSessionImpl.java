@@ -142,8 +142,9 @@ public class HttpSessionImpl implements HttpSession, Disposable {
 	}
 
 	private void checkInvalidate() {
-		if (invalidate)// 使用不可能
-			throw new RuntimeException("Session invalidated.");
+		if (invalidate) {// 使用不可能
+			throw new IllegalStateException("Session invalidated.");
+		}
 	}
 
 	public void setInvalidate(boolean invalidate) {

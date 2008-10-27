@@ -40,8 +40,8 @@ import javax.servlet.http.HttpSession;
 
 import sdloader.http.HttpConst;
 import sdloader.http.HttpRequest;
-import sdloader.http.HttpRequestBody;
-import sdloader.http.HttpRequestHeader;
+import sdloader.http.HttpBody;
+import sdloader.http.HttpHeader;
 import sdloader.javaee.SessionManager;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
@@ -89,31 +89,35 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private HttpRequest httpRequest;
 
 	private ServletContext servletContext;
-	
+
 	private String uriEncoding = "ISO-8859-1";
-	
+
+	private String currentSessionId;
+
 	public HttpServletRequestImpl(HttpRequest httpRequest) {
 		this.httpRequest = httpRequest;
+		currentSessionId = getRequestedSessionId();
 	}
 
-	public String getHeader(String paramName) {
-		return httpRequest.getHeader().getHeader(paramName);
+	public String getHeader(String headerName) {
+		return httpRequest.getHeader().getHeaderValue(headerName);
 	}
 
-	public Enumeration<String> getHeaders(String arg0) {
+	public Enumeration<String> getHeaders(String headerName) {
 		return new IteratorEnumeration<String>(httpRequest.getHeader()
-				.getHeaders().iterator());
+				.getHeaderValueList(headerName).iterator());
 	}
 
 	public Enumeration<String> getHeaderNames() {
 		return new IteratorEnumeration<String>(httpRequest.getHeader()
-				.getHeaderName().iterator());
+				.getHeaderNameList().iterator());
 	}
 
 	public int getIntHeader(String paramName) {
-		String val = httpRequest.getHeader().getHeader(paramName);
-		if (val != null)
+		String val = httpRequest.getHeader().getHeaderValue(paramName);
+		if (val != null) {
 			return Integer.parseInt(val);
+		}
 		return -1;
 	}
 
@@ -156,7 +160,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getContentType() {
-		return httpRequest.getHeader().getHeader(HttpConst.CONTENTTYPE);
+		return httpRequest.getHeader().getHeaderValue(HttpConst.CONTENTTYPE);
 	}
 
 	public ServletInputStream getInputStream() throws IOException {
@@ -229,35 +233,23 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		return cookies;
 	}
 
-	/**
-	 * セッションの取得 新規作成時には、HttpHeaderのセッションIDを書き換えます。
-	 */
-	public HttpSession getSession(boolean create) {
-
-		String sessionId = getRequestedSessionId();
-		HttpSession session = SessionManager.getInstance().getSession(
-				sessionId, create, servletContext);
-		if (session == null) {
-			httpRequest.getHeader().addCookie(HttpConst.SESSIONID_KEY, null);
-			return null;
-		} else {
-			httpRequest.getHeader().addCookie(HttpConst.SESSIONID_KEY,
-					session.getId());
-			return session;
-		}
-	}
-
 	public HttpSession getSession() {
 		return getSession(true);
+	}
+
+	public HttpSession getSession(boolean create) {
+		HttpSession session = SessionManager.getInstance().getSession(
+				currentSessionId, create, servletContext);
+		if (session != null) {
+			currentSessionId = session.getId();
+		}
+		return session;
 	}
 
 	public String getRequestedSessionId() {
 		Cookie cookie = httpRequest.getHeader().getCookie(
 				HttpConst.SESSIONID_KEY);
-		if (cookie != null)
-			return cookie.getValue();
-		else
-			return null;
+		return (cookie != null) ? cookie.getValue() : null;
 	}
 
 	public String getRequestURI() {
@@ -273,7 +265,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getServerName() {
-		String host = httpRequest.getHeader().getHeader(HttpConst.HOST);
+		String host = httpRequest.getHeader().getHeaderValue(HttpConst.HOST);
 		if (host.indexOf(":") > 0)
 			return host.substring(0, host.indexOf(":"));
 		else
@@ -314,7 +306,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	public RequestDispatcher getRequestDispatcher(String path) {
 		if (!PathUtils.startsWithSlash(path)) {
 			String servletAndPathInfo = getServletPath();
-			if(getPathInfo() != null){
+			if (getPathInfo() != null) {
 				servletAndPathInfo += getPathInfo();
 			}
 			path = PathUtils.computeRelativePath(servletAndPathInfo, path);
@@ -380,7 +372,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public boolean isRequestedSessionIdValid() {
-		return false;
+		return true;
 	}
 
 	public boolean isRequestedSessionIdFromCookie() {
@@ -404,11 +396,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		this.pathInfo = pathInfo;
 	}
 
-	public HttpRequestHeader getHeader() {
+	public HttpHeader getHeader() {
 		return this.httpRequest.getHeader();
 	}
 
-	public HttpRequestBody getBody() {
+	public HttpBody getBody() {
 		return this.httpRequest.getBody();
 	}
 
@@ -447,20 +439,20 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	public void setLocalName(String localName) {
 		this.localName = localName;
 	}
-	
+
 	public void setUriEncoding(String uriEncoding) {
-		if(uriEncoding != null){
+		if (uriEncoding != null) {
 			this.uriEncoding = uriEncoding;
 		}
 	}
-	
-	protected String decodeURI(String path){
-		if(path==null){
+
+	protected String decodeURI(String path) {
+		if (path == null) {
 			return null;
 		}
-		try{
-			return URLDecoder.decode(path,uriEncoding);
-		}catch(UnsupportedEncodingException e){
+		try {
+			return URLDecoder.decode(path, uriEncoding);
+		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException(e);
 		}
 	}

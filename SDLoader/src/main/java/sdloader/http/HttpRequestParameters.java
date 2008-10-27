@@ -32,7 +32,7 @@ import sdloader.util.CollectionsUtil;
  * @author c9katayama
  * @author shot
  */
-public class HttpParameters {
+public class HttpRequestParameters {
 
 	private Map<String, String[]> paramMap;
 
@@ -47,12 +47,12 @@ public class HttpParameters {
 	// GETのQueryに対して、bodyEncodingを使用するかどうか
 	private boolean useBodyEncodingForURI;
 
-	private HttpRequestHeader header;
-	private HttpRequestBody body;
+	private HttpHeader header;
+	private HttpBody body;
 
 	private boolean parameterInitialized;
 
-	public HttpParameters(HttpRequestHeader header, HttpRequestBody body) {
+	public HttpRequestParameters(HttpHeader header, HttpBody body) {
 		this.header = header;
 		this.body = body;
 
@@ -81,7 +81,7 @@ public class HttpParameters {
 	}
 
 	/**
-	 * HttpParameters#getParameterが呼ばれた初回に呼ばれます。
+	 * HttpRequestParameters#getParameterが呼ばれた初回に呼ばれます。
 	 */
 	private void initParameters() {
 		paramMap = CollectionsUtil.newHashMap();
@@ -92,8 +92,8 @@ public class HttpParameters {
 			parseRequestQuery(header.getQueryString(), queryEncoding);
 		}
 		byte[] bodyData = body.getBodyData();
-		if (bodyData != null && header.getMethod().equals(HttpConst.POST)) {
-			String contType = header.getHeader(HttpConst.CONTENTTYPE);
+		if (bodyData != null && header.getMethod().equalsIgnoreCase(HttpConst.POST)) {
+			String contType = header.getHeaderValue(HttpConst.CONTENTTYPE);
 			if (contType != null
 					&& contType.equals(HttpConst.WWW_FORM_URLENCODE)) {
 				try {
