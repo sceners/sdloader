@@ -35,7 +35,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import sdloader.http.HttpConst;
-import sdloader.javaee.WebApplication;
+import sdloader.javaee.WebApp;
 import sdloader.javaee.impl.ServletContextImpl;
 import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.WelcomeFileListTag;
@@ -64,7 +64,7 @@ public class FileSavingServlet extends HttpServlet {
 
 	protected WelcomeFileListTag welcomeFileListTag;
 
-	protected WebApplication webApp;
+	protected WebApp webApp;
 
 	public FileSavingServlet() {
 		super();
@@ -183,7 +183,7 @@ public class FileSavingServlet extends HttpServlet {
 			basePath += "/";
 
 		ServletContextImpl context = (ServletContextImpl) getServletContext();
-		WebApplication webapp = context.getWebApplication();
+		WebApp webapp = context.getWebApplication();
 		List<String> welcomeFileList = welcomeFileListTag.getWelcomeFile();
 		List<ServletMappingTag> servletMappingList = webapp.getWebXml()
 				.getWebApp().getServletMapping();

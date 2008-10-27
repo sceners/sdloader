@@ -31,7 +31,7 @@ import javax.servlet.http.Cookie;
 
 import sdloader.SDLoader;
 import sdloader.javaee.ServletMapping;
-import sdloader.javaee.WebApplication;
+import sdloader.javaee.WebApp;
 import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.javaee.impl.FilterChainImpl;
 import sdloader.javaee.impl.HttpServletRequestImpl;
@@ -173,7 +173,7 @@ public class HttpRequestProcessor extends Thread {
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
 
 		String requestURI = header.getRequestURI();
-		WebApplication webapp = sdLoader.getWebAppManager().findWebApp(requestURI);
+		WebApp webapp = sdLoader.getWebAppManager().findWebApp(requestURI);
 		// デフォルトもなければ404
 		if (webapp == null) {
 			response.setStatus(HttpConst.SC_NOT_FOUND);

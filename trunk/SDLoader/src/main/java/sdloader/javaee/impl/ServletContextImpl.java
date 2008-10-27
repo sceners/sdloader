@@ -31,7 +31,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import sdloader.javaee.ServletMapping;
-import sdloader.javaee.WebApplication;
+import sdloader.javaee.WebApp;
 import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
@@ -50,7 +50,7 @@ public class ServletContextImpl implements ServletContext {
 	private static final SDLoaderLog log = SDLoaderLogFactory
 			.getLog(ServletConfigImpl.class);
 
-	private WebApplication webApp;
+	private WebApp webApp;
 
 	private String servletContextName;// コンテキスト名 /で始まるコンテキストディレクトリ名
 
@@ -62,12 +62,12 @@ public class ServletContextImpl implements ServletContext {
 
 	private Map<String, String> initParamMap = CollectionsUtil.newHashMap();
 
-	public ServletContextImpl(WebApplication webapp) {
+	public ServletContextImpl(WebApp webapp) {
 		this.webApp = webapp;
 	}
 
 	public ServletContext getContext(String contextPath) {
-		WebApplication webapp = this.webApp.getWebApplicationManager()
+		WebApp webapp = this.webApp.getWebApplicationManager()
 				.findWebApp(contextPath);
 		if (webapp != null)
 			return webapp.getServletContext();
@@ -236,7 +236,7 @@ public class ServletContextImpl implements ServletContext {
 		if(!PathUtils.startsWithSlash(requestPath)){
 			throw new IllegalArgumentException("dispatch path is not start with \"/\".");
 		}
-		WebApplication webapp = webApp.getWebApplicationManager().findWebApp(
+		WebApp webapp = webApp.getWebApplicationManager().findWebApp(
 				this.servletContextName);
 		ServletMapping mapping = webapp.findServletMapping(requestPath);
 		if (mapping == null){
@@ -279,7 +279,7 @@ public class ServletContextImpl implements ServletContext {
 		this.docBase = absoluteContextPath;
 	}
 
-	public WebApplication getWebApplication() {
+	public WebApp getWebApplication() {
 		return webApp;
 	}
 }

@@ -113,7 +113,7 @@ public class WebAppManager {
 	protected List<WebAppContext> webAppContextList = CollectionsUtil
 			.newArrayList();
 
-	protected List<WebApplication> webAppList = CollectionsUtil.newArrayList();
+	protected List<WebApp> webAppList = CollectionsUtil.newArrayList();
 
 	protected boolean isInmemoryExtract = false;
 
@@ -229,8 +229,8 @@ public class WebAppManager {
 		}
 		this.webAppList.add(getRootWebApplication());
 		// コンテキストパスの長い順にソート
-		Collections.sort(webAppList, new Comparator<WebApplication>() {
-			public int compare(WebApplication o1, WebApplication o2) {
+		Collections.sort(webAppList, new Comparator<WebApp>() {
+			public int compare(WebApp o1, WebApp o2) {
 				return o2.getContextPath().compareTo(o1.getContextPath());
 			}
 		});
@@ -242,10 +242,10 @@ public class WebAppManager {
 		WebXml webxml = buildWebXml(docBase);
 
 		setDefaultServlet(webxml, docBase, contextPath, isInmemoryExtract);
-		// create WebApplication
+		// create WebApp
 		ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase)
 				: createInMemoryWebAppClassLoader(docBase[0]);
-		WebApplication webapp = new WebApplication(webxml, context,
+		WebApp webapp = new WebApp(webxml, context,
 				webAppClassLoader, this);
 		this.webAppList.add(webapp);
 
@@ -266,7 +266,7 @@ public class WebAppManager {
 		return webxml;
 	}
 
-	protected WebApplication getRootWebApplication() {
+	protected WebApp getRootWebApplication() {
 		// WebApp List
 		final String webAppListServletName = "webAppList";
 		final ServletTag webAppListServletTag = new ServletTag();
@@ -294,7 +294,7 @@ public class WebAppManager {
 		}
 		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase });
 		WebAppContext context = new WebAppContext(contextPath, docBase);
-		final WebApplication webapp = new WebApplication(webXmlTag, context,
+		final WebApp webapp = new WebApp(webXmlTag, context,
 				webAppClassLoader, this);
 
 		return webapp;
@@ -508,7 +508,7 @@ public class WebAppManager {
 	 * 
 	 * @return
 	 */
-	public List<WebApplication> getWebAppList() {
+	public List<WebApp> getWebAppList() {
 		return webAppList;
 	}
 
@@ -536,10 +536,10 @@ public class WebAppManager {
 	 * @param requestURI
 	 * @return 該当するWebAppがない場合、null
 	 */
-	public WebApplication findWebApp(final String requestURI) {
-		for (Iterator<WebApplication> itr = getWebAppList().iterator(); itr
+	public WebApp findWebApp(final String requestURI) {
+		for (Iterator<WebApp> itr = getWebAppList().iterator(); itr
 				.hasNext();) {
-			WebApplication webapp = itr.next();
+			WebApp webapp = itr.next();
 			String contextPath = webapp.getContextPath();
 			if (requestURI.equals(contextPath)) {
 				return webapp;
@@ -556,10 +556,10 @@ public class WebAppManager {
 	}
 
 	public void close() {
-		List<WebApplication> webAppList = getWebAppList();
-		for (Iterator<WebApplication> itr = webAppList.iterator(); itr
+		List<WebApp> webAppList = getWebAppList();
+		for (Iterator<WebApp> itr = webAppList.iterator(); itr
 				.hasNext();) {
-			WebApplication webapp = itr.next();
+			WebApp webapp = itr.next();
 			List<Servlet> servletList = webapp.getServletList();
 			if (servletList != null) {
 				for (Servlet servlet : servletList) {
