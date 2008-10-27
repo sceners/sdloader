@@ -50,7 +50,7 @@ import sdloader.util.WebUtils;
  * 
  * @author c9katayama
  */
-public class WebApplication {
+public class WebApp {
 
 	/** web.xml定義 */
 	private WebXml webXml;
@@ -78,7 +78,7 @@ public class WebApplication {
 	/**
 	 * WebAppクラス
 	 */
-	WebApplication(WebXml webXml, WebAppContext webAppContext,
+	WebApp(WebXml webXml, WebAppContext webAppContext,
 			ClassLoader webAppClassLoader, WebAppManager manager) {
 		this.webXml = webXml;
 		this.webAppContext = webAppContext;

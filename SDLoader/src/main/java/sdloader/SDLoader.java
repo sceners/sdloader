@@ -342,11 +342,11 @@ public class SDLoader implements Lifecycle {
 
 	protected void initWebApp() {
 		try {
-			log.info("WebApplication initialize start.");
+			log.info("WebApp initialize start.");
 			webAppManager.init();
-			log.info("WebApplication initialize success.");
+			log.info("WebApp initialize success.");
 		} catch (RuntimeException e) {
-			log.error("WebApplication initialize fail.", e);
+			log.error("WebApp initialize fail.", e);
 			throw e;
 		}
 	}
