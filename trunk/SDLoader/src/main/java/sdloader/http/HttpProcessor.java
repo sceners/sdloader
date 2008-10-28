@@ -49,15 +49,15 @@ import sdloader.util.WebUtils;
  * 
  * @author c9katayama
  */
-public class HttpRequestProcessor extends Thread {
+public class HttpProcessor extends Thread {
 	private static final SDLoaderLog log = SDLoaderLogFactory
-			.getLog(HttpRequestProcessor.class);
+			.getLog(HttpProcessor.class);
 
 	private int socketTimeout = 60 * 1000;
 
-	private int keepAliveTimeout = 1 * 1000;// Apache 15
+	private int keepAliveTimeout = 3 * 1000;// Apache 15
 
-	private int keppAliveMaxRequests = 5;// Apache 5
+	private int keppAliveMaxRequests = 100;// Apache 5
 
 	private Socket socket;
 
@@ -65,7 +65,7 @@ public class HttpRequestProcessor extends Thread {
 
 	private boolean stop;
 
-	public HttpRequestProcessor(String name) {
+	public HttpProcessor(String name) {
 		super(name);
 	}
 
@@ -113,7 +113,7 @@ public class HttpRequestProcessor extends Thread {
 		}
 	}
 
-	protected void processSocket(){
+	protected void processSocket() {
 		InputStream is = null;
 		OutputStream os = null;
 		try {
@@ -125,8 +125,8 @@ public class HttpRequestProcessor extends Thread {
 			boolean keepAlive = true;
 			while (keepAlive) {
 				RequestScopeContext.init();
-				RequestScopeContext.getContext().setAttribute(
-						SDLoader.class, sdLoader);
+				RequestScopeContext.getContext().setAttribute(SDLoader.class,
+						sdLoader);
 				keepAlive = processServlet(is, os, requestCount);
 				RequestScopeContext.destroy();
 				requestCount++;
@@ -138,8 +138,8 @@ public class HttpRequestProcessor extends Thread {
 		} catch (Throwable t) {
 			log.error(t.getMessage(), t);
 		} finally {
-			IOUtil.closeNoException(is);
 			IOUtil.flushNoException(os);
+			IOUtil.closeNoException(is);
 			IOUtil.closeNoException(os);
 			SocketUtil.closeSocketNoException(socket);
 			RequestScopeContext.destroy();
@@ -151,7 +151,7 @@ public class HttpRequestProcessor extends Thread {
 		sdLoader = null;
 		localLoader.returnProcessor(this);
 	}
-	
+
 	protected boolean processServlet(InputStream is, OutputStream os,
 			int requestCount) throws Throwable {
 		HttpRequest httpRequest;
@@ -195,8 +195,10 @@ public class HttpRequestProcessor extends Thread {
 			if (host == null) {
 				host = request.getLocalName() + ":" + request.getLocalPort();
 			}
+
 			response.addHeader(HttpConst.LOCATION, WebUtils.buildRequestURL(
 					request.getScheme(), host, resourcePath).toString());
+			setDefaultResponseHeader(request, response, requestCount);
 			processDataOutput(response, os);
 			return header.isKeepAlive();
 		}
@@ -277,34 +279,7 @@ public class HttpRequestProcessor extends Thread {
 		return request;
 	}
 
-	private void processDataOutput(HttpServletResponseImpl response,
-			OutputStream os) throws IOException {
-
-		if (BooleanUtil.toBoolean(sdLoader
-				.getConfig(HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE))) {
-			response.setHeader("Pragma", "no-cache");
-			response.setDateHeader("Expires", 1L);
-			response.setHeader("Cache-Control", "no-cache");
-			response.addHeader("Cache-Control", "no-store");
-		}
-
-		HttpHeader resHeader = response.getResponseHeader();
-		byte[] headerData = resHeader.buildHeader().getBytes();
-		byte[] bodyData = response.getBodyData();
-		if (headerData != null) {
-			os.write(headerData);
-			if (log.isDebugEnabled()) {
-				log.debug("<RESPONSE_HEADER>\n" + new String(headerData));
-			}
-		}
-		os.write(HttpConst.CRLF_STRING.getBytes());// Separator
-		if (bodyData != null) {
-			os.write(bodyData);
-		}
-		IOUtil.flushNoException(os);
-	}
-
-	private void setDefaultResponseHeader(HttpServletRequestImpl request,
+	protected void setDefaultResponseHeader(HttpServletRequestImpl request,
 			HttpServletResponseImpl response, int requestCount)
 			throws IOException {
 		response.setHeader(HttpConst.DATE, WebUtils.formatHeaderDate(Calendar
@@ -318,7 +293,7 @@ public class HttpRequestProcessor extends Thread {
 					.getId());
 			response.addCookie(sessionCookie);
 		}
-
+		// Keep-Alive
 		if (request.getHeader().isKeepAlive()
 				&& requestCount < keppAliveMaxRequests) {
 			response.addHeader(HttpConst.KEEPALIVE, "timeout="
@@ -327,6 +302,14 @@ public class HttpRequestProcessor extends Thread {
 			response.addHeader(HttpConst.CONNECTION, HttpConst.KEEPALIVE);
 		} else {
 			response.addHeader(HttpConst.CONNECTION, HttpConst.CLOSE);
+		}
+		// Cache Control
+		if (BooleanUtil.toBoolean(sdLoader
+				.getConfig(HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE))) {
+			response.setHeader("Pragma", "no-cache");
+			response.setDateHeader("Expires", 1L);
+			response.setHeader("Cache-Control", "no-cache");
+			response.addHeader("Cache-Control", "no-store");
 		}
 
 		// Content-Length
@@ -341,4 +324,20 @@ public class HttpRequestProcessor extends Thread {
 		}
 	}
 
+	private void processDataOutput(HttpServletResponseImpl response,
+			OutputStream os) throws IOException {
+		HttpHeader resHeader = response.getResponseHeader();
+
+		byte[] headerData = resHeader.buildHeader().getBytes();
+		byte[] bodyData = response.getBodyData();
+		os.write(headerData);
+		if (log.isDebugEnabled()) {
+			log.debug("<RESPONSE_HEADER>\n" + new String(headerData));
+		}
+		os.write(HttpConst.CRLF_STRING.getBytes());// Separator
+		if (bodyData != null) {
+			os.write(bodyData);
+		}
+		os.flush();
+	}
 }

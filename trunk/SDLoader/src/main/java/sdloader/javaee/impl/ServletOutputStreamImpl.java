@@ -18,6 +18,7 @@ package sdloader.javaee.impl;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import sdloader.util.IOUtil;
 
 import javax.servlet.ServletOutputStream;
 
@@ -52,6 +53,7 @@ public class ServletOutputStreamImpl extends ServletOutputStream {
 	}
 
 	public byte[] getOutputData() {
+		IOUtil.flushNoException(bufOut);
 		return bout.toByteArray();
 	}
 	public boolean isClosed(){

@@ -30,7 +30,6 @@ public class HttpRequestReader {
 	private static final char LF = '\n';
 
 	private InputStream inputStream;
-	private boolean skipNextLF = true;
 
 	public HttpRequestReader(InputStream is) {
 		super();
@@ -42,46 +41,21 @@ public class HttpRequestReader {
 
 		for (;;) {
 			int readChar = inputStream.read();
-
 			if (readChar < 0) {// eof
 				throw new SocketException("EOF");
 			}
-
 			char c = (char) readChar;
-
 			if (c == CR) {
-				skipNextLF = true;// CRで終わった次のLFを読み込まない
+				continue;
+			} else if (c == LF) {
 				return line.toString();
+			} else {
+				line.append(c);
 			}
-			if (c == LF) {				
-				if (skipNextLF && line.length() == 0) {
-					skipNextLF = false;
-					continue;
-				}
-				// CRなしでLFが来るパターン（例外パターン）
-				skipNextLF = false;
-				return line.toString();
-			}
-			line.append(c);
 		}
 	}
 
 	public void readBody(byte[] body) throws IOException {
-		int mark = 0;
-		if (skipNextLF) {
-			int b = inputStream.read();
-			if (((char) b) == LF) {
-				// CRで終わったLFなので読み飛ばす
-			} else if (body.length > 0) {
-				body[0] = (byte) b;
-				mark++;
-			}
-		}
-		skipNextLF = false;
-
-		int size = body.length;
-		for (; mark < size; mark++) {
-			body[mark] = (byte) inputStream.read();
-		}
+		inputStream.read(body, 0, body.length);
 	}
 }

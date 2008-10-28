@@ -26,8 +26,8 @@ import java.util.Map;
 
 import sdloader.event.EventDispatcher;
 import sdloader.http.HttpRequest;
-import sdloader.http.HttpRequestProcessor;
-import sdloader.http.HttpRequestProcessorPool;
+import sdloader.http.HttpProcessor;
+import sdloader.http.HttpProcessorPool;
 import sdloader.http.HttpResponse;
 import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
@@ -86,7 +86,7 @@ public class SDLoader implements Lifecycle {
 
 	private String serverName = "SDLoader";
 
-	private HttpRequestProcessorPool socketProcessorPool;
+	private HttpProcessorPool socketProcessorPool;
 
 	private SDLoaderThread sdLoaderThread;
 
@@ -380,7 +380,6 @@ public class SDLoader implements Lifecycle {
 		try {
 			int bindPort = autoPortDetect ? 0 : getPort();
 			initSocket = new ServerSocket();
-			initSocket.setReuseAddress(true);
 			if (useOutSidePort) {
 				initSocket.bind(new InetSocketAddress(bindPort));
 			} else {
@@ -397,7 +396,7 @@ public class SDLoader implements Lifecycle {
 	}
 
 	protected void initSocketProcessor() {
-		socketProcessorPool = new HttpRequestProcessorPool(
+		socketProcessorPool = new HttpProcessorPool(
 				this.maxThreadPoolNum);
 	}
 
@@ -420,7 +419,7 @@ public class SDLoader implements Lifecycle {
 		return webAppManager;
 	}
 
-	public void returnProcessor(HttpRequestProcessor processor) {
+	public void returnProcessor(HttpProcessor processor) {
 		socketProcessorPool.returnProcessor(processor);
 	}
 
@@ -438,6 +437,7 @@ public class SDLoader implements Lifecycle {
 				Socket socket = null;
 				try {
 					socket = serverSocket.accept();
+					log.debug("Accept socket connection.");
 				} catch (AccessControlException ace) {
 					log.warn("Socket accept security exception "
 							+ ace.getMessage(), ace);
@@ -449,7 +449,7 @@ public class SDLoader implements Lifecycle {
 					log.error("Socket accept error.", ioe);
 					continue;
 				}
-				HttpRequestProcessor con = socketProcessorPool
+				HttpProcessor con = socketProcessorPool
 						.borrowProcessor();
 				con.process(socket, SDLoader.this);
 			}
