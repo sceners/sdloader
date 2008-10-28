@@ -29,6 +29,8 @@ import javax.servlet.http.HttpSession;
  */
 public class SharedSessionTestServlet extends HttpServlet {
 
+	private static final long serialVersionUID = 1L;
+
 	protected void doGet(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException {
 		HttpSession session = arg0.getSession();
 
