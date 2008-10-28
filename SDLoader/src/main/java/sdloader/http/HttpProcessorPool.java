@@ -22,41 +22,41 @@ import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;
 
 /**
- * HttpRequestProcessorPool
+ * HttpProcessorPool
  * 
  * @author c9katayama
  * @author shot
  */
-public class HttpRequestProcessorPool {
+public class HttpProcessorPool {
 
 	private static final SDLoaderLog log = SDLoaderLogFactory
-			.getLog(HttpRequestProcessor.class);
+			.getLog(HttpProcessor.class);
 
 	private int maxThreadPoolNum;
 
-	private List<HttpRequestProcessor> processorPool = CollectionsUtil
+	private List<HttpProcessor> processorPool = CollectionsUtil
 			.newLinkedList();
 
-	public HttpRequestProcessorPool(int maxThreadPoolNum) {
+	public HttpProcessorPool(int maxThreadPoolNum) {
 		this.maxThreadPoolNum = maxThreadPoolNum;
 		for (int i = 0; i < maxThreadPoolNum; ++i) {
-			HttpRequestProcessor processor = new HttpRequestProcessor(
-					"HttpRequestProcessor:init" + i);
+			HttpProcessor processor = new HttpProcessor(
+					"HttpProcessor:init" + i);
 			processor.start();
 			processorPool.add(processor);
 		}
 	}
 
-	public HttpRequestProcessor borrowProcessor() {
+	public HttpProcessor borrowProcessor() {
 		synchronized (processorPool) {
 			if (processorPool.isEmpty()) {
-				HttpRequestProcessor processor = new HttpRequestProcessor(
-						"HttpRequestProcessor:" + System.currentTimeMillis());
+				HttpProcessor processor = new HttpProcessor(
+						"HttpProcessor:" + System.currentTimeMillis());
 				processor.start();
 				log.debug("create " + processor.getName());
 				return processor;
 			} else {
-				HttpRequestProcessor processor = (HttpRequestProcessor) processorPool
+				HttpProcessor processor = (HttpProcessor) processorPool
 						.remove(0);
 				log.debug("reuse " + processor.getName());
 				return processor;
@@ -64,7 +64,7 @@ public class HttpRequestProcessorPool {
 		}
 	}
 
-	public void returnProcessor(HttpRequestProcessor processor) {
+	public void returnProcessor(HttpProcessor processor) {
 		synchronized (processorPool) {
 			if (processorPool.size() < maxThreadPoolNum) {
 				log.debug("return " + processor.getName());
