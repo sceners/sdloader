@@ -17,6 +17,11 @@ package sdloader.util;
 
 import java.util.regex.Pattern;
 
+/**
+ * Boolean utility
+ * 
+ * @author c9katayama
+ */
 public class BooleanUtil {
 
 	public static final Pattern YES_PATTERN = Pattern.compile("(yes|true|y)",
