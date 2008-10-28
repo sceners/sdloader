@@ -16,7 +16,9 @@
 package sdloader.util;
 
 import java.io.IOException;
-
+/**
+ * @author c9katayama
+ */
 public class Browser {
 
 	public static void open(String url){
