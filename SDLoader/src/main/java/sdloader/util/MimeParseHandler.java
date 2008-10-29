@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.javaee.servlet;
+package sdloader.util;
 
+import java.util.Map;
 import java.util.Stack;
 
 import org.xml.sax.Attributes;
@@ -28,17 +29,13 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class MimeParseHandler extends DefaultHandler {
 
-	private FileSavingServlet target;
-
 	private Stack<String> nameStack = new Stack<String>();
 
 	private String extension;
 
 	private String mimeType;
 
-	public MimeParseHandler(FileSavingServlet servlet) {
-		target = servlet;
-	}
+	private Map<String, String> mimeMap = CollectionsUtil.newHashMap();
 
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
@@ -52,19 +49,25 @@ public class MimeParseHandler extends DefaultHandler {
 		String value = new String(c);
 
 		String name = (String) nameStack.peek();
-		if (name.equals("extension"))
-			extension = value;
-		else if (name.equals("mime-type"))
+		if (name.equals("extension")) {
+			extension = value.toLowerCase();
+		} else if (name.equals("mime-type")) {
 			mimeType = value;
+		}
 	}
 
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
 		String name = (String) nameStack.pop();
 		if (name.equals("mime-mapping")) {
-			if (extension != null && mimeType != null)
-				target.addMimeType(extension, mimeType);
+			if (extension != null && mimeType != null) {
+				mimeMap.put(extension, mimeType);
+			}
 			extension = mimeType = null;
 		}
+	}
+
+	public Map<String, String> getMimeMap() {
+		return mimeMap;
 	}
 }

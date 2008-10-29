@@ -29,6 +29,8 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import sdloader.javaee.ServletMapping;
 import sdloader.javaee.WebApp;
@@ -37,6 +39,7 @@ import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
+import sdloader.util.MimeParseHandler;
 import sdloader.util.PathUtils;
 import sdloader.util.ResourceUtil;
 
@@ -46,7 +49,7 @@ import sdloader.util.ResourceUtil;
  * @author c9katayama
  */
 public class ServletContextImpl implements ServletContext {
-	
+
 	private static final SDLoaderLog log = SDLoaderLogFactory
 			.getLog(ServletConfigImpl.class);
 
@@ -62,13 +65,32 @@ public class ServletContextImpl implements ServletContext {
 
 	private Map<String, String> initParamMap = CollectionsUtil.newHashMap();
 
+	protected Map<String, String> mimeTypeMap;
+	{
+		InputStream is = ResourceUtil.getResourceAsStream(
+				"/sdloader/resource/mime.xml", getClass());
+		if (is == null) {
+			throw new ExceptionInInitializerError("mime.xml not found.");
+		}
+
+		try {
+			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+			MimeParseHandler handler = new MimeParseHandler();
+			parser.parse(is, handler);
+			mimeTypeMap = handler.getMimeMap();
+		} catch (Exception se) {
+			throw new ExceptionInInitializerError("Mime parse fail. "
+					+ se.getMessage());
+		}
+	}
+
 	public ServletContextImpl(WebApp webapp) {
 		this.webApp = webapp;
 	}
 
 	public ServletContext getContext(String contextPath) {
-		WebApp webapp = this.webApp.getWebApplicationManager()
-				.findWebApp(contextPath);
+		WebApp webapp = this.webApp.getWebApplicationManager().findWebApp(
+				contextPath);
 		if (webapp != null)
 			return webapp.getServletContext();
 
@@ -108,13 +130,13 @@ public class ServletContextImpl implements ServletContext {
 
 	public URL getResource(String resource) throws MalformedURLException {
 		URL url = null;
-		if(ResourceUtil.isAbsoluteURL(resource)){
+		if (ResourceUtil.isAbsoluteURL(resource)) {
 			url = new URL(resource);
 			return ResourceUtil.isResourceExist(url) ? url : null;
-		}else{
-			for(int i = 0;i < docBase.length;i++){
-				url = ResourceUtil.createURL(docBase[i],resource);
-				if(ResourceUtil.isResourceExist(url)){
+		} else {
+			for (int i = 0; i < docBase.length; i++) {
+				url = ResourceUtil.createURL(docBase[i], resource);
+				if (ResourceUtil.isResourceExist(url)) {
 					return url;
 				}
 			}
@@ -123,14 +145,14 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public InputStream getResourceAsStream(String resource) {
-		try{
+		try {
 			URL url = getResource(resource);
-			if(url != null){
+			if (url != null) {
 				return url.openStream();
-			}else{
+			} else {
 				return null;
 			}
-		}catch(Exception e){
+		} catch (Exception e) {
 			return null;
 		}
 	}
@@ -156,24 +178,25 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public String getRealPath(String resource) {
-		if(docBase.length==0){
-			URL url = ResourceUtil.createURL(docBase[0],resource);
+		if (docBase.length == 0) {
+			URL url = ResourceUtil.createURL(docBase[0], resource);
 			return toRealPath(url);
-		}else{
-			for(int i = 0;i < docBase.length;i++){
-				URL url = ResourceUtil.createURL(docBase[i],resource);
-				if(ResourceUtil.isResourceExist(url)){
+		} else {
+			for (int i = 0; i < docBase.length; i++) {
+				URL url = ResourceUtil.createURL(docBase[i], resource);
+				if (ResourceUtil.isResourceExist(url)) {
 					return toRealPath(url);
 				}
 			}
-			URL url = ResourceUtil.createURL(docBase[0],resource);
+			URL url = ResourceUtil.createURL(docBase[0], resource);
 			return toRealPath(url);
 		}
 	}
-	protected String toRealPath(URL url){
-		if(url.getProtocol().startsWith("file")){
+
+	protected String toRealPath(URL url) {
+		if (url.getProtocol().startsWith("file")) {
 			return url.getFile();
-		}else{
+		} else {
 			return url.toExternalForm();
 		}
 	}
@@ -226,32 +249,43 @@ public class ServletContextImpl implements ServletContext {
 		return 0;
 	}
 
-	public String getMimeType(String arg0) {
-		return null;
+	public String getMimeType(String path) {		
+		String ext = PathUtils.getExtension(path);
+		if(ext == null){
+			return mimeTypeMap.get(path.toLowerCase());
+		}else{
+			return mimeTypeMap.get(ext.toLowerCase());
+		}
 	}
+
 	/**
 	 * パス名は "/" で始める必要があり、現在のコンテキストルートに対する相対パスとして解釈されます。
 	 */
 	public RequestDispatcher getRequestDispatcher(String requestPath) {
-		if(!PathUtils.startsWithSlash(requestPath)){
-			throw new IllegalArgumentException("dispatch path is not start with \"/\".");
+		if (!PathUtils.startsWithSlash(requestPath)) {
+			throw new IllegalArgumentException(
+					"dispatch path is not start with \"/\".");
 		}
 		WebApp webapp = webApp.getWebApplicationManager().findWebApp(
 				this.servletContextName);
 		ServletMapping mapping = webapp.findServletMapping(requestPath);
-		if (mapping == null){
+		if (mapping == null) {
 			return null;
 		}
 		String servletName = mapping.getServletName();
 		Servlet servlet = webapp.findServlet(servletName);
-		List<Filter> forwardFilters = webapp.findFilters(requestPath, servletName,JavaEEConstants.DISPATCHER_TYPE_FORWARD);
-		List<Filter> includeFilters = webapp.findFilters(requestPath, servletName,JavaEEConstants.DISPATCHER_TYPE_INCLUDE);
+		List<Filter> forwardFilters = webapp.findFilters(requestPath,
+				servletName, JavaEEConstants.DISPATCHER_TYPE_FORWARD);
+		List<Filter> includeFilters = webapp.findFilters(requestPath,
+				servletName, JavaEEConstants.DISPATCHER_TYPE_INCLUDE);
 
 		String contextPath = webapp.getContextPath();
-		String requestURI = PathUtils.jointPathWithSlash(contextPath,requestPath);
-		
-		return new RequestDispatcherImpl(mapping, servlet,forwardFilters,includeFilters, webapp
-				.getServletContext(),contextPath, requestURI);
+		String requestURI = PathUtils.jointPathWithSlash(contextPath,
+				requestPath);
+
+		return new RequestDispatcherImpl(mapping, servlet, forwardFilters,
+				includeFilters, webapp.getServletContext(), contextPath,
+				requestURI);
 	}
 
 	public RequestDispatcher getNamedDispatcher(String servletName) {

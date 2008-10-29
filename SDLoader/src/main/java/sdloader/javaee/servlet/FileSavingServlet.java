@@ -18,28 +18,24 @@ package sdloader.javaee.servlet;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import sdloader.http.HttpConst;
 import sdloader.javaee.WebApp;
 import sdloader.javaee.impl.ServletContextImpl;
 import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.WelcomeFileListTag;
-import sdloader.util.CollectionsUtil;
 import sdloader.util.PathUtils;
 import sdloader.util.ResourceUtil;
 import sdloader.util.WebUtils;
@@ -60,8 +56,6 @@ public class FileSavingServlet extends HttpServlet {
 	 */
 	protected URL[] docRootPath;
 
-	protected Map<String, String> mimeTypeMap = CollectionsUtil.newHashMap();
-
 	protected WelcomeFileListTag welcomeFileListTag;
 
 	protected WebApp webApp;
@@ -80,36 +74,11 @@ public class FileSavingServlet extends HttpServlet {
 		for (int i = 0; i < paths.length; i++) {
 			docRootPath[i] = ResourceUtil.createURL(paths[i]);
 		}
-		// load mimetype
-		initMime();
 
 		ServletContextImpl servletContext = (ServletContextImpl) getServletContext();
 		webApp = servletContext.getWebApplication();
 		welcomeFileListTag = webApp.getWebXml().getWebApp()
 				.getWelcomeFileList();
-	}
-
-	/**
-	 * mimeTypeを初期化します。
-	 * 
-	 * @throws ServletException
-	 */
-	protected void initMime() throws ServletException {
-		InputStream is = ResourceUtil.getResourceAsStream(
-				"/sdloader/resource/mime.xml", getClass());
-		if (is == null)
-			throw new ServletException("mime.xml not found.");
-
-		try {
-			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
-			parser.parse(is, new MimeParseHandler(this));
-		} catch (Exception se) {
-			throw new ServletException("Mime parse fail. " + se.getMessage());
-		}
-	}
-
-	public void addMimeType(String ext, String type) {
-		this.mimeTypeMap.put(ext, type);
 	}
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -276,14 +245,16 @@ public class FileSavingServlet extends HttpServlet {
 	protected void setContentType(HttpServletResponse res, String path) {
 		int dotIndex = path.lastIndexOf(".");
 		if (dotIndex >= 0) {
+			ServletContext sc = getServletContext();
 			try {
 				String ext = path.substring(dotIndex + 1);
-				String type = mimeTypeMap.get(ext);
-				if (type == null)
-					type = mimeTypeMap.get(ext.toLowerCase());
-				if (type == null)
-					type = mimeTypeMap.get(ext.toUpperCase());
-
+				String type = sc.getMimeType(ext);
+				if (type == null) {
+					type = sc.getMimeType(ext.toLowerCase());
+				}
+				if (type == null) {
+					type = sc.getMimeType(ext.toUpperCase());
+				}
 				if (type != null) {
 					res.setContentType(type);
 					return;
