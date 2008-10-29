@@ -350,6 +350,10 @@ public class WebApp {
 							continue;
 						}
 					}
+					if(matchType==WebUtils.PATTERN_DEFAULT_MATCH
+						&& currentMatchType == WebUtils.PATTERN_DEFAULT_MATCH){
+						continue;
+					}
 					currentMatchType = matchType;
 					currentPathMatchLength = patternText.length();
 					targetServletMapping = new ServletMapping(mapping
