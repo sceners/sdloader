@@ -93,6 +93,10 @@
         <mime-type>text/css</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>csv</extension>
+        <mime-type>text/csv</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>dib</extension>
         <mime-type>image/bmp</mime-type>
     </mime-mapping>

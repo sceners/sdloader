@@ -97,6 +97,17 @@ public class PathUtils {
 		return path.replace('\\', '/');
 	}
 
+	public static final String getExtension(String path) {
+		if(path == null){
+			return path;
+		}
+		int dot = path.lastIndexOf(".");
+		if(dot==-1){
+			return null;
+		}
+		return path.substring(dot+1,path.length());
+	}
+
 	/**
 	 * 絶対パスかどうか
 	 * 
