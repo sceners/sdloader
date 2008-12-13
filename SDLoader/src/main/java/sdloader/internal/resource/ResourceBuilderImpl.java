@@ -36,7 +36,6 @@ public class ResourceBuilderImpl implements ResourceBuilder {
 	public ResourceBuilderImpl() {
 	}
 
-	@SuppressWarnings("deprecation")
 	public Map<URL, Resource> build(String filepath) throws IOException {
 		final File file = new File(filepath);
 		final URL rootUrl = new URL("war:" + file.toURI().toURL().toExternalForm());
@@ -44,7 +43,6 @@ public class ResourceBuilderImpl implements ResourceBuilder {
 		return build(rootUrl, ji);
 	}
 
-	@SuppressWarnings("deprecation")
 	public Map<URL, Resource> build(URL rootUrl, JarInputStream ji)
 			throws IOException {
 
