@@ -188,18 +188,7 @@ public class WebAppManager {
 				}
 			}
 		} else {
-			URL.setURLStreamHandlerFactory(new URLStreamHandlerFactory() {
-				public URLStreamHandler createURLStreamHandler(
-						final String protocol) {
-					if (protocol.equals(WarURLStreamHandler.PROTOCOL)) {
-						return new WarURLStreamHandler();
-					} else if (protocol
-							.equals(InnerJarURLStreamHandler.PROTOCOL)) {
-						return new InnerJarURLStreamHandler();
-					}
-					return null;
-				}
-			});
+			URL.setURLStreamHandlerFactory(new ArchiveURLStreamHandlerFactory());			
 			ResourceBuilder builder = new ResourceBuilderImpl();
 			for (File warfile : warFiles) {
 				final URL warDocRoot = ResourceUtil
@@ -588,6 +577,19 @@ public class WebAppManager {
 		}
 	}
 
+	private final class ArchiveURLStreamHandlerFactory implements URLStreamHandlerFactory  {
+		public URLStreamHandler createURLStreamHandler(
+				final String protocol) {
+			if (protocol.equals(WarURLStreamHandler.PROTOCOL)) {
+				return new WarURLStreamHandler();
+			} else if (protocol
+					.equals(InnerJarURLStreamHandler.PROTOCOL)) {
+				return new InnerJarURLStreamHandler();
+			}
+			return null;
+		}
+	}
+	
 	private final class WarURLStreamHandler extends URLStreamHandler {
 		public static final String PROTOCOL = "war";
 
