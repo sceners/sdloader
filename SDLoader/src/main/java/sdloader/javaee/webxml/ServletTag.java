@@ -65,9 +65,11 @@ public class ServletTag implements WebXmlTagElement {
 	public String getServletClass() {
 		return servletClass;
 	}
+	
 	public ServletTag setServletClass(Class<? extends Servlet> servletClass) {
 		return setServletClass(servletClass.getName());
 	}
+	
 	public ServletTag setServletClass(String servletClass) {
 		this.servletClass = servletClass;
 		return this;
