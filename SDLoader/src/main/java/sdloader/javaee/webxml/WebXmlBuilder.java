@@ -21,16 +21,15 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.xml.sax.SAXException;
-
+import sdloader.exception.IORuntimeException;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.Assertion;
 import sdloader.util.CollectionsUtil;
+import sdloader.util.ResourceUtil;
 
 /**
  * web.xmlファイルからWebXmlを構築します。
@@ -53,39 +52,53 @@ public class WebXmlBuilder {
 				"/sdloader/resource/web-app_2_3.dtd");
 	}
 
-	public WebXml build(final URL webXmlUrl) throws IOException, SAXException,
-			ParserConfigurationException {
-		log.info("load start web.xml. Path=" + webXmlUrl);
-		InputStream is = webXmlUrl.openStream();
-		WebXml webxml = createWebXml(is);
-		log.info("load success web.xml. Path=" + webXmlUrl);
+	public static WebXml build(final String webXmlUrl)
+			throws IORuntimeException {
+		InputStream is = ResourceUtil.getResourceAsStream(webXmlUrl,
+				WebXmlBuilder.class);
+		if (is == null) {
+			throw new IORuntimeException("Resource not found.path=" + webXmlUrl);
+		}
+		return build(is);
+	}
+
+	public static WebXml build(final URL webXmlUrl) throws IORuntimeException {
+		InputStream is = null;
+		try {
+			is = webXmlUrl.openStream();
+		} catch (IOException ioe) {
+			throw new IORuntimeException(ioe);
+		}
+		WebXml webxml = build(is);
 		return webxml;
 	}
 
-	private WebXml createWebXml(InputStream is) throws IOException,
-			SAXException, ParserConfigurationException {
+	public static WebXml build(final InputStream is) throws IORuntimeException {
 
-		final SAXParser sax = SAXParserFactory.newInstance().newSAXParser();
-		final WebXmlParseHandler handler = new WebXmlParseHandler();
-		for (Iterator<String> itr = registrations.keySet().iterator(); itr
-				.hasNext();) {
-			String key = itr.next();
-			String value = registrations.get(key);
-			URL url = WebXml.class.getResource(value);
-			if (url != null) {
-				handler
-						.register(Assertion.notNull(key), Assertion
-								.notNull(url));
-			} else {
-				log.warn("registration resource not found.key=" + key
-						+ " value=" + value);
+		try {
+			final SAXParser sax = SAXParserFactory.newInstance().newSAXParser();
+			final WebXmlParseHandler handler = new WebXmlParseHandler();
+			for (Iterator<String> itr = registrations.keySet().iterator(); itr
+					.hasNext();) {
+				String key = itr.next();
+				String value = registrations.get(key);
+				URL url = WebXml.class.getResource(value);
+				if (url != null) {
+					handler.register(Assertion.notNull(key), Assertion
+							.notNull(url));
+				} else {
+					log.warn("registration resource not found.key=" + key
+							+ " value=" + value);
+				}
 			}
+			sax.parse(is, handler);
+			WebXml webxml = new WebXml();
+			WebAppTag webAppTag = (WebAppTag) handler.getRootObject();
+			webxml.setWebApp(webAppTag);
+			return webxml;
+		} catch (Exception e) {
+			throw new IORuntimeException(e);
 		}
-		sax.parse(is, handler);
-		WebXml webxml = new WebXml();
-		WebAppTag webAppTag = (WebAppTag) handler.getRootObject();
-		webxml.setWebApp(webAppTag);
-		return webxml;
 	}
 
 }
