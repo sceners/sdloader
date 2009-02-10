@@ -65,8 +65,9 @@ public class WebAppListServlet extends HttpServlet {
 		writer.write("<a href=\"/\">ROOT</a><br/>");
 		if(contextPathList != null){
 			for(String path : contextPathList){
-				if(!path.equals("/"+WebConstants.ROOT_DIR_NAME))
-					writer.write("<a href=\"" + path + "\">" + path + "</a><br/>");				
+				if(!path.equals("/"+WebConstants.ROOT_DIR_NAME)){
+					writer.write("<a href=\"" + path + "\">" + path + "</a><br/>");
+				}
 			}
 		}
 		writer.write("</body></html>");
