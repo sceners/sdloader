@@ -18,6 +18,8 @@ package sdloader.javaee.webxml;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.servlet.Servlet;
+
 import sdloader.util.CollectionsUtil;
 
 /**
@@ -63,7 +65,9 @@ public class ServletTag implements WebXmlTagElement {
 	public String getServletClass() {
 		return servletClass;
 	}
-
+	public ServletTag setServletClass(Class<? extends Servlet> servletClass) {
+		return setServletClass(servletClass.getName());
+	}
 	public ServletTag setServletClass(String servletClass) {
 		this.servletClass = servletClass;
 		return this;

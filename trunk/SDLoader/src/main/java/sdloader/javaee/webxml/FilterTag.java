@@ -18,6 +18,8 @@ package sdloader.javaee.webxml;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.servlet.Filter;
+
 import sdloader.util.CollectionsUtil;
 
 /**
@@ -40,7 +42,9 @@ public class FilterTag implements WebXmlTagElement {
 	public String getFilterClass() {
 		return filterClass;
 	}
-
+	public FilterTag setFilterClass(Class<? extends Filter> filterClass) {
+		return setFilterClass(filterClass.getName());
+	}
 	public FilterTag setFilterClass(String filterClass) {
 		this.filterClass = filterClass;
 		return this;
