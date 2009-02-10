@@ -33,7 +33,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import sdloader.javaee.ServletMapping;
-import sdloader.javaee.WebApp;
+import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
@@ -53,7 +53,7 @@ public class ServletContextImpl implements ServletContext {
 	private static final SDLoaderLog log = SDLoaderLogFactory
 			.getLog(ServletConfigImpl.class);
 
-	private WebApp webApp;
+	private InternalWebApplication webApp;
 
 	private String servletContextName;// コンテキスト名 /で始まるコンテキストディレクトリ名
 
@@ -84,15 +84,16 @@ public class ServletContextImpl implements ServletContext {
 		}
 	}
 
-	public ServletContextImpl(WebApp webapp) {
+	public ServletContextImpl(InternalWebApplication webapp) {
 		this.webApp = webapp;
 	}
 
 	public ServletContext getContext(String contextPath) {
-		WebApp webapp = this.webApp.getWebApplicationManager().findWebApp(
+		InternalWebApplication webapp = this.webApp.getWebApplicationManager().findWebApp(
 				contextPath);
-		if (webapp != null)
+		if (webapp != null){
 			return webapp.getServletContext();
+		}
 
 		return null;
 	}
@@ -266,7 +267,7 @@ public class ServletContextImpl implements ServletContext {
 			throw new IllegalArgumentException(
 					"dispatch path is not start with \"/\".");
 		}
-		WebApp webapp = webApp.getWebApplicationManager().findWebApp(
+		InternalWebApplication webapp = webApp.getWebApplicationManager().findWebApp(
 				this.servletContextName);
 		ServletMapping mapping = webapp.findServletMapping(requestPath);
 		if (mapping == null) {
@@ -295,6 +296,11 @@ public class ServletContextImpl implements ServletContext {
 	public String getServerInfo() {
 		return "SDLoader";
 	}
+	
+	public String getContextPath() {
+		return servletContextName;
+	}
+	
 
 	// /non interface method
 	public void setServletMap(Map<String, Servlet> servletMap) {
@@ -313,7 +319,7 @@ public class ServletContextImpl implements ServletContext {
 		this.docBase = absoluteContextPath;
 	}
 
-	public WebApp getWebApplication() {
+	public InternalWebApplication getWebApplication() {
 		return webApp;
 	}
 }

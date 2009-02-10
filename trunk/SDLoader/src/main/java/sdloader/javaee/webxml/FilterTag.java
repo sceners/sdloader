@@ -41,20 +41,23 @@ public class FilterTag implements WebXmlTagElement {
 		return filterClass;
 	}
 
-	public void setFilterClass(String filterClass) {
+	public FilterTag setFilterClass(String filterClass) {
 		this.filterClass = filterClass;
+		return this;
 	}
 
 	public String getFilterName() {
 		return filterName;
 	}
 
-	public void setFilterName(String filterName) {
+	public FilterTag setFilterName(String filterName) {
 		this.filterName = filterName;
+		return this;
 	}
 
-	public void addInitParam(InitParamTag initParam) {
+	public FilterTag addInitParam(InitParamTag initParam) {
 		this.initParam.add(initParam);
+		return this;
 	}
 
 	public String getInitParam(String paramName) {

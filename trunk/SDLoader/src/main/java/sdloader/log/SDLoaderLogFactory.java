@@ -21,25 +21,26 @@ package sdloader.log;
  * @author c9katayama
  */
 public class SDLoaderLogFactory {
-	
+
 	private static boolean isCommonsSupport;
-	
-	static{
-		try{
+
+	static {
+		try {
 			Class.forName("org.apache.commons.logging.LogFactory");
 			isCommonsSupport = true;
-		}catch(Throwable e){
+		} catch (Throwable e) {
 			isCommonsSupport = false;
 		}
 	}
+
 	private SDLoaderLogFactory() {
 	}
 
 	public static SDLoaderLog getLog(Class<?> c) {
-		if(isCommonsSupport){
+		if (isCommonsSupport) {
 			return new SDLoaderLogCommonsLoggingImpl(c);
-		}else{
-			return new SDLoaderLogSystemOutImpl(c);
+		} else {
+			return new SDLoaderLogJDKLoggerImpl(c);
 		}
 	}
 }

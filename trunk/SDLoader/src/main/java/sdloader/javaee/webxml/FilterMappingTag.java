@@ -54,35 +54,39 @@ public class FilterMappingTag implements WebXmlTagElement {
 		return filterName;
 	}
 
-	public void setFilterName(String filterName) {
+	public FilterMappingTag setFilterName(String filterName) {
 		this.filterName = filterName;
+		return this;
 	}
 
 	public String getServletName() {
 		return servletName;
 	}
 
-	public void setServletName(String servletName) {
+	public FilterMappingTag setServletName(String servletName) {
 		this.servletName = servletName;
+		return this;
 	}
 
 	public String getUrlPattern() {
 		return urlPattern;
 	}
 
-	public void setUrlPattern(String urlPattern) {
+	public FilterMappingTag setUrlPattern(String urlPattern) {
 		this.urlPattern = urlPattern;
+		return this;
 	}
 
 	public Set<String> getDispatchers() {
 		return dispatchers;
 	}
 
-	public void addDispatcher(String dispatcher) {
+	public FilterMappingTag addDispatcher(String dispatcher) {
 		if (!SUPPORT_DISPATCHERS.contains(dispatcher)) {
 			throw new NotImplementedYetException("dispatcher value ["
 					+ dispatcher + "] not support.");
 		}
 		this.dispatchers.add(dispatcher);
+		return this;
 	}
 }

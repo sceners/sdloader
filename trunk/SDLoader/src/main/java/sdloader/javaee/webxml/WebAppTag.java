@@ -48,20 +48,23 @@ public class WebAppTag implements WebXmlTagElement {
 		super();
 	}
 
-	public void addContextParam(ContextParamTag tag) {
+	public WebAppTag addContextParam(ContextParamTag tag) {
 		this.contextParam.add(tag);
+		return this;
 	}
 
 	public List<ContextParamTag> getContextParam() {
 		return contextParam;
 	}
 
-	public void addFilter(FilterTag filter) {
+	public WebAppTag addFilter(FilterTag filter) {
 		this.filter.add(filter);
+		return this;
 	}
 
-	public void addFilterMapping(FilterMappingTag mapping) {
+	public WebAppTag addFilterMapping(FilterMappingTag mapping) {
 		this.filterMapping.add(mapping);
+		return this;
 	}
 
 	public List<FilterTag> getFilter() {
@@ -75,8 +78,9 @@ public class WebAppTag implements WebXmlTagElement {
 	public FilterTag findFilter(FilterTag filterName) {
 		for (Iterator<FilterTag> itr = filter.iterator(); itr.hasNext();) {
 			FilterTag filter = itr.next();
-			if (filter.getFilterName().equals(filterName))
+			if (filter.getFilterName().equals(filterName)) {
 				return filter;
+			}
 		}
 		return null;
 	}
@@ -85,26 +89,30 @@ public class WebAppTag implements WebXmlTagElement {
 		for (Iterator<FilterMappingTag> itr = filterMapping.iterator(); itr
 				.hasNext();) {
 			FilterMappingTag filterMapping = itr.next();
-			if (filterMapping.getFilterName().equals(filterName))
+			if (filterMapping.getFilterName().equals(filterName)) {
 				return filterMapping;
+			}
 		}
 		return null;
 	}
 
-	public void addListener(ListenerTag tag) {
+	public WebAppTag addListener(ListenerTag tag) {
 		this.listener.add(tag);
+		return this;
 	}
 
 	public List<ListenerTag> getListener() {
 		return listener;
 	}
 
-	public void addServlet(ServletTag servlet) {
+	public WebAppTag addServlet(ServletTag servlet) {
 		this.servlet.add(servlet);
+		return this;
 	}
 
-	public void addServletMapping(ServletMappingTag mapping) {
+	public WebAppTag addServletMapping(ServletMappingTag mapping) {
 		this.servletMapping.add(mapping);
+		return this;
 	}
 
 	public List<ServletTag> getServlet() {
@@ -116,26 +124,26 @@ public class WebAppTag implements WebXmlTagElement {
 	}
 
 	public ServletTag findServlet(String servletName) {
-		for (Iterator<ServletTag> itr = servlet.iterator(); itr.hasNext();) {
-			ServletTag servet = itr.next();
-			if (servet.getServletName().equals(servletName))
-				return servet;
+		for (ServletTag servletTag : servlet) {
+			if (servletTag.getServletName().equals(servletName)) {
+				return servletTag;
+			}
 		}
 		return null;
 	}
 
 	public ServletMappingTag findServletMapping(String servletName) {
-		for (Iterator<ServletMappingTag> itr = servletMapping.iterator(); itr
-				.hasNext();) {
-			ServletMappingTag servetMapping = itr.next();
-			if (servetMapping.getServletName().equals(servletName))
-				return servetMapping;
+		for (ServletMappingTag servletMappingTag : servletMapping) {
+			if (servletMappingTag.getServletName().equals(servletName)) {
+				return servletMappingTag;
+			}
 		}
 		return null;
 	}
 
-	public void setWelcomeFileList(WelcomeFileListTag welcomeFileList) {
+	public WebAppTag setWelcomeFileList(WelcomeFileListTag welcomeFileList) {
 		this.welcomeFileList = welcomeFileList;
+		return this;
 	}
 
 	public WelcomeFileListTag getWelcomeFileList() {

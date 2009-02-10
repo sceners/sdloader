@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import sdloader.javaee.WebApp;
+import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.constants.WebConstants;
 import sdloader.javaee.impl.ServletContextImpl;
 
@@ -52,7 +52,7 @@ public class WebAppListServlet extends HttpServlet {
 	protected void doIt(HttpServletRequest req,HttpServletResponse res)
 		throws ServletException, IOException {
 		
-		WebApp webapp = ((ServletContextImpl)getServletContext()).getWebApplication();
+		InternalWebApplication webapp = ((ServletContextImpl)getServletContext()).getWebApplication();
 		List<String> contextPathList = webapp.getWebApplicationManager().getContextPathList();
 		outputWebAppList(contextPathList, req, res);
 	}

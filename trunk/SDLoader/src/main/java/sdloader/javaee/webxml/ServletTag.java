@@ -46,36 +46,41 @@ public class ServletTag implements WebXmlTagElement {
 		return displayName;
 	}
 
-	public void setDisplayName(String displayName) {
+	public ServletTag setDisplayName(String displayName) {
 		this.displayName = displayName;
+		return this;
 	}
 
 	public int getLoadOnStartup() {
 		return loadOnStartup;
 	}
 
-	public void setLoadOnStartup(int loadOnStartup) {
+	public ServletTag setLoadOnStartup(int loadOnStartup) {
 		this.loadOnStartup = loadOnStartup;
+		return this;
 	}
 
 	public String getServletClass() {
 		return servletClass;
 	}
 
-	public void setServletClass(String servletClass) {
+	public ServletTag setServletClass(String servletClass) {
 		this.servletClass = servletClass;
+		return this;
 	}
 
 	public String getServletName() {
 		return servletName;
 	}
 
-	public void setServletName(String servletName) {
+	public ServletTag setServletName(String servletName) {
 		this.servletName = servletName;
+		return this;
 	}
 
-	public void addInitParam(InitParamTag initParam) {
+	public ServletTag addInitParam(InitParamTag initParam) {
 		this.initParam.add(initParam);
+		return this;
 	}
 
 	public String getInitParam(String paramName) {

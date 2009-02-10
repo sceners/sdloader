@@ -20,28 +20,36 @@ package sdloader.javaee.webxml;
  * 
  * @author c9katayama
  */
-public class ErrorPageTag implements WebXmlTagElement{
-	
+public class ErrorPageTag implements WebXmlTagElement {
+
 	private String errorCode;
 	private String exceptionType;
 	private String location;
-	
+
 	public String getErrorCode() {
 		return errorCode;
 	}
-	public void setErrorCode(String errorCode) {
+
+	public ErrorPageTag setErrorCode(String errorCode) {
 		this.errorCode = errorCode;
+		return this;
 	}
+
 	public String getExceptionType() {
 		return exceptionType;
 	}
-	public void setExceptionType(String exceptionType) {
+
+	public ErrorPageTag setExceptionType(String exceptionType) {
 		this.exceptionType = exceptionType;
+		return this;
 	}
+
 	public String getLocation() {
 		return location;
 	}
-	public void setLocation(String location) {
+
+	public ErrorPageTag setLocation(String location) {
 		this.location = location;
+		return this;
 	}
 }

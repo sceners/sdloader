@@ -1,3 +1,16 @@
+v0_2_00
+ServletAPI2.5,JSP2.1に対応
+これに伴い、sdloader.jarに同梱するapiを2.5に変更
+*ServletContextImplにgetContextPath追加（API変更による追加）
+*InMemoryEmbeddedServletOptionに、Tomcat6のServletOptionの機能を追加
+
+commons-loggingを同梱していたのを廃止。
+commons-loggingがない場合、JDKのloggerに処理を委譲する実装に変更。
+
+WebAppをInternalWebApplicationに名前変更
+WebAppContextにWebXmlを設定可能にした。
+（WebAppContextにWebXmlをセットしておくと、それが優先される）
+
 v0_1_14
 WebAppContextを使用する際、複数のドキュメントルートをしていできるように修正。
 複数指定した場合、順番にファイルがあるかどうかをチェックし、ファイルが見つかった時点でそのファイルを利用します。
