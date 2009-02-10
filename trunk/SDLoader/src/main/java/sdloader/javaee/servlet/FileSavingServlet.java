@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -62,7 +61,6 @@ public class FileSavingServlet extends HttpServlet {
 
 	public FileSavingServlet() {
 		super();
-
 	}
 
 	public void init() throws ServletException {
@@ -158,13 +156,10 @@ public class FileSavingServlet extends HttpServlet {
 		List<ServletMappingTag> servletMappingList = webapp.getWebXml()
 				.getWebApp().getServletMapping();
 
-		for (Iterator<String> itr = welcomeFileList.iterator(); itr.hasNext();) {
-			String welcomefileName = itr.next();
+		for (String welcomefileName : welcomeFileList) {
 			String path = basePath + welcomefileName;
 			// find servlet mapping
-			for (Iterator<ServletMappingTag> mappingItr = servletMappingList
-					.iterator(); mappingItr.hasNext();) {
-				ServletMappingTag mappingTag = mappingItr.next();
+			for (ServletMappingTag mappingTag : servletMappingList) {
 				int matchType = WebUtils.matchPattern(mappingTag
 						.getUrlPattern(), path);
 				if (matchType == WebUtils.PATTERN_EXACT_MATCH) {// 完全
@@ -232,10 +227,11 @@ public class FileSavingServlet extends HttpServlet {
 			long ifModifiedTime = WebUtils.parseHeaderDate(ifModifiedSince
 					.trim());
 			long lastModifyTime = fileLastModify.getTime();
-			if (lastModifyTime <= ifModifiedTime)
+			if (lastModifyTime <= ifModifiedTime) {
 				return false;
-			else
+			} else {
 				return true;
+			}
 		} catch (NumberFormatException ne) {
 			return true;
 		} catch (ParseException e) {
