@@ -16,7 +16,6 @@
 package sdloader.javaee;
 
 import java.net.URL;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -126,9 +125,7 @@ public class InternalWebApplication {
 		servletContext = new ServletContextImpl(this);
 		servletContext.setDocBase(getDocBase());
 		servletContext.setServletContextName(getContextPath());
-		for (Iterator<ContextParamTag> itr = webXml.getWebApp()
-				.getContextParam().iterator(); itr.hasNext();) {
-			ContextParamTag param = (ContextParamTag) itr.next();
+		for (ContextParamTag param : webXml.getWebApp().getContextParam()) {
 			servletContext.addInitParameter(param.getParamName(), param
 					.getParamValue());
 		}
@@ -141,9 +138,7 @@ public class InternalWebApplication {
 		try {
 			listenerEventDispatcher = new ListenerEventDispatcher();
 
-			for (Iterator<ListenerTag> itr = webXml.getWebApp().getListener()
-					.iterator(); itr.hasNext();) {
-				ListenerTag listenerTag = itr.next();
+			for (ListenerTag listenerTag : webXml.getWebApp().getListener()) {
 				Object listenerImp = createInstance(webAppClassLoader,
 						listenerTag.getListenerClass());
 				listenerEventDispatcher.addListener(listenerImp);
@@ -165,12 +160,10 @@ public class InternalWebApplication {
 		Thread.currentThread().setContextClassLoader(webAppClassLoader);
 		try {
 			List<ServletTag> servletList = webXml.getWebApp().getServlet();
-			for (Iterator<ServletTag> servletItr = servletList.iterator(); servletItr
-					.hasNext();) {
+			for (ServletTag servletTag : servletList) {
 				if (servletMap == null) {
 					servletMap = CollectionsUtil.newHashMap();
 				}
-				ServletTag servletTag = servletItr.next();
 				Servlet servletInstance = (Servlet) createInstance(
 						webAppClassLoader, servletTag.getServletClass());
 				ServletConfig config = createServletConfig(servletTag);
@@ -193,13 +186,10 @@ public class InternalWebApplication {
 		Thread.currentThread().setContextClassLoader(webAppClassLoader);
 		try {
 			List<FilterTag> filterList = webXml.getWebApp().getFilter();
-			for (Iterator<FilterTag> filterItr = filterList.iterator(); filterItr
-					.hasNext();) {
+			for (FilterTag filterTag : filterList) {
 				if (filterMap == null) {
 					filterMap = CollectionsUtil.newHashMap();
 				}
-
-				FilterTag filterTag = filterItr.next();
 				Filter filterInstance = (Filter) createInstance(
 						webAppClassLoader, filterTag.getFilterClass());
 				FilterConfig config = createFilterConfig(filterTag);
@@ -230,10 +220,7 @@ public class InternalWebApplication {
 	private ServletConfig createServletConfig(ServletTag servletTag) {
 		ServletConfigImpl config = new ServletConfigImpl();
 		config.setServletContext(servletContext);
-		List<InitParamTag> initParamList = servletTag.getInitParamList();
-		for (Iterator<InitParamTag> paramItr = initParamList.iterator(); paramItr
-				.hasNext();) {
-			InitParamTag initParam = paramItr.next();
+		for (InitParamTag initParam : servletTag.getInitParamList()) {
 			config.addInitParameter(initParam.getParamName(), initParam
 					.getParamValue());
 		}
@@ -244,10 +231,7 @@ public class InternalWebApplication {
 	private FilterConfig createFilterConfig(FilterTag filterTag) {
 		FilterConfigImpl config = new FilterConfigImpl();
 		config.setServletContext(servletContext);
-		List<InitParamTag> initParamList = filterTag.getInitParamList();
-		for (Iterator<InitParamTag> paramItr = initParamList.iterator(); paramItr
-				.hasNext();) {
-			InitParamTag initParam = paramItr.next();
+		for (InitParamTag initParam : filterTag.getInitParamList()) {
 			config.addInitParameter(initParam.getParamName(), initParam
 					.getParamValue());
 		}
@@ -271,9 +255,7 @@ public class InternalWebApplication {
 		if (resourcePath != null && filterMap != null) {
 			List<FilterMappingTag> mappingList = webXml.getWebApp()
 					.getFilterMapping();
-			search: for (Iterator<FilterMappingTag> mappingItr = mappingList
-					.iterator(); mappingItr.hasNext();) {
-				FilterMappingTag mapping = mappingItr.next();
+			search: for (FilterMappingTag mapping : mappingList) {
 				Set<String> dispatchers = mapping.getDispatchers();
 				// dispatcherがない場合はREQUESTのみが対象 ある場合はdispatcherTypeが含まれているかチェック
 				if (dispatchers.isEmpty()) {
@@ -332,9 +314,7 @@ public class InternalWebApplication {
 			List<ServletMappingTag> mappingList = webXml.getWebApp()
 					.getServletMapping();
 			// servlet
-			for (Iterator<ServletMappingTag> mappingItr = mappingList
-					.iterator(); mappingItr.hasNext();) {
-				ServletMappingTag mapping = mappingItr.next();
+			for (ServletMappingTag mapping : mappingList) {
 				String patternText = mapping.getUrlPattern();
 				int matchType = WebUtils.matchPattern(patternText, uri);
 				if (matchType != WebUtils.PATTERN_NOMATCH
