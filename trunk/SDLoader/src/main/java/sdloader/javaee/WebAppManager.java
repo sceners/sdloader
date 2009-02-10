@@ -251,7 +251,10 @@ public class WebAppManager {
 		for (int i = 0; i < url.length; i++) {
 			URL webXmlUrl = ResourceUtil.createURL(url[i], "WEB-INF/web.xml");
 			if (ResourceUtil.isResourceExist(webXmlUrl)) {
-				return new WebXmlBuilder().build(webXmlUrl);
+				log.info("web.xml load start. Path=" + webXmlUrl);
+				WebXml webXml = WebXmlBuilder.build(webXmlUrl);
+				log.info("web.xml load success.");
+				return webXml;
 			}
 		}
 		// default

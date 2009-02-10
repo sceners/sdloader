@@ -15,23 +15,24 @@
  */
 package sdloader.exception;
 
-import java.io.IOException;
-
 /**
  * @author shot
+ * @author c9katayama
  */
 public class IORuntimeException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
-	
-	protected Exception cause;
-	
-	public IORuntimeException(IOException cause) {
-		this.cause = cause;
+
+	public IORuntimeException(String message) {
+		super(message);
 	}
-	
-	public Throwable getCause() {
-		return cause;
+
+	public IORuntimeException(Throwable cause) {
+		super(cause);
 	}
-	
+
+	public IORuntimeException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }
