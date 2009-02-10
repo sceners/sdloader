@@ -21,7 +21,7 @@ package sdloader.javaee.webxml;
  * @author c9katayama
  */
 public class WebXml {
-	private WebAppTag webApp;
+	private WebAppTag webApp = new WebAppTag();
 
 	public WebXml() {
 		super();

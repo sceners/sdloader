@@ -35,16 +35,18 @@ public class ServletMappingTag implements WebXmlTagElement {
 		return servletName;
 	}
 
-	public void setServletName(String servletName) {
+	public ServletMappingTag setServletName(String servletName) {
 		this.servletName = servletName;
+		return this;
 	}
 
 	public String getUrlPattern() {
 		return urlPattern;
 	}
 
-	public void setUrlPattern(String urlPattern) {
+	public ServletMappingTag setUrlPattern(String urlPattern) {
 		this.urlPattern = urlPattern;
+		return this;
 	}
 
 }

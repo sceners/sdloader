@@ -33,6 +33,8 @@ import sdloader.util.Assertion;
 import sdloader.util.CollectionsUtil;
 
 /**
+ * web.xmlファイルからWebXmlを構築します。
+ * 
  * @author c9katayama
  */
 public class WebXmlBuilder {

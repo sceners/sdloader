@@ -41,6 +41,13 @@ import org.apache.jasper.xmlparser.ParserUtils;
  * EmbeddedServletOptionsがfinalの為、コピー。
  * tldLocationsCache = new SDTldLocationsCache(context);
  * を変更
+ * 
+ * JSP25対応の為、compilerClassName,getCompilerClassName(),displaySourceFragment,getDisplaySourceFragment()
+ * およびcompilerClassNameとdisplaySourceFragmentをconfig.getInitParameterから取るコードを追加。
+ * (Tomcat6.0.18より取得)
+ * Tomcat6では、sendErrToClientがdeplecatedされており、getInitParameterから取得する部分がなくなっていますが、
+ * 5.5との互換性のためにこの実装では残してあります。
+ * 
  * @author Anil K. Vijendran
  * @author Hans Bergsten
  * @author Pierre Delisle
@@ -148,6 +155,11 @@ public class InMemoryEmbeddedServletOptions implements Options {
     private String compilerTargetVM = "1.5";
     
     /**
+     * The compiler class name.
+     */
+    private String compilerClassName = null;
+    
+    /**
      * The compiler source VM.
      */
     private String compilerSourceVM = "1.5";
@@ -182,6 +194,12 @@ public class InMemoryEmbeddedServletOptions implements Options {
      * Is generation of X-Powered-By response header enabled/disabled?
      */
     private boolean xpoweredBy;
+
+    /**
+     * Should we include a source fragment in exception messages, which could be displayed
+     * to the developer ?
+     */
+    private boolean displaySourceFragment = true;
     
     public String getProperty(String name ) {
         return settings.getProperty( name );
@@ -323,6 +341,12 @@ public class InMemoryEmbeddedServletOptions implements Options {
     public String getCompilerSourceVM() {
         return compilerSourceVM;
     }
+    /**
+     * Java compiler class to use.
+     */
+    public String getCompilerClassName() {
+        return compilerClassName;
+    }
     
     public boolean getErrorOnUseBeanInvalidClassAttribute() {
         return errorOnUseBeanInvalidClassAttribute;
@@ -364,6 +388,14 @@ public class InMemoryEmbeddedServletOptions implements Options {
         return null;
     }
 
+    /**
+     * Should we include a source fragment in exception messages, which could be displayed
+     * to the developer ?
+     */
+    public boolean getDisplaySourceFragment() {
+        return displaySourceFragment;
+    }
+    
     /**
      * Create an EmbeddedServletOptions object using data available from
      * ServletConfig and ServletContext. 
@@ -612,6 +644,11 @@ public class InMemoryEmbeddedServletOptions implements Options {
         if (javaEncoding != null) {
             this.javaEncoding = javaEncoding;
         }
+
+        String compilerClassName = config.getInitParameter("compilerClassName");
+        if (compilerClassName != null) {
+            this.compilerClassName = compilerClassName;
+        }
         
         String fork = config.getInitParameter("fork");
         if (fork != null) {
@@ -635,6 +672,19 @@ public class InMemoryEmbeddedServletOptions implements Options {
             } else {
                 if (log.isWarnEnabled()) {
                     log.warn(Localizer.getMessage("jsp.warning.xpoweredBy"));
+                }
+            }
+        }
+        
+        String displaySourceFragment = config.getInitParameter("displaySourceFragment"); 
+        if (displaySourceFragment != null) {
+            if (displaySourceFragment.equalsIgnoreCase("true")) {
+                this.displaySourceFragment = true;
+            } else if (displaySourceFragment.equalsIgnoreCase("false")) {
+                this.displaySourceFragment = false;
+            } else {
+                if (log.isWarnEnabled()) {
+                    log.warn(Localizer.getMessage("jsp.warning.displaySourceFragment"));
                 }
             }
         }

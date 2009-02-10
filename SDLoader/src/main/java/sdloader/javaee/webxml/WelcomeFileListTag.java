@@ -33,11 +33,13 @@ public class WelcomeFileListTag implements WebXmlTagElement {
 		return welcomeFile;
 	}
 
-	public void setWelcomeFile(List<String> welcomeFile) {
+	public WelcomeFileListTag setWelcomeFile(List<String> welcomeFile) {
 		this.welcomeFile = welcomeFile;
+		return this;
 	}
 
-	public void addWelcomeFile(String welcomeFile) {
+	public WelcomeFileListTag addWelcomeFile(String welcomeFile) {
 		this.welcomeFile.add(welcomeFile);
+		return this;
 	}
 }

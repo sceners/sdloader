@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import sdloader.http.HttpConst;
-import sdloader.javaee.WebApp;
+import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.impl.ServletContextImpl;
 import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.WelcomeFileListTag;
@@ -58,7 +58,7 @@ public class FileSavingServlet extends HttpServlet {
 
 	protected WelcomeFileListTag welcomeFileListTag;
 
-	protected WebApp webApp;
+	protected InternalWebApplication webApp;
 
 	public FileSavingServlet() {
 		super();
@@ -67,8 +67,9 @@ public class FileSavingServlet extends HttpServlet {
 
 	public void init() throws ServletException {
 		String docRootStr = getInitParameter(PARAM_DOC_ROOT);
-		if (docRootStr == null)
+		if (docRootStr == null) {
 			throw new ServletException("InitParameter [docRootPath] not found.");
+		}
 		String[] paths = docRootStr.split(",");
 		this.docRootPath = new URL[paths.length];
 		for (int i = 0; i < paths.length; i++) {
@@ -148,11 +149,11 @@ public class FileSavingServlet extends HttpServlet {
 			final HttpServletRequest req, final HttpServletResponse res)
 			throws ServletException, IOException {
 		String basePath = req.getPathInfo();
-		if (!basePath.endsWith("/"))
+		if (!basePath.endsWith("/")) {
 			basePath += "/";
-
+		}
 		ServletContextImpl context = (ServletContextImpl) getServletContext();
-		WebApp webapp = context.getWebApplication();
+		InternalWebApplication webapp = context.getWebApplication();
 		List<String> welcomeFileList = welcomeFileListTag.getWelcomeFile();
 		List<ServletMappingTag> servletMappingList = webapp.getWebXml()
 				.getWebApp().getServletMapping();

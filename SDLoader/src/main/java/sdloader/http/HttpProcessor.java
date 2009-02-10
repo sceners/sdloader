@@ -32,7 +32,7 @@ import javax.servlet.http.HttpSession;
 
 import sdloader.SDLoader;
 import sdloader.javaee.ServletMapping;
-import sdloader.javaee.WebApp;
+import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.javaee.impl.FilterChainImpl;
 import sdloader.javaee.impl.HttpServletRequestImpl;
@@ -176,7 +176,7 @@ public class HttpProcessor extends Thread {
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
 
 		String requestURI = header.getRequestURI();
-		WebApp webapp = sdLoader.getWebAppManager().findWebApp(requestURI);
+		InternalWebApplication webapp = sdLoader.getWebAppManager().findWebApp(requestURI);
 		// デフォルトもなければ404
 		if (webapp == null) {
 			response.setStatus(HttpConst.SC_NOT_FOUND);

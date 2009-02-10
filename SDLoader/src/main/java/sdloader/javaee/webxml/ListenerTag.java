@@ -29,8 +29,8 @@ public class ListenerTag implements WebXmlTagElement {
 		return listenerClass;
 	}
 
-	public void setListenerClass(String listenerClass) {
+	public ListenerTag setListenerClass(String listenerClass) {
 		this.listenerClass = listenerClass;
+		return this;
 	}
-
 }

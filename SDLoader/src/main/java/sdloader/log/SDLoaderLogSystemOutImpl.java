@@ -23,7 +23,7 @@ package sdloader.log;
  */
 public class SDLoaderLogSystemOutImpl implements SDLoaderLog {
 
-	private String className;;
+	private String className;
 
 	public SDLoaderLogSystemOutImpl(Class<?> c) {
 		className = c.getName();

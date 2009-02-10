@@ -33,16 +33,18 @@ public class ContextParamTag implements WebXmlTagElement {
 		return paramName;
 	}
 
-	public void setParamName(String paramName) {
+	public ContextParamTag setParamName(String paramName) {
 		this.paramName = paramName;
+		return this;
 	}
 
 	public String getParamValue() {
 		return paramValue;
 	}
 
-	public void setParamValue(String paramValue) {
+	public ContextParamTag setParamValue(String paramValue) {
 		this.paramValue = paramValue;
+		return this;
 	}
 
 	public String getDescription() {

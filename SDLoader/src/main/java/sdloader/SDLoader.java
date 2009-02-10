@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sdloader.event.EventDispatcher;
-import sdloader.http.HttpRequest;
 import sdloader.http.HttpProcessor;
 import sdloader.http.HttpProcessorPool;
+import sdloader.http.HttpRequest;
 import sdloader.http.HttpResponse;
 import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
@@ -359,11 +359,11 @@ public class SDLoader implements Lifecycle {
 
 	protected void initWebApp() {
 		try {
-			log.info("WebApp initialize start.");
+			log.info("InternalWebApplication initialize start.");
 			webAppManager.init();
-			log.info("WebApp initialize success.");
+			log.info("InternalWebApplication initialize success.");
 		} catch (RuntimeException e) {
-			log.error("WebApp initialize fail.", e);
+			log.error("InternalWebApplication initialize fail.", e);
 			throw e;
 		}
 	}
@@ -396,8 +396,7 @@ public class SDLoader implements Lifecycle {
 	}
 
 	protected void initSocketProcessor() {
-		socketProcessorPool = new HttpProcessorPool(
-				this.maxThreadPoolNum);
+		socketProcessorPool = new HttpProcessorPool(this.maxThreadPoolNum);
 	}
 
 	protected void initShutdown() {
@@ -449,8 +448,7 @@ public class SDLoader implements Lifecycle {
 					log.error("Socket accept error.", ioe);
 					continue;
 				}
-				HttpProcessor con = socketProcessorPool
-						.borrowProcessor();
+				HttpProcessor con = socketProcessorPool.borrowProcessor();
 				con.process(socket, SDLoader.this);
 			}
 		}

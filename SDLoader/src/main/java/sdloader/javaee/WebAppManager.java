@@ -113,7 +113,8 @@ public class WebAppManager {
 	protected List<WebAppContext> webAppContextList = CollectionsUtil
 			.newArrayList();
 
-	protected List<WebApp> webAppList = CollectionsUtil.newArrayList();
+	protected List<InternalWebApplication> webAppList = CollectionsUtil
+			.newArrayList();
 
 	protected boolean isInmemoryExtract = false;
 
@@ -188,7 +189,8 @@ public class WebAppManager {
 				}
 			}
 		} else {
-			URL.setURLStreamHandlerFactory(new ArchiveURLStreamHandlerFactory());			
+			URL
+					.setURLStreamHandlerFactory(new ArchiveURLStreamHandlerFactory());
 			ResourceBuilder builder = new ResourceBuilderImpl();
 			for (File warfile : warFiles) {
 				final URL warDocRoot = ResourceUtil
@@ -218,8 +220,9 @@ public class WebAppManager {
 		}
 		this.webAppList.add(getRootWebApplication());
 		// コンテキストパスの長い順にソート
-		Collections.sort(webAppList, new Comparator<WebApp>() {
-			public int compare(WebApp o1, WebApp o2) {
+		Collections.sort(webAppList, new Comparator<InternalWebApplication>() {
+			public int compare(InternalWebApplication o1,
+					InternalWebApplication o2) {
 				return o2.getContextPath().compareTo(o1.getContextPath());
 			}
 		});
@@ -228,14 +231,16 @@ public class WebAppManager {
 	protected void _initWebAppContext(WebAppContext context) throws Exception {
 		final URL[] docBase = context.getDocBase();
 		final String contextPath = context.getContextPath();
-		WebXml webxml = buildWebXml(docBase);
-
+		WebXml webxml = context.getWebXml();
+		if (webxml == null) {
+			webxml = buildWebXml(docBase);
+		}
 		setDefaultServlet(webxml, docBase, contextPath, isInmemoryExtract);
-		// create WebApp
+		// create InternalWebApplication
 		ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase)
 				: createInMemoryWebAppClassLoader(docBase[0]);
-		WebApp webapp = new WebApp(webxml, context,
-				webAppClassLoader, this);
+		InternalWebApplication webapp = new InternalWebApplication(webxml,
+				context, webAppClassLoader, this);
 		this.webAppList.add(webapp);
 
 		log.info("create webapp [" + contextPath + "]");
@@ -251,12 +256,11 @@ public class WebAppManager {
 		}
 		// default
 		WebXml webxml = new WebXml();
-		webxml.setWebApp(new WebAppTag());
 		return webxml;
 	}
 
-	protected WebApp getRootWebApplication() {
-		// WebApp List
+	protected InternalWebApplication getRootWebApplication() {
+		// InternalWebApplication List
 		final String webAppListServletName = "webAppList";
 		final ServletTag webAppListServletTag = new ServletTag();
 		webAppListServletTag.setLoadOnStartup(0);
@@ -268,7 +272,7 @@ public class WebAppManager {
 		webAppListMappingTag.setUrlPattern("/");
 
 		final WebXml webXmlTag = new WebXml();
-		WebAppTag webAppTag = new WebAppTag();
+		WebAppTag webAppTag = webXmlTag.getWebApp();
 		webAppTag.addServlet(webAppListServletTag);
 		webAppTag.addServletMapping(webAppListMappingTag);
 		webXmlTag.setWebApp(webAppTag);
@@ -283,8 +287,8 @@ public class WebAppManager {
 		}
 		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase });
 		WebAppContext context = new WebAppContext(contextPath, docBase);
-		final WebApp webapp = new WebApp(webXmlTag, context,
-				webAppClassLoader, this);
+		final InternalWebApplication webapp = new InternalWebApplication(
+				webXmlTag, context, webAppClassLoader, this);
 
 		return webapp;
 	}
@@ -378,12 +382,14 @@ public class WebAppManager {
 	 *            コンテキストパス
 	 * @param warInMemory
 	 */
-	private void setDefaultServlet(WebXml webxml, URL[] docBase,
+	private void setDefaultServlet(WebXml webXml, URL[] docBase,
 			String contextPath, boolean warInMemory) {
 
-		if (JASPER_SUPPORT) {
-			// jsp compiler
-			final String jspServletName = "jsp";
+		// jsp compiler servlet
+		final String jspServletName = "jsp";
+		if (JASPER_SUPPORT
+				&& webXml.getWebApp().findServlet(jspServletName) == null) {
+			log.info("set jsp servlet");
 			ServletTag jspServlet = new ServletTag();
 			jspServlet.setLoadOnStartup(0);
 			jspServlet.setServletClass(JASPER_SERVLET_CLASS);
@@ -419,37 +425,41 @@ public class WebAppManager {
 			jspMapping.setServletName(jspServletName);
 			jspMapping.setUrlPattern("*.jsp");
 
-			webxml.getWebApp().addServlet(jspServlet);
-			webxml.getWebApp().addServletMapping(jspMapping);
+			webXml.getWebApp().addServlet(jspServlet);
+			webXml.getWebApp().addServletMapping(jspMapping);
 		}
 
-		// file saving
-		final String fileSavingServletName = "file";
-		ServletTag fileServletTag = new ServletTag();
-		fileServletTag.setLoadOnStartup(0);
-		// TODO 統合したい
-		if (warInMemory) {
-			fileServletTag.setServletClass(InMemoryFileSavingServlet.class
-					.getName());
-		} else {
-			fileServletTag.setServletClass(FileSavingServlet.class.getName());
-		}
-		fileServletTag.setServletName(fileSavingServletName);
-		String docRoots = "";
-		for (int i = 0; i < docBase.length; i++) {
-			if (i != 0) {
-				docRoots += ",";
+		// default servlet (file saving)
+		final String fileSavingServletName = "default";
+		if (webXml.getWebApp().findServlet(fileSavingServletName) == null) {
+			log.info("set default servlet");
+			ServletTag fileServletTag = new ServletTag();
+			fileServletTag.setLoadOnStartup(0);
+			// TODO 統合したい
+			if (warInMemory) {
+				fileServletTag.setServletClass(InMemoryFileSavingServlet.class
+						.getName());
+			} else {
+				fileServletTag.setServletClass(FileSavingServlet.class
+						.getName());
 			}
-			docRoots += docBase[i].toExternalForm();
-		}
-		fileServletTag.addInitParam(new InitParamTag(
-				FileSavingServlet.PARAM_DOC_ROOT, docRoots));
-		ServletMappingTag mappingTag = new ServletMappingTag();
-		mappingTag.setServletName(fileSavingServletName);
-		mappingTag.setUrlPattern("/*");
+			fileServletTag.setServletName(fileSavingServletName);
+			String docRoots = "";
+			for (int i = 0; i < docBase.length; i++) {
+				if (i != 0) {
+					docRoots += ",";
+				}
+				docRoots += docBase[i].toExternalForm();
+			}
+			fileServletTag.addInitParam(new InitParamTag(
+					FileSavingServlet.PARAM_DOC_ROOT, docRoots));
+			ServletMappingTag mappingTag = new ServletMappingTag();
+			mappingTag.setServletName(fileSavingServletName);
+			mappingTag.setUrlPattern("/*");
 
-		webxml.getWebApp().addServlet(fileServletTag);
-		webxml.getWebApp().addServletMapping(mappingTag);
+			webXml.getWebApp().addServlet(fileServletTag);
+			webXml.getWebApp().addServletMapping(mappingTag);
+		}
 	}
 
 	private static boolean isExtracted(File warFile, File[] dirs) {
@@ -457,8 +467,9 @@ public class WebAppManager {
 		if (dirs != null) {
 			String archiveName = WarUtil.getArchiveName(warFile.getName());
 			for (int i = 0; i < dirs.length; i++) {
-				if (archiveName.equals(dirs[i].getName()))
+				if (archiveName.equals(dirs[i].getName())) {
 					extracted = true;
+				}
 			}
 		}
 		return extracted;
@@ -497,7 +508,7 @@ public class WebAppManager {
 	 * 
 	 * @return
 	 */
-	public List<WebApp> getWebAppList() {
+	public List<InternalWebApplication> getWebAppList() {
 		return webAppList;
 	}
 
@@ -525,10 +536,10 @@ public class WebAppManager {
 	 * @param requestURI
 	 * @return 該当するWebAppがない場合、null
 	 */
-	public WebApp findWebApp(final String requestURI) {
-		for (Iterator<WebApp> itr = getWebAppList().iterator(); itr
+	public InternalWebApplication findWebApp(final String requestURI) {
+		for (Iterator<InternalWebApplication> itr = getWebAppList().iterator(); itr
 				.hasNext();) {
-			WebApp webapp = itr.next();
+			InternalWebApplication webapp = itr.next();
 			String contextPath = webapp.getContextPath();
 			if (requestURI.equals(contextPath)) {
 				return webapp;
@@ -545,10 +556,10 @@ public class WebAppManager {
 	}
 
 	public void close() {
-		List<WebApp> webAppList = getWebAppList();
-		for (Iterator<WebApp> itr = webAppList.iterator(); itr
+		List<InternalWebApplication> webAppList = getWebAppList();
+		for (Iterator<InternalWebApplication> itr = webAppList.iterator(); itr
 				.hasNext();) {
-			WebApp webapp = itr.next();
+			InternalWebApplication webapp = itr.next();
 			List<Servlet> servletList = webapp.getServletList();
 			if (servletList != null) {
 				for (Servlet servlet : servletList) {
@@ -577,19 +588,18 @@ public class WebAppManager {
 		}
 	}
 
-	private final class ArchiveURLStreamHandlerFactory implements URLStreamHandlerFactory  {
-		public URLStreamHandler createURLStreamHandler(
-				final String protocol) {
+	private final class ArchiveURLStreamHandlerFactory implements
+			URLStreamHandlerFactory {
+		public URLStreamHandler createURLStreamHandler(final String protocol) {
 			if (protocol.equals(WarURLStreamHandler.PROTOCOL)) {
 				return new WarURLStreamHandler();
-			} else if (protocol
-					.equals(InnerJarURLStreamHandler.PROTOCOL)) {
+			} else if (protocol.equals(InnerJarURLStreamHandler.PROTOCOL)) {
 				return new InnerJarURLStreamHandler();
 			}
 			return null;
 		}
 	}
-	
+
 	private final class WarURLStreamHandler extends URLStreamHandler {
 		public static final String PROTOCOL = "war";
 

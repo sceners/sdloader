@@ -50,7 +50,7 @@ import sdloader.util.WebUtils;
  * 
  * @author c9katayama
  */
-public class WebApp {
+public class InternalWebApplication {
 
 	/** web.xml定義 */
 	private WebXml webXml;
@@ -78,7 +78,7 @@ public class WebApp {
 	/**
 	 * WebAppクラス
 	 */
-	WebApp(WebXml webXml, WebAppContext webAppContext,
+	InternalWebApplication(WebXml webXml, WebAppContext webAppContext,
 			ClassLoader webAppClassLoader, WebAppManager manager) {
 		this.webXml = webXml;
 		this.webAppContext = webAppContext;
@@ -350,8 +350,8 @@ public class WebApp {
 							continue;
 						}
 					}
-					if(matchType==WebUtils.PATTERN_DEFAULT_MATCH
-						&& currentMatchType == WebUtils.PATTERN_DEFAULT_MATCH){
+					if (matchType == WebUtils.PATTERN_DEFAULT_MATCH
+							&& currentMatchType == WebUtils.PATTERN_DEFAULT_MATCH) {
 						continue;
 					}
 					currentMatchType = matchType;
@@ -381,10 +381,11 @@ public class WebApp {
 	}
 
 	public List<Servlet> getServletList() {
-		if (servletMap != null)
+		if (servletMap != null) {
 			return CollectionsUtil.newArrayList(servletMap.values());
-		else
+		} else {
 			return null;
+		}
 	}
 
 	public ListenerEventDispatcher getListenerEventDispatcher() {
@@ -392,9 +393,10 @@ public class WebApp {
 	}
 
 	public List<Filter> getFilterList() {
-		if (filterMap != null)
+		if (filterMap != null) {
 			return CollectionsUtil.newArrayList(filterMap.values());
-		else
+		} else {
 			return null;
+		}
 	}
 }
