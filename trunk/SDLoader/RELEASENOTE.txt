@@ -4,9 +4,6 @@ ServletAPI2.5,JSP2.1に対応
 *ServletContextImplにgetContextPath追加（API変更による追加）
 *InMemoryEmbeddedServletOptionに、Tomcat6のServletOptionの機能を追加
 
-commons-loggingを同梱していたのを廃止。
-commons-loggingがない場合、JDKのloggerに処理を委譲する実装に変更。
-
 WebAppをInternalWebApplicationに名前変更
 WebAppContextにWebXmlを設定可能にした。
 （WebAppContextにWebXmlをセットしておくと、それが優先される）
