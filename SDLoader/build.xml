@@ -79,6 +79,7 @@
     	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-compiler.jar"/>
     	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-runtime.jar"/>
     	<zipfileset src="lib/Servlet2.3_JSP1.2/servlet.jar"/>
+    	<zipfileset src="lib/commons-logging-1.1.jar"/>
     	<manifest>
  	    	<attribute name="Main-Class" value="${mainclasslib}"/>
 		</manifest>
@@ -97,6 +98,7 @@
     	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar">
     		<exclude name="*.html"/>
     	</zipfileset>
+    	<zipfileset src="lib/commons-logging-1.1.jar"/>
     	<manifest>
  	    	<attribute name="Main-Class" value="${mainclasslib}"/>
 		</manifest>
@@ -172,6 +174,7 @@
     	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-compiler.jar"/>
     	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-runtime.jar"/>
     	<zipfileset src="lib/Servlet2.3_JSP1.2/servlet.jar"/>
+    	<zipfileset src="lib/commons-logging-1.1.jar"/>
     	<zipfileset src="lib/swt.jar"/>
     	<manifest>
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
@@ -203,7 +206,8 @@
     	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar">
     		<exclude name="*.html"/>
     	</zipfileset>
-    	<zipfileset src="lib/swt.jar"/>
+    	<zipfileset src="lib/commons-logging-1.1.jar"/>
+		<zipfileset src="lib/swt.jar"/>
     	<manifest>
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>
