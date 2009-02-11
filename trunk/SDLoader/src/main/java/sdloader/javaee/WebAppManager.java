@@ -257,6 +257,7 @@ public class WebAppManager {
 				return webXml;
 			}
 		}
+		log.warn("web.xml not detected. use default web.xml.");
 		// default
 		WebXml webxml = new WebXml();
 		return webxml;
