@@ -296,7 +296,7 @@ public class ServletContextImpl implements ServletContext {
 	public String getServerInfo() {
 		return "SDLoader";
 	}
-	
+
 	public String getContextPath() {
 		return servletContextName;
 	}

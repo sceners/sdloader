@@ -88,7 +88,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	private HttpRequest httpRequest;
 
-	private ServletContext servletContext;
+	private ServletContextImpl servletContext;
 
 	private String uriEncoding = "ISO-8859-1";
 
@@ -405,7 +405,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
+		this.servletContext = (ServletContextImpl)servletContext;
+	}
+	
+	public ServletContextImpl getServletContext() {
+		return servletContext;
 	}
 
 	public void setServerPort(int port) {
