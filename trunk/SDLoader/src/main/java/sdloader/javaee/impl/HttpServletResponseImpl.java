@@ -181,8 +181,9 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void flushBuffer() throws IOException {
-		if (writer != null)
+		if (writer != null){
 			writer.flush();
+		}
 		servletOutputStream.flush();
 	}
 

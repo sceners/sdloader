@@ -265,8 +265,7 @@ public class HttpHeader {
 		for (Cookie cookie : cookieList) {
 			if (cookie.getValue() != null) {
 				buf.append(HttpConst.SETCOOKIE + HttpConst.COLON_STRING);
-				buf.append(cookie.getName() + "=" + cookie.getValue()
-						+ HttpConst.SEMI_COLON_STRING);
+				buf.append(cookie.getName() + "=" + cookie.getValue());
 
 				if (cookie.getMaxAge() > 0) {
 					Calendar now = Calendar.getInstance();
@@ -283,7 +282,6 @@ public class HttpHeader {
 				if (cookie.getSecure()) {
 					buf.append("; secure");
 				}
-
 				buf.append(HttpConst.CRLF_STRING);
 			}
 		}

@@ -291,6 +291,7 @@ public class HttpProcessor extends Thread {
 		if (session != null) {
 			Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY, session
 					.getId());
+			sessionCookie.setPath(request.getServletContext().getContextPath());
 			response.addCookie(sessionCookie);
 		}
 		// Keep-Alive
