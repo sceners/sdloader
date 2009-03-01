@@ -1,1 +1,0 @@
-start javaw -cp .;sdloader-jsp21.jar sdloader.SystemTrayOpen
