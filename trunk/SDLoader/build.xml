@@ -132,8 +132,8 @@
   	<!-- standalone sdloader-->
   	<mkdir dir="${distbuildstandalone}/sdloader" />
     <copy todir="${distbuildstandalone}/sdloader" >
-    	<fileset dir="bat">
-    		<include name="start-sdloader.bat"/>
+    	<fileset dir="boot">
+    		<include name="sdloader.bat"/>
     	</fileset>    	
 		<fileset dir=".">
 			<include name="webapps/WARFILE*"/>			
@@ -153,12 +153,17 @@
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>
     </jar>
+  	<!--
+	<exec executable="./boot/exewrap/exewrap.exe">
+	  <arg line="-t 1.5 -g ${distbuildstandalone}/sdloader/sdloader.jar" /> 
+	</exec>
+	-->    	
   	
   	<!-- standalone sdloader-jsp12-->
   	<mkdir dir="${distbuildstandalone}/sdloader-jsp12" />
     <copy todir="${distbuildstandalone}/sdloader-jsp12" >
-    	<fileset dir="bat">
-    		<include name="start-sdloader-jsp12.bat"/>
+    	<fileset dir="boot">
+    		<include name="sdloader-jsp12.bat"/>
     	</fileset>
 		<fileset dir=".">
 			<include name="webapps/WARFILE*"/>			
@@ -180,13 +185,18 @@
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>
     </jar>
+  	<!--
+  	<exec executable="./boot/exewrap/exewrap.exe">
+  	  <arg line="-t 1.5 -g ${distbuildstandalone}/sdloader-jsp12/sdloader-jsp12.jar" /> 
+	</exec>
+	-->  	
   	<copy todir="${distbuildstandalone}/sdloader-jsp12" file="lib/Servlet2.3_JSP1.2/tools_1_5/tools.jar"/>
   	
   	<!-- standalone sdloader-jsp20-->
   	<mkdir dir="${distbuildstandalone}/sdloader-jsp20" />
     <copy todir="${distbuildstandalone}/sdloader-jsp20" >
-    	<fileset dir="bat">
-    		<include name="start-sdloader-jsp20.bat"/>
+    	<fileset dir="boot">
+    		<include name="sdloader-jsp20.bat"/>
     	</fileset>
 		<fileset dir=".">			
 			<include name="webapps/WARFILE*"/>			
@@ -212,12 +222,17 @@
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>
     </jar>
+  	<!--
+  	<exec executable="./boot/exewrap/exewrap.exe">
+  	  <arg line="-t 1.5 -g ${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar" /> 
+	</exec>
+	-->    	
 
   	<!-- standalone sdloader-jsp21-->
   	<mkdir dir="${distbuildstandalone}/sdloader-jsp21" />
     <copy todir="${distbuildstandalone}/sdloader-jsp21" >
-    	<fileset dir="bat">
-    		<include name="start-sdloader-jsp21.bat"/>
+    	<fileset dir="boot">
+    		<include name="sdloader-jsp21.bat"/>
     	</fileset>
 		<fileset dir=".">			
 			<include name="webapps/WARFILE*"/>			
@@ -243,7 +258,11 @@
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>
     </jar>
-  	
+  	<!--
+  	<exec executable="./boot/exewrap/exewrap.exe">
+  	  <arg line="-g ${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar" /> 
+	</exec>
+	-->  	
   	
   	<!-- source -->
   	<mkdir dir="${distbuild}/src"/>
