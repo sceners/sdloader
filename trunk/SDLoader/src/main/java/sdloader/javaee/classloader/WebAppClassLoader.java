@@ -15,171 +15,122 @@
  */
 package sdloader.javaee.classloader;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Enumeration;
-import java.util.NoSuchElementException;
 
-import sdloader.util.ClassUtil;
+import sdloader.log.SDLoaderLog;
+import sdloader.log.SDLoaderLogFactory;
 
 /**
- * WebApp用クラスローダー 
- * 実際のロード処理はApplicationLoaderに委譲します。
+ * WebApp用クラスローダー
+ * 
  * @author c9katayama
  */
 public class WebAppClassLoader extends URLClassLoader {
 
-	protected ApplicationLoader applicationLoader;
-	//クラスパス上にあって、アプリケーションに入る可能性のあるクラスの場合、アプリケーションを優先。
-	protected String[] webInfLoadFirstPackagePrefix = {"org.h2","org.apache.commons.logging"};
+	protected SDLoaderLog log = SDLoaderLogFactory
+			.getLog(WebAppClassLoader.class);
+
+	// WEB-INF以下からはロードしないPrefix
+	protected String[] ignoreLoadFromWebInfPackagePrefix = { "java.","javax.servlet.","com.sun.","sun." };
 	
-	public WebAppClassLoader(ClassLoader parent,ClassLoader webinfClassLoader) {
-		super(new URL[]{}, parent);
-		this.applicationLoader = new ApplicationLoader(webinfClassLoader);
-		
+	// 先に親ローダーでロードするパッケージPrefix
+	protected String[] parentLoadFirstPackagePrefix = { "java.","javax.","org.w3c.","com.sun.","sun." };
+
+	public WebAppClassLoader(URL[] webInfUrls, ClassLoader parent) {
+		super(webInfUrls, parent);
 	}
+
 	/**
-	 * クラスをロードします。 
-	 * まずロード済みクラスがあるかどうかをチェックします。
-	 * 次にWEB-INFを先読みする対象パターンのクラスを、WEB-INF以下から読み込みます。
-	 * （SDLoaderが読み込んでいるけどもWebアプリごとにロードした方が良いものが対象）
-	 * 次に親クラスローダーで読み込み、なけばWEb-INFから読み込みます。
+	 * クラスをロードします.
+	 * 
+	 * <pre>
+	 * 1,ロード済みかどうかチェック
+	 * 2,SystemClassLoaderからロード
+	 * 3,親が先に読むパッケージの場合、親-&gt;子の順にロード
+	 * 4,それ以外は子-&gt;親の順にロード
+	 * 5,ただし特定のパッケージは子からロードしない。
+	 * </pre>
 	 */
 	protected synchronized Class<?> loadClass(String name, boolean resolve)
 			throws ClassNotFoundException {
-		//check loaded Class
-		Class<?> c = findAndResolveLoadedClass(name, resolve);
-		if(c != null){
-			return c;
-		}
-		
-		boolean webInfLoadFirst = isWebInfLoadFirst(name);
-		
-		//if first load class,use webinfclassloader
-		if(webInfLoadFirst){
-			try{
-				c = applicationLoader.findClass(name);
-				if (c != null) {
-					if (resolve)
-						applicationLoader.resolveClass(c);
-					return c;
-				}
-			}catch(Exception e){//ignore
-			}
-		}
-		
-		//use parent classloader.
-		try{
-			c = super.loadClass(name,resolve);
-			if (c != null) {
-				return c;
-			}
-		}catch(ClassNotFoundException e){//ignore			
-		}
-		
-		//parent cannot load,use webinfclassloader
-		if(c==null && !webInfLoadFirst){
-			c = applicationLoader.findClass(name);
-			if (c != null) {
-				if (resolve)
-					applicationLoader.resolveClass(c);
-				return c;
-			}
-		}
-		throw new ClassNotFoundException("Class not found.classname=" + name);
-	}
-	@Override
-	public URL[] getURLs() {
-		return applicationLoader.getURLs();
-	}
-	@Override
-	public URL findResource(String name) {
-		URL resource = super.findResource(name);
-		if(resource == null){
-			resource = applicationLoader.classLoader.getResource(name);
-		}
-		return resource;
-	}
-	@Override
-	public Enumeration<URL> findResources(String name) throws IOException {
-		final Enumeration<URL> resources = super.findResources(name);
-		final Enumeration<URL> selfResources = applicationLoader.classLoader.getResources(name);		
-		return new Enumeration<URL>(){
-			public boolean hasMoreElements() {
-				return (resources.hasMoreElements() || selfResources.hasMoreElements());
-			}
-			public URL nextElement() {
-				if(resources.hasMoreElements()){
-					return resources.nextElement();
-				}
-				if(selfResources.hasMoreElements()){
-					return selfResources.nextElement();
-				}
-				 throw new NoSuchElementException();
-			}
-		};
-	}
-	public ClassLoader getWebInfClassLoader() {
-		return applicationLoader.classLoader;
-	}
-	protected final Class<?> findAndResolveLoadedClass(String name,boolean resolve) {
+
 		Class<?> c = findLoadedClass(name);
-		if (c != null) {
-			if (resolve)
-				resolveClass(c);
-			return c;
+		if (c == null) {
+			try {
+				c = findSystemClass(name);
+				if (c != null) {
+					log.debug("Class load by system.name=" + name);
+				}
+			} catch (ClassNotFoundException e) {
+				// ignone
+			}
 		}
-		// check webinf
-		c = applicationLoader.findLoadedClass(name);
-		if (c != null) {
-			if (resolve)
-				applicationLoader.resolveClass(c);
-			return c;
+		if (c == null) {
+			boolean parentFirst = isParentFirst(name);
+			boolean ignoreLoadFromWebInf = isIgnoreLoadFromWebInfPackagePrefix(name);
+
+			if (parentFirst) {
+				try {
+					c = getParent().loadClass(name);
+					if (c != null) {
+						log.debug("Class load by parent.name=" + name);
+					}
+				} catch (ClassNotFoundException e) {
+				}
+				if (c == null && ignoreLoadFromWebInf == false) {
+					c = findClass(name);
+					if (c != null) {
+						log.debug("Class load by self.name=" + name);
+					}
+				}
+			} else {
+				try {
+					if (ignoreLoadFromWebInf == false) {
+						c = findClass(name);
+						if (c != null) {
+							log.debug("Class load by self.name=" + name);
+						}
+					}
+				} catch (ClassNotFoundException e) {
+				}
+				if (c == null) {
+					c = getParent().loadClass(name);
+					if (c != null) {
+						log.debug("Class load by parent.name=" + name);
+					}
+				}
+			}
 		}
-		return null;
+		if (c == null) {
+			throw new ClassNotFoundException("Class not found.classname="
+					+ name);
+		}
+		if (resolve) {
+			resolveClass(c);
+		}
+		return c;
 	}
-	protected boolean isWebInfLoadFirst(String name) {
-		if (webInfLoadFirstPackagePrefix != null) {
-			for (int i = 0; i < webInfLoadFirstPackagePrefix.length; i++) {
-				if (name.startsWith(webInfLoadFirstPackagePrefix[i])) {
+
+	protected boolean isParentFirst(String name) {
+		if (parentLoadFirstPackagePrefix != null) {
+			for (int i = 0; i < parentLoadFirstPackagePrefix.length; i++) {
+				if (name.startsWith(parentLoadFirstPackagePrefix[i])) {
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-	
-	class ApplicationLoader{
-		private ClassLoader classLoader;
-		protected Method findClass;
-		protected Method resolveClass;
-		protected Method findLoadedClass;
-		protected Method getURLs;
-		ApplicationLoader(ClassLoader cl){
-			classLoader = cl;
-			Class<?> clClass = cl.getClass();
-			findClass = ClassUtil.getMethod(clClass,"findClass",new Class[]{String.class});
-			resolveClass = ClassUtil.getMethod(clClass,"resolveClass",new Class[]{Class.class});
-			findLoadedClass = ClassUtil.getMethod(clClass,"findLoadedClass",new Class[]{String.class});
-			getURLs = ClassUtil.getMethod(clClass,"getURLs",null);
-		}
-		Class<?> findClass(String name) throws ClassNotFoundException{
-			try{
-				return (Class<?>)ClassUtil.invoke(classLoader,findClass,new Object[]{name});
-			}catch(RuntimeException e){				
-				throw new ClassNotFoundException(name,e);
+
+	protected boolean isIgnoreLoadFromWebInfPackagePrefix(String name) {
+		if (ignoreLoadFromWebInfPackagePrefix != null) {
+			for (int i = 0; i < ignoreLoadFromWebInfPackagePrefix.length; i++) {
+				if (name.startsWith(ignoreLoadFromWebInfPackagePrefix[i])) {
+					return true;
+				}
 			}
 		}
-		void resolveClass(Class<?> c) {
-			ClassUtil.invoke(classLoader,resolveClass,new Object[]{c});
-		}
-		Class<?> findLoadedClass(String name){
-			return (Class<?>)ClassUtil.invoke(classLoader,findLoadedClass,new Object[]{name});
-		}
-		URL[] getURLs(){
-			return (URL[])ClassUtil.invoke(classLoader,getURLs,null);
-		}
+		return false;
 	}
 }
