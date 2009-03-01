@@ -40,6 +40,7 @@ import sdloader.javaee.webxml.ListenerTag;
 import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.ServletTag;
 import sdloader.javaee.webxml.WebXml;
+import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.WebUtils;
 
@@ -115,10 +116,17 @@ public class InternalWebApplication {
 	}
 
 	private void init() {
-		initServletContext();
-		initListener();
-		initServlet();
-		initFilter();
+		ClassLoader oldClassLoader = Thread.currentThread()
+				.getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(webAppClassLoader);
+		try {
+			initServletContext();
+			initListener();
+			initServlet();
+			initFilter();
+		} finally {
+			Thread.currentThread().setContextClassLoader(oldClassLoader);
+		}
 	}
 
 	private void initServletContext() {
@@ -132,88 +140,55 @@ public class InternalWebApplication {
 	}
 
 	private void initListener() {
-		ClassLoader oldClassLoader = Thread.currentThread()
-				.getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(webAppClassLoader);
-		try {
-			listenerEventDispatcher = new ListenerEventDispatcher();
 
-			for (ListenerTag listenerTag : webXml.getWebApp().getListener()) {
-				Object listenerImp = createInstance(webAppClassLoader,
-						listenerTag.getListenerClass());
-				listenerEventDispatcher.addListener(listenerImp);
-			}
-			// dispatch servletcontext event
-			ServletContextEvent contextEvent = new ServletContextEvent(
-					this.servletContext);
-			listenerEventDispatcher
-					.dispatchServletContextListener_contextInitialized(contextEvent);
+		listenerEventDispatcher = new ListenerEventDispatcher();
 
-		} finally {
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
+		for (ListenerTag listenerTag : webXml.getWebApp().getListener()) {
+			Object listenerImp = ClassUtil.newInstance(listenerTag
+					.getListenerClass());
+			listenerEventDispatcher.addListener(listenerImp);
 		}
+		// dispatch servletcontext event
+		ServletContextEvent contextEvent = new ServletContextEvent(
+				this.servletContext);
+		listenerEventDispatcher
+				.dispatchServletContextListener_contextInitialized(contextEvent);
 	}
 
 	private void initServlet() {
-		ClassLoader oldClassLoader = Thread.currentThread()
-				.getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(webAppClassLoader);
-		try {
-			List<ServletTag> servletList = webXml.getWebApp().getServlet();
-			for (ServletTag servletTag : servletList) {
-				if (servletMap == null) {
-					servletMap = CollectionsUtil.newHashMap();
-				}
-				Servlet servletInstance = (Servlet) createInstance(
-						webAppClassLoader, servletTag.getServletClass());
-				ServletConfig config = createServletConfig(servletTag);
-				try {
-					servletInstance.init(config);
-				} catch (ServletException e) {
-					throw new RuntimeException(e);
-				}
-				servletMap.put(servletTag.getServletName(), servletInstance);
+		List<ServletTag> servletList = webXml.getWebApp().getServlet();
+		for (ServletTag servletTag : servletList) {
+			if (servletMap == null) {
+				servletMap = CollectionsUtil.newHashMap();
 			}
-			servletContext.setServletMap(servletMap);
-		} finally {
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
+			Servlet servletInstance = (Servlet) ClassUtil
+					.newInstance(servletTag.getServletClass());
+			ServletConfig config = createServletConfig(servletTag);
+			try {
+				servletInstance.init(config);
+			} catch (ServletException e) {
+				throw new RuntimeException(e);
+			}
+			servletMap.put(servletTag.getServletName(), servletInstance);
 		}
+		servletContext.setServletMap(servletMap);
 	}
 
 	private void initFilter() {
-		ClassLoader oldClassLoader = Thread.currentThread()
-				.getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(webAppClassLoader);
-		try {
-			List<FilterTag> filterList = webXml.getWebApp().getFilter();
-			for (FilterTag filterTag : filterList) {
-				if (filterMap == null) {
-					filterMap = CollectionsUtil.newHashMap();
-				}
-				Filter filterInstance = (Filter) createInstance(
-						webAppClassLoader, filterTag.getFilterClass());
-				FilterConfig config = createFilterConfig(filterTag);
-				try {
-					filterInstance.init(config);
-				} catch (ServletException e) {
-					throw new RuntimeException(e);
-				}
-				filterMap.put(filterTag.getFilterName(), filterInstance);
+		List<FilterTag> filterList = webXml.getWebApp().getFilter();
+		for (FilterTag filterTag : filterList) {
+			if (filterMap == null) {
+				filterMap = CollectionsUtil.newHashMap();
 			}
-		} finally {
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
-		}
-	}
-
-	private Object createInstance(ClassLoader webAppClassLoader,
-			String className) {
-		try {
-			Class<?> clazz = webAppClassLoader.loadClass(className);
-			Object instance = clazz.newInstance();
-			return instance;
-		} catch (Exception e) {
-			throw new RuntimeException("create instance fail.className="
-					+ className, e);
+			Filter filterInstance = (Filter) ClassUtil.newInstance(filterTag
+					.getFilterClass());
+			FilterConfig config = createFilterConfig(filterTag);
+			try {
+				filterInstance.init(config);
+			} catch (ServletException e) {
+				throw new RuntimeException(e);
+			}
+			filterMap.put(filterTag.getFilterName(), filterInstance);
 		}
 	}
 

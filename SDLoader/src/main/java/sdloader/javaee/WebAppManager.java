@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
@@ -39,6 +38,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 
 import sdloader.SDLoader;
+import sdloader.internal.SDLoaderConfig;
 import sdloader.internal.resource.ArchiveTypeResource;
 import sdloader.internal.resource.BranchTypeResource;
 import sdloader.internal.resource.LeafTypeResource;
@@ -46,12 +46,11 @@ import sdloader.internal.resource.Resource;
 import sdloader.internal.resource.ResourceBuilder;
 import sdloader.internal.resource.ResourceBuilderImpl;
 import sdloader.internal.resource.ResourceURLConnection;
-import sdloader.javaee.classloader.BytesBasedClassLoader;
+import sdloader.javaee.classloader.InMemoryWebAppClassLoader;
 import sdloader.javaee.classloader.WebAppClassLoader;
 import sdloader.javaee.constants.WebConstants;
 import sdloader.javaee.jasper.InMemoryEmbeddedServletOptions;
 import sdloader.javaee.servlet.FileSavingServlet;
-import sdloader.javaee.servlet.InMemoryFileSavingServlet;
 import sdloader.javaee.servlet.WebAppListServlet;
 import sdloader.javaee.webxml.InitParamTag;
 import sdloader.javaee.webxml.ServletMappingTag;
@@ -62,7 +61,6 @@ import sdloader.javaee.webxml.WebXmlBuilder;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.Assertion;
-import sdloader.util.BooleanUtil;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.FileFilterUtils;
@@ -106,8 +104,6 @@ public class WebAppManager {
 	private static SDLoaderLog log = SDLoaderLogFactory
 			.getLog(WebAppManager.class);
 
-	protected SDLoader server;
-
 	protected String webappDirPath;
 
 	protected List<WebAppContext> webAppContextList = CollectionsUtil
@@ -127,15 +123,14 @@ public class WebAppManager {
 
 	private boolean initialized;
 
+	private SDLoaderConfig config;
+
 	static {
 		JASPER_SUPPORT = ClassUtil.hasClass(JASPER_SERVLET_CLASS);
 	}
 
-	public WebAppManager(SDLoader server) {
-		this.server = server;
-	}
-
-	public void init() {
+	public void init(SDLoaderConfig config) {
+		this.config = config;
 		try {
 			initConfig();
 			if (webAppContextList.size() == 0) {
@@ -149,13 +144,13 @@ public class WebAppManager {
 	}
 
 	protected void initConfig() {
-		String extractStr = server.getConfig(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
-		isInmemoryExtract = BooleanUtil.toBoolean(extractStr);
+		isInmemoryExtract = config
+				.getConfigBoolean(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
 	}
 
 	protected void detectWebApps() throws Exception {
-		this.webappDirPath = server
-				.getConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
+		this.webappDirPath = config
+				.getConfigString(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
 		File webappDir = new File(webappDirPath);
 		if (!webappDir.exists()) {
 			log.info("webapps directory not exists.path=" + webappDirPath);
@@ -324,12 +319,10 @@ public class WebAppManager {
 			}
 		}
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-		ClassLoader webinfClassLoader = new URLClassLoader(urls, SDLoader.class
-				.getClassLoader());
 		ClassLoader parentClassLoader = Thread.currentThread()
 				.getContextClassLoader();
-		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(
-				parentClassLoader, webinfClassLoader);
+		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(urls,
+				parentClassLoader);
 		return webAppClassLoader;
 	}
 
@@ -366,12 +359,10 @@ public class WebAppManager {
 			}
 		}
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
-		ClassLoader webinfClassLoader = new BytesBasedClassLoader(ClassLoader
-				.getSystemClassLoader(), resourceMap, urls);
 		ClassLoader parentClassLoader = Thread.currentThread()
 				.getContextClassLoader();
-		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(
-				parentClassLoader, webinfClassLoader);
+		WebAppClassLoader webAppClassLoader = new InMemoryWebAppClassLoader(
+				resourceMap, urls, parentClassLoader);
 
 		return webAppClassLoader;
 	}
@@ -410,16 +401,15 @@ public class WebAppManager {
 			}
 
 			// JSPコンパイルディレクトリの作成
-			jspServlet.addInitParam(new InitParamTag("scratchdir", "false"));
 			String jspWorkDirPath = System.getProperty("java.io.tmpdir")
 					+ "sdloaderjsp" + contextPath;
 			File jspWorkDir = new File(jspWorkDirPath);
 			jspWorkDir.mkdirs();
 			jspServlet.addInitParam(new InitParamTag("scratchdir",
 					jspWorkDirPath));
-			String jspLibPath = server
-					.getConfig(SDLoader.KEY_SDLOADER_JSP_LIBPATH);
-			if (jspLibPath != null) {
+			String jspLibPath = config.getConfigString(
+					SDLoader.KEY_SDLOADER_JSP_LIBPATH, "");
+			if (jspLibPath.length() != 0) {
 				jspLibPath = PathUtils.replaceFileSeparator(jspLibPath);
 				jspServlet.addInitParam(new InitParamTag("classpath",
 						jspLibPath));
@@ -441,11 +431,11 @@ public class WebAppManager {
 			fileServletTag.setLoadOnStartup(0);
 			// TODO 統合したい
 			if (warInMemory) {
-				fileServletTag.setServletClass(InMemoryFileSavingServlet.class
-						.getName());
+				fileServletTag
+						.setServletClass("sdloader.javaee.servlet.InMemoryFileSavingServlet");
 			} else {
-				fileServletTag.setServletClass(FileSavingServlet.class
-						.getName());
+				fileServletTag
+						.setServletClass("sdloader.javaee.servlet.FileSavingServlet");
 			}
 			fileServletTag.setServletName(fileSavingServletName);
 			String docRoots = "";
