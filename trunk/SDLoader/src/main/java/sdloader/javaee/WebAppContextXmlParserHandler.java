@@ -26,9 +26,10 @@ import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.PathUtils;
 import sdloader.util.TextFormatUtil;
+
 /**
  * @author c9Katayama
- *
+ * 
  */
 public class WebAppContextXmlParserHandler extends DefaultHandler {
 
@@ -60,39 +61,43 @@ public class WebAppContextXmlParserHandler extends DefaultHandler {
 		String contextPath = attributes.getValue("path");
 		String docBase = attributes.getValue("docBase");
 		if (docBase == null) {
-			log.error("docBase attribute not found. file=" + fileName);
-			return;
+			String message = "docBase attribute not found. file=" + fileName;
+			log.error(message);
+			throw new RuntimeException(message);
 		}
-		if (contextPath == null){
+		if (contextPath == null) {
 			contextPath = contextPathFromFileName();
 		}
 		contextPath = TextFormatUtil.formatTextBySystemProperties(contextPath);
-		
+
 		docBase = TextFormatUtil.formatTextBySystemProperties(docBase);
 		String[] bases = docBase.replace('\\', '/').split(",");
 		URL[] baseURLs = new URL[bases.length];
-		
-		for(int i = 0;i < bases.length;i++){
+
+		for (int i = 0; i < bases.length; i++) {
 			String base = bases[i];
 			if (base.startsWith(".")) {// 相対パスの場合、webappsまでのパスを追加
 				base = webAppDirPath + "/" + base;
 			}
-			File baseDir = new File(base); 
+			File baseDir = new File(base);
 			if (!baseDir.exists()) {
-				log.error("docBase not exist. file=" + fileName + " contextPath="
-						+ contextPath + " docBase=" + base);
-				return;
+				String message = "docBase not exist. file=" + fileName
+						+ " contextPath=" + contextPath + " docBase=" + base;
+				log.error(message);
+				throw new RuntimeException(message);
 			}
 			if (baseDir.isFile()) {
-				log.error("docBase is File path. file=" + fileName + " contextPath="
-						+ contextPath + " docBase=" + base);
+				String message = "docBase is File path. file=" + fileName
+						+ " contextPath=" + contextPath + " docBase=" + base;
+				log.error(message);
+				throw new RuntimeException(message);
 			}
 			baseURLs[i] = PathUtils.file2URL(base);
 		}
 		log.info("detect webapp context. contextPath=" + contextPath
-					+ " docBase=" + docBase);
-		
-		webAppContext = new WebAppContext(contextPath,baseURLs);
+				+ " docBase=" + docBase);
+
+		webAppContext = new WebAppContext(contextPath, baseURLs);
 	}
 
 	protected String contextPathFromFileName() {

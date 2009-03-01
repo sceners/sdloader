@@ -21,8 +21,7 @@ import java.security.SecureRandom;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
-import sdloader.internal.SDLoaderInitializer;
-import sdloader.org.apache.commons.codec.binary.Base64;
+import sdloader.util.Base64;
 import sdloader.util.MessageDigestUtil;
 
 /**
@@ -33,9 +32,6 @@ import sdloader.util.MessageDigestUtil;
  */
 public abstract class SessionManager {
 
-	private static SessionManager manager = SDLoaderInitializer
-			.createSessionManager();
-
 	private static final SecureRandom RANDOM_GENERATOR = new SecureRandom();
 
 	private static long sessionIdSeed = System.currentTimeMillis()
@@ -45,14 +41,6 @@ public abstract class SessionManager {
 
 	static {
 		digest = MessageDigestUtil.createMessageDigest();
-	}
-
-	protected SessionManager() {
-		super();
-	}
-
-	public static SessionManager getInstance() {
-		return manager;
 	}
 
 	public abstract HttpSession getSession(String sessionId, boolean createNew,
