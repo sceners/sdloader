@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import sdloader.SDLoader;
-import sdloader.util.BooleanUtil;
+import sdloader.internal.SDLoaderConfig;
 import sdloader.util.CollectionsUtil;
 
 /**
@@ -62,11 +62,12 @@ public class HttpRequestParameters {
 		SDLoader loader = RequestScopeContext.getContext().getAttribute(
 				SDLoader.class);
 		if (loader != null) {
-			encode = loader.getConfig(HttpRequest.KEY_REQUEST_DEFAULT_ENCODE,
-					encode);
-			useBodyEncode = BooleanUtil.toBoolean(loader.getConfig(
-					HttpRequest.KEY_REQUEST_USE_BODY_ENCODEING_FOR_URI, String
-							.valueOf(useBodyEncode)));
+			SDLoaderConfig config = loader.getSDLoaderConfig();
+			encode = config.getConfigString(
+					HttpRequest.KEY_REQUEST_DEFAULT_ENCODE, encode);
+			useBodyEncode = config.getConfigBoolean(
+					HttpRequest.KEY_REQUEST_USE_BODY_ENCODEING_FOR_URI,
+					useBodyEncode);
 
 		}
 		setDefaultEncoding(encode);
@@ -92,7 +93,8 @@ public class HttpRequestParameters {
 			parseRequestQuery(header.getQueryString(), queryEncoding);
 		}
 		byte[] bodyData = body.getBodyData();
-		if (bodyData != null && header.getMethod().equalsIgnoreCase(HttpConst.POST)) {
+		if (bodyData != null
+				&& header.getMethod().equalsIgnoreCase(HttpConst.POST)) {
 			String contType = header.getHeaderValue(HttpConst.CONTENTTYPE);
 			if (contType != null
 					&& contType.equals(HttpConst.WWW_FORM_URLENCODE)) {

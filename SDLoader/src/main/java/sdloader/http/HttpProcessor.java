@@ -31,15 +31,14 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 
 import sdloader.SDLoader;
-import sdloader.javaee.ServletMapping;
 import sdloader.javaee.InternalWebApplication;
+import sdloader.javaee.ServletMapping;
 import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.javaee.impl.FilterChainImpl;
 import sdloader.javaee.impl.HttpServletRequestImpl;
 import sdloader.javaee.impl.HttpServletResponseImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
-import sdloader.util.BooleanUtil;
 import sdloader.util.IOUtil;
 import sdloader.util.SocketUtil;
 import sdloader.util.WebUtils;
@@ -176,7 +175,8 @@ public class HttpProcessor extends Thread {
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
 
 		String requestURI = header.getRequestURI();
-		InternalWebApplication webapp = sdLoader.getWebAppManager().findWebApp(requestURI);
+		InternalWebApplication webapp = sdLoader.getWebAppManager().findWebApp(
+				requestURI);
 		// デフォルトもなければ404
 		if (webapp == null) {
 			response.setStatus(HttpConst.SC_NOT_FOUND);
@@ -260,7 +260,8 @@ public class HttpProcessor extends Thread {
 
 	private HttpServletRequestImpl createServletRequestImp(
 			HttpRequest httpRequest) {
-		HttpServletRequestImpl request = new HttpServletRequestImpl(httpRequest);
+		HttpServletRequestImpl request = new HttpServletRequestImpl(
+				httpRequest, sdLoader.getSessionManager());
 
 		request.setServerPort(sdLoader.getPort());
 		request.setLocalPort(socket.getLocalPort());
@@ -273,9 +274,12 @@ public class HttpProcessor extends Thread {
 
 		request.setScheme("http");
 
-		request.setUriEncoding(sdLoader
-				.getConfig(HttpRequest.KEY_REQUEST_URI_ENCODING));
-
+		String uriEncoding = sdLoader.getSDLoaderConfig()
+				.getConfigStringIgnoreExist(
+						HttpRequest.KEY_REQUEST_URI_ENCODING);
+		if (uriEncoding != null) {
+			request.setUriEncoding(uriEncoding);
+		}
 		return request;
 	}
 
@@ -305,8 +309,8 @@ public class HttpProcessor extends Thread {
 			response.addHeader(HttpConst.CONNECTION, HttpConst.CLOSE);
 		}
 		// Cache Control
-		if (BooleanUtil.toBoolean(sdLoader
-				.getConfig(HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE))) {
+		if (sdLoader.getSDLoaderConfig().getConfigBoolean(
+				HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE, false)) {
 			response.setHeader("Pragma", "no-cache");
 			response.setDateHeader("Expires", 1L);
 			response.setHeader("Cache-Control", "no-cache");
