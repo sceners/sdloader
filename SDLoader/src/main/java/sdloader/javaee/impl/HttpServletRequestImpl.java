@@ -38,10 +38,10 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import sdloader.http.HttpConst;
-import sdloader.http.HttpRequest;
 import sdloader.http.HttpBody;
+import sdloader.http.HttpConst;
 import sdloader.http.HttpHeader;
+import sdloader.http.HttpRequest;
 import sdloader.javaee.SessionManager;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
@@ -88,15 +88,19 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	private HttpRequest httpRequest;
 
+	private SessionManager sessionManager;
+
 	private ServletContextImpl servletContext;
 
 	private String uriEncoding = "ISO-8859-1";
 
 	private String currentSessionId;
 
-	public HttpServletRequestImpl(HttpRequest httpRequest) {
+	public HttpServletRequestImpl(HttpRequest httpRequest,
+			SessionManager sessionManager) {
 		this.httpRequest = httpRequest;
-		currentSessionId = getRequestedSessionId();
+		this.currentSessionId = getRequestedSessionId();
+		this.sessionManager = sessionManager;
 	}
 
 	public String getHeader(String headerName) {
@@ -238,8 +242,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public HttpSession getSession(boolean create) {
-		HttpSession session = SessionManager.getInstance().getSession(
-				currentSessionId, create, servletContext);
+		HttpSession session = sessionManager.getSession(currentSessionId,
+				create, servletContext);
 		if (session != null) {
 			currentSessionId = session.getId();
 		}
@@ -405,9 +409,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = (ServletContextImpl)servletContext;
+		this.servletContext = (ServletContextImpl) servletContext;
 	}
-	
+
 	public ServletContextImpl getServletContext() {
 		return servletContext;
 	}
