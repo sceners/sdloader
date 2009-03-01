@@ -38,23 +38,27 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
+
 /**
  * リソース用Util
+ * 
  * @author c9katayama
  */
 public class ResourceUtil {
-	
-	public static String stripFirstProtocolPart(String path){
-		return path.substring(path.indexOf(":")+1,path.length());
+
+	public static String stripFirstProtocolPart(String path) {
+		return path.substring(path.indexOf(":") + 1, path.length());
 	}
 
-	public static String stripExtension(String value){
+	public static String stripExtension(String value) {
 		int dot = value.lastIndexOf(".");
-		if(dot>=0){
-			value = value.substring(0,dot);
+		if (dot >= 0) {
+			value = value.substring(0, dot);
 		}
 		return value;
 	}
+
 	public static URL createURL(final String url) {
 		try {
 			return new URL(url);
@@ -62,61 +66,83 @@ public class ResourceUtil {
 			throw new RuntimeException(e);
 		}
 	}
-	public static URL createURL(final URL baseURL,String relativeURL) {
+
+	public static URL createURL(final URL baseURL, String relativeURL) {
 		try {
 			String protocol = baseURL.getProtocol();
-			relativeURL = relativeURL.replace("\\","/");
-			//TODO
-			if(protocol.startsWith("file")){
-				if(relativeURL.startsWith("/")){
-					relativeURL = relativeURL.substring(1,relativeURL.length());
+			relativeURL = relativeURL.replace("\\", "/");
+			// TODO
+			if (protocol.startsWith("file")) {
+				if (relativeURL.startsWith("/")) {
+					relativeURL = relativeURL
+							.substring(1, relativeURL.length());
 				}
-				return new URL(baseURL,relativeURL);				
-			}else{
-				//TODO
+				return new URL(baseURL, relativeURL);
+			} else {
+				// TODO
 				String baseArchivePath = baseURL.toExternalForm();
-				if(baseArchivePath.endsWith("/")){
-					baseArchivePath = baseArchivePath.substring(0,baseArchivePath.length()-1);
+				if (baseArchivePath.endsWith("/")) {
+					baseArchivePath = baseArchivePath.substring(0,
+							baseArchivePath.length() - 1);
 				}
-				if(baseArchivePath.endsWith("!")){
-					baseArchivePath = baseArchivePath.substring(0,baseArchivePath.length()-1);
-				}				
-				if(!relativeURL.startsWith("/")){
+				if (baseArchivePath.endsWith("!")) {
+					baseArchivePath = baseArchivePath.substring(0,
+							baseArchivePath.length() - 1);
+				}
+				if (!relativeURL.startsWith("/")) {
 					relativeURL = "/" + relativeURL;
 				}
-				return new URL(baseArchivePath+"!"+relativeURL);
+				return new URL(baseArchivePath + "!" + relativeURL);
 			}
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	public static boolean isAbsoluteURL(String url){
-		return (url.indexOf(":/") != -1); 
+
+	public static boolean isAbsoluteURL(String url) {
+		return (url.indexOf(":/") != -1);
 	}
-	public static boolean isResourceExist(URL resource){
+
+	public static boolean isResourceExist(URL resource) {
 		InputStream is = null;
-		try{
-			is = resource.openStream();	
-			return (is!=null);
-		}catch(Exception ioe){
+		try {
+			is = resource.openStream();
+			return (is != null);
+		} catch (Exception ioe) {
 			return false;
-		}finally{
-			if(is != null){
-				try{
+		} finally {
+			if (is != null) {
+				try {
 					is.close();
 					is = null;
-				}catch(IOException ignore){					
+				} catch (IOException ignore) {
 				}
 			}
 		}
 	}
-	public static boolean isFileResource(URL resource){
+
+	public static boolean isFileResource(URL resource) {
 		return !resource.toExternalForm().endsWith("/");
 	}
-	
-	public static boolean isDirectoryResource(URL resource){
+
+	public static boolean isDirectoryResource(URL resource) {
 		return resource.toExternalForm().endsWith("/");
 	}
+
+	public static Properties loadProperties(String path, Class<?> caller) {
+		InputStream is = getResourceAsStream(path, caller);
+		if (is == null) {
+			throw new RuntimeException("Properties not found.path=" + path);
+		}
+		Properties p = new Properties();
+		try {
+			p.load(is);
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		}
+		return p;
+	}
+
 	/**
 	 * リソースのストリームを取得します。
 	 * 
@@ -139,15 +165,19 @@ public class ResourceUtil {
 			} catch (FileNotFoundException e) {
 			}
 		}
-		if (is == null)
+		if (is == null) {
 			is = Thread.currentThread().getContextClassLoader()
 					.getResourceAsStream(resource);
-		if (is == null)
+		}
+		if (is == null) {
 			is = caller.getResourceAsStream(path);
-		if (is == null)
+		}
+		if (is == null) {
 			is = ClassLoader.class.getResourceAsStream(path);
-		if (is == null)
+		}
+		if (is == null) {
 			is = ClassLoader.getSystemResourceAsStream(resource);
+		}
 
 		return is;
 	}
