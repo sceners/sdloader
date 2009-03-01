@@ -1,1 +1,1 @@
-start javaw -cp .;sdloader.jar sdloader.SystemTrayOpen
+start /b javaw -cp .;sdloader.jar sdloader.SystemTrayOpen >> sdloader.log 2>>&1
