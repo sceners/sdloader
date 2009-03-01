@@ -57,7 +57,10 @@ public class ClassUtil {
 			return null;
 		}
 	}
-
+	@SuppressWarnings("unchecked")
+	public static <T> T newInstance(final String clazzName) {
+		return (T)newInstance(forName(clazzName));
+	}
 	public static <T> T newInstance(final Class<T> clazz) {
 		try {
 			return clazz.newInstance();
