@@ -32,8 +32,8 @@ import javax.servlet.ServletException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import sdloader.javaee.ServletMapping;
 import sdloader.javaee.InternalWebApplication;
+import sdloader.javaee.ServletMapping;
 import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
@@ -89,9 +89,9 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public ServletContext getContext(String contextPath) {
-		InternalWebApplication webapp = this.webApp.getWebApplicationManager().findWebApp(
-				contextPath);
-		if (webapp != null){
+		InternalWebApplication webapp = this.webApp.getWebApplicationManager()
+				.findWebApp(contextPath);
+		if (webapp != null) {
 			return webapp.getServletContext();
 		}
 
@@ -99,10 +99,12 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public Set<String> getResourcePaths(String path) {
-		if (path == null)
+		if (path == null) {
 			return null;
-		if (path.endsWith("/"))
+		}
+		if (path.endsWith("/")) {
 			path = path.substring(0, path.length() - 1);
+		}
 
 		String absPath = docBase + path;
 		File targetResource = new File(absPath);
@@ -114,8 +116,9 @@ public class ServletContextImpl implements ServletContext {
 					for (int i = 0; i < resources.length; i++) {
 						File resource = resources[i];
 						String name = path + "/" + resource.getName();
-						if (resource.isDirectory())
+						if (resource.isDirectory()) {
 							name += "/";
+						}
 						pathSet.add(name);
 					}
 				}
@@ -123,8 +126,9 @@ public class ServletContextImpl implements ServletContext {
 				String name = path + "/" + targetResource.getName();
 				pathSet.add(name);
 			}
-			if (!pathSet.isEmpty())
+			if (!pathSet.isEmpty()) {
 				return pathSet;
+			}
 		}
 		return null;
 	}
@@ -250,11 +254,11 @@ public class ServletContextImpl implements ServletContext {
 		return 0;
 	}
 
-	public String getMimeType(String path) {		
+	public String getMimeType(String path) {
 		String ext = PathUtils.getExtension(path);
-		if(ext == null){
+		if (ext == null) {
 			return mimeTypeMap.get(path.toLowerCase());
-		}else{
+		} else {
 			return mimeTypeMap.get(ext.toLowerCase());
 		}
 	}
@@ -267,8 +271,8 @@ public class ServletContextImpl implements ServletContext {
 			throw new IllegalArgumentException(
 					"dispatch path is not start with \"/\".");
 		}
-		InternalWebApplication webapp = webApp.getWebApplicationManager().findWebApp(
-				this.servletContextName);
+		InternalWebApplication webapp = webApp.getWebApplicationManager()
+				.findWebApp(this.servletContextName);
 		ServletMapping mapping = webapp.findServletMapping(requestPath);
 		if (mapping == null) {
 			return null;
@@ -300,7 +304,6 @@ public class ServletContextImpl implements ServletContext {
 	public String getContextPath() {
 		return servletContextName;
 	}
-	
 
 	// /non interface method
 	public void setServletMap(Map<String, Servlet> servletMap) {
