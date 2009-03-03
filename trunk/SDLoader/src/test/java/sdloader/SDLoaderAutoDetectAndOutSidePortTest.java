@@ -26,10 +26,10 @@ import sdloader.util.MiscUtils;
  * 
  * @author c9katayama
  */
-public class AutoDetectAndOutSidePortTest {
+public class SDLoaderAutoDetectAndOutSidePortTest {
 
 	private static final SDLoaderLog log = SDLoaderLogFactory
-			.getLog(AutoDetectAndOutSidePortTest.class);
+			.getLog(SDLoaderAutoDetectAndOutSidePortTest.class);
 
 	public static void main(String[] args) {
 

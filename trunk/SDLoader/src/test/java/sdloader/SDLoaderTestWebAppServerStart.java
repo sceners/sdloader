@@ -4,7 +4,7 @@ import sdloader.SDLoader;
 import sdloader.javaee.WebAppContext;
 import sdloader.util.MiscUtils;
 
-public class TestWebAppServerStart {
+public class SDLoaderTestWebAppServerStart {
 
 	public static void main(String[] args) {
 		SDLoader sdloader = new SDLoader();

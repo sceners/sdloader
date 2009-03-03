@@ -16,7 +16,7 @@ import sdloader.testwebapp.filteranddispatchtest.RequestFilter;
 import sdloader.testwebapp.filteranddispatchtest.RequestServlet;
 import sdloader.util.MiscUtils;
 
-public class TestWebXmlDeployWebAppServerStart {
+public class SDLoaderTestWebXmlDeployWebAppServerStart {
 
 	public static void main(String[] args) {
 		SDLoader sdloader = new SDLoader();
