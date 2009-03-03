@@ -1,6 +1,6 @@
 package sdloader;
 
-import sdloader.constant.LineSpeed;
+import sdloader.constants.LineSpeed;
 import sdloader.util.MiscUtils;
 
 public class SDLoaderLineSpeedTest {
