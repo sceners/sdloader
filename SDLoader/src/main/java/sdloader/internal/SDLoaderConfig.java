@@ -17,6 +17,14 @@ public class SDLoaderConfig {
 		}
 	}
 
+	public void addAll(Properties p) {
+		for (Object objKey : p.keySet()) {
+			String key = (String) objKey;
+			String value = p.getProperty(key);
+			setConfig(key, value);
+		}
+	}
+
 	public Object setConfig(String key, Object value) {
 		return setConfig(key, value, null);
 	}
