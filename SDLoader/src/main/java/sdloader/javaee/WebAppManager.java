@@ -406,9 +406,9 @@ public class WebAppManager {
 			jspWorkDir.mkdirs();
 			jspServlet.addInitParam(new InitParamTag("scratchdir",
 					jspWorkDirPath));
-			String jspLibPath = config.getConfigString(
-					SDLoader.KEY_SDLOADER_JSP_LIBPATH, "");
-			if (jspLibPath.length() != 0) {
+			
+			String jspLibPath = config.getConfigStringIgnoreExist(SDLoader.KEY_SDLOADER_JSP_LIBPATH);
+			if (jspLibPath != null) {
 				jspLibPath = PathUtil.replaceFileSeparator(jspLibPath);
 				jspServlet.addInitParam(new InitParamTag("classpath",
 						jspLibPath));
