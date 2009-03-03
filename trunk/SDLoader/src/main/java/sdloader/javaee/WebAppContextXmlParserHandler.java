@@ -24,7 +24,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
-import sdloader.util.PathUtils;
+import sdloader.util.PathUtil;
 import sdloader.util.TextFormatUtil;
 
 /**
@@ -92,7 +92,7 @@ public class WebAppContextXmlParserHandler extends DefaultHandler {
 				log.error(message);
 				throw new RuntimeException(message);
 			}
-			baseURLs[i] = PathUtils.file2URL(base);
+			baseURLs[i] = PathUtil.file2URL(base);
 		}
 		log.info("detect webapp context. contextPath=" + contextPath
 				+ " docBase=" + docBase);

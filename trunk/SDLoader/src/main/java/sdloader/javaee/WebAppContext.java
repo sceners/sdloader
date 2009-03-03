@@ -23,7 +23,7 @@ import java.net.URL;
 
 import sdloader.javaee.webxml.WebXml;
 import sdloader.util.Assertion;
-import sdloader.util.PathUtils;
+import sdloader.util.PathUtil;
 
 public class WebAppContext {
 
@@ -49,22 +49,22 @@ public class WebAppContext {
 	public WebAppContext(final String contextPath, final String... dirPath) {
 		docBase = new URL[dirPath.length];
 		for (int i = 0; i < dirPath.length; i++) {
-			docBase[i] = PathUtils.file2URL(dirPath[i]);
+			docBase[i] = PathUtil.file2URL(dirPath[i]);
 		}
-		this.contextPath = PathUtils.appendStartSlashIfNeed(contextPath);
+		this.contextPath = PathUtil.appendStartSlashIfNeed(contextPath);
 	}
 
 	public WebAppContext(final String contextPath, final File... dir) {
 		docBase = new URL[dir.length];
 		for (int i = 0; i < dir.length; i++) {
-			docBase[i] = PathUtils.file2URL(dir[i]);
+			docBase[i] = PathUtil.file2URL(dir[i]);
 		}
-		this.contextPath = PathUtils.appendStartSlashIfNeed(contextPath);
+		this.contextPath = PathUtil.appendStartSlashIfNeed(contextPath);
 	}
 
 	public WebAppContext(final String contextPath, final URL... docBase) {
 		this.docBase = Assertion.notNull(docBase);
-		this.contextPath = PathUtils.appendStartSlashIfNeed(contextPath);
+		this.contextPath = PathUtil.appendStartSlashIfNeed(contextPath);
 	}
 
 	public void setWebXml(WebXml webXml) {

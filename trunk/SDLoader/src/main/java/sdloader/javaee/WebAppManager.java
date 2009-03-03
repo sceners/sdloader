@@ -64,7 +64,8 @@ import sdloader.util.Assertion;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.FileFilterUtils;
-import sdloader.util.PathUtils;
+import sdloader.util.MessageDigestUtil;
+import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
 import sdloader.util.WarUtil;
 import sdloader.util.WebUtils;
@@ -177,7 +178,7 @@ public class WebAppManager {
 					final String contextPath = "/" + dirs[i].getName();
 					final String docBase = webappDirPath + contextPath;
 					final WebAppContext context = new WebAppContext(
-							contextPath, PathUtils.file2URL(docBase));
+							contextPath, PathUtil.file2URL(docBase));
 					addWebAppContext(context);
 					log.info("detect webapp context. contextPath="
 							+ contextPath + " docBase=" + docBase);
@@ -278,7 +279,7 @@ public class WebAppManager {
 
 		// Default servlet
 		final String contextPath = "/";
-		URL docBase = PathUtils.file2URL(webappDirPath + "/"
+		URL docBase = PathUtil.file2URL(webappDirPath + "/"
 				+ WebConstants.ROOT_DIR_NAME);
 		if (ResourceUtil.isResourceExist(docBase)) {
 			setDefaultServlet(webXmlTag, new URL[] { docBase }, contextPath,
@@ -303,10 +304,10 @@ public class WebAppManager {
 		List<URL> urlList = CollectionsUtil.newArrayList();
 		// classes
 		for (int i = 0; i < docBase.length; i++) {
-			File docBaseDir = PathUtils.url2File(docBase[i]);
+			File docBaseDir = PathUtil.url2File(docBase[i]);
 			File classesDir = new File(docBaseDir, "/WEB-INF/classes/");
 			if (classesDir.exists()) {
-				urlList.add(PathUtils.file2URL(classesDir));
+				urlList.add(PathUtil.file2URL(classesDir));
 			}
 			// WEB-INF/lib
 			File webinfLibDir = new File(docBaseDir, "/WEB-INF/lib");
@@ -399,10 +400,8 @@ public class WebAppManager {
 				jspServlet.addInitParam(new InitParamTag("engineOptionsClass",
 						InMemoryEmbeddedServletOptions.class.getName()));
 			}
-
 			// JSPコンパイルディレクトリの作成
-			String jspWorkDirPath = System.getProperty("java.io.tmpdir")
-					+ "sdloaderjsp" + contextPath;
+			String jspWorkDirPath = generateJspWorkDirPath(contextPath);
 			File jspWorkDir = new File(jspWorkDirPath);
 			jspWorkDir.mkdirs();
 			jspServlet.addInitParam(new InitParamTag("scratchdir",
@@ -410,7 +409,7 @@ public class WebAppManager {
 			String jspLibPath = config.getConfigString(
 					SDLoader.KEY_SDLOADER_JSP_LIBPATH, "");
 			if (jspLibPath.length() != 0) {
-				jspLibPath = PathUtils.replaceFileSeparator(jspLibPath);
+				jspLibPath = PathUtil.replaceFileSeparator(jspLibPath);
 				jspServlet.addInitParam(new InitParamTag("classpath",
 						jspLibPath));
 			}
@@ -454,6 +453,16 @@ public class WebAppManager {
 			webXml.getWebApp().addServlet(fileServletTag);
 			webXml.getWebApp().addServletMapping(mappingTag);
 		}
+	}
+
+	protected String generateJspWorkDirPath(String contextPath) {
+		
+		String jspWorkDirPath = PathUtil.jointPathWithSlash(
+				PathUtil.replaceFileSeparator(System.getProperty("java.io.tmpdir")), "sdloaderjsp");
+		String genDir = MessageDigestUtil.digest(System
+				.getProperty("java.class.path"));
+		jspWorkDirPath = jspWorkDirPath + "/" + genDir + contextPath;
+		return jspWorkDirPath;
 	}
 
 	private static boolean isExtracted(File warFile, File[] dirs) {

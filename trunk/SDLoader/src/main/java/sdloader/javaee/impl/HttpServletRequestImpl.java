@@ -45,7 +45,7 @@ import sdloader.http.HttpRequest;
 import sdloader.javaee.SessionManager;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
-import sdloader.util.PathUtils;
+import sdloader.util.PathUtil;
 import sdloader.util.WebUtils;
 
 /**
@@ -308,12 +308,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public RequestDispatcher getRequestDispatcher(String path) {
-		if (!PathUtils.startsWithSlash(path)) {
+		if (!PathUtil.startsWithSlash(path)) {
 			String servletAndPathInfo = getServletPath();
 			if (getPathInfo() != null) {
 				servletAndPathInfo += getPathInfo();
 			}
-			path = PathUtils.computeRelativePath(servletAndPathInfo, path);
+			path = PathUtil.computeRelativePath(servletAndPathInfo, path);
 		}
 		return servletContext.getRequestDispatcher(path);
 	}
