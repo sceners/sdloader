@@ -333,7 +333,7 @@ public class SDLoader implements Lifecycle {
 
 		sdLoaderThread.start();
 
-		log.info("SDLoader startup in " + (System.currentTimeMillis() - t)
+		log.info("SDLoader[port:"+getPort()+"] startup in " + (System.currentTimeMillis() - t)
 				+ " ms.");
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
