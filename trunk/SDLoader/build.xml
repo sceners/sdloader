@@ -70,21 +70,6 @@
 		</manifest>
     </jar>
   	
-    <jar jarfile="${distbuildlib}/sdloader-jsp12.jar" compress="true">
-    	<fileset dir="${build}"/>    	
-    	<metainf dir=".">
-		    <include name="sdloaderversion.txt"/>
-    	</metainf>
-    	<zipfileset src="lib/Servlet2.3_JSP1.2/ant.jar"/>
-    	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-compiler.jar"/>
-    	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-runtime.jar"/>
-    	<zipfileset src="lib/Servlet2.3_JSP1.2/servlet.jar"/>
-    	<zipfileset src="lib/commons-logging-1.1.jar"/>
-    	<manifest>
- 	    	<attribute name="Main-Class" value="${mainclasslib}"/>
-		</manifest>
-    </jar>
-  	
     <jar jarfile="${distbuildlib}/sdloader-jsp20.jar" compress="true">
     	<fileset dir="${build}"/>    	
     	<metainf dir=".">
@@ -155,39 +140,7 @@
 	</exec>
 	-->    	
   	
-  	<!-- standalone sdloader-jsp12-->
-  	<mkdir dir="${distbuildstandalone}/sdloader-jsp12" />
-    <copy todir="${distbuildstandalone}/sdloader-jsp12" >
-    	<fileset dir="boot">
-    		<include name="sdloader-jsp12.bat"/>
-    	</fileset>
-		<fileset dir=".">
-			<include name="webapps/WARFILE*"/>			
-			<include name="webapps/ROOT/*"/>
-		</fileset>
-    </copy>  	
-    <jar jarfile="${distbuildstandalone}/sdloader-jsp12/sdloader-jsp12.jar" compress="true">
-    	<fileset dir="${build}"/>    	
-    	<metainf dir=".">
-		    <include name="sdloaderversion.txt"/>
-    	</metainf>
-    	<zipfileset src="lib/Servlet2.3_JSP1.2/ant.jar"/>
-    	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-compiler.jar"/>
-    	<zipfileset src="lib/Servlet2.3_JSP1.2/jasper-runtime.jar"/>
-    	<zipfileset src="lib/Servlet2.3_JSP1.2/servlet.jar"/>
-    	<zipfileset src="lib/commons-logging-1.1.jar"/>
-    	<zipfileset src="lib/swt.jar"/>
-    	<manifest>
- 	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
-		</manifest>
-    </jar>
-  	<!--
-  	<exec executable="./boot/exewrap/exewrap.exe">
-  	  <arg line="-t 1.5 -g ${distbuildstandalone}/sdloader-jsp12/sdloader-jsp12.jar" /> 
-	</exec>
-	-->  	
-  	<copy todir="${distbuildstandalone}/sdloader-jsp12" file="lib/Servlet2.3_JSP1.2/tools_1_5/tools.jar"/>
-  	
+   	
   	<!-- standalone sdloader-jsp20-->
   	<mkdir dir="${distbuildstandalone}/sdloader-jsp20" />
     <copy todir="${distbuildstandalone}/sdloader-jsp20" >
