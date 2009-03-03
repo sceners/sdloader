@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import junit.framework.TestCase;
-import sdloader.constant.LineSpeed;
+import sdloader.constants.LineSpeed;
 
 public class IOUtilTest extends TestCase {
 
