@@ -90,6 +90,9 @@ public class SDLoader implements Lifecycle {
 	public static final String KEY_SDLOADER_SESSION_MANAGER = CONFIG_KEY_PREFIX
 			+ "sessionManager";
 
+	public static final String KEY_SDLOADER_LINE_SPEED = CONFIG_KEY_PREFIX
+			+ "lineSpeed";
+
 	public static final String KEY_SDLOADER_PORT = CONFIG_KEY_PREFIX + "port";
 
 	private String sdloaderConfigPath = "sdloader.properties";
@@ -237,6 +240,16 @@ public class SDLoader implements Lifecycle {
 	}
 
 	/**
+	 * 回線速度をセットします。
+	 * 
+	 * @param bps
+	 */
+	public void setLineSpeed(int bps) {
+		checkNotRunning();
+		config.setConfig(KEY_SDLOADER_LINE_SPEED, bps);
+	}
+
+	/**
 	 * Webアプリケーションコンテキストを追加します。
 	 * 
 	 * @param context
@@ -263,8 +276,10 @@ public class SDLoader implements Lifecycle {
 	public String getServerName() {
 		return config.getConfigString(KEY_SDLOADER_SERVER_NAME);
 	}
+
 	/**
 	 * SessionManagerを返します。
+	 * 
 	 * @return
 	 */
 	public SessionManager getSessionManager() {
