@@ -16,15 +16,16 @@
 package sdloader.lifecycle;
 
 /**
- * @author shot
+ * ライフサイクルインターフェース
  * 
- * General start/stop event interface.
+ * @author shot
+ * @author c9katayama
  */
 public interface Lifecycle {
 
 	void start();
-	
+
 	void stop();
-	
+
 	boolean isRunning();
 }
