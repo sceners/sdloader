@@ -1,1 +1,1 @@
-start /b javaw -cp .;sdloader-jsp21.jar sdloader.SystemTrayOpen >> sdloader.log 2>>&1
+start /b javaw -cp .;lib/sdloader-jsp21.jar sdloader.SystemTrayOpen >> sdloader.log 2>>&1

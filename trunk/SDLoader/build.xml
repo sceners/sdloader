@@ -151,8 +151,9 @@
 			<include name="webapps/WARFILE*"/>			
 			<include name="webapps/ROOT/*"/>
 		</fileset>
-    </copy>  
-    <jar jarfile="${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar" compress="true">
+    </copy>
+  	<mkdir dir="${distbuildstandalone}/sdloader-jsp20/lib" />
+    <jar jarfile="${distbuildstandalone}/sdloader-jsp20/lib/sdloader-jsp20.jar" compress="true">
     	<fileset dir="${build}"/>    	
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -179,6 +180,7 @@
 
   	<!-- standalone sdloader-jsp21-->
   	<mkdir dir="${distbuildstandalone}/sdloader-jsp21" />
+  	<mkdir dir="${distbuildstandalone}/sdloader-jsp21/lib" />
     <copy todir="${distbuildstandalone}/sdloader-jsp21" >
     	<fileset dir="boot">
     		<include name="sdloader-jsp21.bat"/>
@@ -188,7 +190,7 @@
 			<include name="webapps/ROOT/*"/>
 		</fileset>
     </copy>  
-    <jar jarfile="${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar" compress="true">
+    <jar jarfile="${distbuildstandalone}/sdloader-jsp21/lib/sdloader-jsp21.jar" compress="true">
     	<fileset dir="${build}"/>    	
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -212,6 +214,7 @@
   	  <arg line="-g ${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar" /> 
 	</exec>
   	-->
+  	
   	<!-- source -->
   	<mkdir dir="${distbuild}/src"/>
   	<jar jarfile="${distbuild}/src/sdloadersrc.jar">
