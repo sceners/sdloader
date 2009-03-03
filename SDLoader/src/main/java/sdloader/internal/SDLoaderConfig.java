@@ -1,13 +1,45 @@
 package sdloader.internal;
 
+/*
+ * Copyright 2005-2007 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import java.util.Map;
 import java.util.Properties;
 
 import sdloader.util.CollectionsUtil;
 
+/**
+ * SDLoaderの設定データ.
+ * 
+ * <pre>
+ * SDLoaderに関するすべての設定は、このインスタンスに入ります.
+ * デフォルトの設定は、jar内のsdloader.propertiesに入っています.
+ * デフォルト設定を変更したい場合は、同名のファイルをクラスパス配下に置くか、
+ * SDLoaderインスタンス化後にgetSDLoaderConfigでインスタンスを取り、設定します。
+ * </pre>
+ * 
+ * @author AKatayama
+ * 
+ */
 public class SDLoaderConfig {
 
 	private Map<String, Object> setting = CollectionsUtil.newHashMap();
+
+	public void clear() {
+		setting.clear();
+	}
 
 	public void addAllIfNotExist(Properties p) {
 		for (Object objKey : p.keySet()) {
