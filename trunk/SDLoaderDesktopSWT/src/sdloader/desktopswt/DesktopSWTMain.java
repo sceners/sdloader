@@ -29,8 +29,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import sdloader.SDLoader;
-import sdloader.internal.SDLoaderInitializer;
-import sdloader.javaee.impl.SessionManagerImpl;
 import sdloader.lifecycle.LifecycleEvent;
 import sdloader.lifecycle.LifecycleListener;
 import sdloader.util.ResourceUtil;
@@ -73,6 +71,7 @@ public class DesktopSWTMain {
 		splash.open();
 	}
 
+	@SuppressWarnings("deprecation")
 	public void open() {
 		display = new Display();
 		openSplashWindow();
@@ -169,15 +168,15 @@ public class DesktopSWTMain {
 	}
 
 	protected void initServer() {
-		SDLoaderInitializer.setSessionManager(new SessionManagerImpl());
 		server = new SDLoader();
-		String port = appProperties.getProperty("port");
-		if (port != null) {
-			server.setPort(Integer.parseInt(port));
-			server.setAutoPortDetect(false);
-		} else {
-			server.setAutoPortDetect(true);
-		}
+		server.getSDLoaderConfig().addAll(appProperties);
+//		String port = appProperties.getProperty("port");
+//		if (port != null) {
+//			server.setPort(Integer.parseInt(port));
+//			server.setAutoPortDetect(false);
+//		} else {
+//			server.setAutoPortDetect(true);
+//		}
 		server.addEventListener(LifecycleEvent.AFTER_START,
 				new LifecycleListener() {
 					public void handleLifecycle(LifecycleEvent<?> arg0) {
