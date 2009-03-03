@@ -18,31 +18,63 @@ package sdloader.util;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+
 /**
  * 
  * @author c9katayama
  */
 public class IOUtil {
 
-	public static void flushNoException(Flushable flushable){
-		if(flushable != null){
-			try{
+	public static void flushNoException(Flushable flushable) {
+		if (flushable != null) {
+			try {
 				flushable.flush();
-			}catch(IOException ioe){
-				return ;
+			} catch (IOException ioe) {
+				return;
 			}
 		}
 	}
-	public static void closeNoException(Closeable closeable){
-		if(closeable != null){
-			try{
+
+	public static void closeNoException(Closeable closeable) {
+		if (closeable != null) {
+			try {
 				closeable.close();
-			}catch(IOException ioe){
-				return ;
+			} catch (IOException ioe) {
+				return;
 			}
 		}
 	}
+
+	public static void read(int bps, byte[] data, InputStream is)
+			throws IOException {
+		if (bps <= 0) {
+			is.read(data, 0, data.length);
+		} else {
+			int bitPerSec = (int) (bps / 8.0 / 4.0);
+			bitPerSec = Math.max(1, bitPerSec);
+			while (true) {
+				int offset = 0;
+				int size = data.length;
+				while (true) {
+					if (offset + bitPerSec >= size) {
+						is.read(data, offset, size - offset);
+						return;
+					} else {
+						is.read(data, offset, bitPerSec);
+						offset += bitPerSec;
+					}
+					try {
+						Thread.sleep(250);
+					} catch (InterruptedException e) {
+
+					}
+				}
+			}
+		}
+	}
+
 	public static void write(int bps, byte[] data, OutputStream os)
 			throws IOException {
 		if (data == null || data.length == 0) {
@@ -67,7 +99,7 @@ public class IOUtil {
 					try {
 						Thread.sleep(250);
 					} catch (InterruptedException e) {
-	
+
 					}
 				}
 			}

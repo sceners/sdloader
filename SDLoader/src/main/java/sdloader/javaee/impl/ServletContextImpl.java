@@ -40,7 +40,7 @@ import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
 import sdloader.util.MimeParseHandler;
-import sdloader.util.PathUtils;
+import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
 
 /**
@@ -255,7 +255,7 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public String getMimeType(String path) {
-		String ext = PathUtils.getExtension(path);
+		String ext = PathUtil.getExtension(path);
 		if (ext == null) {
 			return mimeTypeMap.get(path.toLowerCase());
 		} else {
@@ -267,7 +267,7 @@ public class ServletContextImpl implements ServletContext {
 	 * パス名は "/" で始める必要があり、現在のコンテキストルートに対する相対パスとして解釈されます。
 	 */
 	public RequestDispatcher getRequestDispatcher(String requestPath) {
-		if (!PathUtils.startsWithSlash(requestPath)) {
+		if (!PathUtil.startsWithSlash(requestPath)) {
 			throw new IllegalArgumentException(
 					"dispatch path is not start with \"/\".");
 		}
@@ -285,7 +285,7 @@ public class ServletContextImpl implements ServletContext {
 				servletName, JavaEEConstants.DISPATCHER_TYPE_INCLUDE);
 
 		String contextPath = webapp.getContextPath();
-		String requestURI = PathUtils.jointPathWithSlash(contextPath,
+		String requestURI = PathUtil.jointPathWithSlash(contextPath,
 				requestPath);
 
 		return new RequestDispatcherImpl(mapping, servlet, forwardFilters,

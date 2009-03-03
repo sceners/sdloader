@@ -40,7 +40,7 @@ import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.ClassUtil;
 import sdloader.util.DisposableUtil;
-import sdloader.util.PathUtils;
+import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
 import sdloader.util.SocketUtil;
 
@@ -349,8 +349,8 @@ public class SDLoader implements Lifecycle {
 				homeDir = System.getProperty("user.dir");
 			}
 		}
-		homeDir = PathUtils.replaceFileSeparator(homeDir);
-		homeDir = PathUtils.removeEndSlashIfNeed(homeDir);
+		homeDir = PathUtil.replaceFileSeparator(homeDir);
+		homeDir = PathUtil.removeEndSlashIfNeed(homeDir);
 
 		config.setConfig(KEY_SDLOADER_HOME, homeDir);
 		log.info("SDLOADER_HOME=" + homeDir);
@@ -364,8 +364,8 @@ public class SDLoader implements Lifecycle {
 				webappPath = WebConstants.WEBAPP_DIR_NAME;
 			}
 		}
-		webappPath = PathUtils.replaceFileSeparator(webappPath);
-		if (!PathUtils.isAbsolutePath(webappPath)) {
+		webappPath = PathUtil.replaceFileSeparator(webappPath);
+		if (!PathUtil.isAbsolutePath(webappPath)) {
 			// homeからの絶対パスに変換
 			webappPath = homeDir + "/" + webappPath;
 		}

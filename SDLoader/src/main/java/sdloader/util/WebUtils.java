@@ -154,7 +154,7 @@ public class WebUtils {
 		File[] libs = targetDir.listFiles(fileFilter);
 		if (libs != null) {
 			for (int i = 0; i < libs.length; i++) {
-				urlList.add(PathUtils.file2URL(libs[i]));
+				urlList.add(PathUtil.file2URL(libs[i]));
 			}
 		}
 		if(recursive){

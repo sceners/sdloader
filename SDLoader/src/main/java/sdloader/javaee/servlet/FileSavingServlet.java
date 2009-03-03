@@ -35,7 +35,7 @@ import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.impl.ServletContextImpl;
 import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.WelcomeFileListTag;
-import sdloader.util.PathUtils;
+import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
 import sdloader.util.WebUtils;
 
@@ -105,7 +105,7 @@ public class FileSavingServlet extends HttpServlet {
 		}
 		File fileOrDir = null;
 		for (int i = 0; i < docRootPath.length; i++) {
-			File testFile = PathUtils.url2File(this.docRootPath[i]
+			File testFile = PathUtil.url2File(this.docRootPath[i]
 					.toExternalForm()
 					+ uri);
 			if (testFile.exists()) {

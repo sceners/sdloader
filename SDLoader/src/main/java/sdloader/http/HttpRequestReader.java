@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
 
+import sdloader.util.IOUtil;
+
 /**
  * HttpRequestReader
  * 
@@ -30,10 +32,13 @@ public class HttpRequestReader {
 	private static final char LF = '\n';
 
 	private InputStream inputStream;
+	
+	private int bps;
 
-	public HttpRequestReader(InputStream is) {
+	public HttpRequestReader(InputStream is,int bps) {
 		super();
 		this.inputStream = is;
+		this.bps = bps;
 	}
 
 	public String readHeaderLine() throws IOException {
@@ -56,6 +61,6 @@ public class HttpRequestReader {
 	}
 
 	public void readBody(byte[] body) throws IOException {
-		inputStream.read(body, 0, body.length);
+		IOUtil.read(bps,body,inputStream);
 	}
 }

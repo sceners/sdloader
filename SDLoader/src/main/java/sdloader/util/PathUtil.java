@@ -20,8 +20,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-public class PathUtils {
+/**
+ * PathUtils
+ * @author AKatayama
+ *
+ */
+public class PathUtil {
 	/**
 	 * ベースパスに対して相対パスを解決します。
 	 * @param basePath

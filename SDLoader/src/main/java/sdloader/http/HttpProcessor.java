@@ -31,7 +31,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 
 import sdloader.SDLoader;
-import sdloader.constant.LineSpeed;
+import sdloader.constants.LineSpeed;
 import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.ServletMapping;
 import sdloader.javaee.constants.JavaEEConstants;
@@ -163,7 +163,7 @@ public class HttpProcessor extends Thread {
 			if (requestCount != 1) {
 				socket.setSoTimeout(keepAliveTimeout);
 			}
-			httpRequest = new HttpRequest(new HttpRequestReader(is));
+			httpRequest = new HttpRequest(new HttpRequestReader(is, lineSpeed));
 			if (log.isDebugEnabled()) {
 				log.debug("<REQUEST_HEADER>\n" + httpRequest.getHeader());
 			}
