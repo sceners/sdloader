@@ -1,0 +1,109 @@
+v0_2_00
+ServletAPI2.5,JSP2.1に対応
+これに伴い、sdloader.jarに同梱するapiを2.5に変更
+*ServletContextImplにgetContextPath追加（API変更による追加）
+*InMemoryEmbeddedServletOptionに、Tomcat6のServletOptionの機能を追加
+
+WebAppContextにWebXmlを設定可能にした。
+（WebAppContextにWebXmlをセットしておくと、それが優先される）
+
+LineSpeed機能を追加。
+SDLoader#setLineSpeed()にLineSpeedの定数をセットすると、
+回線速度をエミュレートするようになります。
+
+v0_1_14
+WebAppContextを使用する際、複数のドキュメントルートをしていできるように修正。
+複数指定した場合、順番にファイルがあるかどうかをチェックし、ファイルが見つかった時点でそのファイルを利用します。
+
+コンテキストパスに"/"が入っているものでも動作するように修正。
+
+HttpServletRequestからパスを取る部分をURIDecoderでコードするように修正。
+その際の文字エンコードを、HttpRequest.sdloader.http.HttpRequest.KEY_REQUEST_URI_ENCODINGで指定できるようにした。
+デフォルトはISO-8859-1を使用。
+
+SDLoaderにsetUseNoCacheModeを追加。trueをセットすると、すべてのリクエストにno-cacheヘッダーを付与する。
+
+WebApplicationクラスをWebAppに変更
+HttpRequest.KEY_REQUEST_USE_BODY_ENCODE_FOR_URIをKEY_REQUEST_USE_BODY_ENCODEING_FOR_URIに変更
+HttpReqeustHeaderとHttpResponseHeaderをHttpHeaderに統合
+HttpInputをHttpRequestReaderに変更
+FireFoxで一部通信がエラーになる部分を修正
+
+v0_1_13
+SDLoaderのコンストラクタ引数にポートを自動取得するかどうかのフラグを渡せるコンストラクタを追加。
+ServietContext.getServletInfoで"SDLoader"の文字列を返すように修正（BlazeDS対策）
+
+v0_1_12
+URLClassLoader経由でSDLoaderを動かすとエラーになる不具合に対応。
+（Webコンテナのライブラリをロードするクラスローダの親にSystemClassLoaderを指定していたため、
+SDLoader.class.getClassLoader()を使用するように修正）
+
+lifecycle系のインターフェースをsdloader.lifecycleパッケージに移動
+
+web.xmlのfilter-mapping（REQUEST,INCLUDE,FORWARD)に対応
+
+v0_1_11
+SWTを使い、タスクトレーにアイコンをしまうようにした。
+RequestDispatcherで、引数パスの先頭に/がついていない場合でも
+/をつけるように修正。
+
+v0_1_10
+WebAppContextクラスをnewし、SDLoaderにaddすることでWebアプリをデプロイできるようにした。
+（使い方はSDLoaderWebAppContextDeployTestを参照）
+
+v0_1_9
+メンテナンスリリース
+
+v0_1_8
+ 空白パス上だと動作しない問題に対応。
+
+v0_1_7
+・ sendRedirectで307を返していたので、302を返すように修正。
+・  リクエストパラメータをデコードする際、デフォルトでISO-8859-1を使用し、request.setCharacterEncodingで
+ エンコードを指定されて場合は指定されたものを使用するように修正。
+ ・コンテキストルートのみのURLを/付きでリダイレクトする場合に、host部分が127.0.0.1になっていたのを修正。
+ ・デフォルトエンコーディング、GETパラメータにbodyエンコーディングを使うかどうかを設定できるようにした。
+ ・レスポンスのデフォルトエンコーディングをISO-8859-1に変更し、setContentTypeとsetCharacterEncodingで
+ セットしたエンコードを文字エンコードに使用するようにした。
+ ・レスポンスのTransfer-EncodingがChunkedで無い場合、Content-LengthをSDLoaderでセットするようにした。
+ ・外向けポートをListen出来るようにした。request.usetOutSidePortで設定可能。
+
+v0_1_06
+ Context.xmlにシステムプロパティを使用できるようにした。
+ ${name}の形式でdocBaseを記述すると、nameをキーにしてSystemからプロパティを取得します。
+ PathPairクラスを外に出し、WebAppContextに名称変更。パース部分もWebAppManagerから
+ 分離。
+
+v0_1_05
+ 無解凍war機能を追加（Servlet動作のみ）
+ これに伴い、クラスローダーの構成を変更。
+ 各Webアプリは、WebAppClassLoaderを持ちます。このクラスローダーは内部に
+ web-inf下をロードするクラスローダを持つ構造になっています。
+ 
+ WebアプリはWebAppClassLoaderを通じてクラスロードを行いますが、loadClass時に
+ WebAppClassLoaderはまずロード済みのクラスが無いかどうかを親クラスローダー
+ に確認します。無い場合で指定のパッケージパターンを持つクラスの場合は、web-inf下を
+ ロードするクラスローダーでロードします。さらに無い場合は親クラスローダーでロードし、
+ 最後はweb-inf下のクラスローダーでロードします。
+ 
+v0_1_04
+ イベントディスパッチャー追加
+ ライフサイクルイベント追加
+
+v0_1_03
+ ルート直下のファイルを扱うための機能を追加。
+ webapps直下のROOTフォルダにファイルを置くと、http://localhost/ファイル名で
+ アクセスできます。
+ コマンド機能の追加。SDLoader起動と同時に、ポート8089をコマンド受付用としてバインドします。
+ telnetもしくはHTTPで「stop」「restar」のコマンドを送ると、SDLoaderをコントロールできます。
+ 
+v0_1_02
+ Webアプリの一覧表示機能を実装。
+ 共有セッション機能を実装。
+ 起動時にブラウザをオープンするクラスを実装
+ 
+v0_1_01
+・welcome-file機能を実装。
+
+v0_1_00
+・最初のリリース

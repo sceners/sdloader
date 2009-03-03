@@ -1,0 +1,1 @@
+start /b javaw -cp .;sdloader-jsp12.jar;tools.jar sdloader.SystemTrayOpen >> sdloader.log 2>>&1
