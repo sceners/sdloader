@@ -1,93 +1,142 @@
-SDLoader
+*SDLoaderとは
+開発およびデモ用に開発されたWebコンテナです。
+特徴：
+・Jar1つでWebアプリを起動できます。
+・コンパクトで複雑なディレクトリ構造が不要なため、アプリケーションに組み込みやすくなっています。
+・mainメソッドから、Webコンテナをインスタンス化できます。
+・プログラマチックにアプリケーションを追加したり、web.xmlを変更したりできます。
+・１つのアプリケーションに対して、ドキュメントルートを複数指定できます。
 
-[はじめに]
-SDLoaderは、シンプルなサーブレットコンテナです。
-ServletAPI2.4準拠を目指していますが、大部分が未実装です。
-サーブレット・JSPを動かす最低限の実装しかありません。
+なお、SDLoaderはServletAPIをフル実装していません。（例えばUserPrincipalなどは未実装です）
 
-standaloneフォルダ下に,３つのフォルダが提供されています。内容は次のとおりです。
-sdloader・・・Servletのみ動作
-sdloader-jsp12・・・ServletとJSP1.2
-sdloader-jsp20・・・ServletとJSP2.0
+*必要な環境
+JRE1.5以上
 
-[使い方]
-jarファイルと同じ場所に、「webapps」フォルダを作成します。
-webappsフォルダに、warファイル、ディレクトリ、コンテキストXMLのいずれかを配置します。
+*アーカイブの説明
+SDLoaderには、次のアーカイブが用意されています。
 
+libフォルダ以下には、各種SDLoaderのアーカイブが入っています。
+
+lib/sdloader.jar・・・Servlet2.5のServetエンジンのみ。JSPは使用できません。
+lib/sdloader-jsp20.jar・・・Servlet2.4+JSP2.0
+lib/sdloader-jsp21.jar・・・Servlet2.5+JSP2.1
+
+libは、開発環境に入れて使う用途が主な目的です。推奨はsdloader-jsp21.jarです。
+
+また、standaloneフォルダ下には、スタンドアロンで動かすためのファイルセットが入っています。
+
+standalone/sdloader・・・Servlet2.5のServetエンジンのみ。JSPは使用できません。
+standalone/sdloader-jsp20・・・Servlet2.4+JSP2.0
+standalone/sdloader-jsp21・・・Servlet2.5+JSP2.1
+
+各フォルダ下に入っているwebappsフォルダにwarファイルをいれ、batファイルで起動できます。
+
+libフォルダとスタンドアロンの違いは、swt.jarが入っているかどうかの違いだけ、
+基本機能には変わりがありません。
+
+**使用方法
+SDLoaderは、大きく分けて「開発利用」と「スタンドアロン利用」の２つの使い方があります。
+
+**開発利用
+開発に利用する場合、まずはじめに適当なJavaプロジェクトを作成します。
+つぎに、SDLoaderのアーカイブをプロジェクト内におき、クラスパスを通します。
+SDLoaderにはJavaEEのAPIが入っているため、クラスパスに通した時点で
+JavaEEのAPIが利用できるようになります（つまりHttpServletやHttpServletRequestなどを
+使ったコーディングができます）
+
+WEB-INFやweb.xmlを作成し、アプリを作成し終わったあとに、mainメソッドを持ったクラスを作成します
+mainクラスには、SDLoaderを起動するコードを書きます。
+最低限必要なコードは、以下のようになります。
+
+public static void main(String[] args){
+  SDLoader sdLoader = new SDLoader(8080);
+  WebAppContext webApp = new WebAppContext("/test","WebContent");
+  sdLoader.addWebAppContext(webApp);
+  sdLoader.start();
+}
+
+  SDLoader sdLoader = new SDLoader(8080);
+の部分は、Webコンテナのインスタンス化です。
+SDLoaderの引数にポート番号を渡すことで、そのポートでSDLoaderを起動します。
+SDLoader sdLoader = new SDLoader(true);
+のようにして引数にtrueを渡すと、空いているポート番号を探して起動します。（自動ポート検出）
+
+次の
+  WebAppContext webApp = new WebAppContext("/test","WebContent");
+の部分は、デプロイするWebアプリのインスタンス化です。
+第一引数は、デプロイするアプリのコンテキストルートです。
+第二引数は、ドキュメントルートディレクトリです。通常はWEB-INFが入っているフォルダを
+指定します。
+
+SDLoaderは通常のJavaプログラムとして動くため、ドキュメントルートを探す場合は、起動した
+ディレクトリを基点に探します。
+eclipseの場合、プロジェクトフォルダが起点になります。
+
+従って、
+HogeProject
+ |-src
+ |-WebContent
+    |-WEB-INF
+    |    |-lib
+    |    |-classes
+    |    |
+    |    |-web.xml
+    |
+    |-index.jsp     
+
+という構成の場合、「HogeProject」が起点になるため、ドキュメントルートとして
+"WebContent"を指定します。
+
+作成したwebAppを、
+  sdLoader.addWebAppContext(webApp);
+で、SDLoaderに追加します。
+WepAppContextは、複数追加可能です。
+
+最後に、
+  sdLoader.start();
+で、起動します。
+
+起動後はブラウザからアクセスします。
+なお、自動ポート検出で起動すると、SDLoaderの起動ポートはログからしか分かりません。
+従って、sdLoader.start();のあとに、次のコードを書いておくと便利です。
+
+  Broser.open("http://localhost:"+sdloader.getPort()+"/hoge/inde.html");
+
+Browser.openは、引数にURLを入れるとそのURLをブラウザで開きます。上記コードで
+アプリの開始画面URLを組み立てて渡すと、起動後にそのポートの開始画面を開くことが出来ます。
+
+**スタンドアロン利用
+スタンドアロンの場合は、特に設定する項目はありません。
+
+webapps
+sdloader-jspXX.jar
+sdloader-jspXX.bat
+
+のファイル配置にし、batファイルから起動できます。
+
+webapps以下には、
 ・warファイル
-warファイルは、ファイル名がコンテキストパスになり、またwarファイル展開後の
-フォルダがドキュメントルートになります。
-例えばsample.warを配置し、中にindex.jspが入っているとすると、
-http://localhost:30000/sample/index.jsp
-でアクセスすることが出来ます。
-
 ・ディレクトリ
-ディレクトリは、そのディレクトリがコンテキストパスになり、またドキュメントルートに
-なります。
-例えばsampleディレクトリを作成し、中にindex.jspが入っているとすると、
-http://localhost:30000/sample/index.jsp
-でアクセスすることが出来ます。
+・ROOTディレクトリ
+・コンテキストXMLファイル
+の4つが配置できます。
 
-・コンテキストXML
+warファイルを置くとその場でwarが展開され、warファイル名がコンテキストパスになります。
+warファイルを交換したい場合は、展開されたディレクトリを削除してwarファイルを入れ替え、
+再起動します。
+
+ディレクトリの場合は、そのディレクトリがコンテキストパスになります。
+
+ディレクトリの名前を「ROOT」とすると特殊フォルダとして扱われ、コンテキストパスが"/"になります。
+
+コンテキストXMLファイルとは、
 <Context path="/example" docBase="../../example/webContents"/>
-のような形で記述したXMLファイルを配置すると、そのファイルに従ってコンテキストパス
-およびドキュメントルートを設定できます。
+のような形で記述したXMLファイルです。
+これを配置すると、そのファイルに従ってコンテキストパスおよびドキュメントルートを設定できます。
 pathはコンテキストパスの設定で、docBaseがドキュメントルートになります。
 path省略可能で、省略すると、このファイル名がコンテキストパスとなります。
 docBaseは、.(ドット）表記からはじめるとwebappsフォルダからの相対パス、それ以外は絶対パスとなります。
 
-
-[eclipseで利用する場合]
-eclipseのプロジェクトに組み込んで使う場合、コンテキストルートをSDLoaderに指示してあげる
-必要があります。
-
-eclipseのプロジェクトが、このような構成になっていると仮定します。
-
-example（プロジェクトフォルダ）
-  |--sdloader-jsp20.jar
-  |--webapps
-  |    |--example.xml
-  |--WebContents
-       |--WEB-INF
-       |     |--web.xml
-       |--test.jsp
-
-
-A,プログラマチックな方法
-はじめに、sdloaderのjarにパスに通します。
-次に、このようなmainメソッドを持ったクラスを実装します。
-public class ServerStart {
-
-	public static void main(String[] args) {
-		
-		SDLoader sdLoader = new SDLoader();
-		//毎回空きポートを獲得する設定
-		sdLoader.setAutoPortDetect(true);
-		//コンテキストルートと、WEB-INFの入っているフォルダを指定
-		WebAppContext context = new WebAppContext("/sample","WebContents");
-		//SDLoaderに追加
-		sdLoader.addWebAppContext(context);
-		//SDLoaderスタート		
-		sdLoader.start();
-		//ブラウザをあける
-		Browser.open("http://localhost:"+sdLoader.getPort()+"/sample/index.jsp");
-	}
-}
-
-WebAppContextというのが、コンテキストパスと、WEB-INFの入っているフォルダの指定になります。
-このクラスを実行すると、SDLoaderが起動し、アプリがデプロイされた後、ブラウザが開きます。
-ソースフォルダ内にmainメソッドを持ったクラスが入るため、一番分かりやすい方法です。
-
-
-B,設定ファイルを使う方法
-はじめに、sdloaderのjarにパスに通します。
-プロジェクト直下に、webappsという名前のフォルダを作成します。
-
-フォルダ内に、「コンテキストパス名.xml」という名前のファイルを作成し、次のように記述します。
-<Context docBase="../webContents"/>
-docBaseは、このxmlファイルからの相対パスで記述します。
-
-この状態で、sdloaderのJarの中の「sdloader.BrowserOpen」クラスを右クリック実行もしくはデバック実行すると、
-アプリケーションが動作します。
-このやり方の場合、ソースフォルダに不要なクラスが入らないという利点があります。
+なお、どの配置に関しても、WEB-INFおよびweb.xmlがない場合でもエラーにはなりません（警告は出ます）
+従って、単純にディレクトリを作成すれば、HTTPサーバとして利用することが出来ます。
 
