@@ -31,6 +31,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 
 import sdloader.SDLoader;
+import sdloader.constant.LineSpeed;
 import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.ServletMapping;
 import sdloader.javaee.constants.JavaEEConstants;
@@ -62,6 +63,8 @@ public class HttpProcessor extends Thread {
 
 	private SDLoader sdLoader;
 
+	private int lineSpeed;
+
 	private boolean stop;
 
 	public HttpProcessor(String name) {
@@ -84,6 +87,8 @@ public class HttpProcessor extends Thread {
 		synchronized (this) {
 			this.socket = socket;
 			this.sdLoader = loader;
+			lineSpeed = sdLoader.getSDLoaderConfig().getConfigInteger(
+					SDLoader.KEY_SDLOADER_LINE_SPEED, LineSpeed.NO_LIMIT);
 			notify();
 		}
 	}
@@ -334,14 +339,14 @@ public class HttpProcessor extends Thread {
 		HttpHeader resHeader = response.getResponseHeader();
 
 		byte[] headerData = resHeader.buildHeader().getBytes();
-		byte[] bodyData = response.getBodyData();
-		os.write(headerData);
+		IOUtil.write(lineSpeed, headerData, os);
 		if (log.isDebugEnabled()) {
 			log.debug("<RESPONSE_HEADER>\n" + new String(headerData));
 		}
 		os.write(HttpConst.CRLF_STRING.getBytes());// Separator
+		byte[] bodyData = response.getBodyData();
 		if (bodyData != null) {
-			os.write(bodyData);
+			IOUtil.write(lineSpeed, bodyData, os);
 		}
 		os.flush();
 	}

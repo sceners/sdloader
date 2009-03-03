@@ -32,7 +32,7 @@ public class WebAppClassLoader extends URLClassLoader {
 			.getLog(WebAppClassLoader.class);
 
 	// WEB-INF以下からはロードしないPrefix
-	protected String[] ignoreLoadFromWebInfPackagePrefix = { "java.","javax.servlet.","com.sun.","sun." };
+	protected String[] ignoreLoadFromWebInfPackagePrefix = { "java.","com.sun.","sun." };
 	
 	// 先に親ローダーでロードするパッケージPrefix
 	protected String[] parentLoadFirstPackagePrefix = { "java.","javax.","org.w3c.","com.sun.","sun." };
