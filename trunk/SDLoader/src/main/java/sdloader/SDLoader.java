@@ -40,9 +40,9 @@ import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.ClassUtil;
 import sdloader.util.DisposableUtil;
+import sdloader.util.IOUtil;
 import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
-import sdloader.util.SocketUtil;
 
 /**
  * SDLoader ローカル動作のアプリケーションサーバー
@@ -486,7 +486,7 @@ public class SDLoader implements Lifecycle {
 
 		public synchronized void close() throws IOException {
 			if (serverSocket != null) {
-				SocketUtil.closeServerSocketNoException(serverSocket);
+				IOUtil.closeServerSocketNoException(serverSocket);
 				serverSocket = null;
 			}
 			shutdown = true;
