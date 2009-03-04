@@ -38,6 +38,7 @@ import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.javaee.impl.FilterChainImpl;
 import sdloader.javaee.impl.HttpServletRequestImpl;
 import sdloader.javaee.impl.HttpServletResponseImpl;
+import sdloader.javaee.impl.ServletContextImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.IOUtil;
@@ -176,19 +177,20 @@ public class HttpProcessor extends Thread {
 		}
 
 		HttpHeader header = httpRequest.getHeader();
-		HttpServletRequestImpl request = createServletRequestImp(httpRequest);
-		HttpServletResponseImpl response = new HttpServletResponseImpl();
-
 		String requestURI = header.getRequestURI();
 		InternalWebApplication webapp = sdLoader.getWebAppManager().findWebApp(
 				requestURI);
+		HttpServletRequestImpl request = createServletRequestImp(httpRequest);
+		HttpServletResponseImpl response = new HttpServletResponseImpl();
 		// デフォルトもなければ404
 		if (webapp == null) {
 			response.setStatus(HttpConst.SC_NOT_FOUND);
-			setDefaultResponseHeader(request, response, requestCount);
+			setDefaultResponseHeader(null, request, response, requestCount);
 			processDataOutput(response, os);
 			return header.isKeepAlive();
 		}
+		request.setInternalWebApplication(webapp);
+		ServletContextImpl servletContextImpl = webapp.getServletContext();
 
 		String contextPath = webapp.getContextPath();
 		String resourcePath = WebUtils.getResourcePath(contextPath, requestURI);
@@ -203,7 +205,8 @@ public class HttpProcessor extends Thread {
 
 			response.addHeader(HttpConst.LOCATION, WebUtils.buildRequestURL(
 					request.getScheme(), host, resourcePath).toString());
-			setDefaultResponseHeader(request, response, requestCount);
+			setDefaultResponseHeader(servletContextImpl, request, response,
+					requestCount);
 			processDataOutput(response, os);
 			return header.isKeepAlive();
 		}
@@ -212,7 +215,8 @@ public class HttpProcessor extends Thread {
 		Servlet servlet = null;
 		if (mapping == null) {
 			response.setStatus(HttpConst.SC_NOT_FOUND);
-			setDefaultResponseHeader(request, response, requestCount);
+			setDefaultResponseHeader(servletContextImpl, request, response,
+					requestCount);
 			processDataOutput(response, os);
 			return header.isKeepAlive();
 		} else {
@@ -222,7 +226,6 @@ public class HttpProcessor extends Thread {
 				resourcePath));
 		request.setPathInfo(WebUtils.getPathInfo(mapping.getUrlPattern(),
 				resourcePath));
-		request.setServletContext(webapp.getServletContext());
 
 		// class loader
 		ClassLoader webClassLoader = webapp.getWebAppClassLoader();
@@ -258,7 +261,8 @@ public class HttpProcessor extends Thread {
 			RequestScopeContext.destroy();
 			Thread.currentThread().setContextClassLoader(oldLoader);
 		}
-		setDefaultResponseHeader(request, response, requestCount);
+		setDefaultResponseHeader(servletContextImpl, request, response,
+				requestCount);
 		processDataOutput(response, os);
 		return header.isKeepAlive();
 	}
@@ -288,19 +292,20 @@ public class HttpProcessor extends Thread {
 		return request;
 	}
 
-	protected void setDefaultResponseHeader(HttpServletRequestImpl request,
-			HttpServletResponseImpl response, int requestCount)
-			throws IOException {
+	protected void setDefaultResponseHeader(
+			ServletContextImpl servletContextImpl,
+			HttpServletRequestImpl request, HttpServletResponseImpl response,
+			int requestCount) throws IOException {
 		response.setHeader(HttpConst.DATE, WebUtils.formatHeaderDate(Calendar
 				.getInstance().getTime()));
 		response.setHeader(HttpConst.SERVER, sdLoader.getServerName());
 
 		// session
 		HttpSession session = request.getSession(false);
-		if (session != null) {
+		if (session != null && servletContextImpl != null) {
 			Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY, session
 					.getId());
-			sessionCookie.setPath(request.getServletContext().getContextPath());
+			sessionCookie.setPath(servletContextImpl.getContextPath());
 			response.addCookie(sessionCookie);
 		}
 		// Keep-Alive

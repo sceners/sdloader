@@ -24,7 +24,6 @@ import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
 
@@ -78,9 +77,9 @@ public class InternalWebApplication {
 	/**
 	 * WebAppクラス
 	 */
-	InternalWebApplication(WebXml webXml, WebAppContext webAppContext,
+	public InternalWebApplication(WebAppContext webAppContext,
 			ClassLoader webAppClassLoader, WebAppManager manager) {
-		this.webXml = webXml;
+		this.webXml = webAppContext.getWebXml();
 		this.webAppContext = webAppContext;
 		this.webAppClassLoader = webAppClassLoader;
 		this.manager = manager;
@@ -111,7 +110,7 @@ public class InternalWebApplication {
 		return webXml;
 	}
 
-	public ServletContext getServletContext() {
+	public ServletContextImpl getServletContext() {
 		return servletContext;
 	}
 

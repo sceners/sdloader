@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +41,7 @@ import sdloader.http.HttpBody;
 import sdloader.http.HttpConst;
 import sdloader.http.HttpHeader;
 import sdloader.http.HttpRequest;
+import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.SessionManager;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
@@ -90,7 +90,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	private SessionManager sessionManager;
 
-	private ServletContextImpl servletContext;
+	private InternalWebApplication internalWebApplication;
 
 	private String uriEncoding = "ISO-8859-1";
 
@@ -169,8 +169,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public ServletInputStream getInputStream() throws IOException {
 		byte[] data = httpRequest.getBody().getBodyData();
-		if (data == null)
+		if (data == null) {
 			data = new byte[] {};
+		}
 		final byte[] isData = data;
 		ServletInputStream sIs = new ServletInputStream() {
 			private InputStream is = new ByteArrayInputStream(isData);
@@ -212,6 +213,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public void setAttribute(String key, Object value) {
+		if (key == null) {
+			throw new IllegalArgumentException("Request attribute key is null.");
+		}
 		this.attribute.put(key, value);
 	}
 
@@ -220,7 +224,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getContextPath() {
-		return servletContext.getServletContextName();
+		return getServletContextImpl().getServletContextName();
 	}
 
 	public StringBuffer getRequestURL() {
@@ -243,7 +247,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public HttpSession getSession(boolean create) {
 		HttpSession session = sessionManager.getSession(currentSessionId,
-				create, servletContext);
+				create, internalWebApplication);
 		if (session != null) {
 			currentSessionId = session.getId();
 		}
@@ -315,7 +319,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			}
 			path = PathUtil.computeRelativePath(servletAndPathInfo, path);
 		}
-		return servletContext.getRequestDispatcher(path);
+		return getServletContextImpl().getRequestDispatcher(path);
 	}
 
 	public String getRemoteAddr() {
@@ -335,7 +339,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getRealPath(String path) {
-		return servletContext.getRealPath(path);
+		return getServletContextImpl().getRealPath(path);
 	}
 
 	public String getLocalAddr() {
@@ -392,6 +396,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	// /non interfacemethod
+	public void setInternalWebApplication(
+			InternalWebApplication internalWebApplication) {
+		this.internalWebApplication = internalWebApplication;
+	}
+
 	public void setServletPath(String servletPath) {
 		this.servletPath = servletPath;
 	}
@@ -406,14 +415,6 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public HttpBody getBody() {
 		return this.httpRequest.getBody();
-	}
-
-	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = (ServletContextImpl) servletContext;
-	}
-
-	public ServletContextImpl getServletContext() {
-		return servletContext;
 	}
 
 	public void setServerPort(int port) {
@@ -452,6 +453,10 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		if (uriEncoding != null) {
 			this.uriEncoding = uriEncoding;
 		}
+	}
+
+	protected ServletContextImpl getServletContextImpl() {
+		return internalWebApplication.getServletContext();
 	}
 
 	protected String decodeURI(String path) {
