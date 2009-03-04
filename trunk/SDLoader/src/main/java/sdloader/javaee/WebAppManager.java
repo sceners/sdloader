@@ -63,7 +63,7 @@ import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.Assertion;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
-import sdloader.util.FileFilterUtils;
+import sdloader.util.IOUtil;
 import sdloader.util.MessageDigestUtil;
 import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
@@ -159,8 +159,8 @@ public class WebAppManager {
 		}
 
 		File[] dirs = webappDir
-				.listFiles(FileFilterUtils.IGNORE_DIR_FILEFILTER);
-		File[] warFiles = webappDir.listFiles(FileFilterUtils.WAR_FILEFILETR);
+				.listFiles(IOUtil.IGNORE_DIR_FILEFILTER);
+		File[] warFiles = webappDir.listFiles(IOUtil.WAR_FILEFILETR);
 
 		if (!isInmemoryExtract) {
 			if (warFiles != null) {
@@ -171,7 +171,7 @@ public class WebAppManager {
 			}
 		}
 		// webapps以下のフォルダ
-		dirs = webappDir.listFiles(FileFilterUtils.IGNORE_DIR_FILEFILTER);
+		dirs = webappDir.listFiles(IOUtil.IGNORE_DIR_FILEFILTER);
 		if (!isInmemoryExtract) {
 			if (dirs != null) {
 				for (int i = 0; i < dirs.length; i++) {
@@ -203,7 +203,7 @@ public class WebAppManager {
 		}
 		// コンテキストXML
 		File[] contextXMLs = webappDir
-				.listFiles(FileFilterUtils.XML_FILEFILTER);
+				.listFiles(IOUtil.XML_FILEFILTER);
 		parseContextXMLs(contextXMLs);
 	}
 
@@ -314,7 +314,7 @@ public class WebAppManager {
 			// WEB-INF/lib
 			File webinfLibDir = new File(docBaseDir, "/WEB-INF/lib");
 			URL[] libs = WebUtil.createClassPaths(webinfLibDir,
-					FileFilterUtils.JAR_ZIP_FILEFILTER, false);
+					IOUtil.JAR_ZIP_FILEFILTER, false);
 			if (libs != null) {
 				for (int j = 0; j < libs.length; j++) {
 					urlList.add(libs[j]);
