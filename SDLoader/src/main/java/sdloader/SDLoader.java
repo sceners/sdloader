@@ -156,7 +156,10 @@ public class SDLoader implements Lifecycle {
 	}
 
 	/**
-	 * ポートが使用中の場合、使用できるポートを探すかどうかをセットします。
+	 * ポートが使用中の場合、使用できるポートを探すかどうかをセットします.
+	 * <p>
+	 * trueの場合、セットしたポートが使用中の場合、別のポートを探します。
+	 * </p>
 	 * 
 	 * @param key
 	 * @return
@@ -333,8 +336,8 @@ public class SDLoader implements Lifecycle {
 
 		sdLoaderThread.start();
 
-		log.info("SDLoader[port:"+getPort()+"] startup in " + (System.currentTimeMillis() - t)
-				+ " ms.");
+		log.info("SDLoader[port:" + getPort() + "] startup in "
+				+ (System.currentTimeMillis() - t) + " ms.");
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.AFTER_START, this));
@@ -406,13 +409,15 @@ public class SDLoader implements Lifecycle {
 		log.info("Bind start. Port=" + portMessage + " useOutSidePort="
 				+ useOutSidePort);
 		try {
-			int bindPort = autoPortDetect ? 0 : getPort();
-			initSocket = new ServerSocket();
-			if (useOutSidePort) {
-				initSocket.bind(new InetSocketAddress(bindPort));
-			} else {
-				initSocket.bind(new InetSocketAddress(InetAddress
-						.getByName("localhost"), bindPort));
+			try {
+				int bindPort = getPort();
+				initSocket = bind(bindPort, useOutSidePort);
+			} catch (IOException ioe) {
+				if (autoPortDetect) {
+					initSocket = bind(0, useOutSidePort);
+				} else {
+					throw ioe;
+				}
 			}
 			int bindSuccessPort = initSocket.getLocalPort();
 			config.setConfig(KEY_SDLOADER_PORT, bindSuccessPort);
@@ -422,6 +427,18 @@ public class SDLoader implements Lifecycle {
 			throw new RuntimeException(ioe);
 		}
 		return initSocket;
+	}
+
+	protected ServerSocket bind(int bindPort, boolean useOutSidePort)
+			throws IOException {
+		ServerSocket socket = new ServerSocket();
+		if (useOutSidePort) {
+			socket.bind(new InetSocketAddress(bindPort));
+		} else {
+			socket.bind(new InetSocketAddress(InetAddress
+					.getByName("localhost"), bindPort));
+		}
+		return socket;
 	}
 
 	protected void initSocketProcessor() {
