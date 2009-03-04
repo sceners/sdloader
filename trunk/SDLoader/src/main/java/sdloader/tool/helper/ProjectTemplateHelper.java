@@ -31,10 +31,10 @@ public class ProjectTemplateHelper {
 				boolean modify = ProjectTemplateHelper.modifyEclipseClassPath(
 						baseDir, classPathFile, webContentDir);
 				if (modify) {
-					System.out.println("class file output folder modified.");
+					System.out.println("Class file output folder modified.");
 				}
 			}
-			System.out.println("create success.");
+			System.out.println("Create success.Reflesh the project.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
