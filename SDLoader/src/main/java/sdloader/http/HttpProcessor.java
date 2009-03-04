@@ -42,7 +42,7 @@ import sdloader.javaee.impl.ServletContextImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.IOUtil;
-import sdloader.util.WebUtils;
+import sdloader.util.WebUtil;
 
 /**
  * ソケット接続に対して、処理を行います. リクエスト解析＞サーブレット呼び出し＞レスポンスの順に 処理を行います。
@@ -192,7 +192,7 @@ public class HttpProcessor extends Thread {
 		ServletContextImpl servletContextImpl = webapp.getServletContext();
 
 		String contextPath = webapp.getContextPath();
-		String resourcePath = WebUtils.getResourcePath(contextPath, requestURI);
+		String resourcePath = WebUtil.getResourcePath(contextPath, requestURI);
 		// contextpathだけのパターン (/testのようなパターン）の場合、contextpathに/をつけてリダイレクト
 		if (!requestURI.equals("/") && resourcePath == null) {
 			response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
@@ -202,7 +202,7 @@ public class HttpProcessor extends Thread {
 				host = request.getLocalName() + ":" + request.getLocalPort();
 			}
 
-			response.addHeader(HttpConst.LOCATION, WebUtils.buildRequestURL(
+			response.addHeader(HttpConst.LOCATION, WebUtil.buildRequestURL(
 					request.getScheme(), host, resourcePath).toString());
 			setDefaultResponseHeader(servletContextImpl, request, response,
 					requestCount);
@@ -221,9 +221,9 @@ public class HttpProcessor extends Thread {
 		} else {
 			servlet = webapp.findServlet(mapping.getServletName());
 		}
-		request.setServletPath(WebUtils.getServletPath(mapping.getUrlPattern(),
+		request.setServletPath(WebUtil.getServletPath(mapping.getUrlPattern(),
 				resourcePath));
-		request.setPathInfo(WebUtils.getPathInfo(mapping.getUrlPattern(),
+		request.setPathInfo(WebUtil.getPathInfo(mapping.getUrlPattern(),
 				resourcePath));
 
 		// class loader
@@ -295,7 +295,7 @@ public class HttpProcessor extends Thread {
 			ServletContextImpl servletContextImpl,
 			HttpServletRequestImpl request, HttpServletResponseImpl response,
 			int requestCount) throws IOException {
-		response.setHeader(HttpConst.DATE, WebUtils.formatHeaderDate(Calendar
+		response.setHeader(HttpConst.DATE, WebUtil.formatHeaderDate(Calendar
 				.getInstance().getTime()));
 		response.setHeader(HttpConst.SERVER, sdLoader.getServerName());
 

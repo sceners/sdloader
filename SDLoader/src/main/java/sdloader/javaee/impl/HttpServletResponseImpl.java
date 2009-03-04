@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import sdloader.http.HttpConst;
 import sdloader.http.HttpHeader;
-import sdloader.util.WebUtils;
+import sdloader.util.WebUtil;
 
 /**
  * HttpServletResponse実装クラス
@@ -73,7 +73,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	public void setContentType(String type) {
 		header.addHeader(HttpConst.CONTENTTYPE, type);
-		String encodeInContentType = WebUtils.parseCharsetFromContentType(type);
+		String encodeInContentType = WebUtil.parseCharsetFromContentType(type);
 		if (encodeInContentType != null)
 			characterEncoding = encodeInContentType;
 	}
@@ -121,11 +121,11 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void setDateHeader(String name, long time) {
-		setHeader(name, WebUtils.formatHeaderDate(new Date(time)));
+		setHeader(name, WebUtil.formatHeaderDate(new Date(time)));
 	}
 
 	public void addDateHeader(String name, long time) {
-		addHeader(name, WebUtils.formatHeaderDate(new Date(time)));
+		addHeader(name, WebUtil.formatHeaderDate(new Date(time)));
 	}
 
 	public void setHeader(String name, String value) {
@@ -160,7 +160,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		if (outputStream != null) {
 			throw new IllegalStateException("getOutputStream was called.");
 		}
-		WebUtils.checkSupportedEndcoding(characterEncoding);
+		WebUtil.checkSupportedEndcoding(characterEncoding);
 		if (writer == null) {
 			writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
 					servletOutputStream, characterEncoding)));

@@ -68,7 +68,7 @@ import sdloader.util.MessageDigestUtil;
 import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
 import sdloader.util.WarUtil;
-import sdloader.util.WebUtils;
+import sdloader.util.WebUtil;
 
 /**
  * <pre>
@@ -313,7 +313,7 @@ public class WebAppManager {
 			}
 			// WEB-INF/lib
 			File webinfLibDir = new File(docBaseDir, "/WEB-INF/lib");
-			URL[] libs = WebUtils.createClassPaths(webinfLibDir,
+			URL[] libs = WebUtil.createClassPaths(webinfLibDir,
 					FileFilterUtils.JAR_ZIP_FILEFILTER, false);
 			if (libs != null) {
 				for (int j = 0; j < libs.length; j++) {

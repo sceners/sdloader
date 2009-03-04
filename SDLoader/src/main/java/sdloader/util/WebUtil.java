@@ -34,7 +34,7 @@ import java.util.Locale;
  * 
  * @author c9katayama
  */
-public class WebUtils {
+public class WebUtil {
 	/**
 	 * ヘッダー日付フォーマット
 	 */
@@ -46,7 +46,7 @@ public class WebUtils {
 	private static final DateFormat COOKIE_DATE_FORMAT = new SimpleDateFormat(
 			"E, d-MMM-yyyy HH:mm:ss 'GMT'", Locale.UK);
 
-	private WebUtils() {
+	private WebUtil() {
 		super();
 	}
 	/**

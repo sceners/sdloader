@@ -46,7 +46,7 @@ import sdloader.javaee.SessionManager;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
 import sdloader.util.PathUtil;
-import sdloader.util.WebUtils;
+import sdloader.util.WebUtil;
 
 /**
  * HttpServletRequest実装クラス
@@ -150,7 +150,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public void setCharacterEncoding(String encoding)
 			throws UnsupportedEncodingException {
-		WebUtils.checkSupportedEndcoding(encoding);
+		WebUtil.checkSupportedEndcoding(encoding);
 		httpRequest.getParameters().setBodyEncoding(encoding);
 		this.characterEncoding = encoding;
 	}
@@ -229,7 +229,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public StringBuffer getRequestURL() {
 		if (requestURL == null) {
-			requestURL = WebUtils.buildRequestURL(getScheme(), getLocalName(),
+			requestURL = WebUtil.buildRequestURL(getScheme(), getLocalName(),
 					getServerPort(), getRequestURI());
 		}
 		return new StringBuffer(decodeURI(requestURL.toString()));
@@ -356,7 +356,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			return -1;
 
 		try {
-			return WebUtils.parseHeaderDate(value);
+			return WebUtil.parseHeaderDate(value);
 		} catch (ParseException e) {
 			throw new IllegalArgumentException("date format fail.header name="
 					+ name + " value=" + value);

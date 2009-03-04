@@ -41,7 +41,7 @@ import sdloader.javaee.webxml.ServletTag;
 import sdloader.javaee.webxml.WebXml;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
-import sdloader.util.WebUtils;
+import sdloader.util.WebUtil;
 
 /**
  * WebAppクラス Webアプリケーションに属するサーブレットコンテキスト、 サーブレット、フィルター、webxml、クラスローダーが 集約されています。
@@ -244,7 +244,7 @@ public class InternalWebApplication {
 				}
 				String patternText = mapping.getUrlPattern();
 				if (patternText != null) {
-					if (WebUtils.matchPattern(patternText, resourcePath) != WebUtils.PATTERN_NOMATCH) {
+					if (WebUtil.matchPattern(patternText, resourcePath) != WebUtil.PATTERN_NOMATCH) {
 						String filterName = mapping.getFilterName();
 						Filter filter = (Filter) filterMap.get(filterName);
 						if (filter == null) {
@@ -280,9 +280,9 @@ public class InternalWebApplication {
 	 */
 	public ServletMapping findServletMapping(String uri) {
 		if (uri != null && servletMap != null) {
-			uri = WebUtils.stripQueryPart(uri);
+			uri = WebUtil.stripQueryPart(uri);
 			ServletMapping targetServletMapping = null;
-			int currentMatchType = WebUtils.PATTERN_NOMATCH;
+			int currentMatchType = WebUtil.PATTERN_NOMATCH;
 			int currentPathMatchLength = 0;
 
 			List<ServletMappingTag> mappingList = webXml.getWebApp()
@@ -290,22 +290,22 @@ public class InternalWebApplication {
 			// servlet
 			for (ServletMappingTag mapping : mappingList) {
 				String patternText = mapping.getUrlPattern();
-				int matchType = WebUtils.matchPattern(patternText, uri);
-				if (matchType != WebUtils.PATTERN_NOMATCH
+				int matchType = WebUtil.matchPattern(patternText, uri);
+				if (matchType != WebUtil.PATTERN_NOMATCH
 						&& matchType >= currentMatchType) {
-					if (matchType == WebUtils.PATTERN_EXACT_MATCH) {
+					if (matchType == WebUtil.PATTERN_EXACT_MATCH) {
 						ServletMapping servletMapping = new ServletMapping(
 								mapping.getServletName(), patternText);
 						return servletMapping;
 					}
-					if (matchType == WebUtils.PATTERN_PATH_MATCH
-							&& currentMatchType == WebUtils.PATTERN_PATH_MATCH) {
+					if (matchType == WebUtil.PATTERN_PATH_MATCH
+							&& currentMatchType == WebUtil.PATTERN_PATH_MATCH) {
 						if (patternText.length() <= currentPathMatchLength) {
 							continue;
 						}
 					}
-					if (matchType == WebUtils.PATTERN_DEFAULT_MATCH
-							&& currentMatchType == WebUtils.PATTERN_DEFAULT_MATCH) {
+					if (matchType == WebUtil.PATTERN_DEFAULT_MATCH
+							&& currentMatchType == WebUtil.PATTERN_DEFAULT_MATCH) {
 						continue;
 					}
 					currentMatchType = matchType;
