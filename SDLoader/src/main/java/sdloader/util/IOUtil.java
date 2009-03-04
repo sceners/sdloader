@@ -31,6 +31,34 @@ import java.net.Socket;
  */
 public class IOUtil {
 
+	public static boolean rmdir(File directory) {
+		if (!directory.exists()) {
+			return true;
+		}
+
+		File[] files = directory.listFiles();
+		if (files == null) {
+			return directory.delete();
+		}
+		boolean result = true;
+		for (int i = 0; i < files.length; i++) {
+			File file = files[i];
+			if (file.isDirectory()) {
+				if (rmdir(file) == false) {
+					result = false;
+				}
+			} else {
+				if (file.delete() == false) {
+					result = false;
+				}
+			}
+		}
+		if (directory.delete() == false) {
+			result = false;
+		}
+		return result;
+	}
+
 	public static void flushNoException(Flushable flushable) {
 		if (flushable != null) {
 			try {
@@ -109,7 +137,7 @@ public class IOUtil {
 			}
 		}
 	}
-	
+
 	public static void closeServerSocketNoException(
 			final ServerSocket serverSocket) {
 		if (serverSocket != null) {
@@ -118,9 +146,9 @@ public class IOUtil {
 			} catch (IOException e) {
 			}
 		}
-	}	
-	public static void closeSocketNoException(
-			final Socket socket) {
+	}
+
+	public static void closeSocketNoException(final Socket socket) {
 		if (socket != null) {
 			try {
 				socket.close();
@@ -128,18 +156,19 @@ public class IOUtil {
 			}
 		}
 	}
+
 	public static FileFilter IGNORE_DIR_FILEFILTER = new FileFilter() {
 		public boolean accept(File file) {
 			return file.isDirectory() && !file.getName().equals("CVS")
 					&& !file.getName().startsWith(".");
 		}
 	};
-	public static FileFilter WAR_FILEFILETR =new FileFilter() {
+	public static FileFilter WAR_FILEFILETR = new FileFilter() {
 		public boolean accept(File file) {
 			return file.getName().endsWith(".war");
 		}
 	};
-	public static FileFilter XML_FILEFILTER = new FileFilter(){
+	public static FileFilter XML_FILEFILTER = new FileFilter() {
 		public boolean accept(File file) {
 			return file.getName().endsWith(".xml");
 		}
