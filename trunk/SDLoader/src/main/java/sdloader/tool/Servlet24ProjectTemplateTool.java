@@ -27,9 +27,11 @@ public class Servlet24ProjectTemplateTool {
 				.getResourceAsStream("/sdloader/resource/template/webxml24.xml");
 		InputStream indexHtml = Servlet24ProjectTemplateTool.class
 				.getResourceAsStream("/sdloader/resource/template/index.html");
-
+		InputStream mainTemplate = Servlet24ProjectTemplateTool.class
+				.getResourceAsStream("/sdloader/resource/template/SDLoaderStartMain.template");
 		String webContent = "WebContent";
-		ProjectTemplateHelper.execute(webContent, webXml, indexHtml);
+		ProjectTemplateHelper.execute(webContent, webXml, indexHtml,
+				mainTemplate);
 		System.exit(0);
 	}
 }

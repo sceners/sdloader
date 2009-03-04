@@ -20,20 +20,16 @@ import sdloader.util.ResourceUtil;
 
 public class ProjectTemplateHelper {
 
-	public static void execute( String webContentDir,InputStream webXml,InputStream indexHtml) {
+	public static void execute(String webContentDir, InputStream webXml,
+			InputStream indexHtml, InputStream mainJavaTemplate) {
 		try {
 			File baseDir = new File(".");
-			ProjectTemplateHelper.createProjectTemplate(baseDir, webContentDir,
-					webXml,indexHtml);
-			File classPathFile = ProjectTemplateHelper
-					.getEclipseClassPathFile(baseDir);
+			createProjectTemplate(baseDir, webContentDir, webXml, indexHtml);
+			File classPathFile = getEclipseClassPathFile(baseDir);
 			if (classPathFile != null) {
-				boolean modify = ProjectTemplateHelper.modifyEclipseClassPath(
-						baseDir, classPathFile, webContentDir);
-				if (modify) {
-					System.out.println("Class file output folder modified.");
-				}
+				modifyEclipseClassPath(baseDir, classPathFile, webContentDir);
 			}
+			createMainClass(baseDir, mainJavaTemplate);
 			System.out.println("Create success.Reflesh the project.");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -49,36 +45,43 @@ public class ProjectTemplateHelper {
 			webContent = baseDir;
 		} else {
 			webContent = new File(baseDir, webContentName);
-			webContent.mkdir();
+			mkdir(webContentName, webContent);
 		}
 		File indexHtml = new File(webContent, "index.html");
-		if (indexHtml.exists()) {
-			System.out.println("index.html already exist.");
-		} else {
+		if (!indexHtml.exists()) {
 			indexHtml.createNewFile();
 			FileOutputStream fout = new FileOutputStream(indexHtml);
 			ResourceUtil.copyStream(indexHtmlStream, fout);
 			fout.flush();
 			fout.close();
+			System.out.println("Create index.html");
 		}
 
 		File webInf = new File(webContent, "WEB-INF");
-		webInf.mkdir();
+		mkdir("WEB-INF", webInf);
 
 		File lib = new File(webInf, "lib");
-		lib.mkdir();
+		mkdir("WEB-INF/lib", lib);
+
 		File classes = new File(webInf, "classes");
-		classes.mkdir();
+		mkdir("WEB-INF/classes", classes);
 
 		File webxml = new File(webInf, "web.xml");
-		if (webxml.exists()) {
-			System.out.println("web.xml already exist.");
-		} else {
+		if (!webxml.exists()) {
 			webxml.createNewFile();
 			FileOutputStream fout = new FileOutputStream(webxml);
 			ResourceUtil.copyStream(webXmlStream, fout);
 			fout.flush();
 			fout.close();
+			System.out.println("Create WEB-INF/web.xml");
+		}
+	}
+
+	private static void mkdir(String name, File dir) throws IOException {
+		if (!dir.exists()) {
+			if (!dir.mkdir()) {
+				throw new IOException(name + " create fail!");
+			}
 		}
 	}
 
@@ -119,6 +122,8 @@ public class ProjectTemplateHelper {
 							TransformerFactory.newInstance().newTransformer()
 									.transform(source, result);
 							IOUtil.rmdir(new File(projectDir, oldPath));
+							System.out
+									.println("Class file output folder modified.");
 							return true;
 						}
 					}
@@ -128,5 +133,21 @@ public class ProjectTemplateHelper {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public static void createMainClass(File projectDir,
+			InputStream mainJavaTemplateStream) throws IOException {
+		File srcDir = new File(projectDir, "src");
+		if (srcDir.exists()) {
+			File mainFile = new File(srcDir, "SDLoaderStartMain.java");
+			if (!mainFile.exists()) {
+				mainFile.createNewFile();
+				FileOutputStream fout = new FileOutputStream(mainFile);
+				ResourceUtil.copyStream(mainJavaTemplateStream, fout);
+				fout.flush();
+				fout.close();
+				System.out.println("Create SDLoaderStartMain.java file.");
+			}
+		}
 	}
 }
