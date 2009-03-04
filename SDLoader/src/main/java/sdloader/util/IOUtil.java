@@ -16,6 +16,8 @@
 package sdloader.util;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -126,4 +128,29 @@ public class IOUtil {
 			}
 		}
 	}
+	public static FileFilter IGNORE_DIR_FILEFILTER = new FileFilter() {
+		public boolean accept(File file) {
+			return file.isDirectory() && !file.getName().equals("CVS")
+					&& !file.getName().startsWith(".");
+		}
+	};
+	public static FileFilter WAR_FILEFILETR =new FileFilter() {
+		public boolean accept(File file) {
+			return file.getName().endsWith(".war");
+		}
+	};
+	public static FileFilter XML_FILEFILTER = new FileFilter(){
+		public boolean accept(File file) {
+			return file.getName().endsWith(".xml");
+		}
+	};
+	public static FileFilter JAR_ZIP_FILEFILTER = new FileFilter() {
+		public boolean accept(File pathname) {
+			if (pathname.getName().endsWith(".jar")
+					|| pathname.getName().endsWith(".zip"))
+				return true;
+			else
+				return false;
+		}
+	};
 }
