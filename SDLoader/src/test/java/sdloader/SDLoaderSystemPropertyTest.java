@@ -1,8 +1,7 @@
 package sdloader;
 
-import junit.framework.TestCase;
 
-public class SDLoaderSystemPropertyTest extends TestCase {
+public class SDLoaderSystemPropertyTest {
 
 	public static void main(String[] args){
 		SDLoader sdLoader = new SDLoader();

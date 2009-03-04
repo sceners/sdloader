@@ -1,6 +1,6 @@
 package sdloader;
 
-import sdloader.util.MiscUtils;
+import sdloader.util.Browser;
 
 public class SDLoaderWebAppDetectTest {
 
@@ -9,10 +9,6 @@ public class SDLoaderWebAppDetectTest {
 		sdloader.setUseOutSidePort(true);
 
 		sdloader.start();
-		try {
-			MiscUtils.openBrowser("http://localhost:" + sdloader.getPort());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Browser.open("http://localhost:" + sdloader.getPort());
 	}
 }
