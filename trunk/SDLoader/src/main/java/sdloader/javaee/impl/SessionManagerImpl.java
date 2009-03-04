@@ -17,9 +17,9 @@ package sdloader.javaee.impl;
 
 import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
+import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.SessionManager;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.DisposableUtil;
@@ -30,48 +30,52 @@ import sdloader.util.DisposableUtil.Disposable;
  * 
  * @author c9katayama
  */
-public class SessionManagerImpl extends SessionManager {
+public class SessionManagerImpl extends SessionManager implements Disposable {
 
 	protected Map<String, HttpSessionImpl> sessionMap = CollectionsUtil
-			.newHashMap();
+			.newConcurrentHashMap();
 
 	public SessionManagerImpl() {
-		DisposableUtil.add(new Disposable() {
-			public void dispose() {
-				sessionMap.clear();
-			}
-
-		});
+		DisposableUtil.add(this);
 	}
 
-	public HttpSession getSession(String sessionId, boolean createNew,
-			ServletContext servletContext) {
+	@Override
+	public synchronized HttpSession getSession(String sessionId,
+			boolean createNew, InternalWebApplication webApplication) {
+
 		HttpSessionImpl session = (HttpSessionImpl) sessionMap.get(sessionId);
 		if (session != null) {
 			if (!session.isInvalidate()) {
 				return session;
 			} else {
+				session.invalidate();
 				sessionMap.remove(sessionId);
 				if (createNew) {
-					return createNewSession(servletContext);
+					return createNewSession(webApplication);
 				} else {
 					return null;
 				}
 			}
 		} else {
 			if (createNew) {
-				return createNewSession(servletContext);
+				return createNewSession(webApplication);
 			} else {
 				return null;
 			}
 		}
 	}
 
-	private HttpSession createNewSession(ServletContext servletContext) {
+	protected HttpSession createNewSession(InternalWebApplication webApplication) {
 		String sessionId = createNewSessionId();
-		HttpSessionImpl ses = new HttpSessionImpl(sessionId);
-		ses.setServletContext(servletContext);
+		HttpSessionImpl ses = new HttpSessionImpl(webApplication, sessionId);
 		sessionMap.put(sessionId, ses);
 		return ses;
+	}
+
+	public void dispose() {
+		for (HttpSessionImpl session : sessionMap.values()) {
+			session.invalidate();
+		}
+		sessionMap.clear();
 	}
 }

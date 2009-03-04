@@ -28,11 +28,13 @@ import javax.servlet.Filter;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletContextAttributeEvent;
 import javax.servlet.ServletException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import sdloader.javaee.InternalWebApplication;
+import sdloader.javaee.ListenerEventDispatcher;
 import sdloader.javaee.ServletMapping;
 import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.log.SDLoaderLog;
@@ -84,7 +86,7 @@ public class ServletContextImpl implements ServletContext {
 		}
 	}
 
-	public ServletContextImpl(InternalWebApplication webapp) {
+	public ServletContextImpl(InternalWebApplication webapp){
 		this.webApp = webapp;
 	}
 
@@ -223,11 +225,39 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public void setAttribute(String key, Object value) {
-		this.attributeMap.put(key, value);
+        if (key == null){
+            throw new IllegalArgumentException("ServletContext attribute key is null.");
+        }
+		if (value == null) {
+			removeAttribute(key);
+		} else {
+			Object oldValue = attributeMap.get(key);
+			ListenerEventDispatcher dispatcher = webApp.getListenerEventDispatcher();
+			if (oldValue == null) {
+				this.attributeMap.put(key, value);
+				ServletContextAttributeEvent event = new ServletContextAttributeEvent(
+						this, key, value);
+				dispatcher
+						.dispatchServletContextAttributeListener_attributeAdded(event);
+			} else if(oldValue != value){
+				this.attributeMap.put(key, value);
+				ServletContextAttributeEvent event = new ServletContextAttributeEvent(
+						this, key, oldValue);
+				dispatcher
+						.dispatchServletContextAttributeListener_attributeReplaced(event);
+			}
+		}
 	}
 
 	public void removeAttribute(String key) {
-		this.attributeMap.remove(key);
+		Object value = this.attributeMap.remove(key);
+		if (value != null) {
+			ServletContextAttributeEvent event = new ServletContextAttributeEvent(
+					this, key, value);
+			ListenerEventDispatcher dispatcher = webApp.getListenerEventDispatcher();
+			dispatcher
+					.dispatchServletContextAttributeListener_attributeRemoved(event);
+		}
 	}
 
 	public String getServletContextName() {
@@ -294,6 +324,8 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public RequestDispatcher getNamedDispatcher(String servletName) {
+		// throw new
+		// NotImplementedYetException("ServletContext.getNamedDispatcher()");
 		return null;
 	}
 

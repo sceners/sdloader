@@ -20,11 +20,17 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
 import javax.servlet.http.HttpSessionContext;
+import javax.servlet.http.HttpSessionEvent;
 
+import sdloader.javaee.InternalWebApplication;
+import sdloader.javaee.ListenerEventDispatcher;
+import sdloader.log.SDLoaderLog;
+import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
-import sdloader.util.DisposableUtil.Disposable;
 
 /**
  * HttpSession実装クラス
@@ -32,14 +38,16 @@ import sdloader.util.DisposableUtil.Disposable;
  * @author c9katayama
  */
 @SuppressWarnings("deprecation")
-public class HttpSessionImpl implements HttpSession, Disposable {
+public class HttpSessionImpl implements HttpSession {
+
+	private static SDLoaderLog log = SDLoaderLogFactory
+			.getLog(HttpSessionImpl.class);
+
 	private String id;
 
 	private long creationTime;
 
 	private long lastAccessedTime;
-
-	private ServletContext servletContext;
 
 	private int maxInactiveInterval;
 
@@ -49,9 +57,13 @@ public class HttpSessionImpl implements HttpSession, Disposable {
 
 	private boolean isNew = true;
 
-	public HttpSessionImpl(String sessionId) {
+	private InternalWebApplication internalWebApplication;
+
+	public HttpSessionImpl(InternalWebApplication webApp, String sessionId) {
 		this.id = sessionId;
 		this.creationTime = System.currentTimeMillis();
+		this.internalWebApplication = webApp;
+		dispatchCreateEvent();
 	}
 
 	public long getCreationTime() {
@@ -71,7 +83,7 @@ public class HttpSessionImpl implements HttpSession, Disposable {
 
 	public ServletContext getServletContext() {
 		checkInvalidate();
-		return servletContext;
+		return internalWebApplication.getServletContext();
 	}
 
 	public void setMaxInactiveInterval(int interval) {
@@ -110,7 +122,52 @@ public class HttpSessionImpl implements HttpSession, Disposable {
 
 	public void setAttribute(String key, Object value) {
 		checkInvalidate();
-		attributeMap.put(key, value);
+		if (key == null) {
+			throw new IllegalArgumentException("Session attribute key is null.");
+		}
+		if (value == null) {
+			removeAttribute(key);
+		} else {
+			Object oldValue = attributeMap.get(key);
+			if (value == oldValue) {
+				return;
+			}
+			if (value instanceof HttpSessionBindingListener) {
+				HttpSessionBindingEvent boundEvent = new HttpSessionBindingEvent(
+						this, key, value);
+				try {
+					((HttpSessionBindingListener) value).valueBound(boundEvent);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
+			}
+
+			this.attributeMap.put(key, value);
+
+			ListenerEventDispatcher dispatcher = internalWebApplication
+					.getListenerEventDispatcher();
+			if (oldValue == null) {
+				HttpSessionBindingEvent event = new HttpSessionBindingEvent(
+						this, key, value);
+				dispatcher
+						.dispatchHttpSessionAttributeListener_attributeAdded(event);
+			} else {
+				if (oldValue instanceof HttpSessionBindingListener) {
+					HttpSessionBindingEvent unBoundEvent = new HttpSessionBindingEvent(
+							this, key, oldValue);
+					try {
+						((HttpSessionBindingListener) oldValue)
+								.valueUnbound(unBoundEvent);
+					} catch (Throwable t) {
+						log.error(t.getMessage(), t);
+					}
+				}
+				HttpSessionBindingEvent event = new HttpSessionBindingEvent(
+						this, key, oldValue);
+				dispatcher
+						.dispatchHttpSessionAttributeListener_attributeReplaced(event);
+			}
+		}
 	}
 
 	public void putValue(String key, Object value) {
@@ -120,7 +177,22 @@ public class HttpSessionImpl implements HttpSession, Disposable {
 
 	public void removeAttribute(String key) {
 		checkInvalidate();
-		attributeMap.remove(key);
+		Object oldValue = attributeMap.remove(key);
+		if (oldValue != null) {
+			HttpSessionBindingEvent event = new HttpSessionBindingEvent(this,
+					key, oldValue);
+			if (oldValue instanceof HttpSessionBindingListener) {
+				try {
+					((HttpSessionBindingListener) oldValue).valueUnbound(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
+			}
+			ListenerEventDispatcher dispatcher = internalWebApplication
+					.getListenerEventDispatcher();
+			dispatcher
+					.dispatchHttpSessionAttributeListener_attributeRemoved(event);
+		}
 	}
 
 	public void removeValue(String key) {
@@ -129,7 +201,13 @@ public class HttpSessionImpl implements HttpSession, Disposable {
 	}
 
 	public void invalidate() {
-		this.invalidate = true;
+		if (!invalidate) {
+			dispatchDestroyEvent();
+			this.invalidate = true;
+			internalWebApplication = null;
+			attributeMap.clear();
+			attributeMap = null;
+		}
 	}
 
 	public boolean isNew() {
@@ -137,6 +215,32 @@ public class HttpSessionImpl implements HttpSession, Disposable {
 	}
 
 	// /non interface method
+	protected void dispatchCreateEvent() {
+		HttpSessionEvent event = new HttpSessionEvent(this);
+		try {
+			ListenerEventDispatcher dispatcher = internalWebApplication
+					.getListenerEventDispatcher();
+			dispatcher.dispatchHttpSessionListener_sessionCreated(event);
+		} catch (Throwable t) {
+			log.error(t.getMessage(), t);
+		}
+	}
+
+	protected void dispatchDestroyEvent() {
+		HttpSessionEvent event = new HttpSessionEvent(this);
+		try {
+			ListenerEventDispatcher dispatcher = internalWebApplication
+					.getListenerEventDispatcher();
+			dispatcher.dispatchHttpSessionListener_sessionDestroyed(event);
+		} catch (Throwable t) {
+			log.error(t.getMessage(), t);
+		}
+	}
+
+	public void setLastAccessedTime(long lastAccessedTime) {
+		this.lastAccessedTime = lastAccessedTime;
+	}
+
 	public boolean isInvalidate() {
 		return invalidate;
 	}
@@ -147,21 +251,7 @@ public class HttpSessionImpl implements HttpSession, Disposable {
 		}
 	}
 
-	public void setInvalidate(boolean invalidate) {
-		this.invalidate = invalidate;
-	}
-
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;
-	}
-
-	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
-	}
-
-	public void dispose() {
-		servletContext = null;
-		attributeMap.clear();
-		attributeMap = null;
 	}
 }

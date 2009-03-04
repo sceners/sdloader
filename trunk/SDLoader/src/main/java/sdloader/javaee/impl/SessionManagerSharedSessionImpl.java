@@ -15,9 +15,9 @@
  */
 package sdloader.javaee.impl;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
+import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.SessionManager;
 import sdloader.util.DisposableUtil;
 import sdloader.util.DisposableUtil.Disposable;
@@ -28,47 +28,47 @@ import sdloader.util.DisposableUtil.Disposable;
  * @author c9katayama
  * @author shot
  */
-public class SessionManagerSharedSessionImpl extends SessionManager {
+public class SessionManagerSharedSessionImpl extends SessionManager implements
+		Disposable {
 
 	private static HttpSessionImpl session;
 
 	public SessionManagerSharedSessionImpl() {
-		DisposableUtil.add(new Disposable() {
-			public void dispose() {
-				session.dispose();
-				session = null;
-			}
-
-		});
+		DisposableUtil.add(this);
 	}
 
-	public HttpSession getSession(String sessionId, boolean createNew,
-			ServletContext servletContext) {
+	public synchronized HttpSession getSession(String sessionId,
+			boolean createNew, InternalWebApplication webApplication) {
 		if (session != null) {
 			if (!session.isInvalidate()) {
 				return session;
 			} else {
 				session = null;
 				if (createNew) {
-					return createNewSession(servletContext);
+					return createNewSession(webApplication);
 				} else {
 					return null;
 				}
 			}
 		} else {
 			if (createNew) {
-				return createNewSession(servletContext);
+				return createNewSession(webApplication);
 			} else {
 				return null;
 			}
 		}
 	}
 
-	private HttpSession createNewSession(ServletContext servletContext) {
+	protected HttpSession createNewSession(InternalWebApplication webApplication) {
 		String sessionId = createNewSessionId();
-		HttpSessionImpl ses = new HttpSessionImpl(sessionId);
-		ses.setServletContext(servletContext);
+		HttpSessionImpl ses = new HttpSessionImpl(webApplication, sessionId);
 		session = ses;
 		return ses;
 	}
+
+	public void dispose() {
+		session.invalidate();
+		session = null;
+	}
+
 }

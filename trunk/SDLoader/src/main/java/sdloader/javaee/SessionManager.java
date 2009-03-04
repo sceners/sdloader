@@ -18,7 +18,6 @@ package sdloader.javaee;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
 import sdloader.util.Base64;
@@ -32,20 +31,15 @@ import sdloader.util.MessageDigestUtil;
  */
 public abstract class SessionManager {
 
-	private static final SecureRandom RANDOM_GENERATOR = new SecureRandom();
-
 	private static long sessionIdSeed = System.currentTimeMillis()
-			+ (int) RANDOM_GENERATOR.nextInt() * 1000;
+			+ (int) new SecureRandom().nextInt() * 1000;
 
-	private static final MessageDigest digest;
-
-	static {
-		digest = MessageDigestUtil.createMessageDigest();
-	}
+	private static final MessageDigest digest = MessageDigestUtil
+			.createMessageDigest();
 
 	public abstract HttpSession getSession(String sessionId, boolean createNew,
-			ServletContext servletContext);
-	
+			InternalWebApplication webApplication);
+
 	protected synchronized String createNewSessionId() {
 		String sessionId = null;
 		long sesIdSeed = ++sessionIdSeed;

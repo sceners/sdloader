@@ -24,7 +24,6 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionAttributeListener;
 import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
@@ -41,7 +40,6 @@ public class ListenerEventDispatcher {
 	private List<ServletContextAttributeListener> servletContextAttributeListenerList;
 	private List<HttpSessionActivationListener> httpSessionActivationListenerList;
 	private List<HttpSessionAttributeListener> httpSessionAttributeListenerList;
-	private List<HttpSessionBindingListener> httpSessionBindingListenerList;
 	private List<HttpSessionListener> httpSessionListenerList;
 
 	public void addListener(Object listener) {
@@ -56,9 +54,6 @@ public class ListenerEventDispatcher {
 		}
 		if (listener instanceof HttpSessionAttributeListener) {
 			addHttpSessionAttributeListener((HttpSessionAttributeListener) listener);
-		}
-		if (listener instanceof HttpSessionBindingListener) {
-			addHttpSessionBindingListener((HttpSessionBindingListener) listener);
 		}
 		if (listener instanceof HttpSessionListener) {
 			addHttpSessionListener((HttpSessionListener) listener);
@@ -78,7 +73,7 @@ public class ListenerEventDispatcher {
 		}
 		httpSessionActivationListenerList.add(listener);
 	}
-
+	
 	public void dispatchHttpSessionActivationListener_sessionDidActivate(
 			final HttpSessionEvent event) {
 		if (httpSessionActivationListenerList != null) {
@@ -139,38 +134,6 @@ public class ListenerEventDispatcher {
 	}
 
 	// --HttpSessionBindingListener
-
-	public List<HttpSessionBindingListener> getHttpSessionBindingListenerList() {
-		return httpSessionBindingListenerList;
-	}
-
-	public void addHttpSessionBindingListener(
-			HttpSessionBindingListener listener) {
-		if (httpSessionBindingListenerList == null) {
-			httpSessionBindingListenerList = CollectionsUtil.newArrayList();
-		}
-		httpSessionBindingListenerList.add(listener);
-	}
-
-	public void dispatchHttpSessionBindingListener_valueBound(
-			final HttpSessionBindingEvent event) {
-		if (httpSessionBindingListenerList != null) {
-			for (HttpSessionBindingListener listener : httpSessionBindingListenerList) {
-				listener.valueBound(event);
-			}
-		}
-	}
-
-	public void dispatchHttpSessionBindingListener_valueUnbound(
-			final HttpSessionBindingEvent event) {
-		if (httpSessionBindingListenerList != null) {
-			for (HttpSessionBindingListener listener : httpSessionBindingListenerList) {
-				listener.valueUnbound(event);
-			}
-		}
-	}
-
-	// --HttpSessionListener
 
 	public List<HttpSessionListener> getHttpSessionListenerList() {
 		return httpSessionListenerList;

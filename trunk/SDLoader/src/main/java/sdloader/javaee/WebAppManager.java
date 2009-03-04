@@ -235,8 +235,9 @@ public class WebAppManager {
 		// create InternalWebApplication
 		ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase)
 				: createInMemoryWebAppClassLoader(docBase[0]);
-		InternalWebApplication webapp = new InternalWebApplication(webxml,
-				context, webAppClassLoader, this);
+		context.setWebXml(webxml);
+		InternalWebApplication webapp = new InternalWebApplication(context,
+				webAppClassLoader, this);
 		this.webAppList.add(webapp);
 
 		log.info("create webapp [" + contextPath + "]");
@@ -287,8 +288,9 @@ public class WebAppManager {
 		}
 		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase });
 		WebAppContext context = new WebAppContext(contextPath, docBase);
+		context.setWebXml(webXmlTag);
 		final InternalWebApplication webapp = new InternalWebApplication(
-				webXmlTag, context, webAppClassLoader, this);
+				context, webAppClassLoader, this);
 
 		return webapp;
 	}
@@ -406,8 +408,9 @@ public class WebAppManager {
 			jspWorkDir.mkdirs();
 			jspServlet.addInitParam(new InitParamTag("scratchdir",
 					jspWorkDirPath));
-			
-			String jspLibPath = config.getConfigStringIgnoreExist(SDLoader.KEY_SDLOADER_JSP_LIBPATH);
+
+			String jspLibPath = config
+					.getConfigStringIgnoreExist(SDLoader.KEY_SDLOADER_JSP_LIBPATH);
 			if (jspLibPath != null) {
 				jspLibPath = PathUtil.replaceFileSeparator(jspLibPath);
 				jspServlet.addInitParam(new InitParamTag("classpath",
@@ -456,9 +459,10 @@ public class WebAppManager {
 	}
 
 	protected String generateJspWorkDirPath(String contextPath) {
-		
-		String jspWorkDirPath = PathUtil.jointPathWithSlash(
-				PathUtil.replaceFileSeparator(System.getProperty("java.io.tmpdir")), "sdloaderjsp");
+
+		String jspWorkDirPath = PathUtil.jointPathWithSlash(PathUtil
+				.replaceFileSeparator(System.getProperty("java.io.tmpdir")),
+				"sdloaderjsp");
 		String genDir = MessageDigestUtil.digest(System
 				.getProperty("java.class.path"));
 		jspWorkDirPath = jspWorkDirPath + "/" + genDir + contextPath;
