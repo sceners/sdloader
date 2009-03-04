@@ -20,6 +20,8 @@ import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * 
@@ -102,6 +104,25 @@ public class IOUtil {
 
 					}
 				}
+			}
+		}
+	}
+	
+	public static void closeServerSocketNoException(
+			final ServerSocket serverSocket) {
+		if (serverSocket != null) {
+			try {
+				serverSocket.close();
+			} catch (IOException e) {
+			}
+		}
+	}	
+	public static void closeSocketNoException(
+			final Socket socket) {
+		if (socket != null) {
+			try {
+				socket.close();
+			} catch (IOException e) {
 			}
 		}
 	}

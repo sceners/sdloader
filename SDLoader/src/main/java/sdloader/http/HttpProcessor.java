@@ -42,7 +42,6 @@ import sdloader.javaee.impl.ServletContextImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.IOUtil;
-import sdloader.util.SocketUtil;
 import sdloader.util.WebUtils;
 
 /**
@@ -146,7 +145,7 @@ public class HttpProcessor extends Thread {
 			IOUtil.flushNoException(os);
 			IOUtil.closeNoException(is);
 			IOUtil.closeNoException(os);
-			SocketUtil.closeSocketNoException(socket);
+			IOUtil.closeSocketNoException(socket);
 			RequestScopeContext.destroy();
 		}
 		is = null;
