@@ -18,6 +18,7 @@ package sdloader.internal;
 import java.util.Map;
 import java.util.Properties;
 
+import sdloader.util.BooleanUtil;
 import sdloader.util.CollectionsUtil;
 
 /**
@@ -169,8 +170,8 @@ public class SDLoaderConfig {
 
 	public Boolean getConfigBoolean(String key, Boolean defaultValue) {
 		Object value = getConfig(key, defaultValue);
-		return (value instanceof Boolean) ? (Boolean) value : Boolean
-				.parseBoolean(value.toString());
+		return (value instanceof Boolean) ? (Boolean) value : BooleanUtil
+				.toBoolean(value.toString());
 	}
 
 	public Boolean getConfigBooleanIgnoreExist(String key) {
@@ -182,8 +183,8 @@ public class SDLoaderConfig {
 		if (value == null) {
 			return null;
 		}
-		return (value instanceof Boolean) ? (Boolean) value : Boolean
-				.parseBoolean(value.toString());
+		return (value instanceof Boolean) ? (Boolean) value : BooleanUtil
+				.toBoolean(value.toString());
 	}
 
 }
