@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
 import javax.servlet.http.Cookie;
 
 import sdloader.util.CollectionsUtil;
-import sdloader.util.WebUtils;
+import sdloader.util.WebUtil;
 
 /**
  * HTTPリクエストのヘッダー部分
@@ -271,7 +271,7 @@ public class HttpHeader {
 					Calendar now = Calendar.getInstance();
 					now.add(Calendar.SECOND, cookie.getMaxAge());
 					buf.append("; expires="
-							+ WebUtils.formatCookieDate(now.getTime()));
+							+ WebUtil.formatCookieDate(now.getTime()));
 				}
 				if (cookie.getPath() != null) {
 					buf.append("; path=" + cookie.getPath());

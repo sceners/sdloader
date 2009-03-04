@@ -15,7 +15,7 @@
  */
 package sdloader.util;
 
-import sdloader.util.WebUtils;
+import sdloader.util.WebUtil;
 import junit.framework.TestCase;
 
 public class WebUtilsTest extends TestCase{
@@ -28,43 +28,43 @@ public class WebUtilsTest extends TestCase{
 	String pattern5 = "/*";
 
 	public void testPathMatch(){
-		assertEquals(WebUtils.PATTERN_PATH_MATCH,WebUtils.matchPattern(pattern1,"/foo/bar/index.html"));
-		assertEquals(WebUtils.PATTERN_PATH_MATCH,WebUtils.matchPattern(pattern1,"/foo/bar/index.bop"));
-		assertEquals(WebUtils.PATTERN_PATH_MATCH,WebUtils.matchPattern(pattern2,"/baz"));
-		assertEquals(WebUtils.PATTERN_PATH_MATCH,WebUtils.matchPattern(pattern2,"/baz/index.html"));
-		assertEquals(WebUtils.PATTERN_EXACT_MATCH,WebUtils.matchPattern(pattern3,"/catalog"));
-		assertEquals(WebUtils.PATTERN_DEFAULT_MATCH,WebUtils.matchPattern(pattern5,"/catalog/index.html"));
-		assertEquals(WebUtils.PATTERN_EXT_MATCH,WebUtils.matchPattern(pattern4,"/catalog/racecar.bop"));
-		assertEquals(WebUtils.PATTERN_EXT_MATCH,WebUtils.matchPattern(pattern4,"/index.bop"));
+		assertEquals(WebUtil.PATTERN_PATH_MATCH,WebUtil.matchPattern(pattern1,"/foo/bar/index.html"));
+		assertEquals(WebUtil.PATTERN_PATH_MATCH,WebUtil.matchPattern(pattern1,"/foo/bar/index.bop"));
+		assertEquals(WebUtil.PATTERN_PATH_MATCH,WebUtil.matchPattern(pattern2,"/baz"));
+		assertEquals(WebUtil.PATTERN_PATH_MATCH,WebUtil.matchPattern(pattern2,"/baz/index.html"));
+		assertEquals(WebUtil.PATTERN_EXACT_MATCH,WebUtil.matchPattern(pattern3,"/catalog"));
+		assertEquals(WebUtil.PATTERN_DEFAULT_MATCH,WebUtil.matchPattern(pattern5,"/catalog/index.html"));
+		assertEquals(WebUtil.PATTERN_EXT_MATCH,WebUtil.matchPattern(pattern4,"/catalog/racecar.bop"));
+		assertEquals(WebUtil.PATTERN_EXT_MATCH,WebUtil.matchPattern(pattern4,"/index.bop"));
 		
 	}
 	
 	public void testServletPath(){
 		
-		assertEquals("/foo/bar",WebUtils.getServletPath(pattern1,"/foo/bar/test.jsp"));
-		assertEquals("/baz",WebUtils.getServletPath(pattern2,"/baz/test/tt.jsp"));
-		assertEquals("/catalog",WebUtils.getServletPath(pattern3,"/catalog"));
-		assertEquals("/test/a.bop",WebUtils.getServletPath(pattern4,"/test/a.bop"));
-		assertEquals("",WebUtils.getServletPath(pattern5,"/test/a.bop"));
+		assertEquals("/foo/bar",WebUtil.getServletPath(pattern1,"/foo/bar/test.jsp"));
+		assertEquals("/baz",WebUtil.getServletPath(pattern2,"/baz/test/tt.jsp"));
+		assertEquals("/catalog",WebUtil.getServletPath(pattern3,"/catalog"));
+		assertEquals("/test/a.bop",WebUtil.getServletPath(pattern4,"/test/a.bop"));
+		assertEquals("",WebUtil.getServletPath(pattern5,"/test/a.bop"));
 		
 	}
 	public void testPathInfo(){		
-		assertEquals("/test.jsp",WebUtils.getPathInfo(pattern1,"/foo/bar/test.jsp"));
-		assertEquals("/test/tt.jsp",WebUtils.getPathInfo(pattern2,"/baz/test/tt.jsp"));
-		assertEquals(null,WebUtils.getPathInfo(pattern3,"/catalog"));
-		assertEquals(null,WebUtils.getPathInfo(pattern4,"/test/a.bop"));
-		assertEquals("/test/a.bop",WebUtils.getPathInfo(pattern5,"/test/a.bop"));
+		assertEquals("/test.jsp",WebUtil.getPathInfo(pattern1,"/foo/bar/test.jsp"));
+		assertEquals("/test/tt.jsp",WebUtil.getPathInfo(pattern2,"/baz/test/tt.jsp"));
+		assertEquals(null,WebUtil.getPathInfo(pattern3,"/catalog"));
+		assertEquals(null,WebUtil.getPathInfo(pattern4,"/test/a.bop"));
+		assertEquals("/test/a.bop",WebUtil.getPathInfo(pattern5,"/test/a.bop"));
 		
 	}
 
 	public void testParseCharsetFromContentType(){
 		String v = 	"text/html;charset=Windows-31J";
-		assertEquals("Windows-31J",WebUtils.parseCharsetFromContentType(v));
+		assertEquals("Windows-31J",WebUtil.parseCharsetFromContentType(v));
 
 		v = "text/html;charset= Windows-31J ";
-		assertEquals("Windows-31J",WebUtils.parseCharsetFromContentType(v));
+		assertEquals("Windows-31J",WebUtil.parseCharsetFromContentType(v));
 
 		v = "text/html;charset= Windows-31J ; ";
-		assertEquals("Windows-31J",WebUtils.parseCharsetFromContentType(v));
+		assertEquals("Windows-31J",WebUtil.parseCharsetFromContentType(v));
 	}
 }

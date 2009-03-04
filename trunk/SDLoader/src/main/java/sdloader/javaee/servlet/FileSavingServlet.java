@@ -37,7 +37,7 @@ import sdloader.javaee.webxml.ServletMappingTag;
 import sdloader.javaee.webxml.WelcomeFileListTag;
 import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
-import sdloader.util.WebUtils;
+import sdloader.util.WebUtil;
 
 /**
  * ファイル出力サーブレット リクエストパスからファイルを検索し、返します。
@@ -160,9 +160,9 @@ public class FileSavingServlet extends HttpServlet {
 			String path = basePath + welcomefileName;
 			// find servlet mapping
 			for (ServletMappingTag mappingTag : servletMappingList) {
-				int matchType = WebUtils.matchPattern(mappingTag
+				int matchType = WebUtil.matchPattern(mappingTag
 						.getUrlPattern(), path);
-				if (matchType == WebUtils.PATTERN_EXACT_MATCH) {// 完全
+				if (matchType == WebUtil.PATTERN_EXACT_MATCH) {// 完全
 					context.getRequestDispatcher(path).forward(req, res);
 					return;
 				}
@@ -189,7 +189,7 @@ public class FileSavingServlet extends HttpServlet {
 	protected void outputFile(File file, HttpServletRequest req,
 			HttpServletResponse res) throws IOException {
 		Date lastModifyDate = new Date(file.lastModified());
-		res.setHeader(HttpConst.LASTMODIFIED, WebUtils
+		res.setHeader(HttpConst.LASTMODIFIED, WebUtil
 				.formatHeaderDate(lastModifyDate));
 		String ifModified = req.getHeader(HttpConst.IFMODIFIEDSINCE);
 		// 変更したかどうか
@@ -224,7 +224,7 @@ public class FileSavingServlet extends HttpServlet {
 		if (ifModifiedSince == null)
 			return true;
 		try {
-			long ifModifiedTime = WebUtils.parseHeaderDate(ifModifiedSince
+			long ifModifiedTime = WebUtil.parseHeaderDate(ifModifiedSince
 					.trim());
 			long lastModifyTime = fileLastModify.getTime();
 			if (lastModifyTime <= ifModifiedTime) {

@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import sdloader.javaee.ServletMapping;
 import sdloader.javaee.constants.JavaEEConstants;
-import sdloader.util.WebUtils;
+import sdloader.util.WebUtil;
 
 /**
  * RequestDispatcherの実装クラス
@@ -62,8 +62,8 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 		this.forwardFilterList = forwardFilterList;
 		this.includeFilterList = includeFilterList;
 		this.contextPath = contextPath;
-		this.requestURI = WebUtils.stripQueryPart(dispatchURI);
-		this.queryString = WebUtils.getQueryPart(dispatchURI);
+		this.requestURI = WebUtil.stripQueryPart(dispatchURI);
+		this.queryString = WebUtil.getQueryPart(dispatchURI);
 	}
 
 	private HttpServletRequestImpl stripRequestWrapper(ServletRequest request) {
@@ -94,10 +94,10 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 					JavaEEConstants.JAVAX_FORWARD_QUERY_STRING, firstRequest
 							.getQueryString());
 		}
-		String resourcePath = WebUtils.getResourcePath(contextPath,requestURI);
-		String servletPath = WebUtils.getServletPath(dispatchServletMapping
+		String resourcePath = WebUtil.getResourcePath(contextPath,requestURI);
+		String servletPath = WebUtil.getServletPath(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
-		String pathInfo = WebUtils.getPathInfo(dispatchServletMapping
+		String pathInfo = WebUtil.getPathInfo(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
 
 		ForwardRequestWrapper requestWrapper = new ForwardRequestWrapper(
@@ -121,10 +121,10 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 		IncludeResponseWrapper responseWrapper = new IncludeResponseWrapper(
 				(HttpServletResponse) response);
 
-		String resourcePath = WebUtils.getResourcePath(contextPath,requestURI);
-		String servletPath = WebUtils.getServletPath(dispatchServletMapping
+		String resourcePath = WebUtil.getResourcePath(contextPath,requestURI);
+		String servletPath = WebUtil.getServletPath(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
-		String pathInfo = WebUtils.getPathInfo(dispatchServletMapping
+		String pathInfo = WebUtil.getPathInfo(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
 
 		requestWrapper.setIncludeAttribute(

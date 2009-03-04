@@ -20,7 +20,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-import sdloader.util.WebUtils;
+import sdloader.util.WebUtil;
 
 /**
  * RequestDispatcher#forward利用時のリクエストラッパー
@@ -49,7 +49,7 @@ public class ForwardRequestWrapper extends HttpServletRequestWrapper {
 
 	public StringBuffer getRequestURL() {
 		if(requestURL==null){
-			requestURL = WebUtils.buildRequestURL(getScheme(),getLocalName(),getServerPort(),getRequestURI());
+			requestURL = WebUtil.buildRequestURL(getScheme(),getLocalName(),getServerPort(),getRequestURI());
 		}			
 		return requestURL;
 	}
