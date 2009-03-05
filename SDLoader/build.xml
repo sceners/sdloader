@@ -243,12 +243,13 @@
 			<include name="context-xml-sample.xml"/>
 			<include name="RELEASENOTE.txt"/>
 			<include name="sdloaderversion.txt"/>
+			<include name="HOW_TO_USE.txt"/>
 		</fileset>
     </copy>
   	
   	<copy todir="${distbuild}" >
   		<fileset dir=".">
-  			<include name="*README.txt"/>
+  			<include name="HOW_TO_USE.txt"/>
   		</fileset>
   	</copy>
   	
