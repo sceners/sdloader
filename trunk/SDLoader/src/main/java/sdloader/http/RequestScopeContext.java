@@ -20,58 +20,69 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 /**
- *
+ * リクエストスコープ
+ * 
  * @author c9katayama
  */
 public class RequestScopeContext {
 
 	private static ThreadLocal<RequestScopeContext> threadLocal = new ThreadLocal<RequestScopeContext>();
-	
-	private Map<Object,Object> attribute;
-	
+
+	private Map<Object, Object> attribute;
+
 	private HttpServletRequest request;
 	private HttpServletResponse response;
-	
-	private RequestScopeContext(){		
+
+	private RequestScopeContext() {
 	}
-	public static RequestScopeContext getContext(){
+
+	public static RequestScopeContext getContext() {
 		RequestScopeContext context = threadLocal.get();
-		if(context==null){
+		if (context == null) {
 			init();
 			context = threadLocal.get();
 		}
 		return context;
 	}
-	public static void init(){
+
+	public static void init() {
 		threadLocal.set(new RequestScopeContext());
 	}
-	public static void destroy(){
+
+	public static void destroy() {
 		threadLocal.remove();
 	}
+
 	public void setRequest(HttpServletRequest request) {
 		this.request = request;
 	}
+
 	public HttpServletRequest getRequest() {
 		return request;
 	}
+
 	public void setResponse(HttpServletResponse response) {
 		this.response = response;
 	}
+
 	public HttpServletResponse getResponse() {
 		return response;
-	}	
-	public void setAttribute(Object key,Object value){
-		if(attribute==null){
+	}
+
+	public void setAttribute(Object key, Object value) {
+		if (attribute == null) {
 			attribute = new HashMap<Object, Object>();
 		}
 		attribute.put(key, value);
 	}
+
 	@SuppressWarnings("unchecked")
-	public <T> T getAttribute(Object key){
-		if(attribute==null){
+	public <T> T getAttribute(Object key) {
+		if (attribute == null) {
 			return null;
 		}
-		return (T)attribute.get(key);
+		return (T) attribute.get(key);
 	}
 }

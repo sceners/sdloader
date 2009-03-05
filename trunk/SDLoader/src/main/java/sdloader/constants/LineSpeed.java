@@ -15,6 +15,12 @@
  */
 package sdloader.constants;
 
+/**
+ * 回線速度定義用定数.
+ * 
+ * @author AKatayama
+ * 
+ */
 public interface LineSpeed {
 
 	public static final int NO_LIMIT = -1;
