@@ -330,8 +330,7 @@ public class SDLoader implements Lifecycle {
 		initSocketProcessor();
 		initShutdownHook();
 
-		this.sdLoaderThread = new SDLoaderThread(initSocket);
-
+		sdLoaderThread = new SDLoaderThread(initSocket);
 		sdLoaderThread.start();
 
 		log.info("SDLoader[port:" + getPort() + "] startup in "
@@ -464,6 +463,7 @@ public class SDLoader implements Lifecycle {
 
 		SDLoaderThread(ServerSocket serverSocket) {
 			this.serverSocket = serverSocket;
+			setDaemon(false);
 		}
 
 		public void run() {
