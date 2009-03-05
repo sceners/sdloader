@@ -55,11 +55,11 @@ public class ServletContextImplTest extends TestCase {
 		}
 
 		public void contextDestroyed(ServletContextEvent e) {
-			assertNotNull(e.getServletContext().getContextPath(), "/test");
+			assertNotNull(((ServletContextImpl)e.getServletContext()).getContextPath(), "/test");
 		}
 
 		public void contextInitialized(ServletContextEvent e) {
-			assertNotNull(e.getServletContext().getContextPath(), "/test");
+			assertNotNull(((ServletContextImpl)e.getServletContext()).getContextPath(), "/test");
 		}
 	}
 }
