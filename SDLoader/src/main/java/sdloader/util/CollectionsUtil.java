@@ -24,7 +24,11 @@ import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
+/**
+ * 
+ * @author AKatayama
+ *
+ */
 public class CollectionsUtil {
 
 	public static <T> ArrayList<T> newArrayList() {

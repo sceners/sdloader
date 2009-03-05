@@ -19,6 +19,19 @@ import java.io.InputStream;
 
 import sdloader.tool.helper.ProjectTemplateHelper;
 
+/**
+ * ServletAPI2.5対応のプロジェクト雛形を作成するツール.
+ * 
+ * <pre>
+ * 実行ディレクトリに、WebContentディレクトリを作成し、その中にindex.html,WEB-INF,WEB-INF/lib,
+ * WEB-INF/classes,WEB-INF/web.xmlを作成します。
+ * eclipseの場合、WEB-INF/classesにclassファイルの出力先を変更し、srcフォルダにSDLoaderの
+ * 実行クラスを出力します。
+ * </pre>
+ * 
+ * @author AKatayama
+ * 
+ */
 public class Servlet24ProjectTemplateTool {
 
 	public static void main(String[] args) {
