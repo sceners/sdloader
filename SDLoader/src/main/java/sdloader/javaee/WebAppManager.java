@@ -544,6 +544,14 @@ public class WebAppManager {
 	 * @return 該当するWebAppがない場合、null
 	 */
 	public InternalWebApplication findWebApp(final String requestURI) {
+		InternalWebApplication app = findWebApp0(requestURI);
+		if(app == null){
+			// /text.txt などのROOTの場合
+			app = findWebApp0("/");
+		}
+		return app;
+	}
+	protected InternalWebApplication findWebApp0(final String requestURI){
 		for (Iterator<InternalWebApplication> itr = getWebAppList().iterator(); itr
 				.hasNext();) {
 			InternalWebApplication webapp = itr.next();
