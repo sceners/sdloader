@@ -3,8 +3,8 @@ ServletAPI2.5,JSP2.1に対応
 これに伴い、sdloader.jarに同梱するapiを2.5に変更。
 JSP1.2を削除
 
-*ServletContextImplにgetContextPath追加（API変更による追加）
-*InMemoryEmbeddedServletOptionに、Tomcat6のServletOptionの機能を追加
+ServletContextImplにgetContextPath追加（API変更による追加）
+InMemoryEmbeddedServletOptionに、Tomcat6のServletOptionの機能を追加
 
 WebAppContextにWebXmlを設定可能にした。
 （WebAppContextにWebXmlをセットしておくと、それが優先されます）
@@ -12,6 +12,12 @@ WebAppContextにWebXmlを設定可能にした。
 LineSpeed機能を追加。
 SDLoader#setLineSpeed()にLineSpeedの定数をセットすると、
 回線速度をエミュレートするようになります。
+
+プロジェクトのフォルダ雛形を作る機能を追加。
+Servlet25ProjectTemplatToolおよびServlet24ProjectTemplatToolを
+実行すると、その場にテンプレートが出力されます。
+
+ServletContextAttributeListener,HttpSessionBindingListener,HttpSessionListenerに対応。
 
 v0_1_14
 WebAppContextを使用する際、複数のドキュメントルートをしていできるように修正。
