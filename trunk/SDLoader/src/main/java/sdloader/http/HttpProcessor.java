@@ -186,7 +186,7 @@ public class HttpProcessor extends Thread {
 				requestURI);
 		HttpServletRequestImpl request = createServletRequestImp(httpRequest);
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
-		// デフォルトもなければ404
+		//完全になければ404
 		if (webapp == null) {
 			WebUtil.writeNotFoundPage(response);
 			setDefaultResponseHeader(null, request, response, requestCount);
