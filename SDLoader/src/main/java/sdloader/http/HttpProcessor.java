@@ -55,9 +55,9 @@ public class HttpProcessor extends Thread {
 
 	private int socketTimeout = 60 * 1000;
 
-	private int keepAliveTimeout = 3 * 1000;// Apache 15
+	private int keepAliveTimeout = 15 * 1000;// Apache 15
 
-	private int keppAliveMaxRequests = 100;// Apache 5
+	private int keppAliveMaxRequests = 100;// Apache 100
 
 	private Socket socket;
 
@@ -163,12 +163,17 @@ public class HttpProcessor extends Thread {
 			if (requestCount != 1) {
 				socket.setSoTimeout(keepAliveTimeout);
 			}
-			httpRequest = new HttpRequest(new HttpRequestReader(is, lineSpeed));
+			HttpRequestReader reader = new HttpRequestReader(is, lineSpeed);
+			httpRequest = new HttpRequest(reader);
+			log.debug("Request read start.");
+			httpRequest.readRequest();
+			log.debug("Request read success.");
 			if (log.isDebugEnabled()) {
 				log.debug("<REQUEST_HEADER>\n" + httpRequest.getHeader());
 			}
 		} finally {
 			if (socket.isClosed()) {
+				log.debug("Socket close.");
 				return false;
 			} else {
 				socket.setSoTimeout(socketTimeout);
@@ -183,7 +188,7 @@ public class HttpProcessor extends Thread {
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
 		// デフォルトもなければ404
 		if (webapp == null) {
-			response.setStatus(HttpConst.SC_NOT_FOUND);
+			WebUtil.writeNotFoundPage(response);
 			setDefaultResponseHeader(null, request, response, requestCount);
 			processDataOutput(response, os);
 			return header.isKeepAlive();
@@ -213,7 +218,7 @@ public class HttpProcessor extends Thread {
 		ServletMapping mapping = webapp.findServletMapping(resourcePath);
 		Servlet servlet = null;
 		if (mapping == null) {
-			response.setStatus(HttpConst.SC_NOT_FOUND);
+			WebUtil.writeNotFoundPage(response);
 			setDefaultResponseHeader(servletContextImpl, request, response,
 					requestCount);
 			processDataOutput(response, os);

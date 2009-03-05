@@ -66,7 +66,7 @@ public class SDLoaderLogJDKLoggerImpl implements SDLoaderLog {
 	}
 
 	public boolean isDebugEnabled() {
-		return logger.isLoggable(Level.FINE);
+		return logger.isLoggable(Level.CONFIG);
 	}
 
 	public boolean isInfoEnabled() {

@@ -387,7 +387,7 @@ public class WebAppManager {
 		final String jspServletName = "jsp";
 		if (JASPER_SUPPORT
 				&& webXml.getWebApp().findServlet(jspServletName) == null) {
-			log.info("set jsp servlet");
+			log.debug("set default jsp servlet.");
 			ServletTag jspServlet = new ServletTag();
 			jspServlet.setLoadOnStartup(0);
 			jspServlet.setServletClass(JASPER_SERVLET_CLASS);
@@ -428,7 +428,7 @@ public class WebAppManager {
 		// default servlet (file saving)
 		final String fileSavingServletName = "default";
 		if (webXml.getWebApp().findServlet(fileSavingServletName) == null) {
-			log.info("set default servlet");
+			log.debug("set default file savings servlet.");
 			ServletTag fileServletTag = new ServletTag();
 			fileServletTag.setLoadOnStartup(0);
 			// TODO 統合したい

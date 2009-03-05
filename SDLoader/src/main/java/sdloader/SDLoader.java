@@ -16,8 +16,6 @@
 package sdloader;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.AccessControlException;
@@ -397,8 +395,6 @@ public class SDLoader implements Lifecycle {
 	}
 
 	protected ServerSocket initServerSocket() {
-		ServerSocket initSocket = null;
-
 		boolean useOutSidePort = config
 				.getConfigBoolean(KEY_SDLOADER_USE_OUTSIDE_PORT);
 		boolean autoPortDetect = config
@@ -408,37 +404,28 @@ public class SDLoader implements Lifecycle {
 				.valueOf(port);
 		log.info("Bind start. Port=" + portMessage + " useOutSidePort="
 				+ useOutSidePort);
+
+		ServerSocket servetSocket = null;
 		try {
 			try {
 				int bindPort = getPort();
-				initSocket = bind(bindPort, useOutSidePort);
+				servetSocket = IOUtil.createServerSocket(bindPort,
+						useOutSidePort);
 			} catch (IOException ioe) {
 				if (autoPortDetect) {
-					initSocket = bind(0, useOutSidePort);
+					servetSocket = IOUtil.createServerSocket(0, useOutSidePort);
 				} else {
 					throw ioe;
 				}
 			}
-			int bindSuccessPort = initSocket.getLocalPort();
+			int bindSuccessPort = servetSocket.getLocalPort();
 			config.setConfig(KEY_SDLOADER_PORT, bindSuccessPort);
 			log.info("Bind success. Port=" + getPort());
 		} catch (IOException ioe) {
 			log.error("Bind fail! Port=" + portMessage, ioe);
 			throw new RuntimeException(ioe);
 		}
-		return initSocket;
-	}
-
-	protected ServerSocket bind(int bindPort, boolean useOutSidePort)
-			throws IOException {
-		ServerSocket socket = new ServerSocket();
-		if (useOutSidePort) {
-			socket.bind(new InetSocketAddress(bindPort));
-		} else {
-			socket.bind(new InetSocketAddress(InetAddress
-					.getByName("localhost"), bindPort));
-		}
-		return socket;
+		return servetSocket;
 	}
 
 	protected void initSocketProcessor() {

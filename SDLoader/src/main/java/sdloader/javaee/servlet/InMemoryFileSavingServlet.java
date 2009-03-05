@@ -42,12 +42,12 @@ public class InMemoryFileSavingServlet extends FileSavingServlet {
 		String uri = req.getPathInfo();
 
 		if (uri == null) {
-			res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			processNotFound(res);
 			return;
 		}
 
 		if (uri.startsWith("/WEB-INF/") || uri.endsWith("/WEB-INF")) {
-			res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			processNotFound(res);
 			return;
 		}
 		
@@ -55,7 +55,7 @@ public class InMemoryFileSavingServlet extends FileSavingServlet {
 			for(int i = 0;i < docRootPath.length;i++){
 				URL file = ResourceUtil.createURL(docRootPath[i],uri);				
 				if (ResourceUtil.isResourceExist(file)) {
-					outputResource(file, req, res);
+					processOutputResource(file, req, res);
 					return;
 				}
 			}
@@ -70,10 +70,10 @@ public class InMemoryFileSavingServlet extends FileSavingServlet {
 				}
 			}
 		}
-		res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		processNotFound(res);
 		return;
 	}
-	protected void outputResource(URL resource,HttpServletRequest req,HttpServletResponse res) throws IOException{
+	protected void processOutputResource(URL resource,HttpServletRequest req,HttpServletResponse res) throws IOException{
 		//TODO check last modified
 		InputStream is = resource.openStream();
 		ServletOutputStream sout = res.getOutputStream();
