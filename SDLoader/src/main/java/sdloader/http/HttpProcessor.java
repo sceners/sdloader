@@ -69,6 +69,7 @@ public class HttpProcessor extends Thread {
 
 	public HttpProcessor(String name) {
 		super(name);
+		setDaemon(false);
 	}
 
 	public void setSocketTimeout(int socketTimeout) {

@@ -53,38 +53,43 @@ public class WebUtil {
 	private WebUtil() {
 		super();
 	}
+
 	/**
 	 * ContentType(text/html;charse=UTF-8など)からUTF-8部分を取り出します。
+	 * 
 	 * @param value
 	 * @return
 	 */
-	public static String parseCharsetFromContentType(String value){
+	public static String parseCharsetFromContentType(String value) {
 		final String sepString = "charset=";
 		int sep = value.indexOf(sepString);
-		if(sep != -1){
-			sep += sepString.length(); 
+		if (sep != -1) {
+			sep += sepString.length();
 			int endIndex = value.length();
-			int scIndex = value.indexOf(";",sep);
-			if(scIndex!=-1)
+			int scIndex = value.indexOf(";", sep);
+			if (scIndex != -1)
 				endIndex = scIndex;
-			String charSet = value.substring(sep,endIndex);
+			String charSet = value.substring(sep, endIndex);
 			return charSet.trim();
-		}else{
+		} else {
 			return null;
 		}
 	}
+
 	/**
-	 * サポートされているエンコードかどうか
-	 * サポートされていない場合、UnsupportedEncodingExceptionが発生します。
+	 * サポートされているエンコードかどうか サポートされていない場合、UnsupportedEncodingExceptionが発生します。
+	 * 
 	 * @param encoding
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	public static void checkSupportedEndcoding(String encoding) throws UnsupportedEncodingException{
-		if(encoding==null)
+	public static void checkSupportedEndcoding(String encoding)
+			throws UnsupportedEncodingException {
+		if (encoding == null)
 			throw new UnsupportedCharsetException("Charset is null.");
 		URLDecoder.decode("", encoding);
 	}
+
 	/**
 	 * ヘッダー用の日付文字を、ミリ秒フォーマットに変換します。
 	 * 
@@ -135,20 +140,24 @@ public class WebUtil {
 			return COOKIE_DATE_FORMAT.format(date);
 		}
 	}
-	
-	public static URL[] createClassPaths(String targetDir, FileFilter fileFilter,boolean recursive){
-		return createClassPaths(new File(targetDir), fileFilter, recursive);		
+
+	public static URL[] createClassPaths(String targetDir,
+			FileFilter fileFilter, boolean recursive) {
+		return createClassPaths(new File(targetDir), fileFilter, recursive);
 	}
+
 	/**
 	 * 対象ディレクトリ中のファイルへのURLを生成します。
 	 * 
 	 * @param targetDir
 	 * @param fileFilter
-	 * @param recursive 再帰的に追加するかどうか
+	 * @param recursive
+	 *            再帰的に追加するかどうか
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public static URL[] createClassPaths(File targetDir, FileFilter fileFilter,boolean recursive){			
+	public static URL[] createClassPaths(File targetDir, FileFilter fileFilter,
+			boolean recursive) {
 
 		if (!targetDir.exists())
 			return null;
@@ -161,13 +170,14 @@ public class WebUtil {
 				urlList.add(PathUtil.file2URL(libs[i]));
 			}
 		}
-		if(recursive){
+		if (recursive) {
 			File[] dirs = targetDir.listFiles();
 			if (dirs != null) {
 				for (int i = 0; i < dirs.length; i++) {
 					if (dirs[i].isDirectory()) {
-						URL[] urls = createClassPaths(dirs[i].getAbsolutePath(),
-								fileFilter,recursive);
+						URL[] urls = createClassPaths(
+								dirs[i].getAbsolutePath(), fileFilter,
+								recursive);
 						if (urls != null) {
 							for (int j = 0; j < urls.length; j++)
 								urlList.add(urls[j]);
@@ -178,6 +188,7 @@ public class WebUtil {
 		}
 		return (URL[]) urlList.toArray(new URL[] {});
 	}
+
 	/**
 	 * リクエストURI中のコンテキストパス以外の部分を返します。 resoucePath = servletpath + pathinfo
 	 * ただし、requestURIが"/"の場合(ルートアプリケーション）のみ、"/"を返します。
@@ -185,16 +196,17 @@ public class WebUtil {
 	 * @param requestURI
 	 * @return resourcePath
 	 */
-	public static String getResourcePath(String contextPath,String requestURI) {		
+	public static String getResourcePath(String contextPath, String requestURI) {
 		if (requestURI == null)
 			return null;
 		if (requestURI.equals("/")) {
 			return "/";
 		}
-		if(contextPath.equals(requestURI)){
+		if (contextPath.equals(requestURI)) {
 			return null;
-		}else{
-			String servletPath = requestURI.substring(contextPath.length(), requestURI.length());
+		} else {
+			String servletPath = requestURI.substring(contextPath.length(),
+					requestURI.length());
 			return servletPath;
 		}
 	}
@@ -225,8 +237,7 @@ public class WebUtil {
 	}
 
 	/**
-	 * リクエストURI中のコンテキストパス以外の部分を返します.
-	 * resoucePath = servletpath + pathinfo
+	 * リクエストURI中のコンテキストパス以外の部分を返します. resoucePath = servletpath + pathinfo
 	 * 
 	 * @param requestURI
 	 * @return resourcePath
@@ -361,48 +372,50 @@ public class WebUtil {
 		else
 			portString = ":" + port;
 		requestURI = stripQueryPart(requestURI);
-		return new StringBuffer(scheme + "://" + host + portString
-				+ requestURI);
+		return new StringBuffer(scheme + "://" + host + portString + requestURI);
 	}
+
 	/**
-	 * RequestURLを構築します。
-	 * host部分にポート指定が無い場合、schemeからポートを
-	 * 設定します。
+	 * RequestURLを構築します。 host部分にポート指定が無い場合、schemeからポートを 設定します。
+	 * 
 	 * @param scheme
 	 * @param host
 	 * @param port
 	 * @param requestURI
 	 * @return
 	 */
-	public static StringBuffer buildRequestURL(String scheme, String host,String requestURI) {
+	public static StringBuffer buildRequestURL(String scheme, String host,
+			String requestURI) {
 		int portSep = host.indexOf(":");
 		String portString;
-		if(portSep != -1){
-			portString = host.substring(portSep+1);
-			host = host.substring(0,portSep);
-		}else{
+		if (portSep != -1) {
+			portString = host.substring(portSep + 1);
+			host = host.substring(0, portSep);
+		} else {
 			if (scheme.equals("http"))
 				portString = "";
 			else if (scheme.equals("https"))
 				portString = "";
 			else
-				throw new RuntimeException("schema:"+scheme+" not support.");
+				throw new RuntimeException("schema:" + scheme + " not support.");
 		}
-		return buildRequestURL(scheme, host,Integer.parseInt(portString),requestURI);
+		return buildRequestURL(scheme, host, Integer.parseInt(portString),
+				requestURI);
 	}
-	
-	public static void writeNotFoundPage(HttpServletResponse res) throws IOException{
+
+	public static void writeNotFoundPage(HttpServletResponse res)
+			throws IOException {
 		res.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		res.setContentType("text/html:charset=UTF-8");
+		res.setContentType("text/html;charset=UTF-8");
 		PrintWriter writer = res.getWriter();
 		writer.write("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">");
-		writer.write("html><head>");
-		writer.write("title>404 Not Found</title>");
-		writer.write("head><body>");
-		writer.write("h1>Not Found</h1>");
+		writer.write("<html><head>");
+		writer.write("<title>404 Not Found</title>");
+		writer.write("<head><body>");
+		writer.write("<h1>Not Found</h1>");
 		writer
-				.write("p>The requested URL /hes was not found on this server.</p>");
-		writer.write("body></html>");
+				.write("<p>The requested URL resource was not found on this SDLoader.</p>");
+		writer.write("<body></html>");
 		writer.flush();
 	}
 }
