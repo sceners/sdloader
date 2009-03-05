@@ -44,7 +44,11 @@ SDLoaderにはJavaEEのAPIが入っているため、クラスパスに通した
 JavaEEのAPIが利用できるようになります（つまりHttpServletやHttpServletRequestなどを
 使ったコーディングができます）
 
-WEB-INFやweb.xmlを作成し、アプリを作成し終わったあとに、mainメソッドを持ったクラスを作成します
+eclipseの場合、クラスパスに通した後、jarファイルを右クリック->実行->Javaアプリケーションを選択します。
+一覧からServlet25ProjectTemplateToolを選ぶと、WEB-INFやweb.xmlなどの雛形、
+SDLoader起動のコードの雛形がプロジェクト内に出力されます。
+
+雛形を作らなかった場合は、WEB-INFやweb.xmlを作成たあと、mainメソッドを持ったクラスを作成します。
 mainクラスには、SDLoaderを起動するコードを書きます。
 最低限必要なコードは、以下のようになります。
 
