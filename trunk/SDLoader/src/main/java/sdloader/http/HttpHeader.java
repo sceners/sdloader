@@ -295,7 +295,7 @@ public class HttpHeader {
 		buf.append(",requestURI=" + requestURI);
 		buf.append(",queryString=" + queryString + "\n");
 		buf.append("header[");
-		boolean first = false;
+		boolean first = true;
 		for (HeaderData headerData : headerList) {
 			if (first) {
 				first = false;
@@ -306,7 +306,7 @@ public class HttpHeader {
 		}
 		buf.append("]\n");
 		buf.append("cookie[");
-		first = false;
+		first = true;
 		for (Cookie cookie : cookieList) {
 			if (first) {
 				first = false;

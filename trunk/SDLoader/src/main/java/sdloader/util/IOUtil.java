@@ -22,6 +22,8 @@ import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -31,7 +33,7 @@ import java.net.Socket;
  */
 public class IOUtil {
 
-	public static boolean rmdir(File directory) {
+	public static boolean forceRemoveDirectory(File directory) {
 		if (!directory.exists()) {
 			return true;
 		}
@@ -44,7 +46,7 @@ public class IOUtil {
 		for (int i = 0; i < files.length; i++) {
 			File file = files[i];
 			if (file.isDirectory()) {
-				if (rmdir(file) == false) {
+				if (forceRemoveDirectory(file) == false) {
 					result = false;
 				}
 			} else {
@@ -154,6 +156,23 @@ public class IOUtil {
 				socket.close();
 			} catch (IOException e) {
 			}
+		}
+	}
+
+	public static ServerSocket createServerSocket(int bindPort,
+			boolean useOutSidePort) throws IOException {
+		ServerSocket socket = new ServerSocket();
+		try {
+			if (useOutSidePort) {
+				socket.bind(new InetSocketAddress(bindPort));
+			} else {
+				socket.bind(new InetSocketAddress(InetAddress
+						.getByName("localhost"), bindPort));
+			}
+			return socket;
+		} catch (IOException ioe) {
+			closeServerSocketNoException(socket);
+			throw ioe;
 		}
 	}
 

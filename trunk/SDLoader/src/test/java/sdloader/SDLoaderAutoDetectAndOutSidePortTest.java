@@ -17,9 +17,7 @@ package sdloader;
 
 import java.net.Inet4Address;
 
-import sdloader.log.SDLoaderLog;
-import sdloader.log.SDLoaderLogFactory;
-import sdloader.util.MiscUtils;
+import sdloader.util.Browser;
 
 /**
  * SDLoaderをオープンし、デプロイしたアプリの一覧をブラウザに表示します。 外向けポートもListenします。
@@ -27,9 +25,6 @@ import sdloader.util.MiscUtils;
  * @author c9katayama
  */
 public class SDLoaderAutoDetectAndOutSidePortTest {
-
-	private static final SDLoaderLog log = SDLoaderLogFactory
-			.getLog(SDLoaderAutoDetectAndOutSidePortTest.class);
 
 	public static void main(String[] args) {
 
@@ -44,10 +39,9 @@ public class SDLoaderAutoDetectAndOutSidePortTest {
 			String url = "http://"
 					+ Inet4Address.getLocalHost().getHostAddress() + ":" + port;
 
-			MiscUtils.openBrowser(url);
-
-		} catch (Throwable e) {
-			log.error("SDLoader catch error.", e);
+			Browser.open(url);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

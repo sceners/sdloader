@@ -95,12 +95,12 @@ public class FileSavingServlet extends HttpServlet {
 		String uri = req.getPathInfo();
 
 		if (uri == null) {
-			res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			processNotFound(res);
 			return;
 		}
 
 		if (uri.startsWith("/WEB-INF/") || uri.endsWith("/WEB-INF")) {
-			res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			processNotFound(res);
 			return;
 		}
 		File fileOrDir = null;
@@ -114,12 +114,12 @@ public class FileSavingServlet extends HttpServlet {
 			}
 		}
 		if (fileOrDir == null) {
-			res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			processNotFound(res);
 			return;
 		}
 		if (fileOrDir.isFile()) {
 			File file = fileOrDir;
-			outputFile(file, req, res);
+			processOutputFile(file, req, res);
 			return;
 		} else {
 			if (welcomeFileListTag != null) {
@@ -127,7 +127,7 @@ public class FileSavingServlet extends HttpServlet {
 				processWelcomeFile(dir.toURI().toURL(), req, res);
 				return;
 			} else {
-				res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				processNotFound(res);
 				return;
 			}
 		}
@@ -147,9 +147,7 @@ public class FileSavingServlet extends HttpServlet {
 			final HttpServletRequest req, final HttpServletResponse res)
 			throws ServletException, IOException {
 		String basePath = req.getPathInfo();
-		if (!basePath.endsWith("/")) {
-			basePath += "/";
-		}
+		basePath = PathUtil.appendEndSlashIfNeed(basePath);
 		ServletContextImpl context = (ServletContextImpl) getServletContext();
 		InternalWebApplication webapp = context.getWebApplication();
 		List<String> welcomeFileList = welcomeFileListTag.getWelcomeFile();
@@ -160,8 +158,8 @@ public class FileSavingServlet extends HttpServlet {
 			String path = basePath + welcomefileName;
 			// find servlet mapping
 			for (ServletMappingTag mappingTag : servletMappingList) {
-				int matchType = WebUtil.matchPattern(mappingTag
-						.getUrlPattern(), path);
+				int matchType = WebUtil.matchPattern(
+						mappingTag.getUrlPattern(), path);
 				if (matchType == WebUtil.PATTERN_EXACT_MATCH) {// 完全
 					context.getRequestDispatcher(path).forward(req, res);
 					return;
@@ -174,7 +172,7 @@ public class FileSavingServlet extends HttpServlet {
 				return;
 			}
 		}
-		res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		processNotFound(res);
 		return;
 	}
 
@@ -186,7 +184,7 @@ public class FileSavingServlet extends HttpServlet {
 	 * @param res
 	 * @throws IOException
 	 */
-	protected void outputFile(File file, HttpServletRequest req,
+	protected void processOutputFile(File file, HttpServletRequest req,
 			HttpServletResponse res) throws IOException {
 		Date lastModifyDate = new Date(file.lastModified());
 		res.setHeader(HttpConst.LASTMODIFIED, WebUtil
@@ -210,6 +208,10 @@ public class FileSavingServlet extends HttpServlet {
 			sout.flush();
 			sout.close();
 		}
+	}
+
+	protected void processNotFound(HttpServletResponse res) throws IOException {
+		WebUtil.writeNotFoundPage(res);
 	}
 
 	/**

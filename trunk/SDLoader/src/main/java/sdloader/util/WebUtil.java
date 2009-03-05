@@ -17,6 +17,8 @@ package sdloader.util;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,8 +31,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
- * パス関係のユーティリティ
+ * Web用ユーティリティ
  * 
  * @author c9katayama
  */
@@ -385,5 +389,20 @@ public class WebUtil {
 				throw new RuntimeException("schema:"+scheme+" not support.");
 		}
 		return buildRequestURL(scheme, host,Integer.parseInt(portString),requestURI);
+	}
+	
+	public static void writeNotFoundPage(HttpServletResponse res) throws IOException{
+		res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		res.setContentType("text/html:charset=UTF-8");
+		PrintWriter writer = res.getWriter();
+		writer.write("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">");
+		writer.write("html><head>");
+		writer.write("title>404 Not Found</title>");
+		writer.write("head><body>");
+		writer.write("h1>Not Found</h1>");
+		writer
+				.write("p>The requested URL /hes was not found on this server.</p>");
+		writer.write("body></html>");
+		writer.flush();
 	}
 }
