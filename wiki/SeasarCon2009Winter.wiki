@@ -1,13 +1,120 @@
 #SeasarCon2009Winter用草案
 
 = SDLoaderとは =
+* 元々はFlash-Javaのアプリケーションデモ用に作成
+* 営業や研修用に利用したい
+* 利用者になるべく楽に渡したい
+ # デモアプリがたくさんあるため、各々設定が面倒
+ # 極力渡すファイルを少なくしたい（jarとwarだけとか）
+ # ノートPCがしょぼいため、極力軽くて早く起動するものがほしい
+* TomcatやWinston
+ # Tomcatほど機能は要らない
+ # Winstonもよかったけど、ライセンスがGPLだった
+ # ServletAPIを実装してみたかった
+* 現在
+ # JSP（Jasperですけど）
+ # 開発に便利な機能
+ # SWTとの連携
+ # JDK5
+ # Apache2.0 License
 
-*元々はアプリケーションのデモ用に開発したサーブレットコンテナ
-*
+= 特徴 =
+* Servletのみの最小jarが300K
+ # jspありだと3M
+* 必要なのはJar1個
+ # jasperやswtも入れてしまってます(汗
+* 自動ポート検知機能
+ # 指定したポートが利用中だったら、ほかのポートを探す
+* デフォルトでローカルホストのみをListen
+ # 外からの接続ができない代わりに、Windowsやノートン先生の警告が出ない
+* newするWebコンテナ
+ # new SDLoader()でサーバインスタンス作成
+ # コーディングベースで、コンテキストルート、ドキュメントルート、web.xmlなどを指定可能。
+* マルチドキュメントルート
+ # 複数個所からクラスやリソースをロードできます
+* NoCache機能
+ # ONにすると、すべてのレスポンスに対してNoCacheヘッダーを入れまます。
+* 帯域制限
+ # LineSpeed指定をすれば、擬似的に回線速度を落とせます。
 
-= Details =
+= 開発に利用 =
+* 基本的な流れ
+  # Javaプロジェクト作成
+  # sdloader-jsp21.jarをコピー
+  # クラスパスに登録
+  # jar右クリック->実行->アプリケーション->Servle25ProjectTemplateTool
+  # SDLoaderServerStartで開始
+  # 止めるときはアプリ停止
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+= スタンドアロンで利用 =
+* 基本的な流れ
+  # webappsフォルダにwarを配置
+  # sdloaderstart-jsp21.batを実行で開始
+  # 止めるときはタスクトレーから
+
+= ケースその１ デモアプリ作成依頼 =
+* SpringとiBatisのサンプル作ってほしい
+* TomcatPlugin？WTP？WebLauncher？バージョンは？
+* デモ用設定を自分のTomcatに入れたくない
+* チェックアウトしてmainメソッド実行ですぐ動く
+* 起動するURLを指定しておけば、ブラウザが立ち上がる
+
+= ケースその２ 試しにWebアプリを作りたい =
+* Webフレームワークの評価や、ちょっとしたアプリ
+* 作ったけど途中で終わった
+* 消すのももったいないけど、ワークスペースからは消したい
+* ある程度動く状態で残したいけど、次やるときに環境設定したくない
+
+= ケースその３ 実案件 =
+* デバック用にフィルターをつけたいなど、web.xmlが複数個ほしいケース
+
+= Flex開発利用 =
+* JavaプロジェクトとFlexプロジェクトを分ける場合の問題
+ # マルチドキュメントルートが便利
+ # プログレスバーなどを実装に、帯域制限が便利
+
+= デモ利用 =
+USBに入れて
+
+= スタンドアロンの実案件例 =
+* 本番アプリの研修用に、スタンドアロンで利用（Flash-Java,JSP-Java)
+* タブレットPCに入れ、スタンドアロンで利用(Flex3-Java)
+* EclipseRCPで作成された顧客管理アプリに、FlexのUIを適用。
+  FlexからServletを呼び出し、そこからRCP内のサービスを呼び出し(Flex2-Java)
+* 展示用にスタンドアロンで稼動(Flash-Java)
+* ケースとしては、すでにJavaのビジネスロジックがあり、FlashやFlexで画面を
+  作ってスタンドアロンで使いたいケース
+  
+
+= ServletAPI実装状況 =
+* 基本的にはServletAPI2.4
+* @Resourceなどのアノテーション系は未実装
+* ServletContext
+ # getNamedDispatcher以外は実装
+* HttpServlet
+* Filter
+* HttpServletRequest
+ # getUserPrincipal,isUserInRoleは未実装
+* HttpSession
+ # HttpSessionActivationListenerは未実装
+* HttpServletResponse
+
+= web.xml実装状況 =
+* <context-param>
+* <filter>,<filter-mapping>
+* <listener>
+* <servlet>,<servlet-mapping>
+ # <jsp-file>,<load-on-startup>,<security-role-ref>は未実装
+* <welcome-file-list>
+* <taglib>
+
+*<session-config>は未実装
+ # タイムアウトの実装予定なし
+
+*<env-entry>,<resource-ref>
+ # 次に導入予定
+
+= 今後 =
+
+
+
