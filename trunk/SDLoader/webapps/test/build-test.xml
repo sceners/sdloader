@@ -19,8 +19,6 @@
   </path>
 
   <target name="compile">
-  	<delete dir="${build}"/>
-  	<mkdir dir="${build}"/>
     <javac 
     	encoding="UTF-8" 
     	destdir="${build}" nowarn="true" deprecation="false" debug="true" optimize="false" 
