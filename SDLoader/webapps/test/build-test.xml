@@ -2,17 +2,18 @@
 <project name="SDLoaderTestWebApp" default="compile" basedir=".">
 
   <property name="build" value="./WEB-INF/classes" />
-  <property name="src" value="./WEB-INF/src" /> 	
+  <property name="src" value="./WEB-INF/src" />
   <property name="lib" value="./WEB-INF/lib" />	
 
   <path id="build.classpath">
+  	<pathelement location="../../bin"/>
     <fileset dir="../../lib">
       <include name="*.jar" />
     </fileset>
     <fileset dir="../../devlib">
       <include name="*.jar" />
     </fileset>
-  	<fileset dir="../../lib/Servlet2.4_JSP2.0">
+  	<fileset dir="../../lib/Servlet2.5_JSP2.1">
       <include name="*.jar" />
     </fileset>
   </path>
