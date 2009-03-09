@@ -5,6 +5,13 @@
     version="2.5">
 
 <!--
+    <context-param>
+          <param-name>PARAM_NAME</param-name>
+          <param-value>PARAM_VALUE</param-value>
+	</context-param>
+-->
+
+<!--
     <filter>
         <filter-name>FILTER_NAME</filter-name>
         <filter-class>FILTER_CLASS</filter-class>
@@ -26,7 +33,6 @@
 	</listener>
 -->
 
-
 <!--
     <servlet>
         <servlet-name>SERVLET_NAME</servlet-name>
@@ -42,7 +48,6 @@
         <url-pattern>URL_PATTERN</url-pattern>
     </servlet-mapping>
 -->
-
 
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
