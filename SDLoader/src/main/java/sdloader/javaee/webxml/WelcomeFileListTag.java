@@ -27,19 +27,19 @@ import sdloader.util.CollectionsUtil;
  */
 public class WelcomeFileListTag implements WebXmlTagElement {
 
-	private List<String> welcomeFile = CollectionsUtil.newArrayList();
+	private List<String> welcomeFileList = CollectionsUtil.newArrayList();
 
-	public List<String> getWelcomeFile() {
-		return welcomeFile;
+	public List<String> getWelcomeFileList() {
+		return welcomeFileList;
 	}
 
-	public WelcomeFileListTag setWelcomeFile(List<String> welcomeFile) {
-		this.welcomeFile = welcomeFile;
+	public WelcomeFileListTag setWelcomeFileList(List<String> welcomeFileList) {
+		this.welcomeFileList = welcomeFileList;
 		return this;
 	}
 
 	public WelcomeFileListTag addWelcomeFile(String welcomeFile) {
-		this.welcomeFile.add(welcomeFile);
+		this.welcomeFileList.add(welcomeFile);
 		return this;
 	}
 }

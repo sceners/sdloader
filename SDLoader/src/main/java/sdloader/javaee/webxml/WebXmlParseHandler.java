@@ -108,8 +108,10 @@ public class WebXmlParseHandler extends DefaultHandler {
 		if (o != null) {
 			Object target = tagInstanceMap.get(tagNameStack.peek());
 			if (target != null) {
-				if (!setterInvoke(valueTagName, target, o)) {
-					adderInvoke(valueTagName, target, o);
+				String methodName = "set" + toCamelCase(valueTagName);
+				if (!invoke(methodName, target, o)) {
+					methodName = "add" + toCamelCase(valueTagName);
+					invoke(methodName, target, o);
 				}
 			}
 		}
@@ -138,28 +140,32 @@ public class WebXmlParseHandler extends DefaultHandler {
 		return camelCase;
 	}
 
-	private boolean setterInvoke(String tagName, Object target, Object o) {
-		String methodName = "set" + toCamelCase(tagName);
-		try {
-			Method setter = target.getClass().getMethod(methodName,
-					new Class[] { o.getClass() });
-			setter.invoke(target, new Object[] { o });
+	private boolean invoke(String methodName, Object target, Object o) {
+		Method setter = ClassUtil.getMethodNoException(target.getClass(),
+				methodName, new Class[] { o.getClass() });
+		if (setter != null) {
+			ClassUtil.invoke(target, setter, new Object[] { o });
 			return true;
-		} catch (Exception e) {
-			return false;
 		}
-	}
 
-	private boolean adderInvoke(String tagName, Object target, Object o) {
-		String methodName = "add" + toCamelCase(tagName);
-		try {
-			Method setter = target.getClass().getMethod(methodName,
-					new Class[] { o.getClass() });
-			setter.invoke(target, new Object[] { o });
-			return true;
-		} catch (Exception e) {
-			return false;
+		Method[] methods = target.getClass().getMethods();
+		for (int i = 0; i < methods.length; i++) {
+			Method method = methods[i];
+			if (method.getName().equals(methodName)
+					&& method.getParameterTypes().length == 1) {
+				Class<?> paramType = method.getParameterTypes()[0];
+				if (paramType == Integer.class || paramType == Integer.TYPE) {
+					o = Integer.parseInt(o.toString());
+				} else if (paramType == Class.class) {
+					o = ClassUtil.forName(o.toString());
+				} else {
+					continue;
+				}
+				ClassUtil.invoke(target, method, new Object[] { o });
+				return true;
+			}
 		}
+		return false;
 	}
 
 	public void register(final String id, final URL resourceUrl) {

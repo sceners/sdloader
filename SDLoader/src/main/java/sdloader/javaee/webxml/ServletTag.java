@@ -38,7 +38,7 @@ public class ServletTag implements WebXmlTagElement {
 
 	private List<InitParamTag> initParam = CollectionsUtil.newArrayList();
 
-	private int loadOnStartup;
+	private Integer loadOnStartup; 
 
 	public ServletTag() {
 		super();
@@ -53,11 +53,11 @@ public class ServletTag implements WebXmlTagElement {
 		return this;
 	}
 
-	public int getLoadOnStartup() {
+	public Integer getLoadOnStartup() {
 		return loadOnStartup;
 	}
 
-	public ServletTag setLoadOnStartup(int loadOnStartup) {
+	public ServletTag setLoadOnStartup(Integer loadOnStartup) {
 		this.loadOnStartup = loadOnStartup;
 		return this;
 	}
@@ -92,8 +92,9 @@ public class ServletTag implements WebXmlTagElement {
 	public String getInitParam(String paramName) {
 		for (Iterator<InitParamTag> itr = initParam.iterator(); itr.hasNext();) {
 			InitParamTag initParamTag = itr.next();
-			if (initParamTag.getParamName().equals(paramName))
+			if (initParamTag.getParamName().equals(paramName)){
 				return initParamTag.getParamValue();
+			}
 		}
 		return null;
 	}

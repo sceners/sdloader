@@ -38,8 +38,10 @@ public class WebXmlParseHandlerTest extends TestCase {
 
 		assertContextParamTag(webAppTag);
 		assertFilterTag(webAppTag);
+		assertFilterMappingTag(webAppTag);
+		assertServletTag(webAppTag);
+		assertServletMappingTag(webAppTag);
 		assertWelcomeFileListTag(webAppTag);
-
 	}
 
 	private void assertContextParamTag(WebAppTag webAppTag) {
@@ -88,9 +90,41 @@ public class WebXmlParseHandlerTest extends TestCase {
 		assertEquals("FILTER-PARAM-VALUE2", initParamTag2.getParamValue());
 	}
 
+	private void assertFilterMappingTag(WebAppTag webAppTag) {
+		List<FilterMappingTag> filterMappingTagList = webAppTag
+				.getFilterMapping();
+		assertEquals(1, filterMappingTagList.size());
+		assertEquals("FILTER-NAME", filterMappingTagList.get(0).getFilterName());
+		assertEquals("URL-PATTERN", filterMappingTagList.get(0).getUrlPattern());
+	}
+
+	private void assertServletTag(WebAppTag webAppTag) {
+		List<ServletTag> servletTagList = webAppTag.getServlet();
+		assertEquals(1, servletTagList.size());
+		ServletTag servlet1 = (ServletTag) servletTagList.get(0);
+		assertEquals("SERVLET-NAME", servlet1.getServletName());
+		assertEquals("SERVLET-CLASS", servlet1.getServletClass());
+		assertEquals(0, servlet1.getLoadOnStartup().intValue());
+
+		InitParamTag initParamTag1 = (InitParamTag) servlet1.getInitParamList()
+				.get(0);
+		assertEquals("PARAM-NAME", initParamTag1.getParamName());
+		assertEquals("PARAM-VALUE", initParamTag1.getParamValue());
+	}
+
+	private void assertServletMappingTag(WebAppTag webAppTag) {
+		List<ServletMappingTag> servletMappingTagList = webAppTag
+				.getServletMapping();
+		assertEquals(1, servletMappingTagList.size());
+		assertEquals("SERVLET-NAME", servletMappingTagList.get(0)
+				.getServletName());
+		assertEquals("URL-PATTERN", servletMappingTagList.get(0)
+				.getUrlPattern());
+	}
+
 	private void assertWelcomeFileListTag(WebAppTag webAppTag) {
 		WelcomeFileListTag welcomeFileListTag = webAppTag.getWelcomeFileList();
-		List<String> welcomeList = welcomeFileListTag.getWelcomeFile();
+		List<String> welcomeList = welcomeFileListTag.getWelcomeFileList();
 		assertEquals(2, welcomeList.size());
 		assertEquals("WELCOME-FILE1", (String) welcomeList.get(0));
 		assertEquals("WELCOME-FILE2", (String) welcomeList.get(1));

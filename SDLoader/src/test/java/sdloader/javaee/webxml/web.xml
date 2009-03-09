@@ -25,8 +25,7 @@
         	CONTEXT-PARAM-VALUE1
         </param-value>
         <description>
-            CONTEXT-PARAM-DESC11
-            CONTEXT-PARAM-DESC12
+            CONTEXT-PARAM-DESC11CONTEXT-PARAM-DESC12
         </description>
     </context-param>
     <context-param>
@@ -70,7 +69,7 @@
     
     <filter-mapping>
         <filter-name>FILTER-NAME</filter-name>
-        <url-pattern>URL-PATTETRN</url-pattern>
+        <url-pattern>URL-PATTERN</url-pattern>
     </filter-mapping>
     <listener>
         <listener-class>LISTENER-CLASS</listener-class>
@@ -81,9 +80,9 @@
         <servlet-class>SERVLET-CLASS</servlet-class>
         <init-param>
         	<param-name>PARAM-NAME</param-name>
-        	<param-value>PARA-VALUE</param-value>
+        	<param-value>PARAM-VALUE</param-value>
     	</init-param>
-        <load-on-startup>LOAD-ON-STARTUP</load-on-startup>
+        <load-on-startup>0</load-on-startup>
     </servlet>
 
     <servlet-mapping>

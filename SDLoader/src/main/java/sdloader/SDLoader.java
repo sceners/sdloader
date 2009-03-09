@@ -504,7 +504,7 @@ public class SDLoader implements Lifecycle {
 		if (!running) {
 			return;
 		}
-
+		log.info("SDLoader[port:"+getPort()+"] shutdown start.");
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.BEFORE_STOP, this));
 
@@ -520,5 +520,7 @@ public class SDLoader implements Lifecycle {
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.AFTER_STOP, this));
+		
+		log.info("SDLoader[port:"+getPort()+"] stop.");
 	}
 }
