@@ -21,12 +21,18 @@ import javax.servlet.ServletContextAttributeEvent;
 import javax.servlet.ServletContextAttributeListener;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletRequestAttributeEvent;
+import javax.servlet.ServletRequestAttributeListener;
+import javax.servlet.ServletRequestEvent;
+import javax.servlet.ServletRequestListener;
 import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionAttributeListener;
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import sdloader.log.SDLoaderLog;
+import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;
 
 /**
@@ -36,11 +42,16 @@ import sdloader.util.CollectionsUtil;
  */
 public class ListenerEventDispatcher {
 
+	private static final SDLoaderLog log = SDLoaderLogFactory
+			.getLog(ListenerEventDispatcher.class);
+
 	private List<ServletContextListener> servletContextListenerList;
 	private List<ServletContextAttributeListener> servletContextAttributeListenerList;
 	private List<HttpSessionActivationListener> httpSessionActivationListenerList;
 	private List<HttpSessionAttributeListener> httpSessionAttributeListenerList;
 	private List<HttpSessionListener> httpSessionListenerList;
+	private List<ServletRequestListener> servletRequestListenerList;
+	private List<ServletRequestAttributeListener> servletRequestAttributeListenerList;
 
 	public void addListener(Object listener) {
 		if (listener instanceof ServletContextListener) {
@@ -58,6 +69,101 @@ public class ListenerEventDispatcher {
 		if (listener instanceof HttpSessionListener) {
 			addHttpSessionListener((HttpSessionListener) listener);
 		}
+		if (listener instanceof ServletRequestListener) {
+
+		}
+	}
+
+	// --ServletRequestListener
+
+	public List<ServletRequestListener> getServletRequestListener() {
+		return servletRequestListenerList;
+	}
+
+	public void addServletRequestListener(ServletRequestListener listener) {
+		if (servletRequestListenerList == null) {
+			servletRequestListenerList = CollectionsUtil.newArrayList();
+		}
+		servletRequestListenerList.add(listener);
+	}
+
+	public void dispatchServletRequestListener_requestInitialized(
+			ServletRequestEvent event) {
+		if (servletRequestListenerList != null) {
+			for (ServletRequestListener listener : servletRequestListenerList) {
+				try {
+					listener.requestInitialized(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
+			}
+		}
+	}
+
+	public void dispatchServletRequestListener_requestDestroyed(
+			ServletRequestEvent event) {
+		if (servletRequestListenerList != null) {
+			for (ServletRequestListener listener : servletRequestListenerList) {
+				try {
+					listener.requestDestroyed(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
+			}
+		}
+	}
+
+	// --ServletRequestAttributeListener
+	public List<ServletRequestAttributeListener> getServletRequestAttributeListenerList() {
+		return servletRequestAttributeListenerList;
+	}
+
+	public void addServletRequestAttributeListener(
+			ServletRequestAttributeListener listener) {
+		if (servletRequestAttributeListenerList == null) {
+			servletRequestAttributeListenerList = CollectionsUtil
+					.newArrayList();
+		}
+		servletRequestAttributeListenerList.add(listener);
+	}
+
+	public void dispatchServletRequestAttributeListener_attributeAdded(
+			ServletRequestAttributeEvent event) {
+		if (servletRequestAttributeListenerList != null) {
+			for (ServletRequestAttributeListener listener : servletRequestAttributeListenerList) {
+				try {
+					listener.attributeAdded(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
+			}
+		}
+	}
+
+	public void dispatchServletRequestAttributeListener_attributeRemoved(
+			ServletRequestAttributeEvent event) {
+		if (servletRequestAttributeListenerList != null) {
+			for (ServletRequestAttributeListener listener : servletRequestAttributeListenerList) {
+				try {
+					listener.attributeRemoved(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
+			}
+		}
+	}
+
+	public void dispatchServletRequestAttributeListener_attributeReplaced(
+			ServletRequestAttributeEvent event) {
+		if (servletRequestAttributeListenerList != null) {
+			for (ServletRequestAttributeListener listener : servletRequestAttributeListenerList) {
+				try {
+					listener.attributeReplaced(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
+			}
+		}
 	}
 
 	// --HttpSessionActivationListener
@@ -73,7 +179,7 @@ public class ListenerEventDispatcher {
 		}
 		httpSessionActivationListenerList.add(listener);
 	}
-	
+
 	public void dispatchHttpSessionActivationListener_sessionDidActivate(
 			final HttpSessionEvent event) {
 		if (httpSessionActivationListenerList != null) {
@@ -110,7 +216,11 @@ public class ListenerEventDispatcher {
 			final HttpSessionBindingEvent event) {
 		if (httpSessionAttributeListenerList != null) {
 			for (HttpSessionAttributeListener listener : httpSessionAttributeListenerList) {
-				listener.attributeAdded(event);
+				try {
+					listener.attributeAdded(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
 			}
 		}
 	}
@@ -119,7 +229,11 @@ public class ListenerEventDispatcher {
 			final HttpSessionBindingEvent event) {
 		if (httpSessionAttributeListenerList != null) {
 			for (HttpSessionAttributeListener listener : httpSessionAttributeListenerList) {
-				listener.attributeRemoved(event);
+				try {
+					listener.attributeRemoved(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
 			}
 		}
 	}
@@ -128,7 +242,11 @@ public class ListenerEventDispatcher {
 			final HttpSessionBindingEvent event) {
 		if (httpSessionAttributeListenerList != null) {
 			for (HttpSessionAttributeListener listener : httpSessionAttributeListenerList) {
-				listener.attributeReplaced(event);
+				try {
+					listener.attributeReplaced(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
 			}
 		}
 	}
@@ -150,7 +268,12 @@ public class ListenerEventDispatcher {
 			HttpSessionEvent event) {
 		if (httpSessionListenerList != null) {
 			for (HttpSessionListener listener : httpSessionListenerList) {
-				listener.sessionCreated(event);
+				try {
+					listener.sessionCreated(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
+
 			}
 		}
 	}
@@ -159,7 +282,11 @@ public class ListenerEventDispatcher {
 			HttpSessionEvent event) {
 		if (httpSessionListenerList != null) {
 			for (HttpSessionListener listener : httpSessionListenerList) {
-				listener.sessionDestroyed(event);
+				try {
+					listener.sessionDestroyed(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
 			}
 		}
 	}
@@ -183,7 +310,11 @@ public class ListenerEventDispatcher {
 			ServletContextAttributeEvent event) {
 		if (servletContextAttributeListenerList != null) {
 			for (ServletContextAttributeListener listener : servletContextAttributeListenerList) {
-				listener.attributeAdded(event);
+				try {
+					listener.attributeAdded(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
 			}
 		}
 	}
@@ -192,7 +323,11 @@ public class ListenerEventDispatcher {
 			ServletContextAttributeEvent event) {
 		if (servletContextAttributeListenerList != null) {
 			for (ServletContextAttributeListener listener : servletContextAttributeListenerList) {
-				listener.attributeRemoved(event);
+				try {
+					listener.attributeRemoved(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
 			}
 		}
 	}
@@ -201,7 +336,11 @@ public class ListenerEventDispatcher {
 			ServletContextAttributeEvent event) {
 		if (servletContextAttributeListenerList != null) {
 			for (ServletContextAttributeListener listener : servletContextAttributeListenerList) {
-				listener.attributeReplaced(event);
+				try {
+					listener.attributeReplaced(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
 			}
 		}
 	}
@@ -223,7 +362,11 @@ public class ListenerEventDispatcher {
 			ServletContextEvent event) {
 		if (servletContextListenerList != null) {
 			for (ServletContextListener listener : servletContextListenerList) {
-				listener.contextInitialized(event);
+				try {
+					listener.contextInitialized(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
 			}
 		}
 	}
@@ -232,7 +375,11 @@ public class ListenerEventDispatcher {
 			ServletContextEvent event) {
 		if (servletContextListenerList != null) {
 			for (ServletContextListener listener : servletContextListenerList) {
-				listener.contextDestroyed(event);
+				try {
+					listener.contextDestroyed(event);
+				} catch (Throwable t) {
+					log.error(t.getMessage(), t);
+				}
 			}
 		}
 	}

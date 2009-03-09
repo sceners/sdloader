@@ -59,7 +59,7 @@ public class HttpRequestParameters {
 		// TODO RequestScopeからのパラメータ取得はどこかにまとめるべき
 		String encode = "ISO-8859-1";
 		boolean useBodyEncode = true;
-		SDLoader loader = RequestScopeContext.getContext().getAttribute(
+		SDLoader loader = ProcessScopeContext.getContext().getAttribute(
 				SDLoader.class);
 		if (loader != null) {
 			SDLoaderConfig config = loader.getSDLoaderConfig();

@@ -18,28 +18,28 @@ package sdloader.http;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import sdloader.javaee.impl.HttpServletRequestImpl;
+import sdloader.javaee.impl.HttpServletResponseImpl;
 
 /**
  * リクエストスコープ
  * 
  * @author c9katayama
  */
-public class RequestScopeContext {
+public class ProcessScopeContext {
 
-	private static ThreadLocal<RequestScopeContext> threadLocal = new ThreadLocal<RequestScopeContext>();
+	private static ThreadLocal<ProcessScopeContext> threadLocal = new ThreadLocal<ProcessScopeContext>();
 
 	private Map<Object, Object> attribute;
 
-	private HttpServletRequest request;
-	private HttpServletResponse response;
+	private HttpServletRequestImpl request;
+	private HttpServletResponseImpl response;
 
-	private RequestScopeContext() {
+	private ProcessScopeContext() {
 	}
 
-	public static RequestScopeContext getContext() {
-		RequestScopeContext context = threadLocal.get();
+	public static ProcessScopeContext getContext() {
+		ProcessScopeContext context = threadLocal.get();
 		if (context == null) {
 			init();
 			context = threadLocal.get();
@@ -48,26 +48,26 @@ public class RequestScopeContext {
 	}
 
 	public static void init() {
-		threadLocal.set(new RequestScopeContext());
+		threadLocal.set(new ProcessScopeContext());
 	}
 
 	public static void destroy() {
 		threadLocal.remove();
 	}
 
-	public void setRequest(HttpServletRequest request) {
+	public void setRequest(HttpServletRequestImpl request) {
 		this.request = request;
 	}
 
-	public HttpServletRequest getRequest() {
+	public HttpServletRequestImpl getRequest() {
 		return request;
 	}
 
-	public void setResponse(HttpServletResponse response) {
+	public void setResponse(HttpServletResponseImpl response) {
 		this.response = response;
 	}
 
-	public HttpServletResponse getResponse() {
+	public HttpServletResponseImpl getResponse() {
 		return response;
 	}
 
