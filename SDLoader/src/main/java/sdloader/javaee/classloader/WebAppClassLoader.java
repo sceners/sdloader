@@ -32,10 +32,12 @@ public class WebAppClassLoader extends URLClassLoader {
 			.getLog(WebAppClassLoader.class);
 
 	// WEB-INF以下からはロードしないPrefix
-	protected String[] ignoreLoadFromWebInfPackagePrefix = { "java.","com.sun.","sun." };
-	
+	protected String[] ignoreLoadFromWebInfPackagePrefix = { "java.",
+			"com.sun.", "sun." };
+
 	// 先に親ローダーでロードするパッケージPrefix
-	protected String[] parentLoadFirstPackagePrefix = { "java.","javax.","org.w3c.","com.sun.","sun." };
+	protected String[] parentLoadFirstPackagePrefix = { "java.", "javax.",
+			"org.w3c.", "com.sun.", "sun." };
 
 	public WebAppClassLoader(URL[] webInfUrls, ClassLoader parent) {
 		super(webInfUrls, parent);
@@ -60,7 +62,7 @@ public class WebAppClassLoader extends URLClassLoader {
 			try {
 				c = findSystemClass(name);
 				if (c != null) {
-					log.debug("Class load by system.name=" + name);
+					log.debug("Class load by system. class=[" + name + "]");
 				}
 			} catch (ClassNotFoundException e) {
 				// ignone
@@ -74,14 +76,14 @@ public class WebAppClassLoader extends URLClassLoader {
 				try {
 					c = getParent().loadClass(name);
 					if (c != null) {
-						log.debug("Class load by parent.name=" + name);
+						log.debug("Class load by parent. class=[" + name + "]");
 					}
 				} catch (ClassNotFoundException e) {
 				}
 				if (c == null && ignoreLoadFromWebInf == false) {
 					c = findClass(name);
 					if (c != null) {
-						log.debug("Class load by self.name=" + name);
+						log.debug("Class load by self. class=[" + name + "]");
 					}
 				}
 			} else {
@@ -89,7 +91,8 @@ public class WebAppClassLoader extends URLClassLoader {
 					if (ignoreLoadFromWebInf == false) {
 						c = findClass(name);
 						if (c != null) {
-							log.debug("Class load by self.name=" + name);
+							log.debug("Class load by self. class=[" + name
+									+ "]");
 						}
 					}
 				} catch (ClassNotFoundException e) {
@@ -97,7 +100,7 @@ public class WebAppClassLoader extends URLClassLoader {
 				if (c == null) {
 					c = getParent().loadClass(name);
 					if (c != null) {
-						log.debug("Class load by parent.name=" + name);
+						log.debug("Class load by parent. class=[" + name + "]");
 					}
 				}
 			}
