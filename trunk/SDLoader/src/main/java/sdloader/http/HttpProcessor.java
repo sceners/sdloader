@@ -173,7 +173,7 @@ public class HttpProcessor extends Thread {
 			httpRequest.readRequest();
 			log.debug("request read success.");
 			if (log.isDebugEnabled()) {
-				log.debug("<REQUEST_HEADER>\n" + httpRequest.getHeader());
+				log.debug("<REQUEST_HEADER>\n" + httpRequest.getHeader().getRequestHeader());
 			}
 			return httpRequest;
 		} finally {
@@ -346,7 +346,7 @@ public class HttpProcessor extends Thread {
 			OutputStream os) throws IOException {
 		HttpHeader resHeader = response.getResponseHeader();
 
-		byte[] headerData = resHeader.buildHeader().getBytes();
+		byte[] headerData = resHeader.buildResponseHeader().getBytes();
 		IOUtil.write(lineSpeed, headerData, os);
 		if (log.isDebugEnabled()) {
 			log.debug("<RESPONSE_HEADER>\n" + new String(headerData));

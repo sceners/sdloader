@@ -33,6 +33,8 @@ import sdloader.util.WebUtil;
 public class HttpHeader {
 
 	// for request
+	private String requestHeader;
+	
 	private String method;
 
 	private String requestURI;
@@ -88,11 +90,12 @@ public class HttpHeader {
 
 	public HttpHeader() {		
 	}
-	public HttpHeader(String httpHeader) {
-		if (httpHeader == null) {
+	public HttpHeader(String requestHeader) {
+		if (requestHeader == null) {
 			throw new IllegalArgumentException("Http header is null.");
 		}
-		parseHttpRequest(httpHeader);
+		this.requestHeader = requestHeader;
+		parseHttpRequest(requestHeader);
 	}
 
 	private void parseHttpRequest(String httpRequest) {
@@ -252,7 +255,7 @@ public class HttpHeader {
 		return false;
 	}
 
-	public String buildHeader() {
+	public String buildResponseHeader() {
 		StringBuffer buf = new StringBuffer();
 		buf.append(this.version + " " + statusCode + " " + status
 				+ HttpConst.CRLF_STRING);
@@ -287,36 +290,8 @@ public class HttpHeader {
 		}
 		return buf.toString();
 	}
-
-	public String toString() {
-		StringBuffer buf = new StringBuffer();
-		buf.append("method=" + method);
-		buf.append(",version=" + version);
-		buf.append(",requestURI=" + requestURI);
-		buf.append(",queryString=" + queryString + "\n");
-		buf.append("header[");
-		boolean first = true;
-		for (HeaderData headerData : headerList) {
-			if (first) {
-				first = false;
-			} else {
-				buf.append(",");
-			}
-			buf.append(headerData.getName() + "=" + headerData.getValue());
-		}
-		buf.append("]\n");
-		buf.append("cookie[");
-		first = true;
-		for (Cookie cookie : cookieList) {
-			if (first) {
-				first = false;
-			} else {
-				buf.append(",");
-			}
-			buf.append(cookie.getName() + "=" + cookie.getValue());
-		}
-		buf.append("]");
-		return buf.toString();
+	public String getRequestHeader() {
+		return requestHeader;
 	}
 
 	protected static class HeaderData {
