@@ -86,7 +86,7 @@ public class ServletContextImpl implements ServletContext {
 		}
 	}
 
-	public ServletContextImpl(InternalWebApplication webapp){
+	public ServletContextImpl(InternalWebApplication webapp) {
 		this.webApp = webapp;
 	}
 
@@ -225,21 +225,23 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public void setAttribute(String key, Object value) {
-        if (key == null){
-            throw new IllegalArgumentException("ServletContext attribute key is null.");
-        }
+		if (key == null) {
+			throw new IllegalArgumentException(
+					"ServletContext attribute key is null.");
+		}
 		if (value == null) {
 			removeAttribute(key);
 		} else {
 			Object oldValue = attributeMap.get(key);
-			ListenerEventDispatcher dispatcher = webApp.getListenerEventDispatcher();
+			ListenerEventDispatcher dispatcher = webApp
+					.getListenerEventDispatcher();
 			if (oldValue == null) {
 				this.attributeMap.put(key, value);
 				ServletContextAttributeEvent event = new ServletContextAttributeEvent(
 						this, key, value);
 				dispatcher
 						.dispatchServletContextAttributeListener_attributeAdded(event);
-			} else if(oldValue != value){
+			} else if (oldValue != value) {
 				this.attributeMap.put(key, value);
 				ServletContextAttributeEvent event = new ServletContextAttributeEvent(
 						this, key, oldValue);
@@ -254,7 +256,8 @@ public class ServletContextImpl implements ServletContext {
 		if (value != null) {
 			ServletContextAttributeEvent event = new ServletContextAttributeEvent(
 					this, key, value);
-			ListenerEventDispatcher dispatcher = webApp.getListenerEventDispatcher();
+			ListenerEventDispatcher dispatcher = webApp
+					.getListenerEventDispatcher();
 			dispatcher
 					.dispatchServletContextAttributeListener_attributeRemoved(event);
 		}
@@ -277,11 +280,11 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public int getMajorVersion() {
-		return 0;
+		return JavaEEConstants.SERVLETAPI_MAJOR_VERSION;
 	}
 
 	public int getMinorVersion() {
-		return 0;
+		return JavaEEConstants.SERVLETAPI_MINOR_VERSION;
 	}
 
 	public String getMimeType(String path) {

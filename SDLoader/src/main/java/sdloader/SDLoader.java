@@ -30,6 +30,7 @@ import sdloader.internal.SDLoaderConfig;
 import sdloader.javaee.SessionManager;
 import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
+import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.javaee.constants.WebConstants;
 import sdloader.lifecycle.Lifecycle;
 import sdloader.lifecycle.LifecycleEvent;
@@ -315,6 +316,11 @@ public class SDLoader implements Lifecycle {
 		checkNotRunning();
 		running = true;
 
+		log.info("Detect ServletAPI[" + JavaEEConstants.SERVLETAPI_MAJOR_VERSION + "."
+				+ JavaEEConstants.SERVLETAPI_MINOR_VERSION + "] JSP["
+				+ JavaEEConstants.JSP_MAJOR_VERSION + "."
+				+ JavaEEConstants.JSP_MINOR_VERSION + "]");
+
 		long t = System.currentTimeMillis();
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
@@ -504,7 +510,7 @@ public class SDLoader implements Lifecycle {
 		if (!running) {
 			return;
 		}
-		log.info("SDLoader[port:"+getPort()+"] shutdown start.");
+		log.info("SDLoader[port:" + getPort() + "] shutdown start.");
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.BEFORE_STOP, this));
 
@@ -520,7 +526,7 @@ public class SDLoader implements Lifecycle {
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.AFTER_STOP, this));
-		
-		log.info("SDLoader[port:"+getPort()+"] stop.");
+
+		log.info("SDLoader[port:" + getPort() + "] stop.");
 	}
 }
