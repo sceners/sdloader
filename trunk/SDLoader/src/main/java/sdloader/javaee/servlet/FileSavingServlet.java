@@ -84,7 +84,7 @@ public class FileSavingServlet extends HttpServlet {
 
 		String ignoreLastModifiedParam = getInitParameter(PARAM_IGNORE_LAST_MODIFIED);
 		if (ignoreLastModifiedParam != null) {
-			ignoreLastModified = Boolean.getBoolean(ignoreLastModifiedParam);
+			ignoreLastModified = Boolean.parseBoolean(ignoreLastModifiedParam);
 		}
 	}
 

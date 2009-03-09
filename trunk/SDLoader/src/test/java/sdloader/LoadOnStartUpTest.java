@@ -5,13 +5,14 @@ import sdloader.SDLoader;
 import sdloader.javaee.WebAppContext;
 import sdloader.util.MiscUtils;
 
-public class TestWebAppTest extends TestCase{
+public class LoadOnStartUpTest extends TestCase{
 
 	private SDLoader sdloader;
 	@Override
 	protected void setUp() throws Exception {
 		sdloader = new SDLoader();
 		sdloader.setAutoPortDetect(true);
+		sdloader.setUseNoCacheMode(true);
 		
 		WebAppContext webapp = new WebAppContext("/testwebapp","webapps/test");
 		
@@ -19,7 +20,7 @@ public class TestWebAppTest extends TestCase{
 		
 		sdloader.start();
 		try{
-			MiscUtils.openBrowser("http://localhost:"+sdloader.getPort());
+			MiscUtils.openBrowser("http://localhost:"+sdloader.getPort()+"/testwebapp");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
