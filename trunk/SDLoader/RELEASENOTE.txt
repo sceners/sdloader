@@ -7,6 +7,8 @@ ServletRequestListener,ServletRequestAttributeListenerを実装
 最大プール数以上のSocketProcessorを生成した場合、スレッド開始前に処理メソッドが
 呼ばれていた問題を修正（FireFoxなど通信数の多いブラウザで通信が失敗する不具合の修正）
 
+ServletContext#getMajorVersionとgetMinorVersionを実装
+
 v0_2_00
 ServletAPI2.5,JSP2.1に対応
 これに伴い、sdloader.jarに同梱するapiを2.5に変更。
