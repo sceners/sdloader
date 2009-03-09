@@ -32,9 +32,10 @@
     <copy todir="${dist}">
     	<fileset dir=".">
     		<include name="application.properties" />
-    		<include name="webapps/**" />
+    		<include name="webapps/ROOT/**" />
+    		<include name="webapps/*.war" />
     		<include name="viewconfig/**" />
-    		<include name="lib/**" />
+    		<include name="lib/sdloader-*.jar" />
     		<include name="jre/**" />    		
   			<include name="README.txt" />
     		<include name="RELEASENOTE.txt" />
