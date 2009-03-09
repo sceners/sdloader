@@ -1,3 +1,9 @@
+v0_2_01
+loadonstartupを実装
+(同じ数値の場合、タグ順に初期化。0以下もしくはタグなしの場合、loadonstartupタグありのServlet初期化後に、タグ順に初期化。
+ タグがない場合でも初回リクエストではなくタグ読み込み時に初期化します）
+ServletRequestListener,ServletRequestAttributeListenerを実装
+
 v0_2_00
 ServletAPI2.5,JSP2.1に対応
 これに伴い、sdloader.jarに同梱するapiを2.5に変更。
