@@ -96,13 +96,15 @@ public class HttpRequestParameters {
 		if (bodyData != null
 				&& header.getMethod().equalsIgnoreCase(HttpConst.POST)) {
 			String contType = header.getHeaderValue(HttpConst.CONTENTTYPE);
-			if (contType != null
-					&& contType.equals(HttpConst.WWW_FORM_URLENCODE)) {
-				try {
-					String bodyPartQueryString = new String(bodyData);
-					parseRequestQuery(bodyPartQueryString, bodyEncoding);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
+			if (contType != null){			
+				contType = contType.toLowerCase();
+				if(contType.indexOf(HttpConst.WWW_FORM_URLENCODE)!=-1) {
+					try {
+						String bodyPartQueryString = new String(bodyData);
+						parseRequestQuery(bodyPartQueryString, bodyEncoding);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
 				}
 			}
 		}
