@@ -321,12 +321,12 @@ public class HttpProcessor extends Thread {
 
 		// session
 		HttpSession session = request.getSession(false);
-		String sessionId = (session != null && servletContextImpl != null) ? session
-				.getId()
-				: "";
-		Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY, sessionId);
-		sessionCookie.setPath(servletContextImpl.getContextPath());
-		response.addCookie(sessionCookie);
+		if(session != null && servletContextImpl != null){
+			String sessionId = session.getId();
+			Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY, sessionId);
+			sessionCookie.setPath(servletContextImpl.getContextPath());
+			response.addCookie(sessionCookie);
+		}
 
 		// Keep-Alive
 		if (request.getHeader().isKeepAlive()
