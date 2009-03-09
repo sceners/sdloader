@@ -220,13 +220,9 @@ public class HttpSessionImpl implements HttpSession {
 			return;
 		}
 		HttpSessionEvent event = new HttpSessionEvent(this);
-		try {
-			ListenerEventDispatcher dispatcher = internalWebApplication
-					.getListenerEventDispatcher();
-			dispatcher.dispatchHttpSessionListener_sessionCreated(event);
-		} catch (Throwable t) {
-			log.error(t.getMessage(), t);
-		}
+		ListenerEventDispatcher dispatcher = internalWebApplication
+				.getListenerEventDispatcher();
+		dispatcher.dispatchHttpSessionListener_sessionCreated(event);
 	}
 
 	protected void dispatchDestroyEvent() {
@@ -234,13 +230,9 @@ public class HttpSessionImpl implements HttpSession {
 			return;
 		}
 		HttpSessionEvent event = new HttpSessionEvent(this);
-		try {
-			ListenerEventDispatcher dispatcher = internalWebApplication
-					.getListenerEventDispatcher();
-			dispatcher.dispatchHttpSessionListener_sessionDestroyed(event);
-		} catch (Throwable t) {
-			log.error(t.getMessage(), t);
-		}
+		ListenerEventDispatcher dispatcher = internalWebApplication
+				.getListenerEventDispatcher();
+		dispatcher.dispatchHttpSessionListener_sessionDestroyed(event);
 	}
 
 	public void setLastAccessedTime(long lastAccessedTime) {

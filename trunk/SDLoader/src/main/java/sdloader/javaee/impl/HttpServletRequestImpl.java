@@ -32,7 +32,10 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequestAttributeEvent;
+import javax.servlet.ServletRequestEvent;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -42,6 +45,7 @@ import sdloader.http.HttpConst;
 import sdloader.http.HttpHeader;
 import sdloader.http.HttpRequest;
 import sdloader.javaee.InternalWebApplication;
+import sdloader.javaee.ListenerEventDispatcher;
 import sdloader.javaee.SessionManager;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
@@ -84,7 +88,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	private Locale locale = Locale.getDefault();
 
-	private Map<String, Object> attribute = CollectionsUtil.newHashMap();
+	private Map<String, Object> attributeMap = CollectionsUtil.newHashMap();
 
 	private HttpRequest httpRequest;
 
@@ -97,8 +101,10 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private String currentSessionId;
 
 	public HttpServletRequestImpl(HttpRequest httpRequest,
+			InternalWebApplication internalWebApplication,
 			SessionManager sessionManager) {
 		this.httpRequest = httpRequest;
+		this.internalWebApplication = internalWebApplication;
 		this.currentSessionId = getRequestedSessionId();
 		this.sessionManager = sessionManager;
 	}
@@ -134,11 +140,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public Object getAttribute(String key) {
-		return attribute.get(key);
+		return attributeMap.get(key);
 	}
 
 	public Enumeration<String> getAttributeNames() {
-		return new IteratorEnumeration<String>(attribute.keySet().iterator());
+		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
 	}
 
 	/**
@@ -214,13 +220,43 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public void setAttribute(String key, Object value) {
 		if (key == null) {
-			throw new IllegalArgumentException("Request attribute key is null.");
+			throw new IllegalArgumentException(
+					"ServletRequest attribute key is null.");
 		}
-		this.attribute.put(key, value);
+		if (value == null) {
+			removeAttribute(key);
+		} else {
+			Object oldValue = attributeMap.get(key);
+			ListenerEventDispatcher dispatcher = internalWebApplication
+					.getListenerEventDispatcher();
+			ServletContext sc = internalWebApplication.getServletContext();
+			if (oldValue == null) {
+				this.attributeMap.put(key, value);
+				ServletRequestAttributeEvent event = new ServletRequestAttributeEvent(
+						sc, this, key, value);
+				dispatcher
+						.dispatchServletRequestAttributeListener_attributeAdded(event);
+			} else if (oldValue != value) {
+				this.attributeMap.put(key, value);
+				ServletRequestAttributeEvent event = new ServletRequestAttributeEvent(
+						sc, this, key, oldValue);
+				dispatcher
+						.dispatchServletRequestAttributeListener_attributeReplaced(event);
+			}
+		}
 	}
 
 	public void removeAttribute(String key) {
-		this.attribute.remove(key);
+		Object value = this.attributeMap.remove(key);
+		if (value != null) {
+			ServletContext sc = internalWebApplication.getServletContext();
+			ServletRequestAttributeEvent event = new ServletRequestAttributeEvent(
+					sc, this, key, value);
+			ListenerEventDispatcher dispatcher = internalWebApplication
+					.getListenerEventDispatcher();
+			dispatcher
+					.dispatchServletRequestAttributeListener_attributeRemoved(event);
+		}
 	}
 
 	public String getContextPath() {
@@ -396,9 +432,23 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	// /non interfacemethod
-	public void setInternalWebApplication(
-			InternalWebApplication internalWebApplication) {
-		this.internalWebApplication = internalWebApplication;
+	public void intoScope() {
+		ServletContext sc = internalWebApplication.getServletContext();
+		ServletRequestEvent event = new ServletRequestEvent(sc, this);
+		ListenerEventDispatcher dispatcher = internalWebApplication
+				.getListenerEventDispatcher();
+		dispatcher.dispatchServletRequestListener_requestInitialized(event);
+	}
+
+	public void destroy() {
+		if (internalWebApplication == null) {
+			return;
+		}
+		ServletContext sc = internalWebApplication.getServletContext();
+		ServletRequestEvent event = new ServletRequestEvent(sc, this);
+		ListenerEventDispatcher dispatcher = internalWebApplication
+				.getListenerEventDispatcher();
+		dispatcher.dispatchServletRequestListener_requestDestroyed(event);
 	}
 
 	public void setServletPath(String servletPath) {

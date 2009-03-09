@@ -123,18 +123,27 @@ public class HttpProcessor extends Thread {
 		OutputStream os = null;
 		try {
 			socket.setTcpNoDelay(true);
-			socket.setSoTimeout(socketTimeout);
 			is = socket.getInputStream();
 			os = socket.getOutputStream();
 			int requestCount = 1;
-			boolean keepAlive = true;
-			while (keepAlive) {
-				RequestScopeContext.init();
-				RequestScopeContext.getContext().setAttribute(SDLoader.class,
-						sdLoader);
-				keepAlive = processServlet(is, os, requestCount);
-				RequestScopeContext.destroy();
-				requestCount++;
+			while (true) {
+				ProcessScopeContext.init();
+				try {
+					ProcessScopeContext.getContext().setAttribute(
+							SDLoader.class, sdLoader);
+					int timeout = (requestCount == 1) ? socketTimeout
+							: keepAliveTimeout;
+					socket.setSoTimeout(timeout);
+					HttpRequest httpRequest = processReadRequest(is);
+					processServlet(httpRequest, os, requestCount);
+					if (httpRequest.getHeader().isKeepAlive()) {
+						requestCount++;
+					} else {
+						break;
+					}
+				} finally {
+					ProcessScopeContext.destroy();
+				}
 			}
 		} catch (SocketTimeoutException e) {
 			log.debug("socket timeout.");
@@ -147,7 +156,6 @@ public class HttpProcessor extends Thread {
 			IOUtil.closeNoException(is);
 			IOUtil.closeNoException(os);
 			IOUtil.closeSocketNoException(socket);
-			RequestScopeContext.destroy();
 		}
 		is = null;
 		os = null;
@@ -157,44 +165,36 @@ public class HttpProcessor extends Thread {
 		localLoader.returnProcessor(this);
 	}
 
-	protected boolean processServlet(InputStream is, OutputStream os,
-			int requestCount) throws Throwable {
-		HttpRequest httpRequest;
+	protected HttpRequest processReadRequest(InputStream is) throws IOException {
 		try {
-			if (requestCount != 1) {
-				socket.setSoTimeout(keepAliveTimeout);
-			}
 			HttpRequestReader reader = new HttpRequestReader(is, lineSpeed);
-			httpRequest = new HttpRequest(reader);
-			log.debug("Request read start.");
+			HttpRequest httpRequest = new HttpRequest(reader);
+			log.debug("request read start.");
 			httpRequest.readRequest();
-			log.debug("Request read success.");
+			log.debug("request read success.");
 			if (log.isDebugEnabled()) {
 				log.debug("<REQUEST_HEADER>\n" + httpRequest.getHeader());
 			}
+			return httpRequest;
 		} finally {
 			if (socket.isClosed()) {
-				log.debug("Socket close.");
-				return false;
+				throw new SocketException();
 			} else {
 				socket.setSoTimeout(socketTimeout);
 			}
 		}
+	}
+
+	protected void processServlet(HttpRequest httpRequest, OutputStream os,
+			int requestCount) throws Throwable {
 
 		HttpHeader header = httpRequest.getHeader();
 		String requestURI = header.getRequestURI();
 		InternalWebApplication webapp = sdLoader.getWebAppManager().findWebApp(
 				requestURI);
-		HttpServletRequestImpl request = createServletRequestImp(httpRequest);
+		HttpServletRequestImpl request = createServletRequestImp(httpRequest,
+				webapp);
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
-		//完全になければ404
-		if (webapp == null) {
-			WebUtil.writeNotFoundPage(response);
-			setDefaultResponseHeader(null, request, response, requestCount);
-			processDataOutput(response, os);
-			return header.isKeepAlive();
-		}
-		request.setInternalWebApplication(webapp);
 		ServletContextImpl servletContextImpl = webapp.getServletContext();
 
 		String contextPath = webapp.getContextPath();
@@ -207,26 +207,24 @@ public class HttpProcessor extends Thread {
 			if (host == null) {
 				host = request.getLocalName() + ":" + request.getLocalPort();
 			}
-
 			response.addHeader(HttpConst.LOCATION, WebUtil.buildRequestURL(
 					request.getScheme(), host, resourcePath).toString());
 			setDefaultResponseHeader(servletContextImpl, request, response,
 					requestCount);
-			processDataOutput(response, os);
-			return header.isKeepAlive();
+			processRequestEnd(response, os);
+			return;
 		}
 
 		ServletMapping mapping = webapp.findServletMapping(resourcePath);
-		Servlet servlet = null;
 		if (mapping == null) {
 			WebUtil.writeNotFoundPage(response);
 			setDefaultResponseHeader(servletContextImpl, request, response,
 					requestCount);
-			processDataOutput(response, os);
-			return header.isKeepAlive();
-		} else {
-			servlet = webapp.findServlet(mapping.getServletName());
+			processRequestEnd(response, os);
+			return;
 		}
+
+		Servlet servlet = webapp.findServlet(mapping.getServletName());
 		request.setServletPath(WebUtil.getServletPath(mapping.getUrlPattern(),
 				resourcePath));
 		request.setPathInfo(WebUtil.getPathInfo(mapping.getUrlPattern(),
@@ -235,47 +233,47 @@ public class HttpProcessor extends Thread {
 		// class loader
 		ClassLoader webClassLoader = webapp.getWebAppClassLoader();
 		ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(webClassLoader);
-
-		RequestScopeContext requestScopeContext = RequestScopeContext
-				.getContext();
-		requestScopeContext.setRequest(request);
-		requestScopeContext.setResponse(response);
-
-		// service
 		try {
-			String servletName = mapping.getServletName();
-			List<Filter> filterList = webapp.findFilters(resourcePath,
-					servletName, JavaEEConstants.DISPATCHER_TYPE_REQUEST);
-			if (filterList.size() > 0) {
-				Filter[] filters = (Filter[]) filterList
-						.toArray(new Filter[] {});
-				FilterChainImpl filterChain = new FilterChainImpl(filters,
-						servlet);
-				filterChain.doFilter(request, response);
-			} else {
-				servlet.service(request, response);
+			Thread.currentThread().setContextClassLoader(webClassLoader);
+			ProcessScopeContext processScopeContext = ProcessScopeContext
+					.getContext();
+			processScopeContext.setRequest(request);
+			processScopeContext.setResponse(response);
+			request.intoScope();
+			// service
+			try {
+				String servletName = mapping.getServletName();
+				List<Filter> filterList = webapp.findFilters(resourcePath,
+						servletName, JavaEEConstants.DISPATCHER_TYPE_REQUEST);
+				if (filterList.size() > 0) {
+					Filter[] filters = (Filter[]) filterList
+							.toArray(new Filter[] {});
+					FilterChainImpl filterChain = new FilterChainImpl(filters,
+							servlet);
+					filterChain.doFilter(request, response);
+				} else {
+					servlet.service(request, response);
+				}
+			} catch (ServletException se) {
+				log.error(se.getMessage(), se);
+				response.setStatus(HttpConst.SC_INTERNAL_SERVER_ERROR);
+			} catch (IOException ioe) {
+				log.error(ioe.getMessage(), ioe);
+				response.setStatus(HttpConst.SC_INTERNAL_SERVER_ERROR);
 			}
-		} catch (ServletException se) {
-			log.error(se.getMessage(), se);
-			response.setStatus(HttpConst.SC_INTERNAL_SERVER_ERROR);
-		} catch (IOException ioe) {
-			log.error(ioe.getMessage(), ioe);
-			response.setStatus(HttpConst.SC_INTERNAL_SERVER_ERROR);
+			setDefaultResponseHeader(servletContextImpl, request, response,
+					requestCount);
+			processRequestEnd(response, os);
 		} finally {
-			RequestScopeContext.destroy();
+			request.destroy();
 			Thread.currentThread().setContextClassLoader(oldLoader);
 		}
-		setDefaultResponseHeader(servletContextImpl, request, response,
-				requestCount);
-		processDataOutput(response, os);
-		return header.isKeepAlive();
 	}
 
 	private HttpServletRequestImpl createServletRequestImp(
-			HttpRequest httpRequest) {
+			HttpRequest httpRequest, InternalWebApplication webApp) {
 		HttpServletRequestImpl request = new HttpServletRequestImpl(
-				httpRequest, sdLoader.getSessionManager());
+				httpRequest, webApp, sdLoader.getSessionManager());
 
 		request.setServerPort(sdLoader.getPort());
 		request.setLocalPort(socket.getLocalPort());
@@ -344,7 +342,7 @@ public class HttpProcessor extends Thread {
 		}
 	}
 
-	private void processDataOutput(HttpServletResponseImpl response,
+	private void processRequestEnd(HttpServletResponseImpl response,
 			OutputStream os) throws IOException {
 		HttpHeader resHeader = response.getResponseHeader();
 
