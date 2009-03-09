@@ -5,6 +5,13 @@
     version="2.4">
 
 <!--
+    <context-param>
+          <param-name>PARAM_NAME</param-name>
+          <param-value>PARAM_VALUE</param-value>
+	</context-param>
+-->
+
+<!--
     <filter>
         <filter-name>FILTER_NAME</filter-name>
         <filter-class>FILTER_CLASS</filter-class>
@@ -25,7 +32,6 @@
 		<listener-class>LISTENER_CLASS</listener-class>
 	</listener>
 -->
-
 
 <!--
     <servlet>
