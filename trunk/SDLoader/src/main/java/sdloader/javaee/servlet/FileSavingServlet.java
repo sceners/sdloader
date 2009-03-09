@@ -49,6 +49,7 @@ public class FileSavingServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	public static final String PARAM_DOC_ROOT = "docRootPath";
+	public static final String PARAM_IGNORE_LAST_MODIFIED = "ignoreLastModified";
 
 	/**
 	 * ドキュメントルート（絶対パス）
@@ -58,6 +59,8 @@ public class FileSavingServlet extends HttpServlet {
 	protected WelcomeFileListTag welcomeFileListTag;
 
 	protected InternalWebApplication webApp;
+
+	protected boolean ignoreLastModified;
 
 	public FileSavingServlet() {
 		super();
@@ -78,6 +81,11 @@ public class FileSavingServlet extends HttpServlet {
 		webApp = servletContext.getWebApplication();
 		welcomeFileListTag = webApp.getWebXml().getWebApp()
 				.getWelcomeFileList();
+
+		String ignoreLastModifiedParam = getInitParameter(PARAM_IGNORE_LAST_MODIFIED);
+		if (ignoreLastModifiedParam != null) {
+			ignoreLastModified = Boolean.getBoolean(ignoreLastModifiedParam);
+		}
 	}
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
@@ -150,7 +158,7 @@ public class FileSavingServlet extends HttpServlet {
 		basePath = PathUtil.appendEndSlashIfNeed(basePath);
 		ServletContextImpl context = (ServletContextImpl) getServletContext();
 		InternalWebApplication webapp = context.getWebApplication();
-		List<String> welcomeFileList = welcomeFileListTag.getWelcomeFile();
+		List<String> welcomeFileList = welcomeFileListTag.getWelcomeFileList();
 		List<ServletMappingTag> servletMappingList = webapp.getWebXml()
 				.getWebApp().getServletMapping();
 
@@ -186,14 +194,16 @@ public class FileSavingServlet extends HttpServlet {
 	 */
 	protected void processOutputFile(File file, HttpServletRequest req,
 			HttpServletResponse res) throws IOException {
-		Date lastModifyDate = new Date(file.lastModified());
-		res.setHeader(HttpConst.LASTMODIFIED, WebUtil
-				.formatHeaderDate(lastModifyDate));
-		String ifModified = req.getHeader(HttpConst.IFMODIFIEDSINCE);
-		// 変更したかどうか
-		if (!isModifiedSince(lastModifyDate, ifModified)) {
-			res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-			return;
+		if (!ignoreLastModified) {
+			Date lastModifyDate = new Date(file.lastModified());
+			res.setHeader(HttpConst.LASTMODIFIED, WebUtil
+					.formatHeaderDate(lastModifyDate));
+			String ifModified = req.getHeader(HttpConst.IFMODIFIEDSINCE);
+			// 変更したかどうか
+			if (!isModifiedSince(lastModifyDate, ifModified)) {
+				res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+				return;
+			}
 		}
 
 		FileInputStream fin = new FileInputStream(file);

@@ -38,6 +38,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 
 import sdloader.SDLoader;
+import sdloader.http.HttpResponse;
 import sdloader.internal.SDLoaderConfig;
 import sdloader.internal.resource.ArchiveTypeResource;
 import sdloader.internal.resource.BranchTypeResource;
@@ -158,8 +159,7 @@ public class WebAppManager {
 			return;
 		}
 
-		File[] dirs = webappDir
-				.listFiles(IOUtil.IGNORE_DIR_FILEFILTER);
+		File[] dirs = webappDir.listFiles(IOUtil.IGNORE_DIR_FILEFILTER);
 		File[] warFiles = webappDir.listFiles(IOUtil.WAR_FILEFILETR);
 
 		if (!isInmemoryExtract) {
@@ -202,8 +202,7 @@ public class WebAppManager {
 			}
 		}
 		// コンテキストXML
-		File[] contextXMLs = webappDir
-				.listFiles(IOUtil.XML_FILEFILTER);
+		File[] contextXMLs = webappDir.listFiles(IOUtil.XML_FILEFILTER);
 		parseContextXMLs(contextXMLs);
 	}
 
@@ -212,7 +211,7 @@ public class WebAppManager {
 			throw new RuntimeException("There are no Web Application.");
 		}
 		for (WebAppContext context : webAppContextList) {
-			_initWebAppContext(context);
+			initWebAppContext0(context);
 		}
 		this.webAppList.add(getRootWebApplication());
 		// コンテキストパスの長い順にソート
@@ -224,7 +223,7 @@ public class WebAppManager {
 		});
 	}
 
-	protected void _initWebAppContext(WebAppContext context) throws Exception {
+	protected void initWebAppContext0(WebAppContext context) throws Exception {
 		final URL[] docBase = context.getDocBase();
 		final String contextPath = context.getContextPath();
 		WebXml webxml = context.getWebXml();
@@ -449,6 +448,14 @@ public class WebAppManager {
 			}
 			fileServletTag.addInitParam(new InitParamTag(
 					FileSavingServlet.PARAM_DOC_ROOT, docRoots));
+			// noCacheMode
+			boolean noCacheMode = config.getConfigBoolean(
+					HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE, false);
+			if (noCacheMode) {
+				fileServletTag.addInitParam(new InitParamTag(
+						FileSavingServlet.PARAM_IGNORE_LAST_MODIFIED, "true"));
+			}
+
 			ServletMappingTag mappingTag = new ServletMappingTag();
 			mappingTag.setServletName(fileSavingServletName);
 			mappingTag.setUrlPattern("/*");
@@ -545,13 +552,14 @@ public class WebAppManager {
 	 */
 	public InternalWebApplication findWebApp(final String requestURI) {
 		InternalWebApplication app = findWebApp0(requestURI);
-		if(app == null){
+		if (app == null) {
 			// /text.txt などのROOTの場合
 			app = findWebApp0("/");
 		}
 		return app;
 	}
-	protected InternalWebApplication findWebApp0(final String requestURI){
+
+	protected InternalWebApplication findWebApp0(final String requestURI) {
 		for (Iterator<InternalWebApplication> itr = getWebAppList().iterator(); itr
 				.hasNext();) {
 			InternalWebApplication webapp = itr.next();

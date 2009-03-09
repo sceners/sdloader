@@ -120,9 +120,9 @@ public class InternalWebApplication {
 		Thread.currentThread().setContextClassLoader(webAppClassLoader);
 		try {
 			initServletContext();
-			initListener();
-			initServlet();
 			initFilter();
+			initListener();						
+			initServlet();			
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
@@ -135,6 +135,24 @@ public class InternalWebApplication {
 		for (ContextParamTag param : webXml.getWebApp().getContextParam()) {
 			servletContext.addInitParameter(param.getParamName(), param
 					.getParamValue());
+		}
+	}
+	
+	private void initFilter() {
+		List<FilterTag> filterList = webXml.getWebApp().getFilter();
+		for (FilterTag filterTag : filterList) {
+			if (filterMap == null) {
+				filterMap = CollectionsUtil.newHashMap();
+			}
+			Filter filterInstance = (Filter) ClassUtil.newInstance(filterTag
+					.getFilterClass());
+			FilterConfig config = createFilterConfig(filterTag);
+			try {
+				filterInstance.init(config);
+			} catch (ServletException e) {
+				throw new RuntimeException(e);
+			}
+			filterMap.put(filterTag.getFilterName(), filterInstance);
 		}
 	}
 
@@ -156,6 +174,27 @@ public class InternalWebApplication {
 
 	private void initServlet() {
 		List<ServletTag> servletList = webXml.getWebApp().getServlet();
+		List<ServletTag> loadOnStartUpList = CollectionsUtil.newLinkedList();
+		List<ServletTag> noStartUpList = CollectionsUtil.newLinkedList();
+		sort:
+		for (ServletTag servletTag : servletList) {
+			Integer loadOnStartUp = servletTag.getLoadOnStartup();
+			if(loadOnStartUp == null || loadOnStartUp < 0){
+				noStartUpList.add(servletTag);				
+			}else{
+				for(int i = 0;i < loadOnStartUpList.size();i++){
+					int n = loadOnStartUpList.get(i).getLoadOnStartup();
+					if(loadOnStartUp < n){
+						loadOnStartUpList.add(i,servletTag);
+						continue sort;
+					}
+				}
+				loadOnStartUpList.add(servletTag);
+			}
+		}
+		servletList = loadOnStartUpList;
+		servletList.addAll(noStartUpList);
+		
 		for (ServletTag servletTag : servletList) {
 			if (servletMap == null) {
 				servletMap = CollectionsUtil.newHashMap();
@@ -171,24 +210,6 @@ public class InternalWebApplication {
 			servletMap.put(servletTag.getServletName(), servletInstance);
 		}
 		servletContext.setServletMap(servletMap);
-	}
-
-	private void initFilter() {
-		List<FilterTag> filterList = webXml.getWebApp().getFilter();
-		for (FilterTag filterTag : filterList) {
-			if (filterMap == null) {
-				filterMap = CollectionsUtil.newHashMap();
-			}
-			Filter filterInstance = (Filter) ClassUtil.newInstance(filterTag
-					.getFilterClass());
-			FilterConfig config = createFilterConfig(filterTag);
-			try {
-				filterInstance.init(config);
-			} catch (ServletException e) {
-				throw new RuntimeException(e);
-			}
-			filterMap.put(filterTag.getFilterName(), filterInstance);
-		}
 	}
 
 	private ServletConfig createServletConfig(ServletTag servletTag) {

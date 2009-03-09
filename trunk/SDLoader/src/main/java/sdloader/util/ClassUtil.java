@@ -26,8 +26,8 @@ public class ClassUtil {
 
 	public static <T> Class<T> forName(final String className) {
 		final String name = Assertion.notNull(className);
-		final ClassLoader loader = Assertion.notNull(Thread
-				.currentThread().getContextClassLoader());
+		final ClassLoader loader = Assertion.notNull(Thread.currentThread()
+				.getContextClassLoader());
 		return forName(name, loader);
 	}
 
@@ -43,8 +43,8 @@ public class ClassUtil {
 
 	public static <T> Class<T> forNameNoException(final String className) {
 		final String name = Assertion.notNull(className);
-		final ClassLoader loader = Assertion.notNull(Thread
-				.currentThread().getContextClassLoader());
+		final ClassLoader loader = Assertion.notNull(Thread.currentThread()
+				.getContextClassLoader());
 		return forNameNoException(name, loader);
 	}
 
@@ -57,10 +57,12 @@ public class ClassUtil {
 			return null;
 		}
 	}
+
 	@SuppressWarnings("unchecked")
 	public static <T> T newInstance(final String clazzName) {
-		return (T)newInstance(forName(clazzName));
+		return (T) newInstance(forName(clazzName));
 	}
+
 	public static <T> T newInstance(final Class<T> clazz) {
 		try {
 			return clazz.newInstance();
@@ -98,33 +100,50 @@ public class ClassUtil {
 	}
 
 	public static boolean hasClass(final String className) {
-		if(className == null) {
+		if (className == null) {
 			return false;
 		}
 		try {
 			final Class<?> c = forName(className);
 			return c != null;
-		} catch(Throwable t) {
+		} catch (Throwable t) {
 			return false;
 		}
 	}
-	
-	public static Method getMethod(Class<?> target,final String methodName,final Class<?>[] params){
+
+	public static Method getMethod(Class<?> target, final String methodName,
+			final Class<?>[] params) {
 		try {
-			return target.getDeclaredMethod(methodName,params);
-		}catch(Exception e){
+			return target.getDeclaredMethod(methodName, params);
+		} catch (Exception e) {
 			target = target.getSuperclass();
-			if(target!=null){
+			if (target != null) {
 				return getMethod(target, methodName, params);
-			}else{
+			} else {
 				throw new RuntimeException(e);
 			}
-		}		
+		}
 	}
-	public static Object invoke(final Object target,final Method method,final Object[] params){
+
+	public static Method getMethodNoException(Class<?> target,
+			final String methodName, final Class<?>[] params) {
+		try {
+			return target.getDeclaredMethod(methodName, params);
+		} catch (Exception e) {
+			target = target.getSuperclass();
+			if (target != null) {
+				return getMethodNoException(target, methodName, params);
+			} else {
+				return null;
+			}
+		}
+	}
+
+	public static Object invoke(final Object target, final Method method,
+			final Object[] params) {
 		try {
 			method.setAccessible(true);
-			return method.invoke(target,params);
+			return method.invoke(target, params);
 		} catch (IllegalArgumentException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
