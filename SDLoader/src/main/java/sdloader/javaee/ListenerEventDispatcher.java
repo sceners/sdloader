@@ -70,7 +70,10 @@ public class ListenerEventDispatcher {
 			addHttpSessionListener((HttpSessionListener) listener);
 		}
 		if (listener instanceof ServletRequestListener) {
-
+			addServletRequestListener((ServletRequestListener)listener);
+		}
+		if (listener instanceof ServletRequestAttributeListener) {
+			addServletRequestAttributeListener((ServletRequestAttributeListener)listener);
 		}
 	}
 
