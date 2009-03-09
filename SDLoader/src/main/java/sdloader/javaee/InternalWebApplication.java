@@ -119,9 +119,9 @@ public class InternalWebApplication {
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(webAppClassLoader);
 		try {
+			initListener();			
 			initServletContext();
 			initFilter();
-			initListener();						
 			initServlet();			
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -136,6 +136,11 @@ public class InternalWebApplication {
 			servletContext.addInitParameter(param.getParamName(), param
 					.getParamValue());
 		}
+		// dispatch servletcontext event
+		ServletContextEvent contextEvent = new ServletContextEvent(
+				this.servletContext);
+		listenerEventDispatcher
+				.dispatchServletContextListener_contextInitialized(contextEvent);
 	}
 	
 	private void initFilter() {
@@ -165,11 +170,6 @@ public class InternalWebApplication {
 					.getListenerClass());
 			listenerEventDispatcher.addListener(listenerImp);
 		}
-		// dispatch servletcontext event
-		ServletContextEvent contextEvent = new ServletContextEvent(
-				this.servletContext);
-		listenerEventDispatcher
-				.dispatchServletContextListener_contextInitialized(contextEvent);
 	}
 
 	private void initServlet() {
