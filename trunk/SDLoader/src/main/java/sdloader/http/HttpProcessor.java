@@ -67,6 +67,10 @@ public class HttpProcessor extends Thread {
 
 	private boolean stop;
 
+	private boolean started;
+
+	private boolean wait = true;
+
 	public HttpProcessor(String name) {
 		super(name);
 		setDaemon(false);
@@ -90,14 +94,22 @@ public class HttpProcessor extends Thread {
 			this.sdLoader = loader;
 			lineSpeed = sdLoader.getSDLoaderConfig().getConfigInteger(
 					SDLoader.KEY_SDLOADER_LINE_SPEED, LineSpeed.NO_LIMIT);
-			notify();
+			if (started) {
+				notify();
+			} else {
+				wait = false;
+			}
 		}
 	}
 
 	void stopProcessor() {
 		synchronized (this) {
 			stop = true;
-			notifyAll();
+			if (started) {
+				notify();
+			} else {
+				wait = false;
+			}
 		}
 	}
 
@@ -105,11 +117,14 @@ public class HttpProcessor extends Thread {
 		while (!stop) {
 			try {
 				synchronized (this) {
-					wait();
+					started = true;
+					if (wait) {
+						wait();
+					}
+					wait = true;
 				}
 			} catch (InterruptedException e) {
-				log.warn("SocketProcessor interrupetd", e);
-				return;
+				continue;
 			}
 			if (stop) {
 				return;
@@ -173,7 +188,8 @@ public class HttpProcessor extends Thread {
 			httpRequest.readRequest();
 			log.debug("request read success.");
 			if (log.isDebugEnabled()) {
-				log.debug("<REQUEST_HEADER>\n" + httpRequest.getHeader().getRequestHeader());
+				log.debug("<REQUEST_HEADER>\n"
+						+ httpRequest.getHeader().getRequestHeader());
 			}
 			return httpRequest;
 		} finally {
@@ -305,12 +321,13 @@ public class HttpProcessor extends Thread {
 
 		// session
 		HttpSession session = request.getSession(false);
-		if (session != null && servletContextImpl != null) {
-			Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY, session
-					.getId());
-			sessionCookie.setPath(servletContextImpl.getContextPath());
-			response.addCookie(sessionCookie);
-		}
+		String sessionId = (session != null && servletContextImpl != null) ? session
+				.getId()
+				: "";
+		Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY, sessionId);
+		sessionCookie.setPath(servletContextImpl.getContextPath());
+		response.addCookie(sessionCookie);
+
 		// Keep-Alive
 		if (request.getHeader().isKeepAlive()
 				&& requestCount < keppAliveMaxRequests) {
