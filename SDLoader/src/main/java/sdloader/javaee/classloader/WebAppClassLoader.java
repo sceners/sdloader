@@ -72,7 +72,6 @@ public class WebAppClassLoader extends URLClassLoader {
 				}
 				return doResolve(c, resolve);
 			} catch (ClassNotFoundException e) {
-				// ignone
 			}
 			try {
 				c = getParent().loadClass(name);
@@ -109,7 +108,6 @@ public class WebAppClassLoader extends URLClassLoader {
 				}
 				return doResolve(c, resolve);
 			} catch (ClassNotFoundException e) {
-				// ignone
 			}
 			c = getParent().loadClass(name);
 			if (c != null) {
