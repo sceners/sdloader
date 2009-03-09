@@ -1,9 +1,9 @@
 package sdloader.javaee.impl;
 
-import javax.servlet.ServletContextAttributeEvent;
-import javax.servlet.ServletContextAttributeListener;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import javax.servlet.ServletRequestAttributeEvent;
+import javax.servlet.ServletRequestAttributeListener;
+import javax.servlet.ServletRequestEvent;
+import javax.servlet.ServletRequestListener;
 
 import junit.framework.TestCase;
 import sdloader.javaee.InternalWebApplication;
@@ -30,38 +30,35 @@ public class ServletRequestImplTest extends TestCase {
 
 		InternalWebApplication webApp = new InternalWebApplication(context,
 				getClass().getClassLoader(), manager);
-		ServletContextImpl impl = new ServletContextImpl(webApp);
-
 		
-		HttpServletRequestImpl request = new HttpServletRequestImpl(null,webApp,null);
+		HttpServletRequestImpl impl = new HttpServletRequestImpl(null,webApp,null);
 		
 		impl.setAttribute("test", "set");
 		impl.setAttribute("test", "set2");
 		impl.removeAttribute("test");
 	}
 
-	public static class Listener implements ServletContextListener,
-			ServletContextAttributeListener {
-		public void attributeAdded(ServletContextAttributeEvent e) {
+	public static class Listener implements ServletRequestListener,
+			ServletRequestAttributeListener {
+		public void attributeAdded(ServletRequestAttributeEvent e) {
 			assertEquals("test", e.getName());
 			assertEquals("set", e.getValue().toString());
 		}
 
-		public void attributeRemoved(ServletContextAttributeEvent e) {
+		public void attributeRemoved(ServletRequestAttributeEvent e) {
 			assertEquals("test", e.getName());
 			assertEquals("set2", e.getValue().toString());
 		}
 
-		public void attributeReplaced(ServletContextAttributeEvent e) {
+		public void attributeReplaced(ServletRequestAttributeEvent e) {
 			assertEquals("test", e.getName());
 			assertEquals("set", e.getValue().toString());
 		}
-
-		public void contextDestroyed(ServletContextEvent e) {
+		
+		public void requestInitialized(ServletRequestEvent e) {
 			assertNotNull(((ServletContextImpl)e.getServletContext()).getContextPath(), "/test");
 		}
-
-		public void contextInitialized(ServletContextEvent e) {
+		public void requestDestroyed(ServletRequestEvent e) {
 			assertNotNull(((ServletContextImpl)e.getServletContext()).getContextPath(), "/test");
 		}
 	}
