@@ -114,7 +114,7 @@ public class HttpHeader {
 				break;
 			}
 			int nameEnd = line.indexOf(HttpConst.COLON_STRING);
-			String name = line.substring(0, nameEnd);
+			String name = line.substring(0, nameEnd).trim().toLowerCase();
 			String value = null;
 			int valueStart = nameEnd + HttpConst.COLON_STRING.length();
 			if (line.length() > valueStart) {
