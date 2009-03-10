@@ -30,6 +30,8 @@ standalone/sdloader-jsp20・・・Servlet2.4+JSP2.0
 standalone/sdloader-jsp21・・・Servlet2.5+JSP2.1
 
 各フォルダ下に入っているwebappsフォルダにwarファイルをいれ、batファイルで起動できます。
+スタンドアロンの場合、起動後にタスクトレーにアイコンが表示されます。
+アイコン右クリックから、shutdownを選ぶと停止します。
 
 libフォルダとスタンドアロンの違いは、swt.jarが入っているかどうかの違いだけ、
 基本機能には変わりがありません。
