@@ -117,15 +117,15 @@ public class HttpRequestParameters {
 			String param = paramToken.nextToken();
 			StringTokenizer token = new StringTokenizer(param, "=", false);
 			String key = token.nextToken();
-			String value = null;
+			String value = "";
 			if (token.hasMoreTokens()) {
 				value = token.nextToken();
-				try {
-					key = decode(key, encode);
-					value = decode(value, encode);
-				} catch (UnsupportedEncodingException e) {
-					throw new IllegalArgumentException(e);
-				}
+			}
+			try {
+				key = decode(key, encode);
+				value = decode(value, encode);
+			} catch (UnsupportedEncodingException e) {
+				throw new IllegalArgumentException(e);
 			}
 			addParameter(key, value);
 		}
