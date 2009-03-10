@@ -21,7 +21,7 @@ lib/sdloader.jar・・・Servlet2.5のServetエンジンのみ。JSPは使用で
 lib/sdloader-jsp20.jar・・・Servlet2.4+JSP2.0
 lib/sdloader-jsp21.jar・・・Servlet2.5+JSP2.1
 
-libは、開発環境に入れて使う用途が主な目的です。推奨はsdloader-jsp21.jarです。
+これらは、開発環境に入れて使う用途が主な目的のアーカイブです。推奨はsdloader-jsp21.jarです。
 
 また、standaloneフォルダ下には、スタンドアロンで動かすためのファイルセットが入っています。
 
