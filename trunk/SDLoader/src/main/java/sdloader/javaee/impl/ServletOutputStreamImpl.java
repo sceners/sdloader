@@ -15,12 +15,12 @@
  */
 package sdloader.javaee.impl;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import sdloader.util.IOUtil;
 
 import javax.servlet.ServletOutputStream;
+
+import sdloader.util.FastByteArrayOutputStream;
+import sdloader.util.IOUtil;
 
 /**
  * ServletOutputStream実装クラス
@@ -28,35 +28,37 @@ import javax.servlet.ServletOutputStream;
  * @author c9katayama
  */
 public class ServletOutputStreamImpl extends ServletOutputStream {
-	private ByteArrayOutputStream bout;
+	private FastByteArrayOutputStream bout;
 
-	private BufferedOutputStream bufOut;
-	
 	private boolean close = false;
-	
+
 	public ServletOutputStreamImpl() {
-		bout = new ByteArrayOutputStream();
-		bufOut = new BufferedOutputStream(bout);
+		bout = new FastByteArrayOutputStream();
 	}
 
 	public void write(int b) throws IOException {
-		bufOut.write(b);
+		bout.write(b);
 	}
 
 	public void flush() throws IOException {
-		bufOut.flush();
+		bout.flush();
 	}
 
 	public void close() throws IOException {
-		bufOut.close();
+		bout.close();
 		close = true;
 	}
 
-	public byte[] getOutputData() {
-		IOUtil.flushNoException(bufOut);
-		return bout.toByteArray();
+	public int getOutputSize() {
+		return bout.getSize();
 	}
-	public boolean isClosed(){
+
+	public FastByteArrayOutputStream getOutputData() {
+		IOUtil.flushNoException(bout);
+		return bout;
+	}
+
+	public boolean isClosed() {
 		return close;
 	}
 }

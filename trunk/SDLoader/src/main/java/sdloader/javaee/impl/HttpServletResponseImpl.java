@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import sdloader.http.HttpConst;
 import sdloader.http.HttpHeader;
+import sdloader.util.FastByteArrayOutputStream;
 import sdloader.util.WebUtil;
 
 /**
@@ -36,7 +37,7 @@ import sdloader.util.WebUtil;
  * @author c9katayama
  */
 public class HttpServletResponseImpl implements HttpServletResponse {
-	
+
 	private Locale locale = Locale.getDefault();
 
 	private String characterEncoding = "ISO-8859-1";// J2EE specification
@@ -46,7 +47,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	private ServletOutputStreamImpl servletOutputStream = new ServletOutputStreamImpl();
 
 	private ServletOutputStream outputStream;
-	
+
 	private PrintWriter writer;
 
 	private int bufferSize;
@@ -181,7 +182,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void flushBuffer() throws IOException {
-		if (writer != null){
+		if (writer != null) {
 			writer.flush();
 		}
 		servletOutputStream.flush();
@@ -210,7 +211,12 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	// /non interface method
-	public byte[] getBodyData() throws IOException {
+	public int getBodySize() throws IOException {
+		flushBuffer();
+		return servletOutputStream.getOutputSize();
+	}
+
+	public FastByteArrayOutputStream getBodyData() throws IOException {
 		flushBuffer();
 		servletOutputStream.close();
 		return servletOutputStream.getOutputData();
