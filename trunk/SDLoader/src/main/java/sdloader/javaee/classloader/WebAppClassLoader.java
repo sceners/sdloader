@@ -15,8 +15,11 @@
  */
 package sdloader.javaee.classloader;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
+import java.util.Vector;
 
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
@@ -145,5 +148,19 @@ public class WebAppClassLoader extends URLClassLoader {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public Enumeration<URL> getResources(String name) throws IOException {
+		Enumeration<URL> resources = super.getResources(name);
+		// duplicate check
+		Vector<URL> margeUrlList = new Vector<URL>();
+		while (resources.hasMoreElements()) {
+			URL url = resources.nextElement();
+			if (!margeUrlList.contains(url)) {
+				margeUrlList.add(url);
+			}
+		}
+		return margeUrlList.elements();
 	}
 }
