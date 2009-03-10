@@ -51,7 +51,7 @@ public class DesktopSWTMain {
 		splash = new Shell(SWT.ON_TOP);
 		splash.setText("loading");
 		splash.setLayout(new GridLayout(1, false));
-		Image img = new Image(display, "splash.bmp");
+		Image img = getSplashImage();
 		Label label = new Label(splash, SWT.NONE);
 		label.setImage(img);
 
@@ -70,6 +70,22 @@ public class DesktopSWTMain {
 		splash.setLocation(x, y);
 		splash.open();
 	}
+	protected Image getSplashImage(){
+		File splash = new File("splash.bmp");
+		if(splash.exists()){
+			return new Image(display,"splash.bmp");
+		}else{
+			return new Image(display,getClass().getResourceAsStream("/icon/splash.bmp"));
+		}
+	}
+	protected Image getWindowIconImage(){
+		File icon = new File("windowicon.gif");
+		if(icon.exists()){
+			return new Image(display,"windowicon.gif");
+		}else{
+			return new Image(display,getClass().getResourceAsStream("/icon/windowicon.gif"));
+		}
+	}
 
 	@SuppressWarnings("deprecation")
 	public void open() {
@@ -78,6 +94,7 @@ public class DesktopSWTMain {
 
 		shell = new Shell(display);
 		shell.setText("SDLoaderDesktopSWT");
+		shell.setImage(getWindowIconImage());
 		FillLayout layout = new FillLayout(SWT.VERTICAL);
 		shell.setLayout(layout);
 
