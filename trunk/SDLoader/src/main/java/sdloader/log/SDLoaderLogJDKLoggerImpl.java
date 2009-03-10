@@ -80,6 +80,16 @@ public class SDLoaderLogJDKLoggerImpl implements SDLoaderLog {
 		logger.severe(format(log, t));
 	}
 
+	public void fatal(Object log) {
+		logger.severe(format(log, null));
+
+	}
+
+	public void fatal(Object log, Throwable t) {
+		logger.severe(format(log, t));
+
+	}
+
 	public boolean isDebugEnabled() {
 		return logger.isLoggable(Level.CONFIG);
 	}

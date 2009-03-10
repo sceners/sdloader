@@ -9,6 +9,8 @@ ServletRequestListener,ServletRequestAttributeListenerを実装
 
 ServletContext#getMajorVersionとgetMinorVersionを実装
 
+ログ出力をJDKLoggerに１本化。
+
 v0_2_00
 ServletAPI2.5,JSP2.1に対応
 これに伴い、sdloader.jarに同梱するapiを2.5に変更。

@@ -16,7 +16,5 @@
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jsp-api.jar"/>
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/tomcat-juli.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/Servlet2.4_JSP2.0/jasper-runtime.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -25,8 +25,6 @@ import java.util.Properties;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jasper.Constants;
 import org.apache.jasper.Options;
 import org.apache.jasper.compiler.JspConfig;
@@ -34,6 +32,9 @@ import org.apache.jasper.compiler.Localizer;
 import org.apache.jasper.compiler.TagPluginManager;
 import org.apache.jasper.compiler.TldLocationsCache;
 import org.apache.jasper.xmlparser.ParserUtils;
+
+import sdloader.log.SDLoaderLog;
+import sdloader.log.SDLoaderLogFactory;
 
 
 /**
@@ -56,7 +57,7 @@ import org.apache.jasper.xmlparser.ParserUtils;
 public class InMemoryEmbeddedServletOptions implements Options {
     
     // Logger
-    private Log log = LogFactory.getLog(InMemoryEmbeddedServletOptions.class);
+    private SDLoaderLog log = SDLoaderLogFactory.getLog(InMemoryEmbeddedServletOptions.class);
     
     private Properties settings = new Properties();
     
