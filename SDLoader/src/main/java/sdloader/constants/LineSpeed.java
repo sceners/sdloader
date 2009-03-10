@@ -24,12 +24,12 @@ package sdloader.constants;
 public interface LineSpeed {
 
 	public static final int NO_LIMIT = -1;
-	public static final int ISDN_64K_BPS = 64 * 1000;
-	public static final int ISDN_128K_BPS = 128 * 1000;
-	public static final int ADSL_1M_BPS = 1000 * 1000;
-	public static final int ADSL_4M_BPS = 4000 * 1000;
-	public static final int ADSL_8M_BPS = 8000 * 1000;
+	public static final int ISDN_64K_BPS =    64 * 1000;
+	public static final int ISDN_128K_BPS =  128 * 1000;
+	public static final int ADSL_1M_BPS =   1000 * 1000;
+	public static final int ADSL_4M_BPS =   4000 * 1000;
+	public static final int ADSL_8M_BPS =   8000 * 1000;
+	public static final int LAN_10M_BPS =  10000 * 1000;
 	public static final int ADSL_20M_BPS = 20000 * 1000;
-	public static final int ADSL_40M_BPS = 40000 * 1000;
-	public static final int LAN_10M_BPS = 100000 * 1000;
+	public static final int ADSL_40M_BPS = 40000 * 1000;	
 }

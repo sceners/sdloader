@@ -41,7 +41,10 @@ import sdloader.javaee.impl.HttpServletResponseImpl;
 import sdloader.javaee.impl.ServletContextImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+import sdloader.util.FastByteArrayOutputStream;
 import sdloader.util.IOUtil;
+import sdloader.util.QoSInputStream;
+import sdloader.util.QoSOutputStream;
 import sdloader.util.WebUtil;
 
 /**
@@ -182,7 +185,7 @@ public class HttpProcessor extends Thread {
 
 	protected HttpRequest processReadRequest(InputStream is) throws IOException {
 		try {
-			HttpRequestReader reader = new HttpRequestReader(is, lineSpeed);
+			HttpRequestReader reader = new HttpRequestReader(new QoSInputStream(is,lineSpeed));
 			HttpRequest httpRequest = new HttpRequest(reader);
 			log.debug("request read start.");
 			httpRequest.readRequest();
@@ -321,9 +324,10 @@ public class HttpProcessor extends Thread {
 
 		// session
 		HttpSession session = request.getSession(false);
-		if(session != null && servletContextImpl != null){
+		if (session != null && servletContextImpl != null) {
 			String sessionId = session.getId();
-			Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY, sessionId);
+			Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY,
+					sessionId);
 			sessionCookie.setPath(servletContextImpl.getContextPath());
 			response.addCookie(sessionCookie);
 		}
@@ -355,23 +359,24 @@ public class HttpProcessor extends Thread {
 		if (transferEncoding == null
 				|| !transferEncoding.equalsIgnoreCase(HttpConst.CHUNKED)) {
 			response.setHeader(HttpConst.CONTENTLENGTH, String.valueOf(response
-					.getBodyData().length));
+					.getBodySize()));
 		}
 	}
 
 	private void processRequestEnd(HttpServletResponseImpl response,
 			OutputStream os) throws IOException {
 		HttpHeader resHeader = response.getResponseHeader();
+		os = new QoSOutputStream(os,lineSpeed);
 
 		byte[] headerData = resHeader.buildResponseHeader().getBytes();
-		IOUtil.write(lineSpeed, headerData, os);
+		os.write(headerData);
 		if (log.isDebugEnabled()) {
 			log.debug("<RESPONSE_HEADER>\n" + new String(headerData));
 		}
 		os.write(HttpConst.CRLF_STRING.getBytes());// Separator
-		byte[] bodyData = response.getBodyData();
+		FastByteArrayOutputStream bodyData = response.getBodyData();
 		if (bodyData != null) {
-			IOUtil.write(lineSpeed, bodyData, os);
+			bodyData.writeTo(os);
 		}
 		os.flush();
 	}
