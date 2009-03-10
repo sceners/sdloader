@@ -15,6 +15,12 @@
  */
 package sdloader.log;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.LogManager;
+
+import sdloader.util.ResourceUtil;
+
 /**
  * ログファクトリークラス
  * 
@@ -22,14 +28,22 @@ package sdloader.log;
  */
 public class SDLoaderLogFactory {
 
-	private static boolean isCommonsSupport;
-
 	static {
-		try {
-			Class.forName("org.apache.commons.logging.LogFactory");
-			isCommonsSupport = true;
-		} catch (Throwable e) {
-			isCommonsSupport = false;
+		String configPath = System.getProperty("java.util.logging.config.file");
+		if (configPath == null || configPath.length() == 0) {
+			InputStream is = ResourceUtil.getResourceAsStream(
+					"sdloader-logging.properties", SDLoaderLogFactory.class);
+			if (is == null) {
+				is = ResourceUtil.getResourceAsStream("sdloader.properties",
+						SDLoaderLogFactory.class);
+			}
+			if (is != null) {
+				try {
+					LogManager.getLogManager().readConfiguration(is);
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -37,10 +51,6 @@ public class SDLoaderLogFactory {
 	}
 
 	public static SDLoaderLog getLog(Class<?> c) {
-		if (isCommonsSupport) {
-			return new SDLoaderLogCommonsLoggingImpl(c);
-		} else {
-			return new SDLoaderLogJDKLoggerImpl(c);
-		}
+		return new SDLoaderLogJDKLoggerImpl(c);
 	}
 }
