@@ -329,12 +329,12 @@ public class SDLoader implements Lifecycle {
 		initConfig();
 
 		initSessionManager();
+
+		ServerSocket initSocket = initServerSocket();
+
 		initWebApp();
 		initSocketProcessor();
 		initShutdownHook();
-
-
-		ServerSocket initSocket = initServerSocket();
 
 		sdLoaderThread = new SDLoaderThread(initSocket);
 		sdLoaderThread.start();
