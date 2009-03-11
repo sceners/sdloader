@@ -15,10 +15,9 @@
  */
 package sdloader;
 
-import sdloader.SDLoader;
-import sdloader.command.CommandMonitor;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+
 /**
  * SDLoaderをオープンします。
  * 
@@ -32,13 +31,15 @@ public class OpenWithInmemory {
 	public static void main(String[] args) {
 		try {
 			SDLoader server = new SDLoader();
-			System.setProperty(SDLoader.KEY_WAR_INMEMORY_EXTRACT, "true");
-			CommandMonitor.monitor(8089, "SDLoader", server);
+			server.getSDLoaderConfig().setConfig(
+					SDLoader.KEY_WAR_INMEMORY_EXTRACT, true);
+
 			server.start();
+
+			server.waitForStop();
 		} catch (Throwable e) {
-			log.error("SDLoader catch error.",e);
-		} finally {
-			System.setProperty(SDLoader.KEY_WAR_INMEMORY_EXTRACT, "false");
+			log.error("SDLoader catch error.", e);
 		}
+		System.exit(0);
 	}
 }

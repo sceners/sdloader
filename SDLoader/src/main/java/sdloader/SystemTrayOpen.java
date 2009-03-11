@@ -60,7 +60,9 @@ public class SystemTrayOpen {
 			openBrowser();
 
 			createSystemTray(server);
-
+			
+			server.stop();
+			
 		} catch (Throwable e) {
 			log.error("SDLoader catch error.", e);
 		} finally {
