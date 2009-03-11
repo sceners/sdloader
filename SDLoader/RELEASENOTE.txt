@@ -11,6 +11,13 @@ ServletContext#getMajorVersionとgetMinorVersionを実装
 
 ログ出力をJDKLoggerに１本化。
 
+コマンドサーブレットをデプロイするようにした。
+ブラウザからhttp://localhost:port/sdloader-command/stopにアクセスすると
+SDLoaderが停止します。
+
+WebAppContextにwarファイルパスを書けるようにした。
+new WebAppContext("/hoge","c:/foo.war")のように記述可能。
+
 v0_2_00
 ServletAPI2.5,JSP2.1に対応
 これに伴い、sdloader.jarに同梱するapiを2.5に変更。
