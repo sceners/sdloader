@@ -46,43 +46,116 @@ public class WebAppContext {
 	 */
 	private WebXml webXml;
 
-	public WebAppContext(final String contextPath, final String... dirPath) {
-		docBase = new URL[dirPath.length];
-		for (int i = 0; i < dirPath.length; i++) {
-			docBase[i] = PathUtil.file2URL(dirPath[i]);
-		}
-		this.contextPath = PathUtil.appendStartSlashIfNeed(contextPath);
+	public WebAppContext(final String contextPath,
+			final String... docBaseDirOrWarFile) {
+		setContextPath(contextPath);
+		setDocBase(docBaseDirOrWarFile);
 	}
 
-	public WebAppContext(final String contextPath, final File... dir) {
-		docBase = new URL[dir.length];
-		for (int i = 0; i < dir.length; i++) {
-			docBase[i] = PathUtil.file2URL(dir[i]);
-		}
-		this.contextPath = PathUtil.appendStartSlashIfNeed(contextPath);
+	public WebAppContext(final String contextPath,
+			final File... docBaseDirOrWarFile) {
+		setContextPath(contextPath);
+		setDocBase(docBaseDirOrWarFile);
 	}
 
-	public WebAppContext(final String contextPath, final URL... docBase) {
-		this.docBase = Assertion.notNull(docBase);
-		this.contextPath = PathUtil.appendStartSlashIfNeed(contextPath);
+	public WebAppContext(final String contextPath,
+			final URL... docBaseDirOrWarFile) {
+		setContextPath(contextPath);
+		setDocBase(docBaseDirOrWarFile);
 	}
 
-	public void setWebXml(WebXml webXml) {
-		this.webXml = webXml;
-	}
-
+	/**
+	 * コンテキストパスを返します。
+	 * 
+	 * @return
+	 */
 	public String getContextPath() {
 		return contextPath;
 	}
-	
-	public void setDocBase(URL[] docBase) {
-		this.docBase = docBase;
+
+	/**
+	 * コンテキストパスをセットします。
+	 * 
+	 * @return
+	 */
+	public void setContextPath(String contextPath) {
+		Assertion.notNull(contextPath);
+		this.contextPath = PathUtil.appendStartSlashIfNeed(contextPath);
 	}
-	
+
+	/**
+	 * ドキュメントルートをセットします。
+	 * 
+	 * <pre>
+	 * ドキュメントルートとなるディレクトリ、もしくはwarファイルを指定します。 
+	 * warファイルは作業用ディレクトリに展開されます。
+	 * </pre>
+	 * 
+	 * @param docBaseDirOrWarFile
+	 */
+	public void setDocBase(String... docBaseDirOrWarFile) {
+		Assertion.notNull(docBaseDirOrWarFile);
+		docBase = new URL[docBaseDirOrWarFile.length];
+		for (int i = 0; i < docBaseDirOrWarFile.length; i++) {
+			docBase[i] = PathUtil.file2URL(docBaseDirOrWarFile[i]);
+		}
+	}
+
+	/**
+	 * ドキュメントルートをセットします。
+	 * 
+	 * <pre>
+	 * ドキュメントルートとなるディレクトリ、もしくはwarファイルを指定します。 
+	 * warファイルは作業用ディレクトリに展開されます。
+	 * </pre>
+	 * 
+	 * @param docBaseDirOrWarFile
+	 */
+	public void setDocBase(File... docBaseDirOrWarFile) {
+		Assertion.notNull(docBaseDirOrWarFile);
+		docBase = new URL[docBaseDirOrWarFile.length];
+		for (int i = 0; i < docBaseDirOrWarFile.length; i++) {
+			docBase[i] = PathUtil.file2URL(docBaseDirOrWarFile[i]);
+		}
+	}
+
+	/**
+	 * ドキュメントルートをセットします。
+	 * 
+	 * <pre>
+	 * ドキュメントルートとなるディレクトリ、もしくはwarファイルを指定します。 
+	 * warファイルは作業用ディレクトリに展開されます。
+	 * </pre>
+	 * 
+	 * @param docBaseDirOrWarFile
+	 */
+	public void setDocBase(URL... docBaseDirOrWarFile) {
+		this.docBase = Assertion.notNull(docBaseDirOrWarFile);
+	}
+
+	/**
+	 * ドキュメントルートを返します。
+	 * 
+	 * @return
+	 */
 	public URL[] getDocBase() {
 		return docBase;
 	}
 
+	/**
+	 * WebXmlをセットします。
+	 * 
+	 * @param webXml
+	 */
+	public void setWebXml(WebXml webXml) {
+		this.webXml = webXml;
+	}
+
+	/**
+	 * WebXmlを返します。
+	 * 
+	 * @return
+	 */
 	public WebXml getWebXml() {
 		return webXml;
 	}

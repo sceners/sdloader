@@ -234,7 +234,8 @@ public class WebAppManager {
 			File file = PathUtil.url2File(url);
 			if (file.exists() && file.isFile()
 					&& file.getName().endsWith(".war")) {
-				File extractDir = new File(generateWorkDirPath("war", contextPath+"_"+file.getName()));
+				File extractDir = new File(generateWorkDirPath("war",
+						contextPath + "_" + file.getName()));
 				WarUtil.extractWar(file, extractDir);
 				docBase[i] = PathUtil.file2URL(extractDir);
 			}
@@ -501,15 +502,25 @@ public class WebAppManager {
 		}
 	}
 
+	/**
+	 * 作業用ディレクトリパスを返します。
+	 * 
+	 * @param functionName
+	 *            機能名（ｊｓｐやwarなど）
+	 * @param contextPath
+	 * @return
+	 */
 	protected String generateWorkDirPath(String functionName, String contextPath) {
-
-		String jspWorkDirPath = PathUtil.jointPathWithSlash(PathUtil
-				.replaceFileSeparator(System.getProperty("java.io.tmpdir")),
-				".sdloader/" + functionName);
+		// クラスパスを使って、ハッシュを作成
 		String genDir = MessageDigestUtil.digest(System
 				.getProperty("java.class.path"));
-		jspWorkDirPath = jspWorkDirPath + "/" + genDir + contextPath;
-		return jspWorkDirPath;
+		String workRoot = config
+				.getConfigString(SDLoader.KEY_SDLOADER_WORK_DIR);
+		workRoot = PathUtil.replaceFileSeparator(workRoot);
+		String workDirPath = PathUtil.jointPathWithSlash(workRoot, genDir);
+		workDirPath = PathUtil.jointPathWithSlash(workDirPath, functionName);
+		workDirPath = PathUtil.jointPathWithSlash(workDirPath, contextPath);
+		return workDirPath;
 	}
 
 	protected void parseContextXMLs(File[] contextXMLs) throws Exception {

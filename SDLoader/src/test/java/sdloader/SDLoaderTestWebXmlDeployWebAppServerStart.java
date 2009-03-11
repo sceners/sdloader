@@ -14,7 +14,7 @@ import sdloader.testwebapp.filteranddispatchtest.IncludeFilter;
 import sdloader.testwebapp.filteranddispatchtest.IncludeServlet;
 import sdloader.testwebapp.filteranddispatchtest.RequestFilter;
 import sdloader.testwebapp.filteranddispatchtest.RequestServlet;
-import sdloader.util.MiscUtils;
+import sdloader.util.Browser;
 
 public class SDLoaderTestWebXmlDeployWebAppServerStart {
 
@@ -22,7 +22,7 @@ public class SDLoaderTestWebXmlDeployWebAppServerStart {
 		SDLoader sdloader = new SDLoader();
 		sdloader.setAutoPortDetect(true);
 		
-		WebAppContext webapp = new WebAppContext("/testwebapp","testwebapp");
+		WebAppContext webapp = new WebAppContext("/filterAndDispatchTest","webapps/test");
 		WebXml webXml = new WebXml();
 		webXml.getWebApp()
 		.addFilter(new FilterTag().setFilterName("requestFilter").setFilterClass(RequestFilter.class))
@@ -47,10 +47,7 @@ public class SDLoaderTestWebXmlDeployWebAppServerStart {
 		sdloader.addWebAppContext(webapp);
 		
 		sdloader.start();
-		try{
-			MiscUtils.openBrowser("http://localhost:"+sdloader.getPort());
-		}catch(Exception e){
-			e.printStackTrace();
-		}
+
+		Browser.open("http://localhost:"+sdloader.getPort());
 	}
 }

@@ -94,6 +94,9 @@ public class SDLoader implements Lifecycle {
 
 	public static final String KEY_SDLOADER_PORT = CONFIG_KEY_PREFIX + "port";
 
+	public static final String KEY_SDLOADER_WORK_DIR = CONFIG_KEY_PREFIX
+			+ "workDir";
+
 	private String sdloaderConfigPath = "sdloader.properties";
 
 	protected WebAppManager webAppManager = new WebAppManager();
@@ -252,6 +255,16 @@ public class SDLoader implements Lifecycle {
 	}
 
 	/**
+	 * JSPコンパイルやwarの展開を行うディレクトリをセットします。
+	 * 
+	 * @param workDir
+	 */
+	public void setWorkDir(String workDir) {
+		checkNotRunning();
+		config.setConfig(KEY_SDLOADER_WORK_DIR, workDir);
+	}
+
+	/**
 	 * Webアプリケーションコンテキストを追加します。
 	 * 
 	 * @param context
@@ -381,6 +394,14 @@ public class SDLoader implements Lifecycle {
 
 		// init jsp lib path
 		config.setConfigFromSystemIfNotExit(KEY_SDLOADER_JSP_LIBPATH);
+
+		// init work dir
+		String workDir = config
+				.getConfigStringIgnoreExist(KEY_SDLOADER_WORK_DIR);
+		if (workDir == null) {
+			workDir = System.getProperty("java.io.tmpdir") + "/.sdloader";
+		}
+		config.setConfig(KEY_SDLOADER_WORK_DIR, workDir);
 	}
 
 	protected void initSessionManager() {
@@ -496,7 +517,7 @@ public class SDLoader implements Lifecycle {
 			}
 		}
 
-		public synchronized void close(){
+		public synchronized void close() {
 			if (serverSocket != null) {
 				IOUtil.closeServerSocketNoException(serverSocket);
 				serverSocket = null;
@@ -532,9 +553,9 @@ public class SDLoader implements Lifecycle {
 
 		// destroy webapps
 		webAppManager.close();
-		
-		socketProcessorPool.stop();		
-		
+
+		socketProcessorPool.stop();
+
 		sdLoaderThread.close();
 
 		running = false;
