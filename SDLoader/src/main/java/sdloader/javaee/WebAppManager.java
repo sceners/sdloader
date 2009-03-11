@@ -38,7 +38,6 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 
 import sdloader.SDLoader;
-import sdloader.command.CommandServlet;
 import sdloader.http.HttpResponse;
 import sdloader.internal.SDLoaderConfig;
 import sdloader.internal.resource.ArchiveTypeResource;
@@ -52,6 +51,7 @@ import sdloader.javaee.classloader.InMemoryWebAppClassLoader;
 import sdloader.javaee.classloader.WebAppClassLoader;
 import sdloader.javaee.constants.WebConstants;
 import sdloader.javaee.jasper.InMemoryEmbeddedServletOptions;
+import sdloader.javaee.servlet.CommandServlet;
 import sdloader.javaee.servlet.FileSavingServlet;
 import sdloader.javaee.servlet.WebAppListServlet;
 import sdloader.javaee.webxml.InitParamTag;
