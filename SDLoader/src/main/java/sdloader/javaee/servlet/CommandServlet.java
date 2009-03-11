@@ -26,6 +26,7 @@ public class CommandServlet extends HttpServlet {
 				SDLoader loader = ProcessScopeContext.getContext()
 						.getAttribute(SDLoader.class);
 				loader.stop();
+				res.getWriter().print("SDLoader stop.");
 				return;
 			}
 		}
