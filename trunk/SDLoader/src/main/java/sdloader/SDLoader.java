@@ -316,7 +316,8 @@ public class SDLoader implements Lifecycle {
 		checkNotRunning();
 		running = true;
 
-		log.info("Detect ServletAPI[" + JavaEEConstants.SERVLETAPI_MAJOR_VERSION + "."
+		log.info("Detect ServletAPI["
+				+ JavaEEConstants.SERVLETAPI_MAJOR_VERSION + "."
 				+ JavaEEConstants.SERVLETAPI_MINOR_VERSION + "] JSP["
 				+ JavaEEConstants.JSP_MAJOR_VERSION + "."
 				+ JavaEEConstants.JSP_MINOR_VERSION + "]");
@@ -468,6 +469,7 @@ public class SDLoader implements Lifecycle {
 		private ServerSocket serverSocket;
 
 		SDLoaderThread(ServerSocket serverSocket) {
+			super("SDLoaderThread");
 			this.serverSocket = serverSocket;
 			setDaemon(false);
 		}
@@ -500,6 +502,20 @@ public class SDLoader implements Lifecycle {
 				serverSocket = null;
 			}
 			shutdown = true;
+		}
+	}
+
+	/**
+	 * SDLoaderが終了するまで待機します。
+	 * 
+	 */
+	public void waitForStop() {
+		if (running) {
+			try {
+				sdLoaderThread.join();
+			} catch (InterruptedException e) {
+				log.error(e.getMessage(), e);
+			}
 		}
 	}
 
