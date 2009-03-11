@@ -74,7 +74,11 @@ public class WebAppContext {
 	public String getContextPath() {
 		return contextPath;
 	}
-
+	
+	public void setDocBase(URL[] docBase) {
+		this.docBase = docBase;
+	}
+	
 	public URL[] getDocBase() {
 		return docBase;
 	}
