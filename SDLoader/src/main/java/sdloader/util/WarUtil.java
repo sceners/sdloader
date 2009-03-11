@@ -16,9 +16,13 @@
 package sdloader.util;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -35,6 +39,8 @@ public class WarUtil {
 
 	private static SDLoaderLog log = SDLoaderLogFactory.getLog(WarUtil.class);
 
+	private static final String LAST_MODIFIED_FILE = ".warlastmodified";
+
 	/**
 	 * Warの名前を返します。
 	 * 
@@ -43,6 +49,37 @@ public class WarUtil {
 	 */
 	public static String getArchiveName(final String warFileName) {
 		return warFileName.substring(0, warFileName.length() - ".war".length());
+	}
+
+	private static long readLastModifiled(File file) {
+		if (file.exists()) {
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new FileReader(file));
+				return Long.valueOf(reader.readLine());
+			} catch (Exception e) {
+				log.debug(e.getMessage(), e);
+			} finally {
+				IOUtil.closeNoException(reader);
+			}
+		}
+		return 0;
+	}
+
+	private static void writeLastModifiled(File file, long time) {
+		BufferedWriter writer = null;
+		try {
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			writer = new BufferedWriter(new FileWriter(file));
+			writer.write(Long.toString(time));
+			writer.flush();
+		} catch (Exception e) {
+			log.debug(e.getMessage(), e);
+		} finally {
+			IOUtil.closeNoException(writer);
+		}
 	}
 
 	/**
@@ -54,19 +91,28 @@ public class WarUtil {
 	 */
 	public static void extractWar(File warFile, File directory)
 			throws IOException {
-		log.info("war extract start. warfile=" + warFile.getName());
-
 		try {
+			long timestamp = warFile.lastModified();
+			File warModifiedTimeFile = new File(directory, LAST_MODIFIED_FILE);
+			long lastModified = readLastModifiled(warModifiedTimeFile);
+
+			if (timestamp == lastModified) {
+				log.info("war file " + warFile.getName()+" not modified.");
+				return;
+			}
+			if(directory.exists()){
+				IOUtil.forceRemoveDirectory(directory);
+				directory.mkdir();
+			}
+
+			log.info("war extract start. warfile=" + warFile.getName());
+
 			JarInputStream jin = new JarInputStream(new BufferedInputStream(
 					new FileInputStream(warFile)));
 			JarEntry entry = null;
 
-			File webAppDir = new File(directory, getArchiveName(warFile
-					.getName()));
-			webAppDir.mkdirs();
-
 			while ((entry = jin.getNextJarEntry()) != null) {
-				File file = new File(webAppDir, entry.getName());
+				File file = new File(directory, entry.getName());
 
 				if (entry.isDirectory()) {
 					if (!file.exists()) {
@@ -93,7 +139,10 @@ public class WarUtil {
 					}
 				}
 			}
-			log.info("war extract success.");
+
+			writeLastModifiled(warModifiedTimeFile, timestamp);
+
+			log.info("war extract success. lastmodified=" + timestamp);
 		} catch (IOException ioe) {
 			log.info("war extract fail.");
 			throw ioe;

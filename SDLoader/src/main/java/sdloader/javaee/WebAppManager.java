@@ -166,8 +166,8 @@ public class WebAppManager {
 		if (!isInmemoryExtract) {
 			if (warFiles != null) {
 				for (int i = 0; i < warFiles.length; i++) {
-					if (!isExtracted(warFiles[i], dirs))
-						WarUtil.extractWar(warFiles[i], webappDir);
+					WarUtil.extractWar(warFiles[i], new File(webappDir, WarUtil
+							.getArchiveName(warFiles[i].getName())));
 				}
 			}
 		}
@@ -226,8 +226,21 @@ public class WebAppManager {
 	}
 
 	protected void initWebAppContext0(WebAppContext context) throws Exception {
-		final URL[] docBase = context.getDocBase();
 		final String contextPath = context.getContextPath();
+		final URL[] docBase = context.getDocBase();
+		// docBaseがwarファイルだった場合、テンポラリに展開してそのパスを使用
+		for (int i = docBase.length - 1; i >= 0; i--) {
+			URL url = docBase[i];
+			File file = PathUtil.url2File(url);
+			if (file.exists() && file.isFile()
+					&& file.getName().endsWith(".war")) {
+				File extractDir = new File(generateWorkDirPath("war", contextPath+"_"+file.getName()));
+				WarUtil.extractWar(file, extractDir);
+				docBase[i] = PathUtil.file2URL(extractDir);
+			}
+		}
+		context.setDocBase(docBase);
+
 		WebXml webxml = context.getWebXml();
 		if (webxml == null) {
 			webxml = buildWebXml(docBase);
@@ -292,23 +305,28 @@ public class WebAppManager {
 		context.setWebXml(webXmlTag);
 		final InternalWebApplication webapp = new InternalWebApplication(
 				context, webAppClassLoader, this);
-		
+
 		return webapp;
 	}
-	private InternalWebApplication getCommandWebApplication(){
+
+	private InternalWebApplication getCommandWebApplication() {
 		// Command servlet
 		String contextPath = "/sdloader-command";
 		URL docBase = PathUtil.file2URL(webappDirPath + "/sdloader-control");
 		WebXml webXmlTag = new WebXml();
-		webXmlTag.getWebApp().addServlet(new ServletTag().setServletName("sdloader-command").setServletClass(CommandServlet.class));
-		webXmlTag.getWebApp().addServletMapping(new ServletMappingTag().setServletName("sdloader-command").setUrlPattern("/*"));
-		
+		webXmlTag.getWebApp().addServlet(
+				new ServletTag().setServletName("sdloader-command")
+						.setServletClass(CommandServlet.class));
+		webXmlTag.getWebApp().addServletMapping(
+				new ServletMappingTag().setServletName("sdloader-command")
+						.setUrlPattern("/*"));
+
 		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase });
 		WebAppContext context = new WebAppContext(contextPath, docBase);
 		context.setWebXml(webXmlTag);
 		final InternalWebApplication webapp = new InternalWebApplication(
 				context, webAppClassLoader, this);
-		
+
 		return webapp;
 	}
 
@@ -420,7 +438,7 @@ public class WebAppManager {
 						InMemoryEmbeddedServletOptions.class.getName()));
 			}
 			// JSPコンパイルディレクトリの作成
-			String jspWorkDirPath = generateJspWorkDirPath(contextPath);
+			String jspWorkDirPath = generateWorkDirPath("jsp", contextPath);
 			File jspWorkDir = new File(jspWorkDirPath);
 			jspWorkDir.mkdirs();
 			jspServlet.addInitParam(new InitParamTag("scratchdir",
@@ -483,28 +501,15 @@ public class WebAppManager {
 		}
 	}
 
-	protected String generateJspWorkDirPath(String contextPath) {
+	protected String generateWorkDirPath(String functionName, String contextPath) {
 
 		String jspWorkDirPath = PathUtil.jointPathWithSlash(PathUtil
 				.replaceFileSeparator(System.getProperty("java.io.tmpdir")),
-				"sdloaderjsp");
+				".sdloader/" + functionName);
 		String genDir = MessageDigestUtil.digest(System
 				.getProperty("java.class.path"));
 		jspWorkDirPath = jspWorkDirPath + "/" + genDir + contextPath;
 		return jspWorkDirPath;
-	}
-
-	private static boolean isExtracted(File warFile, File[] dirs) {
-		boolean extracted = false;
-		if (dirs != null) {
-			String archiveName = WarUtil.getArchiveName(warFile.getName());
-			for (int i = 0; i < dirs.length; i++) {
-				if (archiveName.equals(dirs[i].getName())) {
-					extracted = true;
-				}
-			}
-		}
-		return extracted;
 	}
 
 	protected void parseContextXMLs(File[] contextXMLs) throws Exception {
