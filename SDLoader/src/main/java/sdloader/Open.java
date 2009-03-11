@@ -15,12 +15,9 @@
  */
 package sdloader;
 
-import sdloader.SDLoader;
-import sdloader.command.CommandMonitor;
-import sdloader.lifecycle.LifecycleEvent;
-import sdloader.lifecycle.LifecycleListener;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+
 /**
  * SDLoaderをオープンします。
  * 
@@ -33,16 +30,11 @@ public class Open {
 
 	public static void main(String[] args) {
 		try {
-			SDLoader server = new SDLoader();
-			CommandMonitor.monitor(8089, "SDLoader", server);
-			server.addEventListener(LifecycleEvent.AFTER_STOP,new LifecycleListener(){
-				public void handleLifecycle(LifecycleEvent<?> event) {
-					System.exit(0);					
-				}
-			});
+			SDLoader server = new SDLoader(true);
+
 			server.start();
 		} catch (Throwable e) {
-			log.error("SDLoader catch error.",e);			
+			log.error("SDLoader catch error.", e);
 		}
 	}
 }
