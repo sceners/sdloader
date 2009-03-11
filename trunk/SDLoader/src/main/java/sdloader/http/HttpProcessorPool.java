@@ -37,7 +37,9 @@ public class HttpProcessorPool {
 	private int maxThreadPoolNum;
 
 	private List<HttpProcessor> processorPool = CollectionsUtil.newLinkedList();
-
+	
+	private boolean stop;
+	
 	public HttpProcessorPool(int maxThreadPoolNum) {
 		this.maxThreadPoolNum = maxThreadPoolNum;
 		for (int i = 0; i < maxThreadPoolNum; ++i) {
@@ -67,12 +69,23 @@ public class HttpProcessorPool {
 	}
 
 	public synchronized void returnProcessor(HttpProcessor processor) {
+		if(stop){
+			return;
+		}
 		if (processorPool.size() < maxThreadPoolNum) {
 			log.debug("return " + processor.getName());
 			processorPool.add(processor);
 		} else {
 			log.debug("stop " + processor.getName());
 			processor.stopProcessor();
+		}
+	}
+	public synchronized void stop(){
+		if(!stop){
+			stop = true;
+			for(HttpProcessor processor:processorPool){
+				processor.stopProcessor();
+			}
 		}
 	}
 }
