@@ -38,6 +38,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 
 import sdloader.SDLoader;
+import sdloader.command.CommandServlet;
 import sdloader.http.HttpResponse;
 import sdloader.internal.SDLoaderConfig;
 import sdloader.internal.resource.ArchiveTypeResource;
@@ -214,6 +215,7 @@ public class WebAppManager {
 			initWebAppContext0(context);
 		}
 		this.webAppList.add(getRootWebApplication());
+		this.webAppList.add(getCommandWebApplication());
 		// コンテキストパスの長い順にソート
 		Collections.sort(webAppList, new Comparator<InternalWebApplication>() {
 			public int compare(InternalWebApplication o1,
@@ -278,7 +280,7 @@ public class WebAppManager {
 		webXmlTag.setWebApp(webAppTag);
 
 		// Default servlet
-		final String contextPath = "/";
+		String contextPath = "/";
 		URL docBase = PathUtil.file2URL(webappDirPath + "/"
 				+ WebConstants.ROOT_DIR_NAME);
 		if (ResourceUtil.isResourceExist(docBase)) {
@@ -290,7 +292,23 @@ public class WebAppManager {
 		context.setWebXml(webXmlTag);
 		final InternalWebApplication webapp = new InternalWebApplication(
 				context, webAppClassLoader, this);
-
+		
+		return webapp;
+	}
+	private InternalWebApplication getCommandWebApplication(){
+		// Command servlet
+		String contextPath = "/sdloader-command";
+		URL docBase = PathUtil.file2URL(webappDirPath + "/sdloader-control");
+		WebXml webXmlTag = new WebXml();
+		webXmlTag.getWebApp().addServlet(new ServletTag().setServletName("sdloader-command").setServletClass(CommandServlet.class));
+		webXmlTag.getWebApp().addServletMapping(new ServletMappingTag().setServletName("sdloader-command").setUrlPattern("/*"));
+		
+		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase });
+		WebAppContext context = new WebAppContext(contextPath, docBase);
+		context.setWebXml(webXmlTag);
+		final InternalWebApplication webapp = new InternalWebApplication(
+				context, webAppClassLoader, this);
+		
 		return webapp;
 	}
 

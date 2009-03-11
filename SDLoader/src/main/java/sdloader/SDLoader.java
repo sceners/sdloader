@@ -496,7 +496,7 @@ public class SDLoader implements Lifecycle {
 			}
 		}
 
-		public synchronized void close() throws IOException {
+		public synchronized void close(){
 			if (serverSocket != null) {
 				IOUtil.closeServerSocketNoException(serverSocket);
 				serverSocket = null;
@@ -522,7 +522,7 @@ public class SDLoader implements Lifecycle {
 	/**
 	 * ソケットを閉じ、サーバを終了します。
 	 */
-	public void stop() {
+	public synchronized void stop() {
 		if (!running) {
 			return;
 		}
@@ -532,12 +532,11 @@ public class SDLoader implements Lifecycle {
 
 		// destroy webapps
 		webAppManager.close();
-		// close socket
-		try {
-			sdLoaderThread.close();
-		} catch (IOException ioe) {
-			log.error(ioe);
-		}
+		
+		socketProcessorPool.stop();		
+		
+		sdLoaderThread.close();
+
 		running = false;
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
