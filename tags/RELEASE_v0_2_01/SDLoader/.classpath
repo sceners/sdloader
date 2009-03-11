@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="src/test/resources"/>
+	<classpathentry kind="src" path="webapps/test/WEB-INF/src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="devlib/junit.jar"/>
+	<classpathentry kind="lib" path="lib/h2.jar"/>
+	<classpathentry kind="lib" path="lib/swt.jar"/>
+	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/el-api.jar"/>
+	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jasper.jar"/>
+	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jasper-el.jar"/>
+	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jasper-jdt.jar"/>
+	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jsp-api.jar"/>
+	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/tomcat-juli.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
