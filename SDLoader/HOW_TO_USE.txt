@@ -70,7 +70,7 @@ SDLoader sdLoader = new SDLoader(true);
 次の
   WebAppContext webApp = new WebAppContext("/test","WebContent");
 の部分は、デプロイするWebアプリのインスタンス化です。
-第一引数は、デプロイするアプリのコンテキストルートです。
+第一引数は、デプロイするアプリのコンテキストルートです。直接warファイルを指定することも出来ます。
 第二引数は、ドキュメントルートディレクトリです。通常はWEB-INFが入っているフォルダを
 指定します。
 
