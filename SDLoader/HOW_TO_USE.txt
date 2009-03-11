@@ -115,10 +115,11 @@ Browser.openは、引数にURLを入れるとそのURLをブラウザで開き�
 スタンドアロンの場合は、特に設定する項目はありません。
 
 webapps
-sdloader-jspXX.jar
+lib/sdloader-jspXX.jar
 sdloader-jspXX.bat
+sdloader-jspXX.exe
 
-のファイル配置にし、batファイルから起動できます。
+のファイル配置にし、batファイルもしくはexeから起動できます。
 
 webapps以下には、
 ・warファイル
