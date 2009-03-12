@@ -16,6 +16,7 @@
 package sdloader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.AccessControlException;
@@ -302,6 +303,23 @@ public class SDLoader implements Lifecycle {
 	}
 
 	/**
+	 * SDLoaderのバージョンを返します。
+	 * 
+	 * @return
+	 */
+	public static String getVersion() {
+		try {
+			InputStream is = SDLoader.class.getResourceAsStream(
+					"/META-INF/sdloaderversion.txt");
+			Properties p = new Properties();
+			p.load(is);
+			return p.getProperty("libversion");
+		} catch (IOException ioe) {
+			return null;
+		}
+	}
+
+	/**
 	 * イベントリスナーを追加します。
 	 * 
 	 * @param type
@@ -311,15 +329,11 @@ public class SDLoader implements Lifecycle {
 		dispatcher.addEventListener(type, listener);
 	}
 
+	/**
+	 * サーバ起動中かどうかを返します。
+	 */
 	public boolean isRunning() {
 		return running;
-	}
-
-	protected boolean checkNotRunning() {
-		if (running) {
-			throw new IllegalStateException("SDLoader is already running.");
-		}
-		return false;
 	}
 
 	/**
@@ -358,6 +372,46 @@ public class SDLoader implements Lifecycle {
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.AFTER_START, this));
+	}
+
+	/**
+	 * ソケットを閉じ、サーバを終了します。
+	 */
+	public synchronized void stop() {
+		if (!running) {
+			return;
+		}
+		log.info("SDLoader[port:" + getPort() + "] shutdown start.");
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+				LifecycleEvent.BEFORE_STOP, this));
+
+		// destroy webapps
+		webAppManager.close();
+
+		socketProcessorPool.stop();
+
+		sdLoaderThread.close();
+
+		running = false;
+
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+				LifecycleEvent.AFTER_STOP, this));
+
+		log.info("SDLoader[port:" + getPort() + "] stop.");
+	}
+
+	/**
+	 * SDLoaderが終了するまで待機します。
+	 * 
+	 */
+	public void waitForStop() {
+		if (running) {
+			try {
+				sdLoaderThread.join();
+			} catch (InterruptedException e) {
+				log.error(e.getMessage(), e);
+			}
+		}
 	}
 
 	protected void initConfig() {
@@ -476,6 +530,13 @@ public class SDLoader implements Lifecycle {
 		});
 	}
 
+	protected boolean checkNotRunning() {
+		if (running) {
+			throw new IllegalStateException("SDLoader is already running.");
+		}
+		return false;
+	}
+
 	public WebAppManager getWebAppManager() {
 		return webAppManager;
 	}
@@ -524,45 +585,5 @@ public class SDLoader implements Lifecycle {
 			}
 			shutdown = true;
 		}
-	}
-
-	/**
-	 * SDLoaderが終了するまで待機します。
-	 * 
-	 */
-	public void waitForStop() {
-		if (running) {
-			try {
-				sdLoaderThread.join();
-			} catch (InterruptedException e) {
-				log.error(e.getMessage(), e);
-			}
-		}
-	}
-
-	/**
-	 * ソケットを閉じ、サーバを終了します。
-	 */
-	public synchronized void stop() {
-		if (!running) {
-			return;
-		}
-		log.info("SDLoader[port:" + getPort() + "] shutdown start.");
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
-				LifecycleEvent.BEFORE_STOP, this));
-
-		// destroy webapps
-		webAppManager.close();
-
-		socketProcessorPool.stop();
-
-		sdLoaderThread.close();
-
-		running = false;
-
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
-				LifecycleEvent.AFTER_STOP, this));
-
-		log.info("SDLoader[port:" + getPort() + "] stop.");
 	}
 }

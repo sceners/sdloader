@@ -144,7 +144,7 @@
 		</manifest>  		
 	</jar>
   	<exec executable="./boot/exewrap/exewrap.exe">
-  	  <arg line="-i ./boot/sdloader.ico -g ${distbuildstandalone}/sdloader/sdloader.jar" /> 
+  	  <arg line="-i ./boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader/sdloader.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader/sdloader.jar"/>
    	
@@ -190,7 +190,7 @@
 		</manifest>  		
 	</jar>
   	<exec executable="./boot/exewrap/exewrap.exe">
-  	  <arg line="-i ./boot/sdloader.ico -g ${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar" /> 
+  	  <arg line="-i ./boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar"/>	
 
@@ -234,7 +234,7 @@
 		</manifest>  		
 	</jar>
   	<exec executable="./boot/exewrap/exewrap.exe">
-  	  <arg line="-i ./boot/sdloader.ico -g ${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar" /> 
+  	  <arg line="-i ./boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar"/>
   	
