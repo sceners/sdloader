@@ -17,9 +17,12 @@ package sdloader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.AccessControlException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import sdloader.event.EventDispatcher;
@@ -69,8 +72,8 @@ public class SDLoader implements Lifecycle {
 	 */
 	public static final String KEY_SDLOADER_HOME = CONFIG_KEY_PREFIX + "home";
 
-	public static final String KEY_SDLOADER_WEBAPP_PATH = CONFIG_KEY_PREFIX
-			+ "webAppPath";
+	public static final String KEY_SDLOADER_WEBAPPS_DIR = CONFIG_KEY_PREFIX
+			+ "webAppsDir";
 
 	public static final String KEY_WAR_INMEMORY_EXTRACT = CONFIG_KEY_PREFIX
 			+ "warInMemoryExtract";
@@ -98,6 +101,20 @@ public class SDLoader implements Lifecycle {
 	public static final String KEY_SDLOADER_WORK_DIR = CONFIG_KEY_PREFIX
 			+ "workDir";
 
+	public static final List<String> CONFIG_KEYS = new ArrayList<String>();
+	static{
+		try{
+			Field[] fields = SDLoader.class.getFields();
+			for(int i = 0;i < fields.length;i++){
+				if(fields[i].getName().startsWith("KEY")){
+					CONFIG_KEYS.add((String)fields[i].get(null));
+				}
+			}
+		}catch(Exception e){
+			
+		}
+	}
+	
 	private String sdloaderConfigPath = "sdloader.properties";
 
 	protected WebAppManager webAppManager = new WebAppManager();
@@ -124,6 +141,15 @@ public class SDLoader implements Lifecycle {
 		loadDefaultConfig();
 	}
 
+	/**
+	 * 指定のプロパティでSDLoaderを構築します。
+	 * 
+	 * @param port
+	 */
+	public SDLoader(Properties p) {
+		loadDefaultConfig();
+		config.addAll(p);
+	}
 	/**
 	 * 指定のポートでSDLoaderを構築します。
 	 * 
@@ -431,9 +457,9 @@ public class SDLoader implements Lifecycle {
 
 		// init webappDir
 		String webappPath = config
-				.getConfigStringIgnoreExist(KEY_SDLOADER_WEBAPP_PATH);
+				.getConfigStringIgnoreExist(KEY_SDLOADER_WEBAPPS_DIR);
 		if (webappPath == null) {
-			webappPath = System.getProperty(KEY_SDLOADER_WEBAPP_PATH);
+			webappPath = System.getProperty(KEY_SDLOADER_WEBAPPS_DIR);
 			if (webappPath == null) {
 				webappPath = WebConstants.WEBAPP_DIR_NAME;
 			}
@@ -443,8 +469,8 @@ public class SDLoader implements Lifecycle {
 			// homeからの絶対パスに変換
 			webappPath = homeDir + "/" + webappPath;
 		}
-		config.setConfig(KEY_SDLOADER_WEBAPP_PATH, webappPath);
-		log.info(KEY_SDLOADER_WEBAPP_PATH + "=" + webappPath);
+		config.setConfig(KEY_SDLOADER_WEBAPPS_DIR, webappPath);
+		log.info(KEY_SDLOADER_WEBAPPS_DIR + "=" + webappPath);
 
 		// init jsp lib path
 		config.setConfigFromSystemIfNotExit(KEY_SDLOADER_JSP_LIBPATH);
