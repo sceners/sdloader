@@ -31,6 +31,32 @@ public class SDLoaderLogFactory {
 
 	private static boolean useSystemLog;
 	static {
+		InputStream is = getLogConfig();
+		if (is == null) {
+			useSystemLog = true;
+			System.out
+					.println("[SDLoader] Log configuration not found.use SDLoaderLogSystemImpl.");
+		} else {
+			try {
+				// check class load
+				if (checkUseSystemLog(is) == true) {
+					useSystemLog = true;
+					System.out
+							.println("[SDLoader] Log class load fail by system class loader.use SDLoaderLogSystemImpl.");
+				} else {
+					is = getLogConfig();
+					LogManager.getLogManager().readConfiguration(is);
+				}
+			} catch (Exception ioe) {
+				useSystemLog = true;
+				ioe.printStackTrace();
+				System.out
+						.println("[SDLoader] Log configuration fail.use SDLoaderLogSystemImpl.");
+			}
+		}
+	}
+
+	private static InputStream getLogConfig() {
 		String configPath = System.getProperty("java.util.logging.config.file");
 		if (configPath == null || configPath.length() == 0) {
 			InputStream is = ResourceUtil.getResourceAsStream(
@@ -39,28 +65,9 @@ public class SDLoaderLogFactory {
 				is = ResourceUtil.getResourceAsStream("sdloader.properties",
 						SDLoaderLogFactory.class);
 			}
-			if (is == null) {
-				useSystemLog = true;
-				System.out
-						.println("[SDLoader] Log configuration not found.use SDLoaderLogSystemImpl.");
-			} else {
-				try {
-					// check class load
-					if (checkUseSystemLog(is) == true) {
-						useSystemLog = true;
-						System.out
-								.println("[SDLoader] Log class load fail by system class loader.use SDLoaderLogSystemImpl.");
-					} else {
-						LogManager.getLogManager().readConfiguration(is);
-					}
-				} catch (Exception ioe) {
-					useSystemLog = true;
-					ioe.printStackTrace();
-					System.out
-							.println("[SDLoader] Log configuration fail.use SDLoaderLogSystemImpl.");
-				}
-			}
+			return is;
 		}
+		return null;
 	}
 
 	// クラスローダーの関係でSDLoaderのログがロードできない場合、SDLoaderLogSystemImplを使うかどうか
