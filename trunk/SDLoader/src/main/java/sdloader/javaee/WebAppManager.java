@@ -227,6 +227,8 @@ public class WebAppManager {
 
 	protected void initWebAppContext0(WebAppContext context) throws Exception {
 		final String contextPath = context.getContextPath();
+		log.info("create webapp [" + contextPath + "]");
+
 		final URL[] docBase = context.getDocBase();
 		// docBaseがwarファイルだった場合、テンポラリに展開してそのパスを使用
 		for (int i = docBase.length - 1; i >= 0; i--) {
@@ -255,7 +257,7 @@ public class WebAppManager {
 				webAppClassLoader, this);
 		this.webAppList.add(webapp);
 
-		log.info("create webapp [" + contextPath + "]");
+		log.info("create success.");
 	}
 
 	protected WebXml buildWebXml(URL[] url) throws SAXException,
