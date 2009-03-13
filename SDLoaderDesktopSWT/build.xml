@@ -10,7 +10,7 @@
 	
   <target name="init">
   	<tstamp/>
-	<property name="dist"  value="${distbase}/${version}_${DSTAMP}${TSTAMP}" />	  	
+	<property name="dist"  value="${distbase}/${version}_${DSTAMP}${TSTAMP}/SDLoaderDesktopSWT" />	  	
     <mkdir dir="${dist}" />
   </target>
 
@@ -55,10 +55,8 @@
   	<delete file="${dist}/SDLoaderDesktopSWT.jar"></delete>
   	
   	<!-- release archive -->
-  	<zip zipfile="${dist}/sdloader-full-${libversion}.zip">
-  		<zipfileset dir="${distbuild}">
-  			<exclude name="standalone/*.zip"/>
-  		</zipfileset>
+  	<zip zipfile="${dist}/../SDLoaderDesktopSWT-${version}.zip">
+  		<zipfileset file="${dist}/**"/>
   	</zip>  	
   </target>	
 </project>
