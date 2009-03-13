@@ -1,3 +1,16 @@
+=== v0_1_14 ===
+ * WebAppContextを使用する際、複数のドキュメントルートを指定できるように修正。
+   例えば、
+{{{
+   SDLoader loader = new SDLoader(8080);
+   loader.addWebAppContext(new WebAppContext("/flex","bin-debug","WebContent"));
+}}}
+   とすると、bin-debugをチェックし、ファイルがあればそこから、なければWebContentからファイルを探します。（Flex開発用の為）
+
+ * HttpServletRequestからパスを取る部分をURIDecoderでコードするように修正。またデコードする時の文字コードを、loader.setURIEncoding("UTF-8");　のようにセットできるようにしました。（日本語の入ったURLに対応するため）
+ * loader.setUseNoCacheMode(true)とすると、すべてのリクエストにno-cacheヘッダーを付与する機能を追加（アプレットやFlash開発時のキャッシュよけのため）。
+ * FireFoxでリダイレクト時に動作が遅くなる現象を修正
+ * その他クラス名の統一やリファクタリング 
 === v0_1_12 ===
  * URLClassLoader経由でSDLoaderを動かすとエラーになる不具合に対応。
  * (Webコンテナのライブラリをロードするクラスローダの親にSystemClassLoaderを指定していたため、
