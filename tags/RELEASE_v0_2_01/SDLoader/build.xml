@@ -58,7 +58,7 @@
     <mkdir dir="${distbuild}" />  	
   	<mkdir dir="${distbuildlib}" />
   	
-    <jar jarfile="${distbuildlib}/sdloader.jar" compress="true">
+    <jar jarfile="${distbuildlib}/sdloader-${libversion}.jar" compress="true">
     	<fileset dir="${build}"/>
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -71,7 +71,7 @@
 		</manifest>
     </jar>
   	
-    <jar jarfile="${distbuildlib}/sdloader-jsp20.jar" compress="true">
+    <jar jarfile="${distbuildlib}/sdloader-jsp20-${libversion}.jar" compress="true">
     	<fileset dir="${build}"/>    	
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -88,7 +88,7 @@
 		</manifest>
     </jar>
 
-    <jar jarfile="${distbuildlib}/sdloader-jsp21.jar" compress="true">
+    <jar jarfile="${distbuildlib}/sdloader-jsp21-${libversion}.jar" compress="true">
     	<fileset dir="${build}"/>    	
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -123,7 +123,7 @@
 		</fileset>
     </copy> 
   	<mkdir dir="${distbuildstandalone}/sdloader/lib" />
-    <jar jarfile="${distbuildstandalone}/sdloader/lib/sdloader.jar" compress="true">
+    <jar jarfile="${distbuildstandalone}/sdloader/lib/sdloader-${libversion}.jar" compress="true">
     	<fileset dir="${build}"/>
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -148,7 +148,7 @@
   	  <arg line="-i ./boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader/sdloader.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader/sdloader.jar"/>
-  	<zip destfile="${distbuildstandalone}/sdloader-standalone.zip" compress="true">
+  	<zip destfile="${distbuildstandalone}/sdloader-standalone-${libversion}.zip" compress="true">
   		<fileset dir="${distbuildstandalone}">
   			<include name="sdloader/**"/>
   		</fileset>
@@ -166,7 +166,7 @@
 		</fileset>
     </copy>
   	<mkdir dir="${distbuildstandalone}/sdloader-jsp20/lib" />
-    <jar jarfile="${distbuildstandalone}/sdloader-jsp20/lib/sdloader-jsp20.jar" compress="true">
+    <jar jarfile="${distbuildstandalone}/sdloader-jsp20/lib/sdloader-jsp20-${libversion}.jar" compress="true">
     	<fileset dir="${build}"/>    	
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -197,7 +197,7 @@
   	  <arg line="-i ./boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar"/>	
-  	<zip destfile="${distbuildstandalone}/sdloader-jsp20-standalone.zip" compress="true">
+  	<zip destfile="${distbuildstandalone}/sdloader-jsp20-standalone-${libversion}.zip" compress="true">
   		<fileset dir="${distbuildstandalone}">
   			<include name="sdloader-jsp20/**"/>
   		</fileset>
@@ -215,7 +215,7 @@
 			<include name="webapps/ROOT/*"/>
 		</fileset>
     </copy>  
-    <jar jarfile="${distbuildstandalone}/sdloader-jsp21/lib/sdloader-jsp21.jar" compress="true">
+    <jar jarfile="${distbuildstandalone}/sdloader-jsp21/lib/sdloader-jsp21-${libversion}.jar" compress="true">
     	<fileset dir="${build}"/>    	
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
@@ -246,7 +246,7 @@
   	  <arg line="-i ./boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar"/>
-  	<zip destfile="${distbuildstandalone}/sdloader-jsp21-standalone.zip" compress="true">
+  	<zip destfile="${distbuildstandalone}/sdloader-jsp21-standalone-${libversion}.zip" compress="true">
   		<fileset dir="${distbuildstandalone}">
   			<include name="sdloader-jsp21/**"/>
   		</fileset>
@@ -254,7 +254,7 @@
   	
   	<!-- source -->
   	<mkdir dir="${distbuild}/src"/>
-  	<jar jarfile="${distbuild}/src/sdloadersrc.jar">
+  	<jar jarfile="${distbuild}/src/sdloadersrc-${libversion}.jar">
 		<fileset dir="${src}">
 			<include name="**/*" />
 		</fileset>
@@ -291,8 +291,10 @@
   	</copy>
   	
   	<!-- release archive -->
-  	<zip zipfile="${dist}/sdloader-${libversion}.zip">
-  		<zipfileset dir="${distbuild}"/>
+  	<zip zipfile="${dist}/sdloader-full-${libversion}.zip">
+  		<zipfileset dir="${distbuild}">
+  			<exclude name="standalone/*.zip"/>
+  		</zipfileset>
   	</zip>
   	
   	<!--project-->
