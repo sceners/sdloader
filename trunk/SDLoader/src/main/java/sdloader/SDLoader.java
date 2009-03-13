@@ -74,7 +74,11 @@ public class SDLoader implements Lifecycle {
 
 	public static final String KEY_SDLOADER_WEBAPPS_DIR = CONFIG_KEY_PREFIX
 			+ "webAppsDir";
-
+	/**
+	 * @deprecated
+	 */
+	public static final String KEY_SDLOADER_WEBAPP_PATH = KEY_SDLOADER_WEBAPPS_DIR;
+	
 	public static final String KEY_WAR_INMEMORY_EXTRACT = CONFIG_KEY_PREFIX
 			+ "warInMemoryExtract";
 
