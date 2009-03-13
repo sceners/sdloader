@@ -153,7 +153,7 @@ public class WebAppManager {
 
 	protected void detectWebApps() throws Exception {
 		this.webappDirPath = config
-				.getConfigString(SDLoader.KEY_SDLOADER_WEBAPP_PATH);
+				.getConfigString(SDLoader.KEY_SDLOADER_WEBAPPS_DIR);
 		File webappDir = new File(webappDirPath);
 		if (!webappDir.exists()) {
 			log.info("webapps directory not exists.path=" + webappDirPath);
