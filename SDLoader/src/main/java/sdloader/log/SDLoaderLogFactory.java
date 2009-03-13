@@ -49,7 +49,7 @@ public class SDLoaderLogFactory {
 					if (checkUseSystemLog(is) == true) {
 						useSystemLog = true;
 						System.out
-								.println("Log class cannot load.use default log.use SDLoaderLogSystemImpl.");
+								.println("Log class load fail.use default log.use SDLoaderLogSystemImpl.");
 					} else {
 						LogManager.getLogManager().readConfiguration(is);
 					}
