@@ -103,8 +103,9 @@ USBに入れて
 * <context-param>
 * <filter>,<filter-mapping>
 * <listener>
-* <servlet>,<servlet-mapping>
- # <jsp-file>,<load-on-startup>,<security-role-ref>は未実装
+* <servlet>,<servlet-mapping><load-on-startup>
+* <jsp-file>(Jasperがんばる）
+ # <security-role-ref>は未実装
 * <welcome-file-list>
 * <taglib>
 
@@ -115,6 +116,5 @@ USBに入れて
  # 次に導入予定
 
 = 今後 =
-
-
-
+JNDI
+開発支援系
