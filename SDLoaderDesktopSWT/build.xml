@@ -36,7 +36,7 @@
     		<include name="viewconfig/**" />
     		<include name="lib/sdloader-*.jar" />
     		<include name="jre/**" />    		
-  			<include name="HOW_TO_USE.txt" />
+  			<include name="HOW_TO_USE.html" />
     	</fileset>
     </copy>
   	<copy todir="${dist}/webapps/ROOT" file="HOW_TO_USE.html"/>
