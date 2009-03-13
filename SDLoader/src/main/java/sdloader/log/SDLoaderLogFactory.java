@@ -15,7 +15,9 @@
  */
 package sdloader.log;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 import java.util.logging.LogManager;
 
 import sdloader.util.ResourceUtil;
@@ -27,6 +29,7 @@ import sdloader.util.ResourceUtil;
  */
 public class SDLoaderLogFactory {
 
+	private static boolean useSystemLog;
 	static {
 		String configPath = System.getProperty("java.util.logging.config.file");
 		if (configPath == null || configPath.length() == 0) {
@@ -36,20 +39,57 @@ public class SDLoaderLogFactory {
 				is = ResourceUtil.getResourceAsStream("sdloader.properties",
 						SDLoaderLogFactory.class);
 			}
-			if (is != null) {
+			if (is == null) {
+				useSystemLog = true;
+				System.out
+						.println("sdloader log configuration not found.use SDLoaderLogSystemImpl.");
+			} else {
 				try {
-					LogManager.getLogManager().readConfiguration(is);
+					// check class load
+					if (checkUseSystemLog(is) == true) {
+						useSystemLog = true;
+						System.out
+								.println("Log class cannot load.use default log.use SDLoaderLogSystemImpl.");
+					} else {
+						LogManager.getLogManager().readConfiguration(is);
+					}
 				} catch (Exception ioe) {
-					System.out.println("sdloader log configuration fail.use default JDK Logger settings.");
+					useSystemLog = true;
+					ioe.printStackTrace();
+					System.out
+							.println("sdloader log configuration fail.use SDLoaderLogSystemImpl.");
 				}
 			}
 		}
+	}
+
+	// クラスローダーの関係でSDLoaderのログがロードできない場合、SDLoaderLogSystemImplを使うかどうか
+	private static boolean checkUseSystemLog(InputStream is) throws IOException {
+		Properties p = new Properties();
+		p.load(is);
+		String[] handlers = p.getProperty("handlers").split(",");
+		for (int i = 0; i < handlers.length; i++) {
+			String target = handlers[i].trim();
+			try {
+				ClassLoader.getSystemClassLoader().loadClass(target);
+			} catch (ClassNotFoundException e) {
+				if (!target.startsWith("sdloader.log")) {
+					System.err.println("Class not found. class=" + target);
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private SDLoaderLogFactory() {
 	}
 
 	public static SDLoaderLog getLog(Class<?> c) {
-		return new SDLoaderLogJDKLoggerImpl(c);
+		if (useSystemLog) {
+			return new SDLoaderLogSystemImpl(c);
+		} else {
+			return new SDLoaderLogJDKLoggerImpl(c);
+		}
 	}
 }
