@@ -42,14 +42,14 @@ public class SDLoaderLogFactory {
 			if (is == null) {
 				useSystemLog = true;
 				System.out
-						.println("sdloader log configuration not found.use SDLoaderLogSystemImpl.");
+						.println("[SDLoader] Log configuration not found.use SDLoaderLogSystemImpl.");
 			} else {
 				try {
 					// check class load
 					if (checkUseSystemLog(is) == true) {
 						useSystemLog = true;
 						System.out
-								.println("Log class load fail.use default log.use SDLoaderLogSystemImpl.");
+								.println("[SDLoader] Log class load fail by system class loader.use SDLoaderLogSystemImpl.");
 					} else {
 						LogManager.getLogManager().readConfiguration(is);
 					}
@@ -57,7 +57,7 @@ public class SDLoaderLogFactory {
 					useSystemLog = true;
 					ioe.printStackTrace();
 					System.out
-							.println("sdloader log configuration fail.use SDLoaderLogSystemImpl.");
+							.println("[SDLoader] Log configuration fail.use SDLoaderLogSystemImpl.");
 				}
 			}
 		}
