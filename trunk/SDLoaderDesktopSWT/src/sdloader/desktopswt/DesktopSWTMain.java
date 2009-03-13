@@ -47,53 +47,15 @@ public class DesktopSWTMain {
 		new DesktopSWTMain().open();
 	}
 
-	private void openSplashWindow() {
-		splash = new Shell(SWT.ON_TOP);
-		splash.setText("loading");
-		splash.setLayout(new GridLayout(1, false));
-		Image img = getSplashImage();
-		Label label = new Label(splash, SWT.NONE);
-		label.setImage(img);
-
-		Label loadLabel = new Label(splash, SWT.NONE);
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		loadLabel.setLayoutData(gd);
-
-		splash.pack();
-
-		// スプラッシュウィンドウを中央に配置
-		Rectangle shellRect = splash.getBounds();
-		Rectangle dispRect = display.getBounds();
-		int x = (dispRect.width - shellRect.width) / 2;
-		int y = (dispRect.height - shellRect.height) / 2;
-		// 位置の指定はpack()のあとに呼ぶ必要がある
-		splash.setLocation(x, y);
-		splash.open();
-	}
-	protected Image getSplashImage(){
-		File splash = new File("splash.bmp");
-		if(splash.exists()){
-			return new Image(display,"splash.bmp");
-		}else{
-			return new Image(display,getClass().getResourceAsStream("/icon/splash.bmp"));
-		}
-	}
-	protected Image getWindowIconImage(){
-		File icon = new File("windowicon.gif");
-		if(icon.exists()){
-			return new Image(display,"windowicon.gif");
-		}else{
-			return new Image(display,getClass().getResourceAsStream("/icon/windowicon.gif"));
-		}
-	}
-
 	@SuppressWarnings("deprecation")
 	public void open() {
+
 		display = new Display();
 		openSplashWindow();
+		initAppProperty();
 
 		shell = new Shell(display);
-		shell.setText("SDLoaderDesktopSWT");
+		shell.setText(getTitleName());
 		shell.setImage(getWindowIconImage());
 		FillLayout layout = new FillLayout(SWT.VERTICAL);
 		shell.setLayout(layout);
@@ -125,6 +87,10 @@ public class DesktopSWTMain {
 				}
 			}
 		} catch (Exception e) {
+			try {
+				splash.close();
+			} catch (Exception ex) {
+			}			
 			MessageBox msg = new MessageBox(shell, SWT.ICON_ERROR);
 			msg.setMessage("エラー");
 			msg.setMessage(e.getMessage());
@@ -135,10 +101,6 @@ public class DesktopSWTMain {
 			} catch (Exception e) {
 			}
 			try {
-				splash.close();
-			} catch (Exception e) {
-			}
-			try {
 				server.stop();
 			} catch (Exception e) {
 			}
@@ -146,25 +108,52 @@ public class DesktopSWTMain {
 		}
 	}
 
+	private void openSplashWindow() {
+		splash = new Shell(SWT.ON_TOP);
+		splash.setText("loading");
+		splash.setLayout(new GridLayout(1, false));
+		Image img = getSplashImage();
+		Label label = new Label(splash, SWT.NONE);
+		label.setImage(img);
+
+		Label loadLabel = new Label(splash, SWT.NONE);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		loadLabel.setLayoutData(gd);
+
+		splash.pack();
+
+		// スプラッシュウィンドウを中央に配置
+		Rectangle shellRect = splash.getBounds();
+		Rectangle dispRect = display.getBounds();
+		int x = (dispRect.width - shellRect.width) / 2;
+		int y = (dispRect.height - shellRect.height) / 2;
+		// 位置の指定はpack()のあとに呼ぶ必要がある
+		splash.setLocation(x, y);
+		splash.open();
+	}
+
+	protected void initAppProperty() {
+		appProperties = new Properties();
+		InputStream app = ResourceUtil.getResourceAsStream(
+				"application.properties", DesktopSWTMain.class);
+		if (app == null) {
+			return;
+		}
+		try {
+			appProperties.load(app);
+		} catch (IOException ioe) {
+			throw new RuntimeException("application.propertiesのロードに失敗しました。");
+		}
+	}
+
 	public void initSDLoader() {
-		initProperty();
-		initSystemProperty();
 		initServer();
 		startServer();
 	}
 
-	protected void initProperty() {
-		InputStream app = ResourceUtil.getResourceAsStream(
-				"application.properties", DesktopSWTMain.class);
-		if (app == null) {
-			throw new RuntimeException("application.propertiesがありません");
-		}
-		appProperties = new Properties();
-		try {
-			appProperties.load(app);
-		} catch (IOException ioe) {
-			throw new RuntimeException("application.propertiesがありません");
-		}
+	protected void initServer() {
+		server = new SDLoader(true);
+
 		Iterator<Object> keyItr = appProperties.keySet().iterator();
 		while (keyItr.hasNext()) {
 			String key = (String) keyItr.next();
@@ -172,28 +161,17 @@ public class DesktopSWTMain {
 				String value = appProperties.getProperty(key);
 				server.setConfig(key, value);
 			}
+			// TODO
+			if (key.equals("port")) {
+				String value = appProperties.getProperty(key);
+				server.setConfig(SDLoader.KEY_SDLOADER_PORT, value);
+			}
 		}
-	}
 
-	/**
-	 * application.propertiesで使う変数を登録
-	 */
-	protected void initSystemProperty() {
-		System.setProperty("webapps",
-				(System.getProperty("user.dir") + "/webapps")
-						.replace("\\", "/"));
-	}
+		String webAppsDir = System.getProperty("user.dir") + "/webapps";
+		webAppsDir = webAppsDir.replace("\\", "/");
+		server.setConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH, webAppsDir);
 
-	protected void initServer() {
-		server = new SDLoader();
-		server.getSDLoaderConfig().addAll(appProperties);
-//		String port = appProperties.getProperty("port");
-//		if (port != null) {
-//			server.setPort(Integer.parseInt(port));
-//			server.setAutoPortDetect(false);
-//		} else {
-//			server.setAutoPortDetect(true);
-//		}
 		server.addEventListener(LifecycleEvent.AFTER_START,
 				new LifecycleListener() {
 					public void handleLifecycle(LifecycleEvent<?> arg0) {
@@ -203,7 +181,7 @@ public class DesktopSWTMain {
 	}
 
 	protected void showUI() {
-		init();
+		createView();
 		splash.close();
 		shell.open();
 	}
@@ -221,7 +199,31 @@ public class DesktopSWTMain {
 		}
 	}
 
-	public void init() {
+	protected Image getSplashImage() {
+		File splash = new File("splash.bmp");
+		if (splash.exists()) {
+			return new Image(display, "splash.bmp");
+		} else {
+			return new Image(display, getClass().getResourceAsStream(
+					"/icon/splash.bmp"));
+		}
+	}
+
+	protected String getTitleName() {
+		return appProperties.getProperty("title", "SDLoaderDesktopSWT");
+	}
+
+	protected Image getWindowIconImage() {
+		File icon = new File("windowicon.gif");
+		if (icon.exists()) {
+			return new Image(display, "windowicon.gif");
+		} else {
+			return new Image(display, getClass().getResourceAsStream(
+					"/icon/windowicon.gif"));
+		}
+	}
+
+	protected void createView() {
 		File viewconfigDir = null;
 		String durl = System.getProperty("user.dir") + "/viewconfig";
 		try {
