@@ -15,7 +15,6 @@
  */
 package sdloader.log;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.LogManager;
 
@@ -40,8 +39,8 @@ public class SDLoaderLogFactory {
 			if (is != null) {
 				try {
 					LogManager.getLogManager().readConfiguration(is);
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
+				} catch (Exception ioe) {
+					System.out.println("sdloader log configuration fail.use default JDK Logger settings.");
 				}
 			}
 		}
