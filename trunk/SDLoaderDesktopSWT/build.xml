@@ -33,13 +33,14 @@
     	<fileset dir=".">
     		<include name="application.properties" />
     		<include name="webapps/ROOT/**" />
-    		<include name="webapps/*.war" />
     		<include name="viewconfig/**" />
     		<include name="lib/sdloader-*.jar" />
     		<include name="jre/**" />    		
   			<include name="HOW_TO_USE.txt" />
     	</fileset>
     </copy>
+  	<copy todir="${dist}/webapps/ROOT" file="HOW_TO_USE.html"/>
+  	
     <mkdir dir="${dist}/doc"/>
     <copy todir="${dist}/doc">
     	<fileset dir=".">
