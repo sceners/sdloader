@@ -37,10 +37,18 @@
         <servlet-name>SWTServlet</servlet-name>
         <servlet-class>servlet.SWTServlet</servlet-class>
     </servlet>
-
+    <servlet>
+        <servlet-name>FlexServlet</servlet-name>
+        <servlet-class>servlet.FlexServlet</servlet-class>
+    </servlet>
+    
     <servlet-mapping>
         <servlet-name>SWTServlet</servlet-name>
         <url-pattern>/swt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FlexServlet</servlet-name>
+        <url-pattern>/flex</url-pattern>
     </servlet-mapping>
 <!--
     <servlet>
