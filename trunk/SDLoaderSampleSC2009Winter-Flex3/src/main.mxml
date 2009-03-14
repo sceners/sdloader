@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical">
+	<mx:Script>
+		<![CDATA[
+			import mx.rpc.http.HTTPService;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			public function buttonClick(e:MouseEvent):void{
+		        var service:HTTPService = new HTTPService();
+		        service.method = "POST";
+		        service.url = "flex";
+		        service.addEventListener(ResultEvent.RESULT,handleResult);
+		        service.send();
+			}
+			public function handleResult(e:ResultEvent):void{
+				var result:URLVariables = new URLVariables(e.result.toString());
+				resultLabel.text="RESULT:"+result["foo"];
+			}
+		]]>
+	</mx:Script>
+	<mx:Label text="SDLoader" fontSize="40"/>
+	<mx:Button label="SUBMIT" fontSize="40" click="buttonClick(event)"/>
+	<mx:Label id="resultLabel" text="" fontSize="40"/>
+</mx:Application>
