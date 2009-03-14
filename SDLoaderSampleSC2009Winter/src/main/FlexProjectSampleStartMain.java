@@ -2,7 +2,6 @@ package main;
 
 import sdloader.SDLoader;
 import sdloader.javaee.WebAppContext;
-import sdloader.util.Browser;
 
 public class FlexProjectSampleStartMain {
 
