@@ -20,7 +20,6 @@ public class FlexProjectSampleStartMain {
 
 		// ‹N“®
 		loader.start();
-		
-		Browser.open("http://localhost:"+loader.getPort()+"/sample/main.html");
+
 	}
 }
