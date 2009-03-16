@@ -295,8 +295,9 @@
 		<fileset dir="${srctest}">
 			<include name="**/*" />
 		</fileset>
-		<fileset dir="${srctestresources}">
+		<fileset dir="${srctestresources}">			
 			<include name="**/*" />
+			<exclude name="sdloader-logging.properties"/>
 		</fileset>
     	<fileset dir=".">
 		    <include name="sdloaderversion.txt"/>
