@@ -19,10 +19,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import sdloader.constants.LineSpeed;
+
 /**
  * 帯域制限つきOutputStream
+ * 
  * @author AKatayama
- *
+ * 
  */
 public class QoSOutputStream extends OutputStream {
 
@@ -32,7 +34,6 @@ public class QoSOutputStream extends OutputStream {
 
 	private OutputStream out;
 	private int bytePerSliceSec;
-	private boolean qos;
 
 	private int writeBytes;
 	private long lastSleepTime;
@@ -40,34 +41,31 @@ public class QoSOutputStream extends OutputStream {
 	public QoSOutputStream(OutputStream out, int bps) {
 		this.out = out;
 		if (bps <= LineSpeed.NO_LIMIT) {
-			qos = false;
+			bytePerSliceSec = Integer.MAX_VALUE;
 		} else {
 			bytePerSliceSec = Math.max(1,
 					(int) (bps / BIT_PER_BYTE / SEC_SLICE_NUM));
-			qos = true;
 		}
 	}
 
 	@Override
 	public void write(int b) throws IOException {
 		out.write(b);
-		if (qos) {
-			writeBytes++;
-			if (lastSleepTime == 0) {
-				lastSleepTime = System.currentTimeMillis();
-			}
-			if (writeBytes == bytePerSliceSec) {
-				long now = System.currentTimeMillis();
-				long sleepTime = SLEEP_MILLI_SEC - (now - lastSleepTime);
-				if (sleepTime > 0) {
-					try {
-						Thread.sleep(sleepTime);
-					} catch (InterruptedException e) {
-					}
+		writeBytes++;
+		if (lastSleepTime == 0) {
+			lastSleepTime = System.currentTimeMillis();
+		}
+		if (writeBytes == bytePerSliceSec) {
+			long now = System.currentTimeMillis();
+			long sleepTime = SLEEP_MILLI_SEC - (now - lastSleepTime);
+			if (sleepTime > 0) {
+				try {
+					Thread.sleep(sleepTime);
+				} catch (InterruptedException e) {
 				}
-				lastSleepTime = System.currentTimeMillis();
-				writeBytes = 0;
 			}
+			lastSleepTime = System.currentTimeMillis();
+			writeBytes = 0;
 		}
 	}
 

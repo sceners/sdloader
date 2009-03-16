@@ -13,7 +13,6 @@ public class QoSInputStream extends InputStream {
 
 	private InputStream in;
 	private int bytePerSliceSec;
-	private boolean qos;
 
 	private int readBytes;
 	private long lastSleepTime;
@@ -21,11 +20,10 @@ public class QoSInputStream extends InputStream {
 	public QoSInputStream(InputStream in, int bps) {
 		this.in = in;
 		if (bps <= LineSpeed.NO_LIMIT) {
-			qos = false;
-		} else {
+			bytePerSliceSec = Integer.MAX_VALUE;
+		}else{		
 			bytePerSliceSec = Math.max(100,
 					(int) (bps / BIT_PER_BYTE / SEC_SLICE_NUM));
-			qos = true;
 		}
 	}
 
@@ -37,23 +35,21 @@ public class QoSInputStream extends InputStream {
 	@Override
 	public int read() throws IOException {
 		int b = in.read();
-		if (qos) {
-			readBytes++;
-			if (lastSleepTime == 0) {
-				lastSleepTime = System.currentTimeMillis();
-			}
-			if (readBytes == bytePerSliceSec) {
-				long now = System.currentTimeMillis();
-				long sleepTime = SLEEP_MILLI_SEC - (now - lastSleepTime);
-				if (sleepTime > 0) {
-					try {
-						Thread.sleep(sleepTime);
-					} catch (InterruptedException e) {
-					}
+		readBytes++;
+		if (lastSleepTime == 0) {
+			lastSleepTime = System.currentTimeMillis();
+		}
+		if (readBytes == bytePerSliceSec) {
+			long now = System.currentTimeMillis();
+			long sleepTime = SLEEP_MILLI_SEC - (now - lastSleepTime);
+			if (sleepTime > 0) {
+				try {
+					Thread.sleep(sleepTime);
+				} catch (InterruptedException e) {
 				}
-				lastSleepTime = System.currentTimeMillis();
-				readBytes = 0;
 			}
+			lastSleepTime = System.currentTimeMillis();
+			readBytes = 0;
 		}
 		return b;
 	}

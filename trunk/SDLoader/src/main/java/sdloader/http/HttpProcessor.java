@@ -185,7 +185,8 @@ public class HttpProcessor extends Thread {
 
 	protected HttpRequest processReadRequest(InputStream is) throws IOException {
 		try {
-			HttpRequestReader reader = new HttpRequestReader(new QoSInputStream(is,lineSpeed));
+			HttpRequestReader reader = new HttpRequestReader(
+					createInputStream(is));
 			HttpRequest httpRequest = new HttpRequest(reader);
 			log.debug("request read start.");
 			httpRequest.readRequest();
@@ -201,6 +202,14 @@ public class HttpProcessor extends Thread {
 			} else {
 				socket.setSoTimeout(socketTimeout);
 			}
+		}
+	}
+
+	protected InputStream createInputStream(InputStream is) {
+		if (lineSpeed <= LineSpeed.NO_LIMIT) {
+			return is;
+		} else {
+			return new QoSInputStream(is, lineSpeed);
 		}
 	}
 
@@ -363,10 +372,10 @@ public class HttpProcessor extends Thread {
 		}
 	}
 
-	private void processRequestEnd(HttpServletResponseImpl response,
+	protected void processRequestEnd(HttpServletResponseImpl response,
 			OutputStream os) throws IOException {
 		HttpHeader resHeader = response.getResponseHeader();
-		os = new QoSOutputStream(os,lineSpeed);
+		os = createOutputStream(os);
 
 		byte[] headerData = resHeader.buildResponseHeader().getBytes();
 		os.write(headerData);
@@ -379,5 +388,13 @@ public class HttpProcessor extends Thread {
 			bodyData.writeTo(os);
 		}
 		os.flush();
+	}
+
+	protected OutputStream createOutputStream(OutputStream out) {
+		if (lineSpeed <= LineSpeed.NO_LIMIT) {
+			return out;
+		} else {
+			return new QoSOutputStream(out, lineSpeed);
+		}
 	}
 }
