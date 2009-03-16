@@ -15,7 +15,10 @@
  */
 package sdloader;
 
+import java.util.List;
 import java.util.Properties;
+
+import sdloader.util.CollectionsUtil;
 
 /**
  * SDLoaderをオープンし、デプロイしたアプリの一覧をブラウザに表示します。
@@ -25,13 +28,21 @@ import java.util.Properties;
 public class CommandLineOpen {
 
 	public static void main(String[] args) {
-
-		Properties p = createProperties(args);
-		SDLoader sdloader = new SDLoader(p);
-		sdloader.start();
-		sdloader.waitForStop();
+		if(args.length >= 1 && args[0].equals("--help")){
+			printUsage();
+			return;
+		}
+		try{
+			Properties p = createProperties(args);
+			SDLoader sdloader = new SDLoader(p);
+			sdloader.start();
+			sdloader.waitForStop();
+		}catch(IllegalArgumentException e){
+			System.out.println(e.getMessage());
+			System.out.println("オプションは --help で参照できます。");
+		}
 	}
-
+	
 	private static Properties createProperties(String[] args) {
 		Properties p = new Properties();
 		if (args == null) {
@@ -59,5 +70,35 @@ public class CommandLineOpen {
 			}
 		}
 		return p;
+	}
+	private static void printUsage(){
+		List<Option> optionList = CollectionsUtil.newArrayList();
+		optionList.add(new Option("--port","Listenするポート番号","指定しない場合30000を使用します。","例）--port=8080"));
+		optionList.add(new Option("--war","Listenするポート番号","指定しない場合30000を使用します。","例）--port=8080"));
+
+		
+		int maxCommandSize = 0;
+		for(Option option:optionList){
+			maxCommandSize = Math.max(option.command.length(),maxCommandSize);
+		}
+		int commandSize = maxCommandSize + 2;
+		for(Option option:optionList){
+			String[] detail = option.detail;
+			for(int i = 0;i < detail.length;i++){
+				String command = (i==0) ? option.command : "";
+				for(int c = command.length();c <= commandSize;c++){
+					command += " ";
+				}
+				System.out.println(command + detail[i]);
+			}			
+		}
+	}
+	private static class Option{
+		public Option(String command,String... detail) {
+			this.command = command;
+			this.detail = detail;
+		}
+		private String command;
+		private String[] detail;
 	}
 }
