@@ -102,6 +102,8 @@ public class SDLoader implements Lifecycle {
 
 	public static final String KEY_SDLOADER_PORT = CONFIG_KEY_PREFIX + "port";
 
+	public static final String KEY_SDLOADER_WAR = CONFIG_KEY_PREFIX + "war";
+	
 	public static final String KEY_SDLOADER_WORK_DIR = CONFIG_KEY_PREFIX
 			+ "workDir";
 
