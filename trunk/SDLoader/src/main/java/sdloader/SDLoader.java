@@ -102,8 +102,6 @@ public class SDLoader implements Lifecycle {
 
 	public static final String KEY_SDLOADER_PORT = CONFIG_KEY_PREFIX + "port";
 
-	public static final String KEY_SDLOADER_WAR = CONFIG_KEY_PREFIX + "war";
-	
 	public static final String KEY_SDLOADER_WORK_DIR = CONFIG_KEY_PREFIX
 			+ "workDir";
 
@@ -462,21 +460,21 @@ public class SDLoader implements Lifecycle {
 		log.info("SDLOADER_HOME=" + homeDir);
 
 		// init webappDir
-		String webappPath = config
+		String webAppsDirPath = config
 				.getConfigStringIgnoreExist(KEY_SDLOADER_WEBAPPS_DIR);
-		if (webappPath == null) {
-			webappPath = System.getProperty(KEY_SDLOADER_WEBAPPS_DIR);
-			if (webappPath == null) {
-				webappPath = WebConstants.WEBAPP_DIR_NAME;
+		if (webAppsDirPath == null) {
+			webAppsDirPath = System.getProperty(KEY_SDLOADER_WEBAPPS_DIR);
+			if (webAppsDirPath == null) {
+				webAppsDirPath = WebConstants.WEBAPP_DIR_NAME;
 			}
 		}
-		webappPath = PathUtil.replaceFileSeparator(webappPath);
-		if (!PathUtil.isAbsolutePath(webappPath)) {
+		webAppsDirPath = PathUtil.replaceFileSeparator(webAppsDirPath);
+		if (!PathUtil.isAbsolutePath(webAppsDirPath)) {
 			// homeからの絶対パスに変換
-			webappPath = homeDir + "/" + webappPath;
+			webAppsDirPath = homeDir + "/" + webAppsDirPath;
 		}
-		config.setConfig(KEY_SDLOADER_WEBAPPS_DIR, webappPath);
-		log.info(KEY_SDLOADER_WEBAPPS_DIR + "=" + webappPath);
+		config.setConfig(KEY_SDLOADER_WEBAPPS_DIR, webAppsDirPath);
+		log.info(KEY_SDLOADER_WEBAPPS_DIR + "=" + webAppsDirPath);
 
 		// init jsp lib path
 		config.setConfigFromSystemIfNotExit(KEY_SDLOADER_JSP_LIBPATH);
