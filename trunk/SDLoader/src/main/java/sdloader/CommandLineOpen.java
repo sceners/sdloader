@@ -29,7 +29,7 @@ import sdloader.util.CollectionsUtil;
  */
 public class CommandLineOpen {
 
-	public static final String OPTION_WEBAPP = "webApp";
+	public static final String OPTION_WEBAPPS = "webApps";
 
 	public static void main(String[] args) {
 		new CommandLineOpen().execute(args);
@@ -68,7 +68,7 @@ public class CommandLineOpen {
 				}
 				String key = keyvalue[0];
 				String value = keyvalue[1].trim();
-				if (OPTION_WEBAPP.equals(key)) {
+				if (OPTION_WEBAPPS.equals(key)) {
 					initWebApps(loader, value);
 					continue;
 				}
@@ -93,7 +93,7 @@ public class CommandLineOpen {
 			String path = paths[i];
 			File warFile = new File(path);
 			if (warFile.exists() == false) {
-				throw new IllegalArgumentException("War file not found. path="
+				throw new IllegalArgumentException("File not found. path="
 						+ path);
 			}
 			String contextPath = "/" + warFile.getName();
@@ -105,26 +105,40 @@ public class CommandLineOpen {
 	protected void printUsage() {
 		List<Option> optionList = CollectionsUtil.newArrayList();
 
-		optionList.add(new Option("Usage:", ""));
+		optionList.add(new Option("Usage:", "すべてのオプションは、--option=value の形で記述します。"));
 		optionList.add(new Option("--port", "Listenするポート番号",
 				"指定しない場合30000を使用します。", "例）--port=8080"));
-		optionList.add(new Option("--" + OPTION_WEBAPP,
+		optionList.add(new Option("--" + OPTION_WEBAPPS,
 				"デプロイするアプリケーションのwarファイル、もしくはディレクトリを指定します。",
 				"「;」で区切ると、複数のアプリケーションをデプロイできます。",
 				"コンテキストルートには、warファイル名がもしくはディレクトリ名が使用されます。",
-				"例）--webApp=/path/to/app.war"));
+				"例）--webApps=/path/to/app.war"));
 		optionList.add(new Option("--home",
 				"SDLoaderホームディレクトリを指定します。",
-				"このディレクトリ下の「"+OPTION_WEBAPP+"」もしくは--webAppsDirオプションで指定したディレクトリにアプリケーションを配置します。",
+				"このディレクトリ下の「webapps」もしくは--webAppsDirオプションで指定したディレクトリにアプリケーションを配置します。",
 				"指定しない場合、Java実行ディレクトリを使用します。",
 				"例）--home=/path/to/sdloader"));
 		optionList.add(new Option("--webAppsDir",
 				"アプリケーションの入ったディレクトリを指定します。",
 				"相対パスの場合、ホームディレクトリからの相対パスになります。",
 				"指定しない場合、「webapps」が使用されます。",
-				"--webappオプションを指定した場合、",
-				"例）--home=/path/to/sdloader"));
-		
+				"例）--webAppsDir=weblibs"));
+		optionList.add(new Option("--autoPortDetect",
+				"指定ポートが使用中の場合、空きポートを探すかどうか。",
+				"指定しない場合、falseが使用されます。",
+				"例）--autoPortDetect=true"));
+		optionList.add(new Option("--useOutSidePort",
+				"外部からのアクセス可能なポートを使用するかどうか。",
+				"指定しない場合、localhostのみのリクエストを受け付けます。",
+				"例）--useOutSidePort=true"));
+		optionList.add(new Option("--lineSpeed",
+				"擬似的な回線速度を設定します。",
+				"指定しない場合、速度制限はありません。",
+				"例）--lineSpeed=64000 (64Kbpsの場合)"));
+		optionList.add(new Option("--workDir",
+				"JSPおよびwarファイル展開用のworkディレクトリを指定します。",
+				"指定しない場合、${java.io.tmp}/.sdloaderを使用します。",
+				"例）--workDir=/path/to/dir"));		
 
 		int maxCommandSize = 0;
 		for (Option option : optionList) {
