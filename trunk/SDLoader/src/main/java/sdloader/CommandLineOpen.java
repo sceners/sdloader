@@ -93,7 +93,7 @@ public class CommandLineOpen {
 			String path = paths[i];
 			File warFile = new File(path);
 			if (warFile.exists() == false) {
-				throw new IllegalArgumentException("File not found. path="
+				throw new IllegalArgumentException("WebApp File not found. path="
 						+ path);
 			}
 			String contextPath = "/" + warFile.getName();
