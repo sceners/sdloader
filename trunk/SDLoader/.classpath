@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jsp-api.jar"/>
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/tomcat-juli.jar"/>
+	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/annotations-api.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
