@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,16 +29,21 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * Web用ユーティリティ
  * 
  * @author c9katayama
  */
+@SuppressWarnings("unchecked")
 public class WebUtil {
 	/**
 	 * ヘッダー日付フォーマット
@@ -408,35 +414,212 @@ public class WebUtil {
 		res.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		res.setContentType("text/html;charset=UTF-8");
 		PrintWriter writer = res.getWriter();
-		writer.write("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">");
-		writer.write("<html><head>");
-		writer.write("<title>404 Not Found</title>");
-		writer.write("<head><body>");
-		writer.write("<h1>Not Found</h1>");
+		writer.println("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">");
+		writer.println("<html><head>");
+		writer.println("<title>404 Not Found</title>");
+		writer.println("<head><body>");
+		writer.println("<h1>Not Found</h1>");
 		writer
-				.write("<p>The requested URL resource was not found on this SDLoader.</p>");
-		writer.write("<body></html>");
+				.println("<p>The requested URL resource was not found on this SDLoader.</p>");
+		writer.println("<body></html>");
 		writer.flush();
 	}
 
-	public static void writeInternalServerErrorPage(HttpServletResponse res,
-			Throwable t) throws IOException {
+	public static void writeInternalServerErrorPage(HttpServletRequest req,
+			HttpServletResponse res, Throwable t) throws IOException {
 		res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		res.setContentType("text/html;charset=UTF-8");
 		PrintWriter writer = res.getWriter();
-		writer.write("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">");
-		writer.write("<html><head>");
-		writer.write("<title>500 Internal Server Error</title>");
-		writer.write("<head><body>");
-		writer.write("<h1>500 Internal Server Error</h1>");
+		writer.println("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">");
+		writer.println("<html><head>");
+		writer.println("<title>500 Internal Server Error</title>");
+		writer.println(getFoldingJS());
+		writer.println("<head><body>");
+		writer.println("<h1>500 Internal Server Error</h1>");
+		writer.println(getFoldingContents("RequestHeader",
+				getRequestHeaderContents(req), false));
+		writer.println(getFoldingContents("RequestParameter",
+				getRequestParameterContents(req), false));
+		writer.println(getFoldingContents("RequestAttribute",
+				getRequestAttrituteContents(req), false));
+		writer.println(getFoldingContents("Session", getSessionContents(req),
+				false));
+		writer.println(getFoldingContents("Cookie", getCookieContents(req),
+				false));
 		if (t != null) {
-			writer.write("<pre>");
-			writer.write("<p style='color:#FF0000'>");
-			t.printStackTrace(writer);
-			writer.write("</p>");
-			writer.write("</pre>");
+			StringWriter exceptionWriter = new StringWriter();
+			PrintWriter exceptionPrintWriter = new PrintWriter(exceptionWriter);
+			exceptionPrintWriter.println("<pre style='color:#FF0000'>");
+			t.printStackTrace(exceptionPrintWriter);
+			exceptionPrintWriter.println("</pre>");
+			exceptionPrintWriter.flush();
+			writer.println(getFoldingContents("StackTrace", exceptionWriter
+					.toString(), true));
 		}
-		writer.write("</body></html>");
+		writer.println("</body></html>");
 		writer.flush();
+	}
+
+	private static String getRequestHeaderContents(HttpServletRequest req) {
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		Enumeration<String> names = req.getHeaderNames();
+		if(!names.hasMoreElements()){
+			return "No Header.";
+		}		
+		printWriter.write("<table width='100%'>");
+		while (names.hasMoreElements()) {
+			String key = names.nextElement();
+			Enumeration<String> values = req.getHeaders(key);
+			if (values != null) {
+				while (values.hasMoreElements()) {
+					printWriter
+							.write("<tr style='background-color:#DDDDDD;'><td style='text-align:right;white-space:nowrap;'>"
+									+ key
+									+ "</td><td>"
+									+ values.nextElement()
+									+ "</td></tr>");
+				}
+			}
+		}
+		printWriter.write("</table>");
+		printWriter.close();
+		return stringWriter.toString();
+	}
+
+	private static String getRequestParameterContents(HttpServletRequest req) {
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		Enumeration<String> names = req.getParameterNames();
+		if(!names.hasMoreElements()){
+			return "No Paramter.";
+		}		
+		printWriter.write("<table width='100%'>");
+		while (names.hasMoreElements()) {
+			String key = names.nextElement();
+			String[] values = req.getParameterValues(key);
+			if (values != null) {
+				for (int i = 0; i < values.length; i++) {
+					printWriter
+							.write("<tr style='background-color:#DDDDDD;'><td style='text-align:right;white-space:nowrap;'>"
+									+ key
+									+ "</td><td>"
+									+ values[i]
+									+ "</td></tr>");
+				}
+			}
+		}
+		printWriter.write("</table>");
+		printWriter.close();
+		return stringWriter.toString();
+	}
+
+	private static String getRequestAttrituteContents(HttpServletRequest req) {
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		Enumeration<String> names = req.getAttributeNames();
+		if(!names.hasMoreElements()){
+			return "No Attribute.";
+		}
+		printWriter.write("<table width='100%'>");
+		while (names.hasMoreElements()) {
+			String key = names.nextElement();
+			Object value = req.getAttribute(key);
+			printWriter
+					.write("<tr style='background-color:#DDDDDD;'><td style='text-align:right;white-space:nowrap;'>"
+							+ key
+							+ "</td><td>"
+							+ value.toString()
+							+ "</td></tr>");
+		}
+		printWriter.write("</table>");
+		printWriter.close();
+		return stringWriter.toString();
+	}
+
+	private static String getSessionContents(HttpServletRequest req) {
+		HttpSession session = req.getSession(false);
+		if (session == null) {
+			return "No Session.";
+		}
+		Enumeration<String> names = session.getAttributeNames();
+		if(!names.hasMoreElements()){
+			return "No Session.";
+		}
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);		
+		printWriter.write("<table width='100%'>");
+		while(names.hasMoreElements()){
+			String key = names.nextElement();
+			Object value = session.getAttribute(key);
+			printWriter
+					.write("<tr style='background-color:#DDDDDD;'><td style='text-align:right;white-space:nowrap;'>"
+							+ key
+							+ "</td><td>"
+							+ value.toString()
+							+ "</td></tr>");
+		}
+		
+		printWriter.write("</table>");
+		printWriter.close();
+		return stringWriter.toString();
+	}
+
+	private static String getCookieContents(HttpServletRequest req) {
+		Cookie[] cookies = req.getCookies();
+		if (cookies == null) {
+			return "No Cookie.";
+		}
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		printWriter.write("<table width='100%'>");
+		for (int i = 0; i < cookies.length; i++) {
+			Cookie cookie = cookies[i];
+			String valueText = "name="+cookie.getName();
+			valueText += " value="+cookie.getValue();
+			if(cookie.getPath() != null){
+				valueText += "　path="+cookie.getPath();
+			}
+			if(cookie.getDomain() != null){
+				valueText += "　domain="+cookie.getDomain();
+			}
+			if(cookie.getMaxAge() != 0){
+				valueText += "　maxAge="+cookie.getMaxAge();
+			}			
+			if(cookie.getComment() != null){
+				valueText += "　comment="+cookie.getComment();
+			}
+			printWriter.write("<tr style='background-color:#DDDDDD;'><td style='white-space:nowrap;'>"
+					+ valueText
+					+ "</td></tr>");
+		}
+		printWriter.write("</table>");
+		printWriter.close();
+		return stringWriter.toString();
+	}
+
+	private static String getFoldingContents(String name, String contents,
+			boolean open) {
+		String contentsStype = "style='display=" + (open ? "block" : "none")
+				+ ";padding-left:6px'";
+		return "<div id='title"
+				+ name
+				+ "' onclick='folding("
+				+ "\"contents"
+				+ name
+				+ "\""
+				+ ");return false;' style='padding-left:6px;padding-top:2px;paddin-bottom2px;margin:4px;color:white;background-color:black'>"
+				+ name + "</div>" + "<div id='contents" + name + "' "
+				+ contentsStype + ">" + contents + "</div>";
+	}
+
+	private static String getFoldingJS() {
+		return "<script type='text/javascript'>\r\n" + "<!--\r\n"
+				+ "function folding(targetId){\r\n"
+				+ " var target = document.getElementById(targetId);\r\n"
+				+ " if(target.style.display == 'none' ) {\r\n"
+				+ "  target.style.display = 'block';\r\n" + " }else {\r\n"
+				+ "  target.style.display = 'none';\r\n" + " }\r\n" + "}\r\n"
+				+ "//-->\r\n" + "</script>\r\n";
 	}
 }
