@@ -418,4 +418,25 @@ public class WebUtil {
 		writer.write("<body></html>");
 		writer.flush();
 	}
+
+	public static void writeInternalServerErrorPage(HttpServletResponse res,
+			Throwable t) throws IOException {
+		res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		res.setContentType("text/html;charset=UTF-8");
+		PrintWriter writer = res.getWriter();
+		writer.write("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">");
+		writer.write("<html><head>");
+		writer.write("<title>500 Internal Server Error</title>");
+		writer.write("<head><body>");
+		writer.write("<h1>500 Internal Server Error</h1>");
+		if (t != null) {
+			writer.write("<pre>");
+			writer.write("<p style='color:#FF0000'>");
+			t.printStackTrace(writer);
+			writer.write("</p>");
+			writer.write("</pre>");
+		}
+		writer.write("</body></html>");
+		writer.flush();
+	}
 }
