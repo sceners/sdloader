@@ -10,7 +10,7 @@ public class SDLoaderTestAppStart extends TestCase {
 		SDLoader sdloader = new SDLoader();
 		sdloader.setAutoPortDetect(true);
 		sdloader.setUseNoCacheMode(true);
-
+		sdloader.setURIEncoding("UTF-8");
 		WebAppContext webapp = new WebAppContext("/testwebapp", "webapps/test");
 
 		sdloader.addWebAppContext(webapp);
