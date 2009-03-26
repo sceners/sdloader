@@ -75,6 +75,9 @@ public class WebAppListServlet extends HttpServlet {
 				}
 			}
 		}
+		writer.write("<br/><br/>");
+		//stop command		
+		writer.write("<form action='/sdloader-command/stop' method='POST'><input type='submit' value='Server stop'/></form>");
 		writer.write("</body></html>");
 		writer.flush();
 	}

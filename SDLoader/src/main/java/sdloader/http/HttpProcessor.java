@@ -66,13 +66,7 @@ public class HttpProcessor extends Thread {
 
 	private SDLoader sdLoader;
 
-	private int lineSpeed;
-
 	private boolean stop;
-
-	private boolean started;
-
-	private boolean wait = true;
 
 	public HttpProcessor(String name) {
 		super(name);
@@ -95,24 +89,14 @@ public class HttpProcessor extends Thread {
 		synchronized (this) {
 			this.socket = socket;
 			this.sdLoader = loader;
-			lineSpeed = sdLoader.getSDLoaderConfig().getConfigInteger(
-					SDLoader.KEY_SDLOADER_LINE_SPEED, LineSpeed.NO_LIMIT);
-			if (started) {
-				notify();
-			} else {
-				wait = false;
-			}
+			notify();
 		}
 	}
 
 	void stopProcessor() {
 		synchronized (this) {
 			stop = true;
-			if (started) {
-				notify();
-			} else {
-				wait = false;
-			}
+			notify();
 		}
 	}
 
@@ -120,11 +104,9 @@ public class HttpProcessor extends Thread {
 		while (!stop) {
 			try {
 				synchronized (this) {
-					started = true;
-					if (wait) {
+					if (socket == null) {
 						wait();
 					}
-					wait = true;
 				}
 			} catch (InterruptedException e) {
 				continue;
@@ -171,16 +153,15 @@ public class HttpProcessor extends Thread {
 			log.error(t.getMessage(), t);
 		} finally {
 			IOUtil.flushNoException(os);
-			IOUtil.closeNoException(is);
-			IOUtil.closeNoException(os);
+			IOUtil.closeNoException(is,os);
 			IOUtil.closeSocketNoException(socket);
+			is = null;
+			os = null;
+			socket = null;
+			SDLoader localLoader = this.sdLoader;
+			sdLoader = null;
+			localLoader.returnProcessor(this);
 		}
-		is = null;
-		os = null;
-		socket = null;
-		SDLoader localLoader = this.sdLoader;
-		sdLoader = null;
-		localLoader.returnProcessor(this);
 	}
 
 	protected HttpRequest processReadRequest(InputStream is) throws IOException {
@@ -202,14 +183,6 @@ public class HttpProcessor extends Thread {
 			} else {
 				socket.setSoTimeout(socketTimeout);
 			}
-		}
-	}
-
-	protected InputStream createInputStream(InputStream is) {
-		if (lineSpeed <= LineSpeed.NO_LIMIT) {
-			return is;
-		} else {
-			return new QoSInputStream(is, lineSpeed);
 		}
 	}
 
@@ -390,7 +363,19 @@ public class HttpProcessor extends Thread {
 		os.flush();
 	}
 
+	protected InputStream createInputStream(InputStream is) {
+		int lineSpeed = sdLoader.getSDLoaderConfig().getConfigInteger(
+				SDLoader.KEY_SDLOADER_LINE_SPEED, LineSpeed.NO_LIMIT);
+		if (lineSpeed <= LineSpeed.NO_LIMIT) {
+			return is;
+		} else {
+			return new QoSInputStream(is, lineSpeed);
+		}
+	}
+
 	protected OutputStream createOutputStream(OutputStream out) {
+		int lineSpeed = sdLoader.getSDLoaderConfig().getConfigInteger(
+				SDLoader.KEY_SDLOADER_LINE_SPEED, LineSpeed.NO_LIMIT);
 		if (lineSpeed <= LineSpeed.NO_LIMIT) {
 			return out;
 		} else {

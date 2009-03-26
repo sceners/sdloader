@@ -59,22 +59,26 @@ public class IOUtil {
 		return result;
 	}
 
-	public static void flushNoException(Flushable flushable) {
-		if (flushable != null) {
-			try {
-				flushable.flush();
-			} catch (IOException ioe) {
-				return;
+	public static void flushNoException(Flushable... flushables) {
+		if (flushables != null) {
+			for (Flushable fl : flushables) {
+				try {
+					fl.flush();
+				} catch (IOException ioe) {
+					// ignore
+				}
 			}
 		}
 	}
 
-	public static void closeNoException(Closeable closeable) {
-		if (closeable != null) {
-			try {
-				closeable.close();
-			} catch (IOException ioe) {
-				return;
+	public static void closeNoException(Closeable... closeables) {
+		if (closeables != null) {
+			for (Closeable cl : closeables) {
+				try {
+					cl.close();
+				} catch (IOException ioe) {
+					// ignore
+				}
 			}
 		}
 	}
