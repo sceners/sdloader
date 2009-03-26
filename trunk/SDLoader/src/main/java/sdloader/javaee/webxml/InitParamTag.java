@@ -31,12 +31,14 @@ public class InitParamTag implements WebXmlTagElement {
 	}
 
 	public InitParamTag(String paramName, String paramValue) {
-		setParam(paramName,paramValue);
+		setParam(paramName, paramValue);
 	}
+
 	public void setParam(String paramName, String paramValue) {
 		setParamName(paramName);
 		setParamValue(paramValue);
 	}
+
 	public String getParamName() {
 		return paramName;
 	}
@@ -53,5 +55,9 @@ public class InitParamTag implements WebXmlTagElement {
 	public InitParamTag setParamValue(String paramValue) {
 		this.paramValue = paramValue;
 		return this;
-	}	
+	}
+
+	public void accept(WebXmlVisitor visitor) {
+		visitor.visit(this);
+	}
 }

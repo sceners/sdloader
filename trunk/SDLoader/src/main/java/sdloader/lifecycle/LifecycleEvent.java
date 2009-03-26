@@ -22,14 +22,14 @@ import sdloader.event.Event;
  * 
  * @author AKatayama
  */
-public class LifecycleEvent<S> extends Event<S>{
+public class LifecycleEvent<S> extends Event<S> {
 
-	public static final String AFTER_START = "AFTER_START"; 
+	public static final String AFTER_START = "AFTER_START";
 	public static final String AFTER_STOP = "AFTER_STOP";
-	public static final String BEFORE_START = "BEFORE_START"; 
-	public static final String BEFORE_STOP = "BEFORE_STOP"; 
-	
-	public LifecycleEvent(String type,S target){
-		super(type,target);
+	public static final String BEFORE_START = "BEFORE_START";
+	public static final String BEFORE_STOP = "BEFORE_STOP";
+
+	public LifecycleEvent(String type, S target) {
+		super(type, target);
 	}
 }

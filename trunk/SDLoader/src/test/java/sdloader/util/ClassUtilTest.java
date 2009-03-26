@@ -10,7 +10,7 @@ public class ClassUtilTest extends TestCase {
 	public void testHasClass1() throws Exception {
 		assertFalse(ClassUtil.hasClass(null));
 	}
-	
+
 	public void testHasClass2() throws Exception {
 		assertTrue(ClassUtil.hasClass(String.class.getName()));
 	}

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package sdloader.javaee.filter;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -32,7 +33,7 @@ public class TestFilter1 implements Filter {
 	public void doFilter(ServletRequest arg0, ServletResponse arg1,
 			FilterChain arg2) throws IOException, ServletException {
 		System.out.println("filter 1");
-		arg2.doFilter(arg0,arg1);
+		arg2.doFilter(arg0, arg1);
 
 	}
 

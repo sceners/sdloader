@@ -170,8 +170,8 @@ public class SDLoaderConfig {
 
 	public Long getConfigLong(String key, Long defaultValue) {
 		Object value = getConfig(key, defaultValue);
-		return (value instanceof Long) ? (Long) value : Long
-				.valueOf(value.toString());
+		return (value instanceof Long) ? (Long) value : Long.valueOf(value
+				.toString());
 	}
 
 	public Long getConfigLongIgnoreExist(String key) {
@@ -183,10 +183,10 @@ public class SDLoaderConfig {
 		if (value == null) {
 			return null;
 		}
-		return (value instanceof Long) ? (Long) value : Long
-				.valueOf(value.toString());
+		return (value instanceof Long) ? (Long) value : Long.valueOf(value
+				.toString());
 	}
-	
+
 	public Boolean getConfigBoolean(String key) {
 		return getConfigBoolean(key, null);
 	}

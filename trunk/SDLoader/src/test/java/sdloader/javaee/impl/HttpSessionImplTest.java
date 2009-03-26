@@ -62,14 +62,15 @@ public class HttpSessionImplTest extends TestCase {
 			session.setAttribute("Li", l2);
 			session.removeAttribute("Li");
 		}
-		
-		String[] expect = {"sessionCreated","attributeAdded","attributeReplaced",
-				"attributeRemoved","sessionDestroyed","valueBound","valueUnbound"};
+
+		String[] expect = { "sessionCreated", "attributeAdded",
+				"attributeReplaced", "attributeRemoved", "sessionDestroyed",
+				"valueBound", "valueUnbound" };
 		int index = 0;
-		for(String success:successList){
-			assertEquals(expect[index++],success);
+		for (String success : successList) {
+			assertEquals(expect[index++], success);
 		}
-		assertEquals(expect.length,successList.size());
+		assertEquals(expect.length, successList.size());
 	}
 
 	private static List<String> successList = new ArrayList<String>();

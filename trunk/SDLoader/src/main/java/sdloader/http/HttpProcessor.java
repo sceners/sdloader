@@ -284,10 +284,10 @@ public class HttpProcessor extends Thread {
 				}
 			} catch (ServletException se) {
 				log.error(se.getMessage(), se);
-				WebUtil.writeInternalServerErrorPage(request,response,se);
+				WebUtil.writeInternalServerErrorPage(request, response, se);
 			} catch (IOException ioe) {
 				log.error(ioe.getMessage(), ioe);
-				WebUtil.writeInternalServerErrorPage(request,response,ioe);
+				WebUtil.writeInternalServerErrorPage(request, response, ioe);
 			}
 			setDefaultResponseHeader(servletContextImpl, request, response,
 					requestCount);

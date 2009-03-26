@@ -513,7 +513,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		if (path == null) {
 			return null;
 		}
-		if("ISO-8859-1".equals(uriEncoding)){
+		if ("ISO-8859-1".equals(uriEncoding)) {
 			return path;
 		}
 		try {

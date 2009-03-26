@@ -33,4 +33,8 @@ public class ListenerTag implements WebXmlTagElement {
 		this.listenerClass = listenerClass;
 		return this;
 	}
+
+	public void accept(WebXmlVisitor visitor) {
+		visitor.visit(this);
+	}
 }

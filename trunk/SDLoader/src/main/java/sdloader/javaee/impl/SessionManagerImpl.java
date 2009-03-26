@@ -42,7 +42,7 @@ public class SessionManagerImpl extends SessionManager implements Disposable {
 	@Override
 	public synchronized HttpSession getSession(String sessionId,
 			boolean createNew, InternalWebApplication webApplication) {
-		if(sessionId == null){
+		if (sessionId == null) {
 			return createNewSession(webApplication);
 		}
 		HttpSessionImpl session = (HttpSessionImpl) sessionMap.get(sessionId);

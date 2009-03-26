@@ -17,7 +17,7 @@ public class ForwardFilter implements Filter {
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
 		System.out.println("ForwardFilter");
-		chain.doFilter(req,res);
+		chain.doFilter(req, res);
 	}
 
 	public void destroy() {

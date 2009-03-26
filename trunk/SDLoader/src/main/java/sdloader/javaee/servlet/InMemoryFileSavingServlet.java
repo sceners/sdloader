@@ -33,10 +33,11 @@ import sdloader.util.ResourceUtil;
  */
 @SuppressWarnings("serial")
 public class InMemoryFileSavingServlet extends FileSavingServlet {
-	
+
 	public InMemoryFileSavingServlet() {
 		super();
 	}
+
 	protected void doIt(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
 		String uri = req.getPathInfo();
@@ -50,10 +51,10 @@ public class InMemoryFileSavingServlet extends FileSavingServlet {
 			processNotFound(res);
 			return;
 		}
-		
-		if(!uri.endsWith("/")){
-			for(int i = 0;i < docRootPath.length;i++){
-				URL file = ResourceUtil.createURL(docRootPath[i],uri);				
+
+		if (!uri.endsWith("/")) {
+			for (int i = 0; i < docRootPath.length; i++) {
+				URL file = ResourceUtil.createURL(docRootPath[i], uri);
 				if (ResourceUtil.isResourceExist(file)) {
 					processOutputResource(file, req, res);
 					return;
@@ -61,8 +62,8 @@ public class InMemoryFileSavingServlet extends FileSavingServlet {
 			}
 			uri += "/";
 		}
-		for(int i = 0;i < docRootPath.length;i++){
-			URL dir = ResourceUtil.createURL(docRootPath[i],uri);
+		for (int i = 0; i < docRootPath.length; i++) {
+			URL dir = ResourceUtil.createURL(docRootPath[i], uri);
 			if (ResourceUtil.isResourceExist(dir)) {
 				if (welcomeFileListTag != null) {
 					processWelcomeFile(dir, req, res);
@@ -73,8 +74,10 @@ public class InMemoryFileSavingServlet extends FileSavingServlet {
 		processNotFound(res);
 		return;
 	}
-	protected void processOutputResource(URL resource,HttpServletRequest req,HttpServletResponse res) throws IOException{
-		//TODO check last modified
+
+	protected void processOutputResource(URL resource, HttpServletRequest req,
+			HttpServletResponse res) throws IOException {
+		// TODO check last modified
 		InputStream is = resource.openStream();
 		ServletOutputStream sout = res.getOutputStream();
 		try {
@@ -87,5 +90,5 @@ public class InMemoryFileSavingServlet extends FileSavingServlet {
 			sout.flush();
 			sout.close();
 		}
-	} 
+	}
 }

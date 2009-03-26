@@ -9,9 +9,9 @@ public class MessageDigestUtilTest extends TestCase {
 	public void testCreate() throws Exception {
 		MessageDigest d = MessageDigestUtil.createMessageDigest();
 		assertNotNull(d);
-		//default
+		// default
 		assertEquals("MD5", d.getAlgorithm());
-		
+
 		MessageDigestUtil.setAlgorithm("SHA1");
 		d = MessageDigestUtil.createMessageDigest();
 		assertNotNull(d);

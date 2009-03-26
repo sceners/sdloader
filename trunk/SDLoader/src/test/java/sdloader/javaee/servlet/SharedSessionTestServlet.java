@@ -23,15 +23,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 /**
  * セッション共有テスト
+ * 
  * @author c9katayama
  */
 public class SharedSessionTestServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	protected void doGet(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest arg0, HttpServletResponse arg1)
+			throws ServletException, IOException {
 		HttpSession session = arg0.getSession();
 
 		Integer n = (Integer) session.getAttribute("shared");

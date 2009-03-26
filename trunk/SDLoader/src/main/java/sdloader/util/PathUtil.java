@@ -20,22 +20,26 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+
 /**
  * PathUtils
+ * 
  * @author AKatayama
- *
+ * 
  */
 public class PathUtil {
 	/**
 	 * ベースパスに対して相対パスを解決します。
+	 * 
 	 * @param basePath
 	 * @param path
 	 * @return
 	 */
-	public static String computeRelativePath(String basePath,String path) {
-		basePath = basePath.substring(0,basePath.lastIndexOf("/"));
-		return jointPathWithSlash(basePath,path);
+	public static String computeRelativePath(String basePath, String path) {
+		basePath = basePath.substring(0, basePath.lastIndexOf("/"));
+		return jointPathWithSlash(basePath, path);
 	}
+
 	/**
 	 * 2つのパスを"/"で連結します。
 	 */
@@ -102,14 +106,14 @@ public class PathUtil {
 	}
 
 	public static final String getExtension(String path) {
-		if(path == null){
+		if (path == null) {
 			return path;
 		}
 		int dot = path.lastIndexOf(".");
-		if(dot==-1){
+		if (dot == -1) {
 			return null;
 		}
-		return path.substring(dot+1,path.length());
+		return path.substring(dot + 1, path.length());
 	}
 
 	/**

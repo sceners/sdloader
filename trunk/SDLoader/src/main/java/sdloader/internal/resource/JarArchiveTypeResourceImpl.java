@@ -39,10 +39,11 @@ public class JarArchiveTypeResourceImpl implements ArchiveTypeResource {
 	protected boolean runtimeNeeded;
 
 	protected URL url;
-	
+
 	protected Map<URL, Resource> archiveResource;
 
-	public JarArchiveTypeResourceImpl(final URL rootUrl, final String path, final byte[] bytes) {
+	public JarArchiveTypeResourceImpl(final URL rootUrl, final String path,
+			final byte[] bytes) {
 		this.originalPath = path;
 		this.path = path;
 		if (path.startsWith(WEBINFLIB)) {
@@ -53,7 +54,7 @@ public class JarArchiveTypeResourceImpl implements ArchiveTypeResource {
 		}
 		this.url = WarProtocolBuilder.innerjarUrl(rootUrl, originalPath);
 	}
-	
+
 	public String getOriginalPath() {
 		return originalPath;
 	}
@@ -69,21 +70,22 @@ public class JarArchiveTypeResourceImpl implements ArchiveTypeResource {
 	public InputStream getResourceAsInputStream() {
 		return new ByteArrayInputStream(bytes);
 	}
-	
+
 	public boolean isRuntimeNeeded() {
 		return runtimeNeeded;
 	}
-	
+
 	public URL getURL() {
 		return url;
 	}
-	
-	public void setArchiveResources(Map<URL, Resource> resources){
+
+	public void setArchiveResources(Map<URL, Resource> resources) {
 		this.archiveResource = resources;
 	}
-	
-	public Resource getArchiveResource(String name){
-		URL resourceUrl = WarProtocolBuilder.createArchiveResourceURL(url,name);
+
+	public Resource getArchiveResource(String name) {
+		URL resourceUrl = WarProtocolBuilder
+				.createArchiveResourceURL(url, name);
 		return archiveResource.get(resourceUrl);
 	}
 }

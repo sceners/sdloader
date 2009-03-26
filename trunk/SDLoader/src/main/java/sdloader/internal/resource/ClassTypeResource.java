@@ -15,14 +15,13 @@
  */
 package sdloader.internal.resource;
 
-
 /**
  * @author shot
  */
 public interface ClassTypeResource extends LeafTypeResource {
 
 	String WEBINF_PREFIX = "WEB-INF/classes/";
-	
+
 	String CLASS_SUFFIX = ".class";
-	
+
 }

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 package sdloader.internal.resource;
+
 /**
  * 
  * @author c9katayama
  */
-public interface DirectoryTypeResource extends BranchTypeResource{
+public interface DirectoryTypeResource extends BranchTypeResource {
 
 }

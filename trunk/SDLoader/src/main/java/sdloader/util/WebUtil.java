@@ -464,9 +464,9 @@ public class WebUtil {
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
 		Enumeration<String> names = req.getHeaderNames();
-		if(!names.hasMoreElements()){
+		if (!names.hasMoreElements()) {
 			return "No Header.";
-		}		
+		}
 		printWriter.write("<table width='100%'>");
 		while (names.hasMoreElements()) {
 			String key = names.nextElement();
@@ -491,9 +491,9 @@ public class WebUtil {
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
 		Enumeration<String> names = req.getParameterNames();
-		if(!names.hasMoreElements()){
+		if (!names.hasMoreElements()) {
 			return "No Paramter.";
-		}		
+		}
 		printWriter.write("<table width='100%'>");
 		while (names.hasMoreElements()) {
 			String key = names.nextElement();
@@ -518,7 +518,7 @@ public class WebUtil {
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
 		Enumeration<String> names = req.getAttributeNames();
-		if(!names.hasMoreElements()){
+		if (!names.hasMoreElements()) {
 			return "No Attribute.";
 		}
 		printWriter.write("<table width='100%'>");
@@ -543,13 +543,13 @@ public class WebUtil {
 			return "No Session.";
 		}
 		Enumeration<String> names = session.getAttributeNames();
-		if(!names.hasMoreElements()){
+		if (!names.hasMoreElements()) {
 			return "No Session.";
 		}
 		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);		
+		PrintWriter printWriter = new PrintWriter(stringWriter);
 		printWriter.write("<table width='100%'>");
-		while(names.hasMoreElements()){
+		while (names.hasMoreElements()) {
 			String key = names.nextElement();
 			Object value = session.getAttribute(key);
 			printWriter
@@ -559,7 +559,7 @@ public class WebUtil {
 							+ value.toString()
 							+ "</td></tr>");
 		}
-		
+
 		printWriter.write("</table>");
 		printWriter.close();
 		return stringWriter.toString();
@@ -575,23 +575,23 @@ public class WebUtil {
 		printWriter.write("<table width='100%'>");
 		for (int i = 0; i < cookies.length; i++) {
 			Cookie cookie = cookies[i];
-			String valueText = "name="+cookie.getName();
-			valueText += " value="+cookie.getValue();
-			if(cookie.getPath() != null){
-				valueText += "　path="+cookie.getPath();
+			String valueText = "name=" + cookie.getName();
+			valueText += " value=" + cookie.getValue();
+			if (cookie.getPath() != null) {
+				valueText += "　path=" + cookie.getPath();
 			}
-			if(cookie.getDomain() != null){
-				valueText += "　domain="+cookie.getDomain();
+			if (cookie.getDomain() != null) {
+				valueText += "　domain=" + cookie.getDomain();
 			}
-			if(cookie.getMaxAge() != 0){
-				valueText += "　maxAge="+cookie.getMaxAge();
-			}			
-			if(cookie.getComment() != null){
-				valueText += "　comment="+cookie.getComment();
+			if (cookie.getMaxAge() != 0) {
+				valueText += "　maxAge=" + cookie.getMaxAge();
 			}
-			printWriter.write("<tr style='background-color:#DDDDDD;'><td style='white-space:nowrap;'>"
-					+ valueText
-					+ "</td></tr>");
+			if (cookie.getComment() != null) {
+				valueText += "　comment=" + cookie.getComment();
+			}
+			printWriter
+					.write("<tr style='background-color:#DDDDDD;'><td style='white-space:nowrap;'>"
+							+ valueText + "</td></tr>");
 		}
 		printWriter.write("</table>");
 		printWriter.close();

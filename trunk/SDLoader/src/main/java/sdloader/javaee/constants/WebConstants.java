@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package sdloader.javaee.constants;
+
 /**
  * Webの定数定義
+ * 
  * @author c9katayama
  */
 public interface WebConstants {

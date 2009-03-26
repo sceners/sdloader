@@ -216,7 +216,7 @@ public class HttpSessionImpl implements HttpSession {
 
 	// /non interface method
 	protected void dispatchCreateEvent() {
-		if(internalWebApplication == null){
+		if (internalWebApplication == null) {
 			return;
 		}
 		HttpSessionEvent event = new HttpSessionEvent(this);
@@ -226,7 +226,7 @@ public class HttpSessionImpl implements HttpSession {
 	}
 
 	protected void dispatchDestroyEvent() {
-		if(internalWebApplication == null){
+		if (internalWebApplication == null) {
 			return;
 		}
 		HttpSessionEvent event = new HttpSessionEvent(this);

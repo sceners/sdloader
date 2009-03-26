@@ -23,7 +23,7 @@ public class Assertion {
 	public static <T> T notNull(T target) {
 		return notNull(target, null);
 	}
-	
+
 	public static <T> T notNull(T target, String message) {
 		if (target == null) {
 			throw new NullPointerException(message);
@@ -37,5 +37,5 @@ public class Assertion {
 		}
 		return args;
 	}
-	
+
 }

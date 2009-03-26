@@ -34,7 +34,7 @@ public class HttpHeader {
 
 	// for request
 	private String requestHeader;
-	
+
 	private String method;
 
 	private String requestURI;
@@ -88,8 +88,9 @@ public class HttpHeader {
 		this.version = version;
 	}
 
-	public HttpHeader() {		
+	public HttpHeader() {
 	}
+
 	public HttpHeader(String requestHeader) {
 		if (requestHeader == null) {
 			throw new IllegalArgumentException("Http header is null.");
@@ -179,20 +180,20 @@ public class HttpHeader {
 			cookieList.add(cookie);
 		}
 	}
-	
-	public void addHeader(String name,String value){
+
+	public void addHeader(String name, String value) {
 		headerList.add(new HeaderData(name, value));
 	}
 
-	public void setHeader(String name,String value){
+	public void setHeader(String name, String value) {
 		boolean exist = false;
-		for(HeaderData data:headerList){
-			if(data.getName().equalsIgnoreCase(name)){
+		for (HeaderData data : headerList) {
+			if (data.getName().equalsIgnoreCase(name)) {
 				data.value = value;
 				exist = true;
 			}
 		}
-		if(!exist){
+		if (!exist) {
 			addHeader(name, value);
 		}
 	}
@@ -223,9 +224,11 @@ public class HttpHeader {
 		}
 		return headerValueList;
 	}
+
 	public void addCookie(Cookie newCookie) {
 		cookieList.add(newCookie);
 	}
+
 	public Cookie getCookie(String name) {
 		for (Cookie cookie : cookieList) {
 			if (cookie.getName().equals(name)) {
@@ -290,6 +293,7 @@ public class HttpHeader {
 		}
 		return buf.toString();
 	}
+
 	public String getRequestHeader() {
 		return requestHeader;
 	}

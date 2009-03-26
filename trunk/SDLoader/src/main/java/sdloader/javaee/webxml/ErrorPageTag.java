@@ -23,7 +23,9 @@ package sdloader.javaee.webxml;
 public class ErrorPageTag implements WebXmlTagElement {
 
 	private String errorCode;
+
 	private String exceptionType;
+
 	private String location;
 
 	public String getErrorCode() {
@@ -51,5 +53,13 @@ public class ErrorPageTag implements WebXmlTagElement {
 	public ErrorPageTag setLocation(String location) {
 		this.location = location;
 		return this;
+	}
+
+	public String toXml() {
+		return null;
+	}
+
+	public void accept(WebXmlVisitor visitor) {
+		visitor.visit(this);
 	}
 }

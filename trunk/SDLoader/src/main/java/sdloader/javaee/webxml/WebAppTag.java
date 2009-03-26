@@ -149,4 +149,9 @@ public class WebAppTag implements WebXmlTagElement {
 	public WelcomeFileListTag getWelcomeFileList() {
 		return welcomeFileList;
 	}
+
+	public void accept(WebXmlVisitor visitor) {
+		visitor.visit(this);
+	}
+
 }

@@ -17,8 +17,10 @@ package sdloader.javaee.webxml;
 
 /**
  * web.xmlのタグを表現するTagクラスの共通マーカークラス
+ * 
  * @author shot
  */
 public interface WebXmlTagElement {
 
+	void accept(WebXmlVisitor visitor);
 }

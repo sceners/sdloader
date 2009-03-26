@@ -49,9 +49,10 @@ public class HttpRequest {
 	private HttpBody body;
 	private HttpRequestParameters parameters;
 
-	public HttpRequest(HttpRequestReader requestReader){
+	public HttpRequest(HttpRequestReader requestReader) {
 		this.requestReader = requestReader;
 	}
+
 	public void readRequest() throws IOException {
 		createHttpRequestHeader();
 		createHttpRequestBody();

@@ -20,15 +20,17 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * メッセージダイジェスト用Util
+ * 
  * @author shot
  * @author c9katayama
  */
 public class MessageDigestUtil {
 
 	protected static String ALGORHTYM = "MD5";
-	
+
 	/**
 	 * 引数の文字列を元にダイジェストした文字列を返します。
+	 * 
 	 * @param planeText
 	 * @return
 	 */
@@ -39,8 +41,10 @@ public class MessageDigestUtil {
 		String hex = toHexString(digest.digest(b));
 		return hex;
 	}
+
 	/**
 	 * byte[]を16進文字列に変換します
+	 * 
 	 * @param buf
 	 * @return
 	 */
@@ -55,8 +59,10 @@ public class MessageDigestUtil {
 		}
 		return digestText;
 	}
+
 	/**
 	 * MessageDisgestを作成します。
+	 * 
 	 * @return
 	 */
 	public static MessageDigest createMessageDigest() {

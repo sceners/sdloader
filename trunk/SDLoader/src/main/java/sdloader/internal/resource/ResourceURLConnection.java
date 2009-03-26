@@ -21,31 +21,35 @@ import java.net.URLConnection;
 
 /**
  * URLConnection for Resource.
+ * 
  * @author c9katayama
  */
 public class ResourceURLConnection extends URLConnection {
-	
+
 	private Resource resource;
-	
+
 	public ResourceURLConnection(Resource resource) {
-		super(resource!=null?resource.getURL():null);
+		super(resource != null ? resource.getURL() : null);
 		this.resource = resource;
 	}
+
 	@Override
 	public void connect() throws IOException {
 		checkNonNullResource();
 	}
+
 	@Override
 	public InputStream getInputStream() throws IOException {
 		checkNonNullResource();
 		return resource.getResourceAsInputStream();
 	}
-	
+
 	public Resource getResource() {
 		return resource;
 	}
-	private void checkNonNullResource()throws IOException{
-		if(resource==null)
+
+	private void checkNonNullResource() throws IOException {
+		if (resource == null)
 			throw new IOException("Resource is null.");
 	}
 }

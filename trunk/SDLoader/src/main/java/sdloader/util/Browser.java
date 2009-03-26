@@ -16,15 +16,16 @@
 package sdloader.util;
 
 import java.io.IOException;
+
 /**
  * @author c9katayama
  */
 public class Browser {
 
-	public static void open(String url){
-		try{
+	public static void open(String url) {
+		try {
 			MiscUtils.openBrowser(url);
-		}catch(IOException ioe){
+		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
 		}
 	}

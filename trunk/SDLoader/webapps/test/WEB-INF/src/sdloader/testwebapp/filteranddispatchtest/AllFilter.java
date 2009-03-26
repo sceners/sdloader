@@ -17,7 +17,7 @@ public class AllFilter implements Filter {
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
 		System.out.println("AllFilter");
-		chain.doFilter(req,res);
+		chain.doFilter(req, res);
 	}
 
 	public void destroy() {

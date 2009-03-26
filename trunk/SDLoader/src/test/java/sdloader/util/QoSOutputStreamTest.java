@@ -10,26 +10,26 @@ import sdloader.constants.LineSpeed;
 public class QoSOutputStreamTest extends TestCase {
 
 	public void testWrite() throws Exception {
-		execute(0,LineSpeed.ISDN_64K_BPS);
-		execute(64,LineSpeed.ISDN_64K_BPS);
-		execute(64 * 1000 / 8 - 1,LineSpeed.ISDN_64K_BPS);
-		execute(64 * 1000 / 8,LineSpeed.ISDN_64K_BPS);
-		execute(64 * 1000 / 8 + 1,LineSpeed.ISDN_64K_BPS);
-		execute((64 * 1000 / 8) * 2,LineSpeed.ISDN_64K_BPS);
-		execute((64 * 1000 / 8) * 3 + 100,LineSpeed.ISDN_64K_BPS);
+		execute(0, LineSpeed.ISDN_64K_BPS);
+		execute(64, LineSpeed.ISDN_64K_BPS);
+		execute(64 * 1000 / 8 - 1, LineSpeed.ISDN_64K_BPS);
+		execute(64 * 1000 / 8, LineSpeed.ISDN_64K_BPS);
+		execute(64 * 1000 / 8 + 1, LineSpeed.ISDN_64K_BPS);
+		execute((64 * 1000 / 8) * 2, LineSpeed.ISDN_64K_BPS);
+		execute((64 * 1000 / 8) * 3 + 100, LineSpeed.ISDN_64K_BPS);
 
 		System.out.println("64k");
-		execute(8000 * 10,LineSpeed.ISDN_64K_BPS);// 80k
-		execute(16000 * 10,LineSpeed.ISDN_64K_BPS);// 160k
-		execute(8000 * 100,LineSpeed.ISDN_64K_BPS);// 800k
+		execute(8000 * 10, LineSpeed.ISDN_64K_BPS);// 80k
+		execute(16000 * 10, LineSpeed.ISDN_64K_BPS);// 160k
+		execute(8000 * 100, LineSpeed.ISDN_64K_BPS);// 800k
 		System.out.println("128k");
-		execute(8000 * 10,LineSpeed.ISDN_128K_BPS);// 80k
-		execute(16000 * 10,LineSpeed.ISDN_128K_BPS);// 160k
-		execute(8000 * 100,LineSpeed.ISDN_128K_BPS);// 800k
-		
+		execute(8000 * 10, LineSpeed.ISDN_128K_BPS);// 80k
+		execute(16000 * 10, LineSpeed.ISDN_128K_BPS);// 160k
+		execute(8000 * 100, LineSpeed.ISDN_128K_BPS);// 800k
+
 	}
 
-	private void execute(int byteSize,int bps) throws IOException {
+	private void execute(int byteSize, int bps) throws IOException {
 		byte[] b = new byte[byteSize];
 		for (int n = 0; n < b.length; n++) {
 			b[n] = (byte) (Math.random() * 128);

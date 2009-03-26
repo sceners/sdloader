@@ -89,4 +89,8 @@ public class FilterMappingTag implements WebXmlTagElement {
 		this.dispatchers.add(dispatcher);
 		return this;
 	}
+
+	public void accept(WebXmlVisitor visitor) {
+		visitor.visit(this);
+	}
 }

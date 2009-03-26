@@ -42,11 +42,11 @@ public class FilterTag implements WebXmlTagElement {
 	public String getFilterClass() {
 		return filterClass;
 	}
-	
+
 	public FilterTag setFilterClass(Class<? extends Filter> filterClass) {
 		return setFilterClass(filterClass.getName());
 	}
-	
+
 	public FilterTag setFilterClass(String filterClass) {
 		this.filterClass = filterClass;
 		return this;
@@ -77,5 +77,9 @@ public class FilterTag implements WebXmlTagElement {
 
 	public List<InitParamTag> getInitParamList() {
 		return initParam;
+	}
+
+	public void accept(WebXmlVisitor visitor) {
+		visitor.visit(this);
 	}
 }

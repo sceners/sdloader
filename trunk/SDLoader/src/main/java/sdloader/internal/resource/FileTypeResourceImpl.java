@@ -25,20 +25,22 @@ import java.net.URL;
 public class FileTypeResourceImpl implements FileTypeResource {
 
 	protected String path;
-	
+
 	protected String originalPath;
-	
+
 	protected byte[] bytes;
 
 	protected URL url;
 
-	public FileTypeResourceImpl(final URL rootUrl, final String path, final byte[] bytes) {
+	public FileTypeResourceImpl(final URL rootUrl, final String path,
+			final byte[] bytes) {
 		this.path = path;
 		this.originalPath = path;
 		this.bytes = bytes;
-		this.url = WarProtocolBuilder.createArchiveResourceURL(rootUrl, originalPath);
+		this.url = WarProtocolBuilder.createArchiveResourceURL(rootUrl,
+				originalPath);
 	}
-	
+
 	public String getOriginalPath() {
 		return path;
 	}
