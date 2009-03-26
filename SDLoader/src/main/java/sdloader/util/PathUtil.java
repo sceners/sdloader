@@ -24,7 +24,7 @@ import java.net.URL;
 /**
  * PathUtils
  * 
- * @author AKatayama
+ * @author c9katayama
  * 
  */
 public class PathUtil {

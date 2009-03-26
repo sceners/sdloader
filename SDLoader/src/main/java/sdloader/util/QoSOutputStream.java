@@ -23,7 +23,7 @@ import sdloader.constants.LineSpeed;
 /**
  * 帯域制限つきOutputStream
  * 
- * @author AKatayama
+ * @author c9katayama
  * 
  */
 public class QoSOutputStream extends OutputStream {
