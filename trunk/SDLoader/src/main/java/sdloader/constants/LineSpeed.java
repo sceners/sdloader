@@ -18,7 +18,7 @@ package sdloader.constants;
 /**
  * 回線速度定義用定数.
  * 
- * @author AKatayama
+ * @author c9katayama
  * 
  */
 public interface LineSpeed {
