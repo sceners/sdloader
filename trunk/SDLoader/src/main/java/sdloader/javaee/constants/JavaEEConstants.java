@@ -48,11 +48,11 @@ public class JavaEEConstants {
 	public static final String DISPATCHER_TYPE_INCLUDE = "INCLUDE";
 	public static final String DISPATCHER_TYPE_ERROR = "ERROR";
 
-	public static int SERVLETAPI_MAJOR_VERSION = 2;
-	public static int SERVLETAPI_MINOR_VERSION = 5;
+	public static Integer SERVLETAPI_MAJOR_VERSION = 2;
+	public static Integer SERVLETAPI_MINOR_VERSION = 5;
 
-	public static int JSP_MAJOR_VERSION = 2;
-	public static int JSP_MINOR_VERSION = 1;
+	public static Integer JSP_MAJOR_VERSION = 2;
+	public static Integer JSP_MINOR_VERSION = 1;
 
 	static {
 		try {
@@ -71,8 +71,8 @@ public class JavaEEConstants {
 				Class.forName("javax.servlet.jsp.JspContext");
 				JSP_MINOR_VERSION = 0;
 			}catch(Exception ex){
-				JSP_MAJOR_VERSION = 0;
-				JSP_MINOR_VERSION = 0;
+				JSP_MAJOR_VERSION = null;
+				JSP_MINOR_VERSION = null;
 			}
 		}
 	}
