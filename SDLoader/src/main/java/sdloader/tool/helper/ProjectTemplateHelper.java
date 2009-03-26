@@ -35,7 +35,7 @@ import sdloader.util.ResourceUtil;
 /**
  * プロジェクトテンプレート作成用Helper
  * 
- * @author 
+ * @author c9katayama
  */
 public class ProjectTemplateHelper {
 
