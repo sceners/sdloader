@@ -136,7 +136,8 @@ public class ProjectTemplateHelper {
 							StreamResult result = new StreamResult(fout);
 							TransformerFactory.newInstance().newTransformer()
 									.transform(source, result);
-							IOUtil.forceRemoveDirectory(new File(projectDir, oldPath));
+							IOUtil.forceRemoveDirectory(new File(projectDir,
+									oldPath));
 							System.out
 									.println("Class file output folder modified.");
 							return true;

@@ -38,7 +38,8 @@ public class ResourceBuilderImpl implements ResourceBuilder {
 
 	public Map<URL, Resource> build(String filepath) throws IOException {
 		final File file = new File(filepath);
-		final URL rootUrl = new URL("war:" + file.toURI().toURL().toExternalForm());
+		final URL rootUrl = new URL("war:"
+				+ file.toURI().toURL().toExternalForm());
 		final JarInputStream ji = new JarInputStream(new FileInputStream(file));
 		return build(rootUrl, ji);
 	}
@@ -55,19 +56,18 @@ public class ResourceBuilderImpl implements ResourceBuilder {
 				break;
 			final String resourcePath = entry.getName();
 			byte[] bytes = getBytes(ji);
-			final Resource resourceType = getResourceType(rootUrl, resourcePath, bytes);
-			addResource(resourceType, resourcePath, rootUrl, resoureMap, pathMap);
+			final Resource resourceType = getResourceType(rootUrl,
+					resourcePath, bytes);
+			addResource(resourceType, resourcePath, rootUrl, resoureMap,
+					pathMap);
 		}
 		return resoureMap;
 	}
 
-	protected void addResource(
-			Resource resourceType,
-			String resourcePath,
-			URL rootUrl,
-			Map<URL, Resource> resoureMap,
+	protected void addResource(Resource resourceType, String resourcePath,
+			URL rootUrl, Map<URL, Resource> resoureMap,
 			Map<String, Resource> pathMap) {
-		if(!resourcePath.equals("/")){
+		if (!resourcePath.equals("/")) {
 			String testPath = resourcePath;
 			if (testPath.endsWith("/"))
 				testPath = testPath.substring(0, testPath.length() - 1);
@@ -78,15 +78,16 @@ public class ResourceBuilderImpl implements ResourceBuilder {
 			} else {
 				parentPath = testPath.substring(0, sepIndex + 1);
 			}
-			BranchTypeResource parent = (BranchTypeResource)pathMap.get(parentPath);
-			if(parent==null){
-				parent = new DirectoryTypeResourceImpl(rootUrl,parentPath);
-				addResource(parent,parentPath,rootUrl, resoureMap, pathMap);
+			BranchTypeResource parent = (BranchTypeResource) pathMap
+					.get(parentPath);
+			if (parent == null) {
+				parent = new DirectoryTypeResourceImpl(rootUrl, parentPath);
+				addResource(parent, parentPath, rootUrl, resoureMap, pathMap);
 			}
 			parent.addResource(resourceType);
 		}
-		resoureMap.put(resourceType.getURL(),resourceType);
-		pathMap.put(resourcePath,resourceType);
+		resoureMap.put(resourceType.getURL(), resourceType);
+		pathMap.put(resourcePath, resourceType);
 	}
 
 	protected static final byte[] getBytes(InputStream is) {

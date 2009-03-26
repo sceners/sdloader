@@ -47,6 +47,6 @@ public interface SDLoaderLog {
 	public void fatal(Object log);
 
 	public void fatal(Object log, Throwable t);
-	
+
 	void release();
 }

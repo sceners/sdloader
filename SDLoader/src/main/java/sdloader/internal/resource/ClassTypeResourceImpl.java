@@ -25,22 +25,24 @@ import java.net.URL;
 public class ClassTypeResourceImpl implements ClassTypeResource {
 
 	protected String originalPath = null;
-	
+
 	protected String path = null;
-	
+
 	protected byte[] bytes;
-	
+
 	protected URL url;
-	
-	public ClassTypeResourceImpl(final URL rootUrl, final String path, final byte[] bytes) {
+
+	public ClassTypeResourceImpl(final URL rootUrl, final String path,
+			final byte[] bytes) {
 		String s = path;
 		s = s.replaceAll("/", ".");
 		this.path = s;
 		this.originalPath = path;
 		this.bytes = bytes;
-		this.url = WarProtocolBuilder.createArchiveResourceURL(rootUrl, originalPath);
+		this.url = WarProtocolBuilder.createArchiveResourceURL(rootUrl,
+				originalPath);
 	}
-	
+
 	public String getOriginalPath() {
 		return originalPath;
 	}

@@ -42,4 +42,8 @@ public class WelcomeFileListTag implements WebXmlTagElement {
 		this.welcomeFileList.add(welcomeFile);
 		return this;
 	}
+
+	public void accept(WebXmlVisitor visitor) {
+		visitor.visit(this);
+	}
 }

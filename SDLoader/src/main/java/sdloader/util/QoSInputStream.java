@@ -21,7 +21,7 @@ public class QoSInputStream extends InputStream {
 		this.in = in;
 		if (bps <= LineSpeed.NO_LIMIT) {
 			bytePerSliceSec = Integer.MAX_VALUE;
-		}else{		
+		} else {
 			bytePerSliceSec = Math.max(100,
 					(int) (bps / BIT_PER_BYTE / SEC_SLICE_NUM));
 		}

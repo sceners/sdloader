@@ -60,19 +60,20 @@ public class SystemTrayOpen {
 			openBrowser();
 
 			createSystemTray(server);
-			
+
 			server.stop();
-			
+
 		} catch (Throwable e) {
 			log.error("SDLoader catch error.", e);
 		} finally {
 			System.exit(0);
 		}
 	}
+
 	/**
-	 * アイコンのInputStreamを返します。
-	 * はじめにtrayicon.gifの名前でFileを検索します。
+	 * アイコンのInputStreamを返します。 はじめにtrayicon.gifの名前でFileを検索します。
 	 * ない場合、クラスパスから/sdloader/resource/trayicon.gifを探します。
+	 * 
 	 * @return
 	 */
 	private InputStream getIconInputStream() {
@@ -90,6 +91,7 @@ public class SystemTrayOpen {
 			return null;
 		}
 	}
+
 	/**
 	 * デフォルトＵＲＬをブラウザをオープンします。
 	 */
@@ -102,8 +104,10 @@ public class SystemTrayOpen {
 			log.error(e.getMessage(), e);
 		}
 	}
+
 	/**
 	 * システムトレーを作成します。
+	 * 
 	 * @param sdLoader
 	 */
 	private void createSystemTray(final SDLoader sdLoader) {

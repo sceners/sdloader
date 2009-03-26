@@ -20,9 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * テキストをフォーマットします。
- * テキスト中の${name}の部分を、nameをキーにしてプロパティから
- * 値を取り出し、置換します。
+ * テキストをフォーマットします。 テキスト中の${name}の部分を、nameをキーにしてプロパティから 値を取り出し、置換します。
+ * 
  * @author c9katayama
  */
 public class TextFormatUtil {

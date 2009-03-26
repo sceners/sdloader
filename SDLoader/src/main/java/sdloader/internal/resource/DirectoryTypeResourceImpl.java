@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 package sdloader.internal.resource;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 
 import sdloader.util.CollectionsUtil;
+
 /**
  * 
  * @author c9katayama
@@ -27,30 +29,31 @@ import sdloader.util.CollectionsUtil;
 public class DirectoryTypeResourceImpl implements DirectoryTypeResource {
 
 	protected static final byte[] ZERO_LENGTH_BYTE = new byte[0];
-	
+
 	protected String path;
-	
+
 	protected String originalPath;
 
 	protected URL url;
-	
+
 	protected List<Resource> childResources;
 
 	public DirectoryTypeResourceImpl(final URL rootUrl, final String path) {
 		this.path = path;
 		this.originalPath = path;
-		this.url = WarProtocolBuilder.createArchiveResourceURL(rootUrl, originalPath);
+		this.url = WarProtocolBuilder.createArchiveResourceURL(rootUrl,
+				originalPath);
 	}
-	
+
 	public void addResource(Resource resource) {
-		if(childResources==null){
+		if (childResources == null) {
 			childResources = CollectionsUtil.newArrayList();
 		}
 		childResources.add(resource);
 	}
 
 	public void addResources(List<Resource> resources) {
-		if(childResources==null){
+		if (childResources == null) {
 			childResources = CollectionsUtil.newArrayList();
 		}
 		childResources.addAll(resources);
@@ -59,7 +62,7 @@ public class DirectoryTypeResourceImpl implements DirectoryTypeResource {
 	public List<Resource> getResources() {
 		return childResources;
 	}
-	
+
 	public String getOriginalPath() {
 		return path;
 	}

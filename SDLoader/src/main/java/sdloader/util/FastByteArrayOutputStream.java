@@ -71,7 +71,7 @@ public class FastByteArrayOutputStream extends OutputStream {
 				data.put(bytes);
 			}
 		}
-		data.put(buffer,0,index);
+		data.put(buffer, 0, index);
 		return data.array();
 	}
 

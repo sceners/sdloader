@@ -13,7 +13,7 @@ public class SDLoaderURIEncodingTest extends TestCase {
 		sdloader.addWebAppContext(webapp);
 
 		sdloader.start();
-		
+
 		Browser.open("http://localhost:" + sdloader.getPort()
 				+ "/testwebapp/uriencodetest/%E5%86%86%E9%AB%98%E5%BA%A6.txt");
 	}

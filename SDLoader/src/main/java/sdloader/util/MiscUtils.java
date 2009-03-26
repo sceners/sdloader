@@ -25,8 +25,7 @@ public class MiscUtils {
 			"mozilla", "konqueror", "netscape", "opera" };
 
 	public static void openBrowser(String url) throws IOException {
-		final String os = System.getProperty("os.name")
-				.toLowerCase();
+		final String os = System.getProperty("os.name").toLowerCase();
 		if (os.indexOf("windows") != -1) {
 			if (os.indexOf("2000") != -1) {
 				// 2000の場合、htmlもしくはhtmで終わるとブラウザが開かない為、ダミーの#をつける

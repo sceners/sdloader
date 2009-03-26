@@ -17,8 +17,9 @@ public class IncludeFilter implements Filter {
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
 		System.out.println("IncludeFilter");
-		chain.doFilter(req,res);
+		chain.doFilter(req, res);
 	}
+
 	public void destroy() {
 	}
 }

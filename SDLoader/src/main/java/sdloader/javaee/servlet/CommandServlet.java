@@ -17,10 +17,9 @@ public class CommandServlet extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		
+
 		String commandPath = PathUtil.removeStartSlashIfNeed(req.getPathInfo());
-		Command command = CommandFactory
-				.getCommand(commandPath);
+		Command command = CommandFactory.getCommand(commandPath);
 		if (command != null) {
 			if (command == Command.STOP) {
 				SDLoader loader = ProcessScopeContext.getContext()

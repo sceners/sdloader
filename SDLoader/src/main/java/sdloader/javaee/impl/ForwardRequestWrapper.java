@@ -24,6 +24,7 @@ import sdloader.util.WebUtil;
 
 /**
  * RequestDispatcher#forward利用時のリクエストラッパー
+ * 
  * @author c9katayama
  */
 public class ForwardRequestWrapper extends HttpServletRequestWrapper {
@@ -34,7 +35,7 @@ public class ForwardRequestWrapper extends HttpServletRequestWrapper {
 	private String pathInfo;
 	private String contextPath;
 	private ServletContext servletContext;
-		
+
 	public ForwardRequestWrapper(HttpServletRequest req) {
 		super(req);
 	}
@@ -48,24 +49,25 @@ public class ForwardRequestWrapper extends HttpServletRequestWrapper {
 	}
 
 	public StringBuffer getRequestURL() {
-		if(requestURL==null){
-			requestURL = WebUtil.buildRequestURL(getScheme(),getLocalName(),getServerPort(),getRequestURI());
-		}			
+		if (requestURL == null) {
+			requestURL = WebUtil.buildRequestURL(getScheme(), getLocalName(),
+					getServerPort(), getRequestURI());
+		}
 		return requestURL;
 	}
 
 	public String getServletPath() {
 		return servletPath;
 	}
-	
+
 	public RequestDispatcher getRequestDispatcher(String requestURI) {
 		return servletContext.getRequestDispatcher(requestURI);
 	}
-	
+
 	public String getContextPath() {
 		return contextPath;
 	}
-	
+
 	void setPathInfo(String pathInfo) {
 		this.pathInfo = pathInfo;
 	}
@@ -76,10 +78,12 @@ public class ForwardRequestWrapper extends HttpServletRequestWrapper {
 
 	void setServletPath(String servletPath) {
 		this.servletPath = servletPath;
-	}	
+	}
+
 	void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
 	}
+
 	void setContextPath(String contextPath) {
 		this.contextPath = contextPath;
 	}

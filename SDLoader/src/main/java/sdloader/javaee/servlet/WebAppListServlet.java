@@ -28,7 +28,6 @@ import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.constants.WebConstants;
 import sdloader.javaee.impl.ServletContextImpl;
 
-
 /**
  * デプロイしてあるWebアプリの一覧を表示するサーブレット
  * 
@@ -38,35 +37,41 @@ import sdloader.javaee.impl.ServletContextImpl;
 public class WebAppListServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
-	throws ServletException, IOException {
+			throws ServletException, IOException {
 		doIt(req, res);
 	}
-	
+
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
-		throws ServletException, IOException {
+			throws ServletException, IOException {
 		doIt(req, res);
 	}
-	
-	protected void doIt(HttpServletRequest req,HttpServletResponse res)
-		throws ServletException, IOException {
-		
-		InternalWebApplication webapp = ((ServletContextImpl)getServletContext()).getWebApplication();
-		List<String> contextPathList = webapp.getWebApplicationManager().getContextPathList();
+
+	protected void doIt(HttpServletRequest req, HttpServletResponse res)
+			throws ServletException, IOException {
+
+		InternalWebApplication webapp = ((ServletContextImpl) getServletContext())
+				.getWebApplication();
+		List<String> contextPathList = webapp.getWebApplicationManager()
+				.getContextPathList();
 		outputWebAppList(contextPathList, req, res);
 	}
-	protected void outputWebAppList(List<String> contextPathList,HttpServletRequest req,HttpServletResponse res)
-																	throws ServletException, IOException {
+
+	protected void outputWebAppList(List<String> contextPathList,
+			HttpServletRequest req, HttpServletResponse res)
+			throws ServletException, IOException {
 		res.setContentType("text/html;charset=UTF-8");
 		PrintWriter writer = res.getWriter();
-		writer.write("<html><head><title>SDLoader -Web Application List-</title></head><body>");
+		writer
+				.write("<html><head><title>SDLoader -Web Application List-</title></head><body>");
 		writer.write("[Web Application List]<br/>");
 		writer.write("<a href=\"/\">ROOT</a><br/>");
-		if(contextPathList != null){
-			for(String path : contextPathList){
-				if(!path.equals("/"+WebConstants.ROOT_DIR_NAME)){
-					writer.write("<a href=\"" + path + "/\">" + path + "</a><br/>");
+		if (contextPathList != null) {
+			for (String path : contextPathList) {
+				if (!path.equals("/" + WebConstants.ROOT_DIR_NAME)) {
+					writer.write("<a href=\"" + path + "/\">" + path
+							+ "</a><br/>");
 				}
 			}
 		}

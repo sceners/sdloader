@@ -53,8 +53,7 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 	RequestDispatcherImpl(ServletMapping dispatchServletMapping,
 			Servlet dispatchServlet, List<Filter> forwardFilterList,
 			List<Filter> includeFilterList,
-			ServletContext dispatchServletContext, 
-			String contextPath,
+			ServletContext dispatchServletContext, String contextPath,
 			String dispatchURI) {
 		this.dispatchServletContext = dispatchServletContext;
 		this.dispatchServletMapping = dispatchServletMapping;
@@ -94,7 +93,7 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 					JavaEEConstants.JAVAX_FORWARD_QUERY_STRING, firstRequest
 							.getQueryString());
 		}
-		String resourcePath = WebUtil.getResourcePath(contextPath,requestURI);
+		String resourcePath = WebUtil.getResourcePath(contextPath, requestURI);
 		String servletPath = WebUtil.getServletPath(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
 		String pathInfo = WebUtil.getPathInfo(dispatchServletMapping
@@ -115,13 +114,13 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 
 	public void include(ServletRequest request, ServletResponse response)
 			throws ServletException, IOException {
-		
+
 		IncludeRequestWrapper requestWrapper = new IncludeRequestWrapper(
 				(HttpServletRequest) request);
 		IncludeResponseWrapper responseWrapper = new IncludeResponseWrapper(
 				(HttpServletResponse) response);
 
-		String resourcePath = WebUtil.getResourcePath(contextPath,requestURI);
+		String resourcePath = WebUtil.getResourcePath(contextPath, requestURI);
 		String servletPath = WebUtil.getServletPath(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
 		String pathInfo = WebUtil.getPathInfo(dispatchServletMapping

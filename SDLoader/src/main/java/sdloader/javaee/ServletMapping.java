@@ -17,28 +17,35 @@ package sdloader.javaee;
 
 /**
  * サーブレットのマッピング
+ * 
  * @author c9katayama
  */
 public class ServletMapping {
 
 	private String servletName;
 	private String urlPattern;
+
 	public ServletMapping() {
 	}
-	public ServletMapping(String servletName,String urlPattern) {
+
+	public ServletMapping(String servletName, String urlPattern) {
 		setServletName(servletName);
 		setUrlPattern(urlPattern);
 	}
+
 	public String getServletName() {
 		return servletName;
 	}
+
 	public void setServletName(String servletName) {
 		this.servletName = servletName;
 	}
+
 	public String getUrlPattern() {
 		return urlPattern;
 	}
+
 	public void setUrlPattern(String urlPattern) {
 		this.urlPattern = urlPattern;
-	}	
+	}
 }

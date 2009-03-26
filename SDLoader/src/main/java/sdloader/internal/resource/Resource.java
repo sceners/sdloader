@@ -30,7 +30,7 @@ public interface Resource {
 	byte[] getResourceAsBytes();
 
 	InputStream getResourceAsInputStream();
-	
+
 	URL getURL();
 
 }

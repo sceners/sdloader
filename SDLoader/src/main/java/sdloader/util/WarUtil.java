@@ -97,10 +97,10 @@ public class WarUtil {
 			long lastModified = readLastModifiled(warModifiedTimeFile);
 
 			if (timestamp == lastModified) {
-				log.info("war file " + warFile.getName()+" not modified.");
+				log.info("war file " + warFile.getName() + " not modified.");
 				return;
 			}
-			if(directory.exists()){
+			if (directory.exists()) {
 				IOUtil.forceRemoveDirectory(directory);
 				directory.mkdir();
 			}

@@ -49,4 +49,8 @@ public class ServletMappingTag implements WebXmlTagElement {
 		return this;
 	}
 
+	public void accept(WebXmlVisitor visitor) {
+		visitor.visit(this);
+	}
+
 }

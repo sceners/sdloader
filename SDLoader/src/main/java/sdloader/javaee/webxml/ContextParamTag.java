@@ -55,4 +55,8 @@ public class ContextParamTag implements WebXmlTagElement {
 		this.description = description;
 	}
 
+	public void accept(WebXmlVisitor visitor) {
+		visitor.visit(this);
+	}
+
 }

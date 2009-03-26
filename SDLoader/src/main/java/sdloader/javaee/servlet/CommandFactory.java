@@ -33,7 +33,7 @@ public final class CommandFactory {
 	}
 
 	public static Command getCommand(String key) {
-		if(key == null){
+		if (key == null) {
 			return null;
 		}
 		return commands.get(key);

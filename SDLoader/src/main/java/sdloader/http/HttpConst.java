@@ -27,7 +27,7 @@ import sdloader.util.CollectionsUtil;
 public class HttpConst {
 
 	public static final String HTTP_1_1 = "HTTP/1.1";
-	
+
 	public static final String SESSIONID_KEY = "JSESSIONID";
 
 	public static final String CACHECONTROL = "Cache-Control";
@@ -41,7 +41,7 @@ public class HttpConst {
 	public static final String CONTENTTYPE = "Content-Type";
 
 	public static final String EXPIRES = "Expires";
-	
+
 	public static final String DATE = "Date";
 
 	public static final String PRAGMA = "Pragma";
@@ -71,7 +71,7 @@ public class HttpConst {
 	public static final String COOKIE = "Cookie";
 
 	public static final String SETCOOKIE = "Set-Cookie";
-	
+
 	public static final String LOCATION = "Location";
 
 	/**
@@ -99,15 +99,14 @@ public class HttpConst {
 	public static final String TRACE = "TRACE";
 
 	public static final String OPTION = "OPTION";
-	
+
 	/** token */
 	public static final String CRLF_STRING = "\r\n";
 
 	public static final String COLON_STRING = ": ";
 
 	public static final String SEMI_COLON_STRING = "; ";
-	
-	
+
 	/**
 	 * HTTPステータス
 	 */
@@ -135,7 +134,7 @@ public class HttpConst {
 
 	public static final int SC_MOVED_TEMPORARILY = 302;
 
-	//public static final int SC_FOUND = 302;
+	// public static final int SC_FOUND = 302;
 
 	public static final int SC_SEE_OTHER = 303;
 
@@ -210,7 +209,7 @@ public class HttpConst {
 		statusMap.put(new Integer(SC_MULTIPLE_CHOICES), "Multiple Choices");
 		statusMap.put(new Integer(SC_MOVED_PERMANENTLY), "Moved Permanently");
 		statusMap.put(new Integer(SC_MOVED_TEMPORARILY), "Moved Temporarily");
-//		statusMap.put(new Integer(SC_FOUND), "Found");
+		// statusMap.put(new Integer(SC_FOUND), "Found");
 		statusMap.put(new Integer(SC_SEE_OTHER), "See Other");
 		statusMap.put(new Integer(SC_NOT_MODIFIED), "Not Modified");
 		statusMap.put(new Integer(SC_USE_PROXY), "Use Proxy");

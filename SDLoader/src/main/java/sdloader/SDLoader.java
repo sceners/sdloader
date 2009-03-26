@@ -78,7 +78,7 @@ public class SDLoader implements Lifecycle {
 	 * @deprecated
 	 */
 	public static final String KEY_SDLOADER_WEBAPP_PATH = KEY_SDLOADER_WEBAPPS_DIR;
-	
+
 	public static final String KEY_WAR_INMEMORY_EXTRACT = CONFIG_KEY_PREFIX
 			+ "warInMemoryExtract";
 
@@ -106,19 +106,19 @@ public class SDLoader implements Lifecycle {
 			+ "workDir";
 
 	public static final List<String> CONFIG_KEYS = new ArrayList<String>();
-	static{
-		try{
+	static {
+		try {
 			Field[] fields = SDLoader.class.getFields();
-			for(int i = 0;i < fields.length;i++){
-				if(fields[i].getName().startsWith("KEY")){
-					CONFIG_KEYS.add((String)fields[i].get(null));
+			for (int i = 0; i < fields.length; i++) {
+				if (fields[i].getName().startsWith("KEY")) {
+					CONFIG_KEYS.add((String) fields[i].get(null));
 				}
 			}
-		}catch(Exception e){
-			
+		} catch (Exception e) {
+
 		}
 	}
-	
+
 	private String sdloaderConfigPath = "sdloader.properties";
 
 	protected WebAppManager webAppManager = new WebAppManager();
@@ -154,6 +154,7 @@ public class SDLoader implements Lifecycle {
 		loadDefaultConfig();
 		config.addAll(p);
 	}
+
 	/**
 	 * 指定のポートでSDLoaderを構築します。
 	 * 
@@ -339,8 +340,8 @@ public class SDLoader implements Lifecycle {
 	 */
 	public static String getVersion() {
 		try {
-			InputStream is = SDLoader.class.getResourceAsStream(
-					"/META-INF/sdloaderversion.txt");
+			InputStream is = SDLoader.class
+					.getResourceAsStream("/META-INF/sdloaderversion.txt");
 			Properties p = new Properties();
 			p.load(is);
 			return p.getProperty("libversion");

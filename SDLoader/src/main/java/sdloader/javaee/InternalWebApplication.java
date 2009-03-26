@@ -119,10 +119,10 @@ public class InternalWebApplication {
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(webAppClassLoader);
 		try {
-			initListener();			
+			initListener();
 			initServletContext();
 			initFilter();
-			initServlet();			
+			initServlet();
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
@@ -142,7 +142,7 @@ public class InternalWebApplication {
 		listenerEventDispatcher
 				.dispatchServletContextListener_contextInitialized(contextEvent);
 	}
-	
+
 	private void initFilter() {
 		List<FilterTag> filterList = webXml.getWebApp().getFilter();
 		for (FilterTag filterTag : filterList) {
@@ -176,16 +176,15 @@ public class InternalWebApplication {
 		List<ServletTag> servletList = webXml.getWebApp().getServlet();
 		List<ServletTag> loadOnStartUpList = CollectionsUtil.newLinkedList();
 		List<ServletTag> noStartUpList = CollectionsUtil.newLinkedList();
-		sort:
-		for (ServletTag servletTag : servletList) {
+		sort: for (ServletTag servletTag : servletList) {
 			Integer loadOnStartUp = servletTag.getLoadOnStartup();
-			if(loadOnStartUp == null || loadOnStartUp < 0){
-				noStartUpList.add(servletTag);				
-			}else{
-				for(int i = 0;i < loadOnStartUpList.size();i++){
+			if (loadOnStartUp == null || loadOnStartUp < 0) {
+				noStartUpList.add(servletTag);
+			} else {
+				for (int i = 0; i < loadOnStartUpList.size(); i++) {
 					int n = loadOnStartUpList.get(i).getLoadOnStartup();
-					if(loadOnStartUp < n){
-						loadOnStartUpList.add(i,servletTag);
+					if (loadOnStartUp < n) {
+						loadOnStartUpList.add(i, servletTag);
 						continue sort;
 					}
 				}
@@ -194,7 +193,7 @@ public class InternalWebApplication {
 		}
 		servletList = loadOnStartUpList;
 		servletList.addAll(noStartUpList);
-		
+
 		for (ServletTag servletTag : servletList) {
 			if (servletMap == null) {
 				servletMap = CollectionsUtil.newHashMap();

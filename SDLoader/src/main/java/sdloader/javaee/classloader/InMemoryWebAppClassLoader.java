@@ -37,7 +37,8 @@ public class InMemoryWebAppClassLoader extends WebAppClassLoader {
 
 	private Map<URL, Resource> resources;
 
-	public InMemoryWebAppClassLoader(Map<URL, Resource> resources, URL[] classPathURLs,ClassLoader parent) {
+	public InMemoryWebAppClassLoader(Map<URL, Resource> resources,
+			URL[] classPathURLs, ClassLoader parent) {
 		super(classPathURLs, parent);
 		this.resources = resources;
 	}

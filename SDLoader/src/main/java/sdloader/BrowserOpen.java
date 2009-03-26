@@ -18,6 +18,7 @@ package sdloader;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.Browser;
+
 /**
  * SDLoaderをオープンし、デプロイしたアプリの一覧をブラウザに表示します。
  * 
@@ -33,16 +34,16 @@ public class BrowserOpen {
 		try {
 			SDLoader server = new SDLoader();
 			server.setAutoPortDetect(true);
-			
+
 			server.start();
 
 			int port = server.getPort();
-			String url = "http://localhost:"+port;
-			
+			String url = "http://localhost:" + port;
+
 			Browser.open(url);
-			
-		} catch (Throwable e) {			
-			log.error("SDLoader catch error.",e);
+
+		} catch (Throwable e) {
+			log.error("SDLoader catch error.", e);
 		}
 	}
 }

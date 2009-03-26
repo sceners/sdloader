@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 package sdloader.lifecycle;
+
 /**
  * ライフサイクルリスナー
+ * 
  * @author AKatayama
- *
+ * 
  */
 public interface LifecycleListener {
 	/**

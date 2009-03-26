@@ -9,13 +9,14 @@ public class WarProtocolBuilder {
 
 	public static final String RESOURCE_SEPARATOR = "!";
 
-	public static URL createArchiveResourceURL(final URL archiveUrl, final String resourcePath) {
-		assertBothNotNull(archiveUrl,resourcePath);
+	public static URL createArchiveResourceURL(final URL archiveUrl,
+			final String resourcePath) {
+		assertBothNotNull(archiveUrl, resourcePath);
 		final String urlStr = archiveUrl.toExternalForm();
 		StringBuilder builder = new StringBuilder();
 		builder.append(urlStr);
 		builder.append(RESOURCE_SEPARATOR);
-		if(!resourcePath.startsWith("/")) {
+		if (!resourcePath.startsWith("/")) {
 			builder.append("/");
 		}
 		builder.append(resourcePath);
@@ -29,37 +30,39 @@ public class WarProtocolBuilder {
 		builder.append(JarArchiveTypeResourceImpl.PROTOCOL);
 		builder.append(urlStr);
 		builder.append(RESOURCE_SEPARATOR);
-		if(!originalPath.startsWith("/")) {
+		if (!originalPath.startsWith("/")) {
 			builder.append("/");
 		}
 		builder.append(originalPath);
 		return createURL(builder);
 	}
-	
-	
-	public static URL classPathToUrl(final URL rootUrl, final String originalPath) {
+
+	public static URL classPathToUrl(final URL rootUrl,
+			final String originalPath) {
 		assertBothNotNull(rootUrl, originalPath);
-		final String s = originalPath;//originalPath.replace(ClassTypeResource.WEBINF_PREFIX,"");
+		final String s = originalPath;// originalPath.replace(ClassTypeResource.
+		// WEBINF_PREFIX,"");
 		final String urlStr = rootUrl.toExternalForm();
 		StringBuilder builder = new StringBuilder();
 		builder.append(WAR_PROTOCOL);
 		builder.append(urlStr);
 		builder.append(RESOURCE_SEPARATOR);
-		if(!originalPath.startsWith("/")) {
+		if (!originalPath.startsWith("/")) {
 			builder.append("/");
 		}
 		builder.append(s);
 		return createURL(builder);
 	}
-	
-	public static URL resourcePathToUrl(final URL rootUrl, final String originalPath) {
+
+	public static URL resourcePathToUrl(final URL rootUrl,
+			final String originalPath) {
 		assertBothNotNull(rootUrl, originalPath);
 		final String urlStr = rootUrl.toExternalForm();
 		StringBuilder builder = new StringBuilder();
 		builder.append(WAR_PROTOCOL);
 		builder.append(urlStr);
 		builder.append(RESOURCE_SEPARATOR);
-		if(!originalPath.startsWith("/")) {
+		if (!originalPath.startsWith("/")) {
 			builder.append("/");
 		}
 		builder.append(originalPath);
@@ -73,8 +76,9 @@ public class WarProtocolBuilder {
 			return null;
 		}
 	}
-	
-	private static void assertBothNotNull(final URL rootUrl, final String originalPath) {
+
+	private static void assertBothNotNull(final URL rootUrl,
+			final String originalPath) {
 		if (rootUrl == null || originalPath == null) {
 			throw new IllegalArgumentException();
 		}

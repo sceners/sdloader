@@ -24,7 +24,7 @@ import java.util.LinkedList;
 public final class DisposableUtil {
 
 	private static boolean DEBUG = false;
-	
+
 	protected static final LinkedList<Disposable> disposables = CollectionsUtil
 			.newLinkedList();
 
@@ -41,7 +41,7 @@ public final class DisposableUtil {
 	}
 
 	public static synchronized void dispose() {
-		if(DEBUG){
+		if (DEBUG) {
 			listDisposables();
 		}
 		while (!disposables.isEmpty()) {

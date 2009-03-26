@@ -33,9 +33,9 @@ public class Open {
 			SDLoader server = new SDLoader(true);
 
 			server.start();
-			
+
 			server.waitForStop();
-			
+
 		} catch (Throwable e) {
 			log.error("SDLoader catch error.", e);
 		}
