@@ -373,12 +373,19 @@ public class SDLoader implements Lifecycle {
 	public void start() {
 		checkNotRunning();
 		running = true;
-
-		log.info("Detect ServletAPI["
+		
+		String message = "Detect ServletAPI["
 				+ JavaEEConstants.SERVLETAPI_MAJOR_VERSION + "."
-				+ JavaEEConstants.SERVLETAPI_MINOR_VERSION + "] JSP["
+				+ JavaEEConstants.SERVLETAPI_MINOR_VERSION + "]";
+		if(JavaEEConstants.JSP_MAJOR_VERSION != null){
+			message+=" JSP["
 				+ JavaEEConstants.JSP_MAJOR_VERSION + "."
-				+ JavaEEConstants.JSP_MINOR_VERSION + "]");
+				+ JavaEEConstants.JSP_MINOR_VERSION + "]";
+		}else{
+			message+=" JSP[NOT SUPPORT]";
+		}
+		log.info(message);
+		
 
 		long t = System.currentTimeMillis();
 
