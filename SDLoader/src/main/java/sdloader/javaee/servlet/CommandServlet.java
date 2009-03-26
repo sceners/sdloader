@@ -29,6 +29,6 @@ public class CommandServlet extends HttpServlet {
 				return;
 			}
 		}
-		res.getWriter().print("invalide command.");
+		res.getWriter().print("Invalide command.");
 	}
 }
