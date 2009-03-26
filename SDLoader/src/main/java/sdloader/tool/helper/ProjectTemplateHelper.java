@@ -32,7 +32,11 @@ import org.w3c.dom.NodeList;
 
 import sdloader.util.IOUtil;
 import sdloader.util.ResourceUtil;
-
+/**
+ * プロジェクトテンプレート作成用Helper
+ * 
+ * @author 
+ */
 public class ProjectTemplateHelper {
 
 	public static void execute(String webContentDir, InputStream webXml,
