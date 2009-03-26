@@ -18,7 +18,7 @@ package sdloader.lifecycle;
 /**
  * ライフサイクルリスナー
  * 
- * @author AKatayama
+ * @author c9katayama
  * 
  */
 public interface LifecycleListener {
