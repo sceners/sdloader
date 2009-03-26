@@ -29,7 +29,7 @@ import sdloader.tool.helper.ProjectTemplateHelper;
  * 実行クラスを出力します。
  * </pre>
  * 
- * @author AKatayama
+ * @author c9katayama
  * 
  */
 public class Servlet25ProjectTemplateTool {
