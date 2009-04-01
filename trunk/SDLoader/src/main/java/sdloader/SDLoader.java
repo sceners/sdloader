@@ -92,8 +92,8 @@ public class SDLoader implements Lifecycle {
 			+ "autoPortDetect";
 
 	public static final String KEY_SDLOADER_SSL_ENABLE = CONFIG_KEY_PREFIX
-	+ "sslEnable";
-	
+			+ "sslEnable";
+
 	public static final String KEY_SDLOADER_SERVER_NAME = CONFIG_KEY_PREFIX
 			+ "serverName";
 
@@ -299,11 +299,11 @@ public class SDLoader implements Lifecycle {
 		config.setConfig(KEY_SDLOADER_WORK_DIR, workDir);
 	}
 
-	public void setSSLEnable(boolean value){
+	public void setSSLEnable(boolean value) {
 		checkNotRunning();
-		config.setConfig(KEY_SDLOADER_SSL_ENABLE,value);
+		config.setConfig(KEY_SDLOADER_SSL_ENABLE, value);
 	}
-	
+
 	/**
 	 * Webアプリケーションコンテキストを追加します。
 	 * 
@@ -382,7 +382,7 @@ public class SDLoader implements Lifecycle {
 		checkNotRunning();
 		running = true;
 		printInitMessage();
-		
+
 		long t = System.currentTimeMillis();
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
@@ -447,17 +447,16 @@ public class SDLoader implements Lifecycle {
 			}
 		}
 	}
-	
-	protected void printInitMessage(){
+
+	protected void printInitMessage() {
 		String message = "Detect ServletAPI["
 				+ JavaEEConstants.SERVLETAPI_MAJOR_VERSION + "."
 				+ JavaEEConstants.SERVLETAPI_MINOR_VERSION + "]";
-		if(JavaEEConstants.JSP_MAJOR_VERSION != null){
-			message+=" JSP["
-				+ JavaEEConstants.JSP_MAJOR_VERSION + "."
-				+ JavaEEConstants.JSP_MINOR_VERSION + "]";
-		}else{
-			message+=" JSP[NOT SUPPORT]";
+		if (JavaEEConstants.JSP_MAJOR_VERSION != null) {
+			message += " JSP[" + JavaEEConstants.JSP_MAJOR_VERSION + "."
+					+ JavaEEConstants.JSP_MINOR_VERSION + "]";
+		} else {
+			message += " JSP[NOT SUPPORT]";
 		}
 		log.info(message);
 	}
@@ -528,8 +527,8 @@ public class SDLoader implements Lifecycle {
 				.getConfigBoolean(KEY_SDLOADER_USE_OUTSIDE_PORT);
 		boolean autoPortDetect = config
 				.getConfigBoolean(KEY_SDLOADER_AUTO_PORT_DETECT);
-		boolean ssl =config.getConfigBoolean(KEY_SDLOADER_SSL_ENABLE);
-		
+		boolean ssl = config.getConfigBoolean(KEY_SDLOADER_SSL_ENABLE);
+
 		int port = getPort();
 		String portMessage = autoPortDetect ? "AutoDetect" : String
 				.valueOf(port);
@@ -541,10 +540,11 @@ public class SDLoader implements Lifecycle {
 			try {
 				int bindPort = getPort();
 				servetSocket = IOUtil.createServerSocket(bindPort,
-						useOutSidePort,ssl);
+						useOutSidePort, ssl);
 			} catch (IOException ioe) {
 				if (autoPortDetect) {
-					servetSocket = IOUtil.createServerSocket(0, useOutSidePort,ssl);
+					servetSocket = IOUtil.createServerSocket(0, useOutSidePort,
+							ssl);
 				} else {
 					throw ioe;
 				}

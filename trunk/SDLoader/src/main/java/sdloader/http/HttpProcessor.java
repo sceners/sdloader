@@ -153,7 +153,7 @@ public class HttpProcessor extends Thread {
 			log.error(t.getMessage(), t);
 		} finally {
 			IOUtil.flushNoException(os);
-			IOUtil.closeNoException(is,os);
+			IOUtil.closeNoException(is, os);
 			IOUtil.closeSocketNoException(socket);
 			is = null;
 			os = null;
