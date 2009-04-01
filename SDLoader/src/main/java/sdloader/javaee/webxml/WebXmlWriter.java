@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 package sdloader.javaee.webxml;
+
 /**
  * 
  * @author shot
- *
+ * 
  */
 public interface WebXmlWriter {
 

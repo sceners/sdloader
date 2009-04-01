@@ -67,10 +67,10 @@ public class JavaEEConstants {
 			Class.forName("javax.servlet.jsp.el.ScopedAttributeELResolver");
 			JSP_MINOR_VERSION = 1;
 		} catch (Exception e) {
-			try{
+			try {
 				Class.forName("javax.servlet.jsp.JspContext");
 				JSP_MINOR_VERSION = 0;
-			}catch(Exception ex){
+			} catch (Exception ex) {
 				JSP_MAJOR_VERSION = null;
 				JSP_MINOR_VERSION = null;
 			}

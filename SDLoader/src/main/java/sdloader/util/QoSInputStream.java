@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import sdloader.constants.LineSpeed;
+
 /**
  * 帯域制限つきInputStream
  * 

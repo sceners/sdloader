@@ -25,7 +25,6 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 
 /**
@@ -106,8 +105,9 @@ public class IOUtil {
 	}
 
 	public static ServerSocket createServerSocket(int bindPort,
-			boolean useOutSidePort,boolean ssl) throws IOException {
-		ServerSocket socket = ssl ? SSLServerSocketFactory.getDefault().createServerSocket() : new ServerSocket();
+			boolean useOutSidePort, boolean ssl) throws IOException {
+		ServerSocket socket = ssl ? SSLServerSocketFactory.getDefault()
+				.createServerSocket() : new ServerSocket();
 		try {
 			if (useOutSidePort) {
 				socket.bind(new InetSocketAddress(bindPort));
