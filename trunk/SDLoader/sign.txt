@@ -1,0 +1,39 @@
+http://jp.globalsign.com/support/index.php?action=artikel&cat=4&id=21&artlang=ja
+
+#キーストア作成
+AKatayama$ sudo keytool -genkey -alias SDLoader -keyalg RSA -keystore ./SDLoader.keystore
+Enter keystore password:  
+Re-enter new password: 
+What is your first and last name?
+  [Unknown]:  localhost
+What is the name of your organizational unit?
+  [Unknown]:  SDLoader
+What is the name of your organization?
+  [Unknown]:  SDLoader
+What is the name of your City or Locality?
+  [Unknown]:    
+What is the name of your State or Province?
+  [Unknown]:  Tokyo
+What is the two-letter country code for this unit?
+  [Unknown]:  JP
+Is CN=localhost, OU=SDLoader, O=SDLoader, L=Unknown, ST=Tokyo, C=JP correct?
+  [no]:  yes
+
+Enter key password for <SDLoader>
+	(RETURN if same as keystore password):  
+Re-enter new password: 
+AKatayama$ ls
+SDLoader.keystore
+
+#CSR
+sudo keytool -certreq -alias SDLoader -file SDLoaderCSR.txt -keystore ./SDLoader.keystore 
+Enter keystore password:  
+
+#署名
+openssl.confをコピー
+suco cp openssl.conf SDLoader/openssl-server.conf
+編集
+CAの場所
+policy_matchをすべてoptionalに
+
+sudo openssl ca -config ./openssl-server.cnf -in ./SDLoaderCSR.txt -keyfile SDLoaderCA/private/cakey.pem -cert SDLoaderCA/cacert.pem -out SDLoaderCert.pem 
