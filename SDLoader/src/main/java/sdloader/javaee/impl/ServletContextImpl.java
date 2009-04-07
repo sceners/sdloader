@@ -18,6 +18,7 @@ package sdloader.javaee.impl;
 import java.io.File;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.List;
@@ -202,7 +203,11 @@ public class ServletContextImpl implements ServletContext {
 
 	protected String toRealPath(URL url) {
 		if (url.getProtocol().startsWith("file")) {
-			return url.getFile();
+			try {
+				return url.toURI().getPath();
+			} catch (URISyntaxException e) {
+				return null;
+			}
 		} else {
 			return url.toExternalForm();
 		}
