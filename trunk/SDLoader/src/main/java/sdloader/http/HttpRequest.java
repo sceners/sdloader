@@ -109,7 +109,9 @@ public class HttpRequest {
 			}
 		}
 		b = new byte[contentLength];
-		requestReader.readBody(b);
+		if(contentLength > 0){
+			requestReader.readBody(b);
+		}
 		body = new HttpBody(b);
 	}
 }
