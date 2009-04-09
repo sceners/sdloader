@@ -136,7 +136,7 @@
   	<!-- standalone sdloader-->
   	<mkdir dir="${distbuildstandalone}/sdloader" />
     <copy todir="${distbuildstandalone}/sdloader" >
-    	<fileset dir="boot">
+    	<fileset dir="dev/boot">
     		<include name="sdloader.bat"/>
     	</fileset>    	
 		<fileset dir=".">
@@ -166,8 +166,8 @@
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>  		
 	</jar>
-  	<exec executable="./boot/exewrap/exewrap.exe">
-  	  <arg line="-i ./boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader/sdloader.jar" /> 
+  	<exec executable="./dev/boot/exewrap/exewrap.exe">
+  	  <arg line="-i ./dev/boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader/sdloader.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader/sdloader.jar"/>
   	<zip destfile="${distbuildstandalone}/sdloader-standalone-${libversion}.zip" compress="true">
@@ -182,7 +182,7 @@
   	<!-- standalone sdloader-jsp20-->
   	<mkdir dir="${distbuildstandalone}/sdloader-jsp20" />
     <copy todir="${distbuildstandalone}/sdloader-jsp20" >
-    	<fileset dir="boot">
+    	<fileset dir="dev/boot">
     		<include name="sdloader-jsp20.bat"/>
     	</fileset>
 		<fileset dir=".">			
@@ -218,8 +218,8 @@
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>  		
 	</jar>
-  	<exec executable="./boot/exewrap/exewrap.exe">
-  	  <arg line="-i ./boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar" /> 
+  	<exec executable="./dev/boot/exewrap/exewrap.exe">
+  	  <arg line="-i ./dev/boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar"/>	
   	<zip destfile="${distbuildstandalone}/sdloader-jsp20-standalone-${libversion}.zip" compress="true">
@@ -235,7 +235,7 @@
   	<mkdir dir="${distbuildstandalone}/sdloader-jsp21" />
   	<mkdir dir="${distbuildstandalone}/sdloader-jsp21/lib" />
     <copy todir="${distbuildstandalone}/sdloader-jsp21" >
-    	<fileset dir="boot">
+    	<fileset dir="dev/boot">
     		<include name="sdloader-jsp21.bat"/>
     	</fileset>
 		<fileset dir=".">			
@@ -269,8 +269,8 @@
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>  		
 	</jar>
-  	<exec executable="./boot/exewrap/exewrap.exe">
-  	  <arg line="-i ./boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar" /> 
+  	<exec executable="./dev/boot/exewrap/exewrap.exe">
+  	  <arg line="-i ./dev/boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar"/>
   	<zip destfile="${distbuildstandalone}/sdloader-jsp21-standalone-${libversion}.zip" compress="true">
