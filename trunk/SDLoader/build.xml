@@ -18,7 +18,7 @@
     <fileset dir="lib">
       <include name="*.jar" />
     </fileset>
-    <fileset dir="devlib">
+    <fileset dir="dev/lib">
       <include name="*.jar" />
     </fileset>
   	<fileset dir="lib/Servlet2.5_JSP2.1">
