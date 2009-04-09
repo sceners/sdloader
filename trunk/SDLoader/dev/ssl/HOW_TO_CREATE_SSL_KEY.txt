@@ -1,0 +1,35 @@
+キーペア作成（秘密鍵・公開鍵）
+keytool.exe -genkey -alias SDLoader -keyalg RSA -keysize 512 -keypass SDLoader -validity 3650 -storetype JKS -keystore SDLoader.keystore -storepass SDLoader
+CSR作成
+keytool -certreq -alias SDLoader -file SDLoader.csr -keystore SDLoader.keystore -storetype JKS -storepass SDLoader -keypass SDLoader
+CA作成
+OpensslのCA.shをコピー。以下を変更
+DAYS="-days 3650"
+CADAYS="-days 3650"
+CATOP="./CA"
+コマンド実行 ./CA.sh -newca
+
+/usr/local/openssl/default/openssl.cnfをコピー
+
+以下変更
+default_days=3650
+default_crl_days=3650
+[ policy_match ]
+countryName以下すべてをoptional
+nsCertTypeのコメントをはずす
+
+署名
+openssl ca -config openssl.cnf -in SDLoader.csr -out SDLoaderCert.pem
+
+
+JKS形式のキーストアに入れるために、DER形式に変更
+openssl x509 -in cacert.pem -outform DER -out cacert.der
+openssl x509 -in SDLoaderCert.pem -outform DER -out SDLoaderCert.der
+
+キーストアに格納
+keytool -import -alias SDLoaderCA -file cacert.der -keystore SDLoader.keystore -trustcacerts -storetype JKS -keypass SDLoader -storepass SDLoader
+keytool -import -alias SDLoaderServer -file SDLoaderCert.der -keystore SDLoader.keystore -trustcacerts -storetype JKS -keypass SDLoader -storepass SDLoader
+
+
+キーストアを使ってSSL通信
+
