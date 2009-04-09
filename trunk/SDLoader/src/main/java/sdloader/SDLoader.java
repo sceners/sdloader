@@ -526,12 +526,13 @@ public class SDLoader implements Lifecycle {
 	}
 
 	protected ServerSocket initServerSocket() {
+		int port = getPort();
 		boolean useOutSidePort = config
 				.getConfigBoolean(KEY_SDLOADER_USE_OUTSIDE_PORT);
 		boolean autoPortDetect = config
 				.getConfigBoolean(KEY_SDLOADER_AUTO_PORT_DETECT);
-		boolean ssl = config.getConfigBoolean(KEY_SDLOADER_SSL_ENABLE,false);
-		int port = getPort();
+		boolean ssl = config.getConfigBoolean(KEY_SDLOADER_SSL_ENABLE, false);
+
 		String portMessage = autoPortDetect ? "AutoDetect" : String
 				.valueOf(port);
 
