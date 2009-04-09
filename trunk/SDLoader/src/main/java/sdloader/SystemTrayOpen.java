@@ -31,6 +31,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 
+import sdloader.lifecycle.LifecycleEvent;
+import sdloader.lifecycle.LifecycleListener;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.Browser;
@@ -45,6 +47,8 @@ public class SystemTrayOpen {
 	private static final SDLoaderLog log = SDLoaderLogFactory
 			.getLog(SystemTrayOpen.class);
 
+	private Display display = new Display();
+
 	public static void main(String[] args) {
 		new SystemTrayOpen().start();
 	}
@@ -55,13 +59,21 @@ public class SystemTrayOpen {
 		try {
 			server = new SDLoader();
 			server.setAutoPortDetect(true);
+			server.addEventListener(LifecycleEvent.AFTER_STOP,
+					new LifecycleListener() {
+						public void handleLifecycle(LifecycleEvent<?> event) {
+							display.syncExec(new Runnable() {
+								public void run() {
+									display.dispose();
+								}
+							});
+						}
+					});
 			server.start();
 
 			openBrowser();
 
 			createSystemTray(server);
-
-			server.stop();
 
 		} catch (Throwable e) {
 			log.error("SDLoader catch error.", e);
@@ -111,7 +123,6 @@ public class SystemTrayOpen {
 	 * @param sdLoader
 	 */
 	private void createSystemTray(final SDLoader sdLoader) {
-		final Display display = new Display();
 		Shell shell = new Shell(display);
 		Image image = new Image(display, getIconInputStream());
 		final Tray tray = display.getSystemTray();
@@ -134,7 +145,6 @@ public class SystemTrayOpen {
 			shutdownItem.addListener(SWT.Selection, new Listener() {
 				public void handleEvent(Event event) {
 					sdLoader.stop();
-					display.dispose();
 				}
 			});
 
