@@ -24,8 +24,11 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyStore;
 
-import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ServerSocketFactory;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 /**
  * 
@@ -104,10 +107,38 @@ public class IOUtil {
 		}
 	}
 
+	public static ServerSocket createSSLServerSocket(int bindPort,
+			boolean useOutSidePort, String keyStoreFilePath, String keyStorePassword)
+			throws IOException {
+		try {
+			KeyStore keyStore = KeyStore.getInstance("JKS");
+			char[] password = keyStorePassword.toCharArray();
+			keyStore.load(ResourceUtil.getResourceAsStream(keyStoreFilePath,
+					IOUtil.class), password);
+			KeyManagerFactory keyManagerFactory = KeyManagerFactory
+					.getInstance("SunX509");
+			keyManagerFactory.init(keyStore, password);
+			SSLContext sslContext = SSLContext.getInstance("TLS");
+			sslContext.init(keyManagerFactory.getKeyManagers(),null,null);
+			ServerSocketFactory serverSocketFactory = sslContext
+					.getServerSocketFactory();
+			ServerSocket socket = serverSocketFactory.createServerSocket();
+			return bind(socket, bindPort, useOutSidePort);
+		} catch (IOException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static ServerSocket createServerSocket(int bindPort,
-			boolean useOutSidePort, boolean ssl) throws IOException {
-		ServerSocket socket = ssl ? SSLServerSocketFactory.getDefault()
-				.createServerSocket() : new ServerSocket();
+			boolean useOutSidePort) throws IOException {
+		ServerSocket socket = new ServerSocket();
+		return bind(socket, bindPort, useOutSidePort);
+	}
+
+	private static ServerSocket bind(ServerSocket socket, int bindPort,
+			boolean useOutSidePort) throws IOException {
 		try {
 			if (useOutSidePort) {
 				socket.bind(new InetSocketAddress(bindPort));
