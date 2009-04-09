@@ -139,6 +139,9 @@ public class SDLoader implements Lifecycle {
 
 	private SDLoaderThread sdLoaderThread;
 
+	private static final String KEY_STORE_PATH = "sdloader/resource/ssl/SDLoader.keystore";
+	private static final String KEY_STORE_PASSWORD = "SDLoader";
+
 	/**
 	 * ポート30000でSDLoaderを構築します。
 	 * 
@@ -527,24 +530,26 @@ public class SDLoader implements Lifecycle {
 				.getConfigBoolean(KEY_SDLOADER_USE_OUTSIDE_PORT);
 		boolean autoPortDetect = config
 				.getConfigBoolean(KEY_SDLOADER_AUTO_PORT_DETECT);
-		boolean ssl = config.getConfigBoolean(KEY_SDLOADER_SSL_ENABLE,false);
-
+		boolean ssl = config.getConfigBoolean(KEY_SDLOADER_SSL_ENABLE);
 		int port = getPort();
 		String portMessage = autoPortDetect ? "AutoDetect" : String
 				.valueOf(port);
+
 		log.info("Bind start. Port=" + portMessage + " useOutSidePort="
-				+ useOutSidePort);
+				+ useOutSidePort + " SSL=" + ssl);
 
 		ServerSocket servetSocket = null;
 		try {
 			try {
 				int bindPort = getPort();
-				servetSocket = IOUtil.createServerSocket(bindPort,
-						useOutSidePort, ssl);
+				servetSocket = ssl ? IOUtil.createSSLServerSocket(bindPort,
+						useOutSidePort, KEY_STORE_PATH, KEY_STORE_PASSWORD)
+						: IOUtil.createServerSocket(bindPort, useOutSidePort);
 			} catch (IOException ioe) {
 				if (autoPortDetect) {
-					servetSocket = IOUtil.createServerSocket(0, useOutSidePort,
-							ssl);
+					servetSocket = ssl ? IOUtil.createSSLServerSocket(0,
+							useOutSidePort, KEY_STORE_PATH, KEY_STORE_PASSWORD)
+							: IOUtil.createServerSocket(0, useOutSidePort);
 				} else {
 					throw ioe;
 				}
