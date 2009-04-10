@@ -83,6 +83,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	private String localName;
 
+	private boolean secure;
+	
 	// 未セット時にはnullを返す為、HttpParemetersのbodyEncodingと2重持ち
 	private String characterEncoding;
 
@@ -371,7 +373,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public boolean isSecure() {
-		return false;
+		return secure;
 	}
 
 	public String getRealPath(String path) {
@@ -504,7 +506,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			this.uriEncoding = uriEncoding;
 		}
 	}
-
+	
+	public void setSecure(boolean secure) {
+		this.secure = secure;
+		setScheme("https");
+	}
+	
 	protected ServletContextImpl getServletContextImpl() {
 		return internalWebApplication.getServletContext();
 	}

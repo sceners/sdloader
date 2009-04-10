@@ -306,11 +306,11 @@ public class SDLoader implements Lifecycle {
 		checkNotRunning();
 		config.setConfig(KEY_SDLOADER_SSL_ENABLE, value);
 	}
-	
+
 	public boolean isSSLEnable() {
 		return config.getConfigBoolean(KEY_SDLOADER_SSL_ENABLE);
 	}
-	
+
 	/**
 	 * Webアプリケーションコンテキストを追加します。
 	 * 
@@ -606,6 +606,7 @@ public class SDLoader implements Lifecycle {
 	}
 
 	class SDLoaderThread extends Thread {
+
 		private boolean shutdown = false;
 
 		private ServerSocket serverSocket;

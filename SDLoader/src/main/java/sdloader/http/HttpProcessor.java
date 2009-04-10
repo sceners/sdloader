@@ -24,6 +24,7 @@ import java.net.SocketTimeoutException;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.net.ssl.SSLSocket;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -195,6 +196,10 @@ public class HttpProcessor extends Thread {
 				requestURI);
 		HttpServletRequestImpl request = createServletRequestImp(httpRequest,
 				webapp);
+		if (socket instanceof SSLSocket) {
+			request.setSecure(true);
+		}
+
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
 		ServletContextImpl servletContextImpl = webapp.getServletContext();
 
