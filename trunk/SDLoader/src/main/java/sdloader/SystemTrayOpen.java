@@ -110,7 +110,8 @@ public class SystemTrayOpen {
 	private void openBrowser() {
 		try {
 			int port = server.getPort();
-			String url = "http://localhost:" + port;
+			String protocol = server.isSSLEnable() ? "https" : "http";
+			String url = protocol + "://localhost:" + port;
 			Browser.open(url);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
