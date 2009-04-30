@@ -16,7 +16,7 @@
 package sdloader.event;
 
 /**
- * イベント
+ * イベントクラス
  * 
  * @author AKatayama
  * 
