@@ -132,6 +132,11 @@ public class CommandLineOpen {
 						"外部からのアクセス可能なポートを使用するかどうか。",
 						"指定しない場合、localhostのみのリクエストを受け付けます。",
 						"例）--useOutSidePort=true"));
+		optionList
+		.add(new Option("--sslEnable",
+				"SSLを使用するかどうか。",
+				"指定しない場合、SSLは使用しません。",
+				"例）--sslEnable=true"));
 		optionList.add(new Option("--lineSpeed", "擬似的な回線速度を設定します。",
 				"指定しない場合、速度制限はありません。", "例）--lineSpeed=64000 (64Kbpsの場合)"));
 		optionList.add(new Option("--workDir",
