@@ -112,7 +112,8 @@ public class HttpSessionImpl implements HttpSession {
 
 	public Enumeration<String> getAttributeNames() {
 		checkInvalidate();
-		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
+		return new IteratorEnumeration<String>(
+				attributeMap.keySet().iterator(), true);
 	}
 
 	public String[] getValueNames() {

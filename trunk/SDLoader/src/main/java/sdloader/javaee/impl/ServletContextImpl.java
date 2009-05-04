@@ -230,7 +230,8 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public Enumeration<String> getAttributeNames() {
-		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
+		return new IteratorEnumeration<String>(
+				attributeMap.keySet().iterator(), true);
 	}
 
 	public void setAttribute(String key, Object value) {
