@@ -15,13 +15,16 @@
  */
 package sdloader.util;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * IteratorのEnumerationラップクラス
  * 
  * @author c9katayama
+ * @author shot
  */
 public class IteratorEnumeration<T> implements Enumeration<T> {
 
@@ -31,7 +34,19 @@ public class IteratorEnumeration<T> implements Enumeration<T> {
 	}
 
 	public IteratorEnumeration(Iterator<T> itr) {
-		this.itr = itr;
+		this(itr, false);
+	}
+
+	public IteratorEnumeration(Iterator<T> itr, boolean clone) {
+		if (clone == false) {
+			this.itr = itr;
+		} else {
+			List<T> list = new ArrayList<T>();
+			for (; itr.hasNext();) {
+				list.add(itr.next());
+			}
+			this.itr = list.iterator();
+		}
 	}
 
 	public boolean hasMoreElements() {

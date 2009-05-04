@@ -84,7 +84,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	private String localName;
 
 	private boolean secure;
-	
+
 	// 未セット時にはnullを返す為、HttpParemetersのbodyEncodingと2重持ち
 	private String characterEncoding;
 
@@ -146,7 +146,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public Enumeration<String> getAttributeNames() {
-		return new IteratorEnumeration<String>(attributeMap.keySet().iterator());
+		return new IteratorEnumeration<String>(
+				attributeMap.keySet().iterator(), true);
 	}
 
 	/**
@@ -506,12 +507,12 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 			this.uriEncoding = uriEncoding;
 		}
 	}
-	
+
 	public void setSecure(boolean secure) {
 		this.secure = secure;
 		setScheme("https");
 	}
-	
+
 	protected ServletContextImpl getServletContextImpl() {
 		return internalWebApplication.getServletContext();
 	}
