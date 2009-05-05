@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Map.Entry;
 
 import sdloader.SDLoader;
 import sdloader.internal.SDLoaderConfig;
@@ -34,9 +35,7 @@ import sdloader.util.CollectionsUtil;
  */
 public class HttpRequestParameters {
 
-	private Map<String, String[]> paramMap;
-
-	private List<String> paramNameList;
+	private ParameterContext parameterContext;
 
 	// パラメータをデコードする際のデフォルトエンコーディング
 	private String defaultEncoding;
@@ -49,8 +48,6 @@ public class HttpRequestParameters {
 
 	private HttpHeader header;
 	private HttpBody body;
-
-	private boolean parameterInitialized;
 
 	public HttpRequestParameters(HttpHeader header, HttpBody body) {
 		this.header = header;
@@ -75,9 +72,8 @@ public class HttpRequestParameters {
 	}
 
 	protected void initIfNeed() {
-		if (!parameterInitialized) {
+		if (parameterContext == null) {
 			initParameters();
-			parameterInitialized = true;
 		}
 	}
 
@@ -85,12 +81,11 @@ public class HttpRequestParameters {
 	 * HttpRequestParameters#getParameterが呼ばれた初回に呼ばれます。
 	 */
 	private void initParameters() {
-		paramMap = CollectionsUtil.newHashMap();
-		paramNameList = CollectionsUtil.newLinkedList();
+		parameterContext = new ParameterContext();
 		if (header.getQueryString() != null) {
-			String queryEncoding = (isUseBodyEncodingForURI()) ? bodyEncoding
-					: defaultEncoding;
-			parseRequestQuery(header.getQueryString(), queryEncoding);
+
+			parameterContext.parseRequestQuery(header.getQueryString(),
+					getQueryEncoding());
 		}
 		byte[] bodyData = body.getBodyData();
 		if (bodyData != null
@@ -101,7 +96,8 @@ public class HttpRequestParameters {
 				if (contType.indexOf(HttpConst.WWW_FORM_URLENCODE) != -1) {
 					try {
 						String bodyPartQueryString = new String(bodyData);
-						parseRequestQuery(bodyPartQueryString, bodyEncoding);
+						parameterContext.parseRequestQuery(bodyPartQueryString,
+								bodyEncoding);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -110,65 +106,28 @@ public class HttpRequestParameters {
 		}
 	}
 
-	private void parseRequestQuery(String query, String encode) {
-		StringTokenizer paramToken = new StringTokenizer(query, "&", false);
-
-		while (paramToken.hasMoreElements()) {
-			String param = paramToken.nextToken();
-			StringTokenizer token = new StringTokenizer(param, "=", false);
-			String key = token.nextToken();
-			String value = "";
-			if (token.hasMoreTokens()) {
-				value = token.nextToken();
-			}
-			try {
-				key = decode(key, encode);
-				value = decode(value, encode);
-			} catch (UnsupportedEncodingException e) {
-				throw new IllegalArgumentException(e);
-			}
-			addParameter(key, value);
-		}
-	}
-
-	private String decode(String value, String encode)
-			throws UnsupportedEncodingException {
-		// ISO-8859-1を使用すると、ダイレクトに入力バイトが取れる。
-		// バイトを取ってエンコード
-		value = URLDecoder.decode(value, "ISO-8859-1");
-		value = new String(value.getBytes("ISO-8859-1"), encode);
-		return value;
+	public String getQueryEncoding() {
+		return (isUseBodyEncodingForURI()) ? bodyEncoding : defaultEncoding;
 	}
 
 	public String getParamter(String key) {
 		initIfNeed();
-		String[] paramList = paramMap.get(key);
-		if (paramList == null) {
-			return null;
-		}
-		String param = paramList[0];
-		return param;
+		return parameterContext.getParamter(key);
 	}
 
-	public String[] getParamterValues(String key) {
+	public String[] getParameterValues(String key) {
 		initIfNeed();
-		String[] params = paramMap.get(key);
-		if (params == null) {
-			return null;
-		}
-		return params;
+		return parameterContext.getParameterValues(key);
 	}
 
 	public Iterator<String> getParameterNames() {
 		initIfNeed();
-		return paramNameList.iterator();
+		return parameterContext.getParameterNames();
 	}
 
-	public Map<String, String[]> getParamterMap() {
+	public Map<String, String[]> getParameterMap() {
 		initIfNeed();
-		Map<String, String[]> newMap = CollectionsUtil.newHashMap();
-		newMap.putAll(paramMap);
-		return newMap;
+		return parameterContext.getParameterMap();
 	}
 
 	/**
@@ -195,7 +154,7 @@ public class HttpRequestParameters {
 	 */
 	public void setBodyEncoding(String bodyEncoding) {
 		this.bodyEncoding = bodyEncoding;
-		parameterInitialized = false;
+		parameterContext = null;
 	}
 
 	public String getBodyEncoding() {
@@ -204,27 +163,104 @@ public class HttpRequestParameters {
 
 	public void setUseBodyEncodingForURI(boolean useBodyEncodingForURI) {
 		this.useBodyEncodingForURI = useBodyEncodingForURI;
-		parameterInitialized = false;
+		parameterContext = null;
 	}
 
 	public boolean isUseBodyEncodingForURI() {
 		return useBodyEncodingForURI;
 	}
 
-	private void addParameter(String key, String value) {
-		if (value == null) {
-			return;
+	public static class ParameterContext {
+
+		private Map<String, String[]> paramMap = CollectionsUtil.newHashMap();
+
+		private List<String> paramNameList = CollectionsUtil.newArrayList();
+
+		public void addAll(Map<String,String[]> params) {
+			for (Entry<String, String[]> entry : params.entrySet()) {
+				String key = entry.getKey();
+				String[] values = entry.getValue();
+				if (values != null) {
+					for (String value : values) {
+						addParameter(key, value);
+					}
+				}
+			}
 		}
-		String[] params = paramMap.get(key);
-		if (params == null) {
-			params = new String[] { value };
-			paramMap.put(key, params);
-			paramNameList.add(key);
-		} else {
-			String[] newParams = new String[params.length + 1];
-			System.arraycopy(params, 0, newParams, 0, params.length);
-			newParams[newParams.length - 1] = value;
-			paramMap.put(key, newParams);
+
+		public String getParamter(String key) {
+			String[] paramList = paramMap.get(key);
+			if (paramList == null) {
+				return null;
+			}
+			String param = paramList[0];
+			return param;
+		}
+
+		public String[] getParameterValues(String key) {
+			String[] params = paramMap.get(key);
+			if (params == null) {
+				return null;
+			}
+			return params;
+		}
+
+		public Iterator<String> getParameterNames() {
+			return paramNameList.iterator();
+		}
+
+		public Map<String, String[]> getParameterMap() {
+			Map<String, String[]> newMap = CollectionsUtil.newHashMap();
+			newMap.putAll(paramMap);
+			return newMap;
+		}
+
+		public void parseRequestQuery(String query, String encode) {
+			StringTokenizer paramToken = new StringTokenizer(query, "&", false);
+
+			while (paramToken.hasMoreElements()) {
+				String param = paramToken.nextToken();
+				StringTokenizer token = new StringTokenizer(param, "=", false);
+				String key = token.nextToken();
+				String value = "";
+				if (token.hasMoreTokens()) {
+					value = token.nextToken();
+				}
+				try {
+					key = decode(key, encode);
+					value = decode(value, encode);
+				} catch (UnsupportedEncodingException e) {
+					throw new IllegalArgumentException(e);
+				}
+				addParameter(key, value);
+			}
+		}
+
+		private String decode(String value, String encode)
+				throws UnsupportedEncodingException {
+			// ISO-8859-1を使用すると、ダイレクトに入力バイトが取れる。
+			// バイトを取ってエンコード
+			value = URLDecoder.decode(value, "ISO-8859-1");
+			value = new String(value.getBytes("ISO-8859-1"), encode);
+			return value;
+		}
+
+		private void addParameter(String key, String value) {
+			if (value == null) {
+				return;
+			}
+			String[] params = paramMap.get(key);
+			if (params == null) {
+				params = new String[] { value };
+				paramMap.put(key, params);
+				paramNameList.add(key);
+			} else {
+				String[] newParams = new String[params.length + 1];
+				System.arraycopy(params, 0, newParams, 0, params.length);
+				newParams[newParams.length - 1] = value;
+				paramMap.put(key, newParams);
+			}
 		}
 	}
+
 }

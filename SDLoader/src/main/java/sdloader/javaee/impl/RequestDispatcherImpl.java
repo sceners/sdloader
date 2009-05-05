@@ -26,9 +26,10 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import sdloader.http.HttpRequestParameters;
+import sdloader.http.ProcessScopeContext;
 import sdloader.javaee.ServletMapping;
 import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.util.WebUtil;
@@ -65,34 +66,13 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 		this.queryString = WebUtil.getQueryPart(dispatchURI);
 	}
 
-	private HttpServletRequestImpl stripRequestWrapper(ServletRequest request) {
-		while (request instanceof HttpServletRequestWrapper) {
-			request = ((HttpServletRequestWrapper) request).getRequest();
-		}
-		return (HttpServletRequestImpl) request;
-	}
-
+	@SuppressWarnings("unchecked")
 	public void forward(ServletRequest request, ServletResponse response)
 			throws ServletException, IOException {
 
-		HttpServletRequestImpl firstRequest = stripRequestWrapper(request);
-		if (request.getAttribute(JavaEEConstants.JAVAX_FORWARD_SERVLET_PATH) == null) {
-			// 初回はパスを保存
-			firstRequest.setAttribute(
-					JavaEEConstants.JAVAX_FORWARD_REQUEST_URI, firstRequest
-							.getRequestURI());
-			firstRequest.setAttribute(
-					JavaEEConstants.JAVAX_FORWARD_CONTEXT_PATH, firstRequest
-							.getContextPath());
-			firstRequest.setAttribute(
-					JavaEEConstants.JAVAX_FORWARD_SERVLET_PATH, firstRequest
-							.getServletPath());
-			firstRequest.setAttribute(JavaEEConstants.JAVAX_FORWARD_PATH_INFO,
-					firstRequest.getPathInfo());
-			firstRequest.setAttribute(
-					JavaEEConstants.JAVAX_FORWARD_QUERY_STRING, firstRequest
-							.getQueryString());
-		}
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		setForwardAttribute(httpRequest);
+
 		String resourcePath = WebUtil.getResourcePath(contextPath, requestURI);
 		String servletPath = WebUtil.getServletPath(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
@@ -100,16 +80,44 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 				.getUrlPattern(), resourcePath);
 
 		ForwardRequestWrapper requestWrapper = new ForwardRequestWrapper(
-				(HttpServletRequest) request);
+				httpRequest);
 		requestWrapper.setServletContext(dispatchServletContext);
 		requestWrapper.setRequestURI(requestURI);
 		requestWrapper.setServletPath(servletPath);
 		requestWrapper.setPathInfo(pathInfo);
 		requestWrapper.setContextPath(contextPath);
 
+		ProcessScopeContext processScopeContext = ProcessScopeContext
+				.getContext();
+		HttpServletRequestImpl firstRequestImpl = processScopeContext
+				.getRequest();
+
+		HttpRequestParameters.ParameterContext context = new HttpRequestParameters.ParameterContext();
+		context.addAll(httpRequest.getParameterMap());
+		if (queryString != null) {
+			context.parseRequestQuery(queryString, firstRequestImpl
+					.getParameters().getQueryEncoding());
+		}
+		requestWrapper.setMargedParameterContext(context);
 		response.resetBuffer();
 
 		doService(dispatchServlet, forwardFilterList, requestWrapper, response);
+	}
+
+	protected void setForwardAttribute(HttpServletRequest request) {
+		if (request.getAttribute(JavaEEConstants.JAVAX_FORWARD_SERVLET_PATH) == null) {
+			// 初回はパスを保存
+			request.setAttribute(JavaEEConstants.JAVAX_FORWARD_REQUEST_URI,
+					request.getRequestURI());
+			request.setAttribute(JavaEEConstants.JAVAX_FORWARD_CONTEXT_PATH,
+					request.getContextPath());
+			request.setAttribute(JavaEEConstants.JAVAX_FORWARD_SERVLET_PATH,
+					request.getServletPath());
+			request.setAttribute(JavaEEConstants.JAVAX_FORWARD_PATH_INFO,
+					request.getPathInfo());
+			request.setAttribute(JavaEEConstants.JAVAX_FORWARD_QUERY_STRING,
+					request.getQueryString());
+		}
 	}
 
 	public void include(ServletRequest request, ServletResponse response)
@@ -120,26 +128,38 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 		IncludeResponseWrapper responseWrapper = new IncludeResponseWrapper(
 				(HttpServletResponse) response);
 
+		setIncludeAttribute(requestWrapper);
+		// TODO include時のquery
+
+		doService(dispatchServlet, includeFilterList, requestWrapper,
+				responseWrapper);
+
+		removeIncludeAttribute(requestWrapper);
+	}
+
+	protected void setIncludeAttribute(HttpServletRequest request) {
 		String resourcePath = WebUtil.getResourcePath(contextPath, requestURI);
 		String servletPath = WebUtil.getServletPath(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
 		String pathInfo = WebUtil.getPathInfo(dispatchServletMapping
 				.getUrlPattern(), resourcePath);
+		request.setAttribute(JavaEEConstants.JAVAX_INCLUDE_REQUEST_URI,
+				requestURI);
+		request.setAttribute(JavaEEConstants.JAVAX_INCLUDE_CONTEXT_PATH,
+				contextPath);
+		request.setAttribute(JavaEEConstants.JAVAX_INCLUDE_SERVLET_PATH,
+				servletPath);
+		request.setAttribute(JavaEEConstants.JAVAX_INCLUDE_PATH_INFO, pathInfo);
+		request.setAttribute(JavaEEConstants.JAVAX_INCLUDE_QUERY_STRING,
+				queryString);
+	}
 
-		requestWrapper.setIncludeAttribute(
-				JavaEEConstants.JAVAX_INCLUDE_REQUEST_URI, requestURI);
-		requestWrapper.setIncludeAttribute(
-				JavaEEConstants.JAVAX_INCLUDE_CONTEXT_PATH, contextPath);
-		requestWrapper.setIncludeAttribute(
-				JavaEEConstants.JAVAX_INCLUDE_SERVLET_PATH, servletPath);
-		requestWrapper.setIncludeAttribute(
-				JavaEEConstants.JAVAX_INCLUDE_PATH_INFO, pathInfo);
-		requestWrapper.setIncludeAttribute(
-				JavaEEConstants.JAVAX_INCLUDE_QUERY_STRING, queryString);
-		// TODO include時のquery
-
-		doService(dispatchServlet, includeFilterList, requestWrapper,
-				responseWrapper);
+	protected void removeIncludeAttribute(HttpServletRequest request) {
+		request.removeAttribute(JavaEEConstants.JAVAX_INCLUDE_REQUEST_URI);
+		request.removeAttribute(JavaEEConstants.JAVAX_INCLUDE_CONTEXT_PATH);
+		request.removeAttribute(JavaEEConstants.JAVAX_INCLUDE_SERVLET_PATH);
+		request.removeAttribute(JavaEEConstants.JAVAX_INCLUDE_PATH_INFO);
+		request.removeAttribute(JavaEEConstants.JAVAX_INCLUDE_QUERY_STRING);
 	}
 
 	private void doService(Servlet servlet, List<Filter> filterList,

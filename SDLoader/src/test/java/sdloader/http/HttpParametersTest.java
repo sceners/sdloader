@@ -38,7 +38,7 @@ public class HttpParametersTest extends TestCase {
 	}
 
 	public void testParameterValues() {
-		String[] saValues = params.getParamterValues("sa");
+		String[] saValues = params.getParameterValues("sa");
 		assertEquals(2, saValues.length);
 		assertEquals("Q", saValues[0]);
 		assertEquals("R", saValues[1]);
