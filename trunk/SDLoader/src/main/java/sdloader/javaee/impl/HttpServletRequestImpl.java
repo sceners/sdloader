@@ -44,6 +44,7 @@ import sdloader.http.HttpBody;
 import sdloader.http.HttpConst;
 import sdloader.http.HttpHeader;
 import sdloader.http.HttpRequest;
+import sdloader.http.HttpRequestParameters;
 import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.ListenerEventDispatcher;
 import sdloader.javaee.SessionManager;
@@ -203,11 +204,11 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String[] getParameterValues(String key) {
-		return httpRequest.getParameters().getParamterValues(key);
+		return httpRequest.getParameters().getParameterValues(key);
 	}
 
 	public Map<String, String[]> getParameterMap() {
-		return httpRequest.getParameters().getParamterMap();
+		return httpRequest.getParameters().getParameterMap();
 	}
 
 	public String getProtocol() {
@@ -469,6 +470,10 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	public HttpBody getBody() {
 		return this.httpRequest.getBody();
 	}
+	
+	public HttpRequestParameters getParameters(){
+		return this.httpRequest.getParameters();
+	}
 
 	public void setServerPort(int port) {
 		this.serverPort = port;
@@ -516,7 +521,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	protected ServletContextImpl getServletContextImpl() {
 		return internalWebApplication.getServletContext();
 	}
-
+	
 	protected String decodeURI(String path) {
 		if (path == null) {
 			return null;

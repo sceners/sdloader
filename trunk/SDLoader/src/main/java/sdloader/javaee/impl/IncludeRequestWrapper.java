@@ -36,19 +36,12 @@ import sdloader.util.IteratorEnumeration;
 @SuppressWarnings("unchecked")
 public class IncludeRequestWrapper extends HttpServletRequestWrapper {
 
-	private Map<String, Object> includeAttributeMap = CollectionsUtil
-			.newHashMap();
 	private Map<String, String[]> includeParameterMap = CollectionsUtil
 			.newHashMap();
 
 	public IncludeRequestWrapper(HttpServletRequest req) {
 		super(req);
 	}
-
-	void setIncludeAttribute(String key, Object value) {
-		includeAttributeMap.put(key, value);
-	}
-
 	void addIncludeParameter(String key, String value) {
 		if (value == null) {
 			value = "";
@@ -119,27 +112,5 @@ public class IncludeRequestWrapper extends HttpServletRequestWrapper {
 			paramMap.put(name, getParameterValues(name));
 		}
 		return paramMap;
-	}
-
-	@Override
-	public Object getAttribute(String name) {
-		Object value = includeAttributeMap.get(name);
-		if (value == null) {
-			value = super.getAttribute(name);
-		}
-		return value;
-	}
-
-	@Override
-	public Enumeration getAttributeNames() {
-		Enumeration<String> names = super.getAttributeNames();
-		Set<String> includeNames = new HashSet<String>(includeAttributeMap
-				.keySet());
-		if (names != null) {
-			while (names.hasMoreElements()) {
-				includeNames.add(names.nextElement());
-			}
-		}
-		return new IteratorEnumeration(includeNames.iterator());
 	}
 }

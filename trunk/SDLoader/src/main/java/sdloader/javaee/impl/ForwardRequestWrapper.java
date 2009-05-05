@@ -15,11 +15,16 @@
  */
 package sdloader.javaee.impl;
 
+import java.util.Enumeration;
+import java.util.Map;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
+import sdloader.http.HttpRequestParameters;
+import sdloader.util.IteratorEnumeration;
 import sdloader.util.WebUtil;
 
 /**
@@ -35,6 +40,8 @@ public class ForwardRequestWrapper extends HttpServletRequestWrapper {
 	private String pathInfo;
 	private String contextPath;
 	private ServletContext servletContext;
+
+	private HttpRequestParameters.ParameterContext margedParameterContext;
 
 	public ForwardRequestWrapper(HttpServletRequest req) {
 		super(req);
@@ -68,6 +75,29 @@ public class ForwardRequestWrapper extends HttpServletRequestWrapper {
 		return contextPath;
 	}
 
+	@Override
+	public String getParameter(String name) {
+		return margedParameterContext.getParamter(name);
+	}
+
+	@Override
+	public String[] getParameterValues(String name) {
+		return margedParameterContext.getParameterValues(name);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Enumeration getParameterNames() {
+		return new IteratorEnumeration<String>(margedParameterContext
+				.getParameterNames());
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Map getParameterMap() {
+		return margedParameterContext.getParameterMap();
+	}
+
 	void setPathInfo(String pathInfo) {
 		this.pathInfo = pathInfo;
 	}
@@ -86,5 +116,10 @@ public class ForwardRequestWrapper extends HttpServletRequestWrapper {
 
 	void setContextPath(String contextPath) {
 		this.contextPath = contextPath;
+	}
+
+	public void setMargedParameterContext(
+			HttpRequestParameters.ParameterContext margedParameterContext) {
+		this.margedParameterContext = margedParameterContext;
 	}
 }
