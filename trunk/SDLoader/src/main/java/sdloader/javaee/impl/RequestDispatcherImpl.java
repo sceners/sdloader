@@ -39,6 +39,8 @@ import sdloader.util.WebUtil;
  * 
  * @author c9katayama
  */
+
+@SuppressWarnings("unchecked")
 public class RequestDispatcherImpl implements RequestDispatcher {
 
 	private ServletContext dispatchServletContext;
@@ -66,7 +68,6 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 		this.queryString = WebUtil.getQueryPart(dispatchURI);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void forward(ServletRequest request, ServletResponse response)
 			throws ServletException, IOException {
 
@@ -123,13 +124,27 @@ public class RequestDispatcherImpl implements RequestDispatcher {
 	public void include(ServletRequest request, ServletResponse response)
 			throws ServletException, IOException {
 
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+
 		IncludeRequestWrapper requestWrapper = new IncludeRequestWrapper(
 				(HttpServletRequest) request);
 		IncludeResponseWrapper responseWrapper = new IncludeResponseWrapper(
 				(HttpServletResponse) response);
 
 		setIncludeAttribute(requestWrapper);
-		// TODO include時のquery
+
+		ProcessScopeContext processScopeContext = ProcessScopeContext
+				.getContext();
+		HttpServletRequestImpl firstRequestImpl = processScopeContext
+				.getRequest();
+
+		HttpRequestParameters.ParameterContext context = new HttpRequestParameters.ParameterContext();
+		context.addAll(httpRequest.getParameterMap());
+		if (queryString != null) {
+			context.parseRequestQuery(queryString, firstRequestImpl
+					.getParameters().getQueryEncoding());
+		}
+		requestWrapper.setMargedParameterContext(context);
 
 		doService(dispatchServlet, includeFilterList, requestWrapper,
 				responseWrapper);

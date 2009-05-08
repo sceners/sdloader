@@ -118,7 +118,7 @@ public class ForwardRequestWrapper extends HttpServletRequestWrapper {
 		this.contextPath = contextPath;
 	}
 
-	public void setMargedParameterContext(
+	void setMargedParameterContext(
 			HttpRequestParameters.ParameterContext margedParameterContext) {
 		this.margedParameterContext = margedParameterContext;
 	}
