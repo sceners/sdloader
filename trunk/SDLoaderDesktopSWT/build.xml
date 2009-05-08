@@ -39,7 +39,8 @@
   			<include name="HOW_TO_USE.html" />
     	</fileset>
     </copy>
-  	<copy todir="${dist}/webapps/ROOT" file="HOW_TO_USE.html"/>
+  	<copy todir="${dist}/webapps/ROOT" file="HOW_TO_USE.html"/>  	
+  	<copy todir="${dist}/webapps/" file="webapps/t2-samples.war"/>
   	
     <mkdir dir="${dist}/doc"/>
     <copy todir="${dist}/doc">
