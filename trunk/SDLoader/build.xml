@@ -52,11 +52,12 @@
   <target name="dist" depends="init,compile">
 	<echo message="${libversion}"/>  	
 	<property name="distbuild"  value="${dist}/build" />
-
+    <property name="distrelease" value="${dist}/release" />
   	<!-- lib -->
   	<property name="distbuildlib"  value="${distbuild}/lib" />
     <mkdir dir="${distbuild}" />  	
-  	<mkdir dir="${distbuildlib}" />
+  	<mkdir dir="${distbuildlib}" />  	
+  	<mkdir dir="${distrelease}" /> 
   	
     <jar jarfile="${distbuildlib}/sdloader.jar" compress="true">
     	<fileset dir="${build}"/>
@@ -69,7 +70,7 @@
  	    	<attribute name="Main-Class" value="${mainclasslib}"/>
 		</manifest>
     </jar>
-  	<zip destfile="${distbuildlib}/sdloader-${libversion}.zip" compress="true">
+  	<zip destfile="${distrelease}/sdloader-${libversion}.zip" compress="true">
   		<fileset dir=".">
   			<include name="*.txt"/>
   		</fileset>
@@ -94,7 +95,7 @@
  	    	<attribute name="Main-Class" value="${mainclasslib}"/>
 		</manifest>
     </jar>
-  	<zip destfile="${distbuildlib}/sdloader-jsp20-${libversion}.zip" compress="true">
+  	<zip destfile="${distrelease}/sdloader-jsp20-${libversion}.zip" compress="true">
   		<fileset dir=".">
   			<include name="*.txt"/>
   		</fileset>
@@ -120,7 +121,7 @@
  	    	<attribute name="Main-Class" value="${mainclasslib}"/>
 		</manifest>
     </jar>
-  	<zip destfile="${distbuildlib}/sdloader-jsp21-${libversion}.zip" compress="true">
+  	<zip destfile="${distrelease}/sdloader-jsp21-${libversion}.zip" compress="true">
   		<fileset dir=".">
   			<include name="*.txt"/>
   		</fileset>
@@ -170,7 +171,7 @@
   	  <arg line="-i ./dev/boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader/sdloader.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader/sdloader.jar"/>
-  	<zip destfile="${distbuildstandalone}/sdloader-standalone-${libversion}.zip" compress="true">
+  	<zip destfile="${distrelease}/sdloader-standalone-${libversion}.zip" compress="true">
   		<fileset dir=".">
   			<include name="*.txt"/>
   		</fileset> 		
@@ -222,7 +223,7 @@
   	  <arg line="-i ./dev/boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader-jsp20/sdloader-jsp20.jar"/>	
-  	<zip destfile="${distbuildstandalone}/sdloader-jsp20-standalone-${libversion}.zip" compress="true">
+  	<zip destfile="${distrelease}/sdloader-jsp20-standalone-${libversion}.zip" compress="true">
   		<fileset dir=".">
   			<include name="*.txt"/>
   		</fileset>
@@ -273,7 +274,7 @@
   	  <arg line="-i ./dev/boot/sdloader.ico -g -v ${exeversion} ${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar" /> 
 	</exec>
   	<delete file="${distbuildstandalone}/sdloader-jsp21/sdloader-jsp21.jar"/>
-  	<zip destfile="${distbuildstandalone}/sdloader-jsp21-standalone-${libversion}.zip" compress="true">
+  	<zip destfile="${distrelease}/sdloader-jsp21-standalone-${libversion}.zip" compress="true">
   		<fileset dir=".">
   			<include name="*.txt"/>
   		</fileset>
@@ -284,7 +285,7 @@
   	
   	<!-- source -->
   	<mkdir dir="${distbuild}/src"/>
-  	<zip destfile="${distbuild}/src/sdloader-src-${libversion}.zip">
+  	<zip destfile="${distbuild}/src/sdloader-src.zip">
 		<fileset dir="${src}">
 			<include name="**/*" />
 		</fileset>
@@ -302,6 +303,7 @@
 		    <include name="sdloaderversion.txt"/>
     	</fileset>  		
   	</zip>
+  	<copy tofile="${distrelease}/sdloader-src-${libversion}.zip" file="${distbuild}/src/sdloader-src.zip"/>
   	
   	<!-- doc -->
   	<mkdir dir="${distbuild}/doc"/>
