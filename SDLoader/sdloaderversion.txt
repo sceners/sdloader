@@ -1,2 +1,2 @@
-libversion=v0_2_02
-exeversion=0.2.0.2
+libversion=v0_2_03
+exeversion=0.2.0.3
