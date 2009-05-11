@@ -55,7 +55,11 @@ public class HttpRequestReader {
 		}
 	}
 
-	public void readBody(byte[] body) throws IOException {
-		inputStream.read(body);
+	public void readBody(byte[] body) throws IOException {		
+		final int totalSize = body.length;
+		int readSize = 0;
+		while(readSize<totalSize){
+			readSize += inputStream.read(body,readSize,totalSize-readSize);
+		}
 	}
 }
