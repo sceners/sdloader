@@ -42,10 +42,10 @@ import sdloader.javaee.impl.HttpServletResponseImpl;
 import sdloader.javaee.impl.ServletContextImpl;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
-import sdloader.util.FastByteArrayOutputStream;
 import sdloader.util.IOUtil;
 import sdloader.util.QoSInputStream;
 import sdloader.util.QoSOutputStream;
+import sdloader.util.ResourceUtil;
 import sdloader.util.WebUtil;
 
 /**
@@ -153,7 +153,6 @@ public class HttpProcessor extends Thread {
 		} catch (Throwable t) {
 			log.error(t.getMessage(), t);
 		} finally {
-			IOUtil.flushNoException(os);
 			IOUtil.closeNoException(is, os);
 			IOUtil.closeSocketNoException(socket);
 			is = null;
@@ -271,7 +270,8 @@ public class HttpProcessor extends Thread {
 					requestCount);
 			processRequestEnd(response, os);
 		} finally {
-			request.destroy();
+			request.dispose();
+			response.dispose();
 			Thread.currentThread().setContextClassLoader(oldLoader);
 		}
 	}
@@ -361,9 +361,9 @@ public class HttpProcessor extends Thread {
 			log.debug("<RESPONSE_HEADER>\n" + new String(headerData));
 		}
 		os.write(HttpConst.CRLF_STRING.getBytes());// Separator
-		FastByteArrayOutputStream bodyData = response.getBodyData();
+		HttpBody bodyData = response.getBodyData();
 		if (bodyData != null) {
-			bodyData.writeTo(os);
+			ResourceUtil.copyStream(bodyData.getInputStream(), os);
 		}
 		os.flush();
 	}

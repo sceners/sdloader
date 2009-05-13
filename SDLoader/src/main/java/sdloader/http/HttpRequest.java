@@ -70,6 +70,10 @@ public class HttpRequest {
 	public HttpBody getBody() {
 		return body;
 	}
+	
+	public void dispose(){
+		body.dispose();
+	}
 
 	private void createHttpRequestHeader() throws IOException {
 		StringBuilder httpHeaderBuf = new StringBuilder();
@@ -97,21 +101,25 @@ public class HttpRequest {
 	private void createHttpRequestBody() throws IOException {
 		String contentLengthHeader = header
 				.getHeaderValue(HttpConst.CONTENTLENGTH);
-		byte[] b = null;
-		int contentLength = 0;
+		long contentLength = 0;
 		if (contentLengthHeader != null) {
-			contentLength = Integer.parseInt(contentLengthHeader);
-			long trueContentLength = Long.parseLong(contentLengthHeader);
-			if (trueContentLength > contentLength) {
-				throw new IllegalArgumentException(
-						"ContentLenght too long.Max size = "
-								+ Integer.MAX_VALUE);
+			contentLength = Long.parseLong(contentLengthHeader);
+		}
+		body = new HttpBody(contentLength);
+		if (contentLength > 0) {
+			byte[] buf = new byte[4068];
+			int size = -1;
+			long readSize = 0;
+			while (readSize < contentLength) {
+				size = requestReader.readBody(buf);
+				if (size == -1) {
+					throw new IOException(
+							"Invalide content length.Content length="
+									+ contentLength + " ,Read size=" + readSize);
+				}
+				body.write(buf, 0, size);
+				readSize += size;
 			}
 		}
-		b = new byte[contentLength];
-		if(contentLength > 0){
-			requestReader.readBody(b);
-		}
-		body = new HttpBody(b);
 	}
 }

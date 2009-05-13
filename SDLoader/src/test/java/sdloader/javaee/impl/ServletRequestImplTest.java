@@ -49,7 +49,7 @@ public class ServletRequestImplTest extends TestCase {
 		impl.setAttribute("test", "set");
 		impl.setAttribute("test", "set2");
 		impl.removeAttribute("test");
-		impl.destroy();
+		impl.dispose();
 
 	}
 

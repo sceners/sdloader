@@ -18,7 +18,11 @@ package sdloader.util;
 import java.io.IOException;
 
 import sdloader.exception.NotImplementedYetException;
-
+/**
+ * 
+ * @author c9katayama
+ *
+ */
 public class MiscUtils {
 
 	private static String[] browserNames = { "firefox", "mozilla-firefox",

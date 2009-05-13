@@ -15,20 +15,79 @@
  */
 package sdloader.http;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import sdloader.exception.IORuntimeException;
+import sdloader.util.databuffer.ByteDataBuffer;
+import sdloader.util.databuffer.DataBuffer;
+import sdloader.util.databuffer.TempFileDataBuffer;
+
 /**
  * HTTPのボディー部分
+ * 
+ * <pre>
+ * バッファがBYTE_BUFFER_LIMIT以上になると、TempFileを使用するバッファに切り替えます。
+ * </pre>
  * 
  * @author c9katayama
  */
 public class HttpBody {
 
-	private byte[] bodyData;
+	public static final int NO_LIMIT = -1;
+	public static final int BYTE_BUFFER_LIMIT = 5 * 1024 * 1024;
 
-	public HttpBody(byte[] bodyData) {
-		this.bodyData = bodyData;
+	private long dataBufferLimit;
+
+	private DataBuffer bodyData;
+
+	public HttpBody(long initCapacity) {
+		dataBufferLimit = BYTE_BUFFER_LIMIT;
+		checkBufferLimit(initCapacity);
 	}
 
-	public byte[] getBodyData() {
-		return bodyData;
+	public long getSize() {
+		return bodyData.getSize();
+	}
+
+	public void write(int data) throws IOException {
+		checkBufferLimit(getSize() + 1);
+		bodyData.write(data);
+	}
+
+	public void write(byte[] buf, int offset, int length) throws IOException {
+		checkBufferLimit(getSize() + length);
+		bodyData.write(buf, offset, length);
+	}
+
+	public InputStream getInputStream() throws IOException {
+		return bodyData.getInputStream();
+	}
+
+	public void dispose() {
+		bodyData.dispose();
+	}
+
+	protected void checkBufferLimit(long size) {
+		if (dataBufferLimit == NO_LIMIT) {
+			return;
+		}
+		if (size >= BYTE_BUFFER_LIMIT) {
+			DataBuffer oldData = bodyData;
+			bodyData = new TempFileDataBuffer();
+			if (oldData != null) {
+				try {
+					bodyData.copyDataBuffer(oldData);
+				} catch (IOException ioe) {
+					throw new IORuntimeException(ioe);
+				}
+				oldData.dispose();
+			}
+			dataBufferLimit = NO_LIMIT;
+		} else {
+			if (bodyData == null) {
+				bodyData = new ByteDataBuffer((int) size);
+			}
+		}
 	}
 }

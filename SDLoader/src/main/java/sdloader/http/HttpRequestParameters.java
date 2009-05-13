@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import sdloader.SDLoader;
 import sdloader.internal.SDLoaderConfig;
 import sdloader.util.CollectionsUtil;
+import sdloader.util.ResourceUtil;
 
 /**
  * HTTPパラメータ
@@ -87,15 +88,16 @@ public class HttpRequestParameters {
 			parameterContext.parseRequestQuery(header.getQueryString(),
 					getQueryEncoding());
 		}
-		byte[] bodyData = body.getBodyData();
-		if (bodyData != null
+		if (body.getSize() > 0
 				&& header.getMethod().equalsIgnoreCase(HttpConst.POST)) {
 			String contType = header.getHeaderValue(HttpConst.CONTENTTYPE);
 			if (contType != null) {
 				contType = contType.toLowerCase();
 				if (contType.indexOf(HttpConst.WWW_FORM_URLENCODE) != -1) {
 					try {
-						String bodyPartQueryString = new String(bodyData);
+						byte[] postData = ResourceUtil.getBytes(body
+								.getInputStream());
+						String bodyPartQueryString = new String(postData);
 						parameterContext.parseRequestQuery(bodyPartQueryString,
 								bodyEncoding);
 					} catch (Exception e) {
@@ -176,7 +178,7 @@ public class HttpRequestParameters {
 
 		private List<String> paramNameList = CollectionsUtil.newArrayList();
 
-		public void addAll(Map<String,String[]> params) {
+		public void addAll(Map<String, String[]> params) {
 			for (Entry<String, String[]> entry : params.entrySet()) {
 				String key = entry.getKey();
 				String[] values = entry.getValue();

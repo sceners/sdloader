@@ -190,15 +190,27 @@ public class ResourceUtil {
 	 * @return コピーしたバイト数
 	 * @throws IOException
 	 */
-	public static final int copyStream(InputStream in, OutputStream out)
+	public static final long copyStream(InputStream in, OutputStream out)
 			throws IOException {
 		byte[] buf = new byte[8196];
-		int totalSize = 0;
-		int size = 0;
-		while ((size = in.read(buf)) != -1) {
-			out.write(buf, 0, size);
-			totalSize += size;
+		long totalSize = 0;
+		int s = 0;
+		while ((s = in.read(buf)) != -1) {
+			out.write(buf, 0, s);
+			totalSize += s;
 		}
 		return totalSize;
+	}
+	/**
+	 * InputStreamからbyte[]を取得します。
+	 * @param is
+	 * @return
+	 * @throws IOException
+	 */
+	public static final byte[] getBytes(InputStream is) throws IOException {
+		FastByteArrayOutputStream bout = new FastByteArrayOutputStream();
+		copyStream(is, bout);
+		bout.close();
+		return bout.toByteArray();
 	}
 }
