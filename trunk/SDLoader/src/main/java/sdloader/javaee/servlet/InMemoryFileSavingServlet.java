@@ -81,9 +81,11 @@ public class InMemoryFileSavingServlet extends FileSavingServlet {
 		InputStream is = resource.openStream();
 		ServletOutputStream sout = res.getOutputStream();
 		try {
-			int size = ResourceUtil.copyStream(is, sout);
+			long size = ResourceUtil.copyStream(is, sout);
 			setContentType(res, resource.toExternalForm());
-			res.setContentLength(size);
+			if(size <= Integer.MAX_VALUE){
+				res.setContentLength((int)size);
+			}
 			res.setStatus(HttpServletResponse.SC_OK);
 		} finally {
 			is.close();

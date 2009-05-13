@@ -55,17 +55,7 @@ public class HttpRequestReader {
 		}
 	}
 
-	public void readBody(byte[] body) throws IOException {
-		final int totalSize = body.length;
-		int readSize = 0;
-		while (readSize < totalSize) {
-			int size = inputStream.read(body, readSize, totalSize - readSize);
-			if (size == -1) {
-				throw new IOException(
-						"Invalide content length. content length=" + totalSize
-								+ " ,read size=" + readSize);
-			}
-			readSize += size;
-		}
+	public int readBody(byte[] body) throws IOException {
+		return inputStream.read(body);
 	}
 }

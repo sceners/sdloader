@@ -19,8 +19,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletOutputStream;
 
-import sdloader.util.FastByteArrayOutputStream;
-import sdloader.util.IOUtil;
+import sdloader.http.HttpBody;
 
 /**
  * ServletOutputStream実装クラス
@@ -28,34 +27,36 @@ import sdloader.util.IOUtil;
  * @author c9katayama
  */
 public class ServletOutputStreamImpl extends ServletOutputStream {
-	private FastByteArrayOutputStream bout;
+	private HttpBody body;
 
 	private boolean close = false;
 
-	public ServletOutputStreamImpl() {
-		bout = new FastByteArrayOutputStream();
+	public ServletOutputStreamImpl(HttpBody body) {
+		this.body = body;
 	}
 
 	public void write(int b) throws IOException {
-		bout.write(b);
+		body.write(b);
+	}
+
+	public void write(byte[] b, int off, int len) throws IOException {
+		body.write(b, off, len);
 	}
 
 	public void flush() throws IOException {
-		bout.flush();
 	}
 
 	public void close() throws IOException {
-		bout.close();
 		close = true;
 	}
 
-	public int getOutputSize() {
-		return bout.getSize();
+	// --no interface method
+	public long getOutputSize() {
+		return body.getSize();
 	}
 
-	public FastByteArrayOutputStream getOutputData() {
-		IOUtil.flushNoException(bout);
-		return bout;
+	public HttpBody getBody() {
+		return body;
 	}
 
 	public boolean isClosed() {

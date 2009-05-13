@@ -26,9 +26,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import sdloader.http.HttpBody;
 import sdloader.http.HttpConst;
 import sdloader.http.HttpHeader;
-import sdloader.util.FastByteArrayOutputStream;
+import sdloader.util.IOUtil;
 import sdloader.util.WebUtil;
 
 /**
@@ -42,16 +43,20 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	private String characterEncoding = "ISO-8859-1";// J2EE specification
 
+	private int bufferSize = 8192;
+
 	private HttpHeader header = new HttpHeader();
 
-	private ServletOutputStreamImpl servletOutputStream = new ServletOutputStreamImpl();
+	private HttpBody body;
+
+	private ServletOutputStreamImpl internalOutputStream;
 
 	private ServletOutputStream outputStream;
 
 	private PrintWriter writer;
 
-	private int bufferSize;
-
+	private boolean committed = false;
+	
 	public HttpServletResponseImpl() {
 		super();
 	}
@@ -107,18 +112,18 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	public void sendError(int error, String message) throws IOException {
 		setStatus(error, message);
-		commitOutputStream();
+		commit();
 	}
 
 	public void sendError(int error) throws IOException {
 		setStatus(error);
-		commitOutputStream();
+		commit();
 	}
 
 	public void sendRedirect(String path) throws IOException {
 		header.addHeader(HttpConst.LOCATION, path);
 		setStatus(HttpConst.SC_MOVED_TEMPORARILY);
-		commitOutputStream();
+		commit();
 	}
 
 	public void setDateHeader(String name, long time) {
@@ -153,7 +158,10 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		if (writer != null) {
 			throw new IllegalStateException("getOutputStream was called.");
 		}
-		outputStream = servletOutputStream;
+		if (internalOutputStream == null) {
+			initBody();
+		}
+		outputStream = internalOutputStream;
 		return outputStream;
 	}
 
@@ -162,9 +170,12 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 			throw new IllegalStateException("getOutputStream was called.");
 		}
 		WebUtil.checkSupportedEndcoding(characterEncoding);
+		if (internalOutputStream == null) {
+			initBody();
+		}
 		if (writer == null) {
 			writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-					servletOutputStream, characterEncoding)));
+					internalOutputStream, characterEncoding)));
 		}
 		return writer;
 	}
@@ -185,21 +196,29 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		if (writer != null) {
 			writer.flush();
 		}
-		servletOutputStream.flush();
+		if (internalOutputStream != null) {
+			internalOutputStream.flush();
+		}
+		committed = true;
 	}
 
 	public void resetBuffer() {
-		outputStream = null;
-		writer = null;
-		servletOutputStream = new ServletOutputStreamImpl();
-	}
-
-	public boolean isCommitted() {
-		return servletOutputStream.isClosed();
+		if (isCommitted()) {
+			throw new IllegalStateException("committed.");
+		}
+		initBody();
 	}
 
 	public void reset() {
-		servletOutputStream = new ServletOutputStreamImpl();
+		if (isCommitted()) {
+			throw new IllegalStateException("committed.");
+		}
+		header = new HttpHeader();
+		resetBuffer();
+	}
+
+	public boolean isCommitted() {
+		return committed;
 	}
 
 	public void setLocale(Locale locale) {
@@ -211,23 +230,42 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	// /non interface method
-	public int getBodySize() throws IOException {
+	public long getBodySize() throws IOException {
 		flushBuffer();
-		return servletOutputStream.getOutputSize();
+		if (body != null) {
+			return body.getSize();
+		} else {
+			return 0;
+		}
 	}
 
-	public FastByteArrayOutputStream getBodyData() throws IOException {
-		flushBuffer();
-		servletOutputStream.close();
-		return servletOutputStream.getOutputData();
+	public HttpBody getBodyData() throws IOException {
+		commit();
+		return body;
+	}
+	
+	protected void commit(){
+		IOUtil.closeNoException(writer);
+		IOUtil.closeNoException(internalOutputStream);
+		committed = true;
 	}
 
 	public HttpHeader getResponseHeader() {
 		return header;
 	}
 
-	protected void commitOutputStream() throws IOException {
-		this.servletOutputStream.flush();
-		this.servletOutputStream.close();
+	protected void initBody() {
+		dispose();
+		body = new HttpBody(bufferSize);
+		internalOutputStream = new ServletOutputStreamImpl(body);
+	}
+	public void dispose() {
+		if (body != null) {
+			body.dispose();
+		}
+		body = null;
+		internalOutputStream = null;
+		outputStream = null;
+		writer = null;
 	}
 }

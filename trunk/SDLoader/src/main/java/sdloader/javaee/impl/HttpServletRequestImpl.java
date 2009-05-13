@@ -16,7 +16,6 @@
 package sdloader.javaee.impl;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -178,16 +177,15 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public ServletInputStream getInputStream() throws IOException {
-		byte[] data = httpRequest.getBody().getBodyData();
-		if (data == null) {
-			data = new byte[] {};
-		}
-		final byte[] isData = data;
+		final InputStream is = httpRequest.getBody()
+				.getInputStream();
 		ServletInputStream sIs = new ServletInputStream() {
-			private InputStream is = new ByteArrayInputStream(isData);
-
 			public int read() throws IOException {
 				return is.read();
+			}
+			@Override
+			public int read(byte[] b, int off, int len) throws IOException {			
+				return is.read(b,off,len);
 			}
 		};
 		return sIs;
@@ -216,9 +214,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public BufferedReader getReader() throws IOException {
-		byte[] data = httpRequest.getBody().getBodyData();
-		ByteArrayInputStream bin = new ByteArrayInputStream(data);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(bin));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				httpRequest.getBody().getInputStream()));
 		return reader;
 	}
 
@@ -444,7 +441,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 		dispatcher.dispatchServletRequestListener_requestInitialized(event);
 	}
 
-	public void destroy() {
+	public void dispose() {
+		httpRequest.dispose();
 		if (internalWebApplication == null) {
 			return;
 		}
@@ -470,8 +468,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	public HttpBody getBody() {
 		return this.httpRequest.getBody();
 	}
-	
-	public HttpRequestParameters getParameters(){
+
+	public HttpRequestParameters getParameters() {
 		return this.httpRequest.getParameters();
 	}
 
@@ -521,7 +519,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	protected ServletContextImpl getServletContextImpl() {
 		return internalWebApplication.getServletContext();
 	}
-	
+
 	protected String decodeURI(String path) {
 		if (path == null) {
 			return null;

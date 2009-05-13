@@ -69,7 +69,7 @@ public class IOUtil {
 			for (Flushable fl : flushables) {
 				try {
 					fl.flush();
-				} catch (IOException ioe) {
+				} catch (Exception ioe) {
 					// ignore
 				}
 			}
@@ -80,8 +80,11 @@ public class IOUtil {
 		if (closeables != null) {
 			for (Closeable cl : closeables) {
 				try {
+					if(cl instanceof Flushable){
+						flushNoException((Flushable)cl);
+					}
 					cl.close();
-				} catch (IOException ioe) {
+				} catch (Exception ioe) {
 					// ignore
 				}
 			}
