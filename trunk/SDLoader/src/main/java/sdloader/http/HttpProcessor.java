@@ -361,9 +361,10 @@ public class HttpProcessor extends Thread {
 			log.debug("<RESPONSE_HEADER>\n" + new String(headerData));
 		}
 		os.write(HttpConst.CRLF_STRING.getBytes());// Separator
+		os.flush();
 		HttpBody bodyData = response.getBodyData();
 		if (bodyData != null) {
-			ResourceUtil.copyStream(bodyData.getInputStream(), os);
+			System.out.println("*********"+ResourceUtil.copyStream(bodyData.getInputStream(), os));
 		}
 		os.flush();
 	}

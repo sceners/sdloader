@@ -38,12 +38,19 @@ public class TempFileDataBuffer implements DataBuffer {
 	private OutputStream fileOutputStream;
 	private List<InputStream> inputStreamList;
 	private long size;
+	private Thread removeThread = new Thread() {
+		@Override
+		public void run() {
+			_dispose();
+		}
+	};
 
 	public TempFileDataBuffer() {
 		try {
 			tempFile = File.createTempFile("sdl", ".tmp");
 			tempFile.deleteOnExit();
 			fileOutputStream = new FileOutputStream(tempFile);
+			Runtime.getRuntime().addShutdownHook(removeThread);
 		} catch (IOException e) {
 			throw new IORuntimeException(e);
 		}
@@ -54,18 +61,42 @@ public class TempFileDataBuffer implements DataBuffer {
 	}
 
 	public void dispose() {
-		IOUtil.closeNoException(fileOutputStream);
-		if (inputStreamList != null) {
-			IOUtil.closeNoException(inputStreamList
-					.toArray(new InputStream[] {}));
+		_dispose();
+		if (removeThread != null) {
+			try {
+				Runtime.getRuntime().removeShutdownHook(removeThread);
+			} catch (IllegalStateException e) {
+				// ignore
+			}
+			removeThread = null;
 		}
-		tempFile.delete();
-		tempFile = null;
-		fileOutputStream = null;
+	}
+
+	private void _dispose() {
+		if (tempFile != null) {
+			IOUtil.closeNoException(fileOutputStream);
+			if (inputStreamList != null) {
+				IOUtil.closeNoException(inputStreamList
+						.toArray(new InputStream[] {}));
+			}
+			tempFile.delete();
+			tempFile = null;
+			fileOutputStream = null;
+		}
 	}
 
 	public OutputStream getOutputStream() throws IOException {
-		return fileOutputStream;
+		return new OutputStream() {
+			@Override
+			public void write(int b) throws IOException {
+				TempFileDataBuffer.this.write(b);
+			}
+
+			@Override
+			public void write(byte[] b, int off, int len) throws IOException {
+				TempFileDataBuffer.this.write(b, off, len);
+			}
+		};
 	}
 
 	public InputStream getInputStream() throws IOException {
@@ -85,7 +116,7 @@ public class TempFileDataBuffer implements DataBuffer {
 	}
 
 	public void write(int data) throws IOException {
-		fileOutputStream.write(data);
+		fileOutputStream.write((byte) data);
 		size++;
 	}
 

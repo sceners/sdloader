@@ -45,6 +45,11 @@
 	</filter-mapping>
 
 	<servlet>
+		<servlet-name>lageSizeFileDownloadServlet</servlet-name>
+		<servlet-class>sdloader.testwebapp.filetest.LargeSizeFileDownloadServlet</servlet-class>
+	</servlet>
+
+	<servlet>
 		<servlet-name>requestServlet</servlet-name>
 		<servlet-class>sdloader.testwebapp.filteranddispatchtest.RequestServlet</servlet-class>
 	</servlet>
@@ -85,6 +90,11 @@
     </servlet>
 	<!-- //load onstartup test -->
 	
+	<servlet-mapping>
+		<servlet-name>lageSizeFileDownloadServlet</servlet-name>
+		<url-pattern>/filetest/lageSizeFileDownloadServlet.zip</url-pattern>
+	</servlet-mapping>
+		
 	<servlet-mapping>
 		<servlet-name>requestServlet</servlet-name>
 		<url-pattern>/filterAndDispatchTest/requestServlet</url-pattern>

@@ -28,7 +28,7 @@ import java.util.LinkedList;
  */
 public class ByteDataBuffer implements DataBuffer {
 
-	private static final int DEFAULT_BLOCK_SIZE = 8192;
+	private static final int DEFAULT_BLOCK_SIZE = 16 * 1024;
 	private LinkedList<ByteBuffer> bufferList = new LinkedList<ByteBuffer>();
 	private ByteBuffer buffer;
 	private long size;
