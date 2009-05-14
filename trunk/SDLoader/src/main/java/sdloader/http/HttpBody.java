@@ -36,7 +36,7 @@ import sdloader.util.databuffer.TempFileDataBuffer;
 public class HttpBody {
 
 	public static final int NO_LIMIT = -1;
-	public static final int BYTE_BUFFER_LIMIT = 1 * 1024 * 1024;
+	public static final int BYTE_BUFFER_LIMIT = 3 * 1024 * 1024;
 
 	private long dataBufferLimit;
 

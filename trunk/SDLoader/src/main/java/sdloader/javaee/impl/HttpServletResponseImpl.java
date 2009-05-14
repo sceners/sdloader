@@ -56,7 +56,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	private PrintWriter writer;
 
 	private boolean committed = false;
-	
+
 	public HttpServletResponseImpl() {
 		super();
 	}
@@ -74,14 +74,15 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void setContentLength(int length) {
-		header.addHeader(HttpConst.CONTENTLENGTH, String.valueOf(length));
+		setHeader(HttpConst.CONTENTLENGTH, String.valueOf(length));
 	}
 
 	public void setContentType(String type) {
-		header.addHeader(HttpConst.CONTENTTYPE, type);
+		setHeader(HttpConst.CONTENTTYPE, type);
 		String encodeInContentType = WebUtil.parseCharsetFromContentType(type);
-		if (encodeInContentType != null)
+		if (encodeInContentType != null){
 			characterEncoding = encodeInContentType;
+		}
 	}
 
 	public void setStatus(int sc) {
@@ -139,7 +140,11 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void addHeader(String name, String value) {
-		this.header.addHeader(name, value);
+		if (isSingleValueHeader(name)) {
+			setHeader(name, value);
+		} else {
+			this.header.addHeader(name, value);
+		}
 	}
 
 	public void setIntHeader(String name, int value) {
@@ -193,7 +198,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void flushBuffer() throws IOException {
-		IOUtil.flushNoException(writer,internalOutputStream);
+		IOUtil.flushNoException(writer, internalOutputStream);
 		committed = true;
 	}
 
@@ -238,9 +243,9 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		commit();
 		return body;
 	}
-	
-	protected void commit(){
-		IOUtil.closeNoException(writer,internalOutputStream);
+
+	protected void commit() {
+		IOUtil.closeNoException(writer, internalOutputStream);
 		committed = true;
 	}
 
@@ -253,6 +258,14 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 		body = new HttpBody(bufferSize);
 		internalOutputStream = new ServletOutputStreamImpl(body);
 	}
+	
+	protected boolean isSingleValueHeader(String headerName) {
+		return headerName.equalsIgnoreCase("Keep-Alive")
+				|| headerName.equalsIgnoreCase("Connection")
+				|| headerName.equalsIgnoreCase("Content-Type")
+				|| headerName.equalsIgnoreCase("Content-Length");
+	}
+
 	public void dispose() {
 		if (body != null) {
 			body.dispose();
