@@ -15,8 +15,6 @@
  */
 package sdloader.javaee.webxml;
 
-import sdloader.util.SystemPropertyUtil;
-
 /**
  * 
  * @author shot
@@ -26,7 +24,7 @@ public class WebXmlWritingContext {
 
 	protected StringBuilder builder = new StringBuilder();
 
-	protected String SEP = SystemPropertyUtil.getLineSeparator();
+	protected String SEP = System.getProperty("line.separator");
 
 	protected int depth = 0;
 
