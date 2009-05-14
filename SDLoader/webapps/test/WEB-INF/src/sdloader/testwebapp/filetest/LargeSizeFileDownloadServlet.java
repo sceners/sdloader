@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -33,12 +35,16 @@ public class LargeSizeFileDownloadServlet extends HttpServlet {
 		g.dispose();
 
 		ZipOutputStream zipout = new ZipOutputStream(resp.getOutputStream());
+		ZipOutputStream zipout2 = new ZipOutputStream(new FileOutputStream(new File("c:/t.zip")));
 		for (int i = 0; i < 200; i++) {
 			ZipEntry entry = new ZipEntry("hoge" + i + ".bmp");
 			zipout.putNextEntry(entry);
 			ImageIO.write(img, "bmp", zipout);
+			ZipEntry entry2 = new ZipEntry("hoge" + i + ".bmp");
+			zipout2.putNextEntry(entry2);
+			ImageIO.write(img, "bmp", zipout2);			
 		}
-		zipout.flush();
-		//zipout.close();
+		zipout.close();
+		zipout2.close();
 	}
 }
