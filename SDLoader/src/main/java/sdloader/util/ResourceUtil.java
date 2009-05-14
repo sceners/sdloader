@@ -196,7 +196,7 @@ public class ResourceUtil {
 			throws IOException {
 		byte[] buf = new byte[8196];
 		long totalSize = 0;
-		int s = 0;
+		int s = -1;
 		while ((s = in.read(buf)) != -1) {
 			out.write(buf, 0, s);
 			totalSize += s;

@@ -193,12 +193,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void flushBuffer() throws IOException {
-		if (writer != null) {
-			writer.flush();
-		}
-		if (internalOutputStream != null) {
-			internalOutputStream.flush();
-		}
+		IOUtil.flushNoException(writer,internalOutputStream);
 		committed = true;
 	}
 
@@ -245,8 +240,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 	
 	protected void commit(){
-		IOUtil.closeNoException(writer);
-		IOUtil.closeNoException(internalOutputStream);
+		IOUtil.closeNoException(writer,internalOutputStream);
 		committed = true;
 	}
 
