@@ -1,18 +1,36 @@
+/*
+ * Copyright 2005-2009 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package sdloader.util.databuffer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
-import sdloader.exception.IORuntimeException;
-
+/**
+ * ByteBuffer利用のDataBuffer
+ * 
+ * @author c9katayama
+ */
 public class ByteDataBuffer implements DataBuffer {
 
 	private static final int DEFAULT_BLOCK_SIZE = 8192;
 	private LinkedList<ByteBuffer> bufferList = new LinkedList<ByteBuffer>();
 	private ByteBuffer buffer;
-	private int position;
 	private long size;
 	private int blockSize;
 
@@ -22,36 +40,29 @@ public class ByteDataBuffer implements DataBuffer {
 
 	public ByteDataBuffer(int blockSize) {
 		this.blockSize = blockSize;
-		buffer = ByteBuffer.allocate(blockSize);
-		bufferList.addLast(buffer);
+		checkBuffer();
 	}
 
 	public long getSize() {
-		return size + position;
+		return size;
 	}
 
 	public void dispose() {
 		bufferList = null;
 	}
 
-	public void copyDataBuffer(DataBuffer src) throws IOException {
-		long srcSize = src.getSize();
-		if (srcSize > Integer.MAX_VALUE) {
-			throw new IORuntimeException("Buffer size too long.size=" + srcSize);
-		}
-		copyDataBuffer(src, (int) src.getSize());
-	}
+	public OutputStream getOutputStream() throws IOException {
+		return new OutputStream() {
+			@Override
+			public void write(int b) throws IOException {
+				ByteDataBuffer.this.write(b);
+			}
 
-	protected void copyDataBuffer(DataBuffer src, int srcSize)
-			throws IOException {
-		buffer = ByteBuffer.allocate(srcSize);
-		InputStream is = src.getInputStream();
-		byte[] buf = new byte[4096];
-		int size = -1;
-		while ((size = is.read(buf)) != -1) {
-			buffer.put(buf, 0, size);
-		}
-		buf = null;
+			@Override
+			public void write(byte[] b, int off, int len) throws IOException {
+				ByteDataBuffer.this.write(b, off, len);
+			}
+		};
 	}
 
 	public InputStream getInputStream() {
@@ -59,67 +70,70 @@ public class ByteDataBuffer implements DataBuffer {
 	}
 
 	public void write(int data) throws IOException {
-		if (position + 1 > blockSize) {
-			addBuffer();
-		}
+		checkBuffer();
 		buffer.put((byte) data);
-		position++;
+		size++;
 	}
 
 	public void write(byte[] buf, int offset, int length) throws IOException {
-		if (position + length > blockSize) {
+		if (buffer.position() + length > buffer.limit()) {
 			do {
-				if (position == blockSize) {
-					addBuffer();
-				}
-				int copyLength = blockSize - position;
+				checkBuffer();
+				int copyLength = buffer.limit() - buffer.position();
 				if (length < copyLength) {
 					copyLength = length;
 				}
 				buffer.put(buf, offset, copyLength);
 				offset += copyLength;
-				position += copyLength;
 				length -= copyLength;
+				size += copyLength;
 			} while (length > 0);
 		} else {
 			buffer.put(buf, offset, length);
-			position += length;
+			size += length;
 		}
 	}
 
-	protected void addBuffer() {
-		buffer = ByteBuffer.allocate(blockSize);
-		bufferList.addLast(buffer);
-		size += position;
-		position = 0;
+	public byte[] toByteArray() {
+		if (size > Integer.MAX_VALUE) {
+			throw new RuntimeException("too large size. size=" + size);
+		}
+		ByteBuffer data = ByteBuffer.allocate((int) size);
+		for (ByteBuffer buf : bufferList) {
+			data.put(buf.array(), 0, buf.position());
+		}
+		return data.array();
+	}
+
+	protected void checkBuffer() {
+		if (buffer == null || buffer.position() == buffer.limit()) {
+			buffer = ByteBuffer.allocate(blockSize);
+			bufferList.addLast(buffer);
+		}
 	}
 
 	private static class ByteDataBufferInputStream extends InputStream {
 
 		private ByteDataBuffer target;
-
 		private ByteBuffer buffer;
-		private int position;
-		private int listIndex;
+		private int listIndex = -1;
 		private long totalReadSize;
 
 		private ByteDataBufferInputStream(ByteDataBuffer target) {
 			this.target = target;
-			buffer = target.bufferList.get(0);
+			checkBuffer();
 		}
+
 		@Override
 		public int read() throws IOException {
 			if (target.getSize() <= totalReadSize) {
 				return -1;
 			}
-			if (target.blockSize == position) {
-				listIndex++;
-				buffer = target.bufferList.get(listIndex);
-				position = 0;
-			}
+			checkBuffer();
 			totalReadSize++;
-			return buffer.get(position++) & 0xff;
+			return buffer.get() & 0xff;
 		}
+
 		@Override
 		public int read(byte[] b, int off, int length) throws IOException {
 			long size = target.getSize();
@@ -128,38 +142,31 @@ public class ByteDataBuffer implements DataBuffer {
 			}
 			length = (int) Math.min(size - totalReadSize, length);
 			final int actualReadSize = length;
-			int blockSize = target.blockSize;
-			if (position + length > blockSize) {
+			if (buffer.position() + length > buffer.limit()) {
 				do {
-					if (blockSize == position) {
-						listIndex++;
-						buffer = target.bufferList.get(listIndex);
-						position = 0;
-					}
-					int readLength = blockSize - position;
+					checkBuffer();
+					int readLength = buffer.limit() - buffer.position();
 					if (length < readLength) {
 						readLength = length;
 					}
-					// getするとpositionがずれるので戻す
-					int oldPosition = buffer.position();
-					buffer.position(position);
 					buffer.get(b, off, readLength);
-					buffer.position(oldPosition);
-
 					off += readLength;
-					position += readLength;
 					length -= readLength;
+					totalReadSize += readLength;
 				} while (length > 0);
 			} else {
-				int oldPosition = buffer.position();
-				buffer.position(position);
 				buffer.get(b, off, length);
-				buffer.position(oldPosition);
-
-				position += length;
+				totalReadSize += length;
 			}
-			totalReadSize += actualReadSize;
 			return actualReadSize;
+		}
+
+		protected void checkBuffer() {
+			if (buffer == null || buffer.position() == buffer.limit()) {
+				listIndex++;
+				buffer = target.bufferList.get(listIndex).asReadOnlyBuffer();
+				buffer.clear();
+			}
 		}
 	}
 }

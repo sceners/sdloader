@@ -40,6 +40,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
+import sdloader.util.databuffer.ByteDataBuffer;
+
 /**
  * リソース用Util
  * 
@@ -208,9 +210,8 @@ public class ResourceUtil {
 	 * @throws IOException
 	 */
 	public static final byte[] getBytes(InputStream is) throws IOException {
-		FastByteArrayOutputStream bout = new FastByteArrayOutputStream();
-		copyStream(is, bout);
-		bout.close();
-		return bout.toByteArray();
+		ByteDataBuffer buf = new ByteDataBuffer();
+		copyStream(is, buf.getOutputStream());
+		return buf.toByteArray();
 	}
 }

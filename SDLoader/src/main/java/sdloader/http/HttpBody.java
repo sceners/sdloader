@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import sdloader.exception.IORuntimeException;
+import sdloader.util.ResourceUtil;
 import sdloader.util.databuffer.ByteDataBuffer;
 import sdloader.util.databuffer.DataBuffer;
 import sdloader.util.databuffer.TempFileDataBuffer;
@@ -77,7 +78,7 @@ public class HttpBody {
 			bodyData = new TempFileDataBuffer();
 			if (oldData != null) {
 				try {
-					bodyData.copyDataBuffer(oldData);
+					ResourceUtil.copyStream(oldData.getInputStream(),bodyData.getOutputStream());
 				} catch (IOException ioe) {
 					throw new IORuntimeException(ioe);
 				}
