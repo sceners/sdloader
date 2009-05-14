@@ -3,6 +3,8 @@ package sdloader.util;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import org.junit.Assert;
+
 import junit.framework.TestCase;
 import sdloader.util.databuffer.ByteDataBuffer;
 
@@ -90,5 +92,15 @@ public class ByteDataBufferTest extends TestCase {
 		for (int i = 0; i < totalSize; i++) {
 			assertEquals(result[i], data[i]);
 		}
+	}
+	public void testToByteArray() throws Exception {
+		ByteDataBuffer buffer = new ByteDataBuffer(100);
+		byte[] data = new byte[150];
+		for(int i = 0;i < data.length;i++){
+			data[i] = (byte)i;
+			buffer.write(data[i]);
+		}
+		byte[] result = buffer.toByteArray();
+		Assert.assertArrayEquals(data,result);
 	}
 }
