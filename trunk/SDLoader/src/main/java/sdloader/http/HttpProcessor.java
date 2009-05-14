@@ -364,7 +364,7 @@ public class HttpProcessor extends Thread {
 		os.flush();
 		HttpBody bodyData = response.getBodyData();
 		if (bodyData != null) {
-			System.out.println("*********"+ResourceUtil.copyStream(bodyData.getInputStream(), os));
+			ResourceUtil.copyStream(bodyData.getInputStream(), os);
 		}
 		os.flush();
 	}
