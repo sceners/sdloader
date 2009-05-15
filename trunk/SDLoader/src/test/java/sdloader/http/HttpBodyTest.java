@@ -9,7 +9,7 @@ public class HttpBodyTest extends TestCase {
 
 	public void testSize1() throws IOException{
 
-		HttpBody body = new HttpBody(1001);
+		HttpBody body = new HttpBody();
 		
 		byte[] buf = new byte[1000];
 		buf[0] = 2;
@@ -28,7 +28,7 @@ public class HttpBodyTest extends TestCase {
 	}
 	public void testAddBuffer() throws IOException{
 
-		HttpBody body = new HttpBody(150);
+		HttpBody body = new HttpBody();
 		
 		byte[] buf = new byte[1000];
 		buf[0] = 2;
@@ -48,7 +48,7 @@ public class HttpBodyTest extends TestCase {
 	
 	public void testSize2() throws IOException{
 
-		HttpBody body = new HttpBody(150);
+		HttpBody body = new HttpBody();
 		try{
 			byte[] buf = new byte[1000];
 			buf[0] = 2;

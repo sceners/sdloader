@@ -105,7 +105,7 @@ public class HttpRequest {
 		if (contentLengthHeader != null) {
 			contentLength = Long.parseLong(contentLengthHeader);
 		}
-		body = new HttpBody(contentLength);
+		body = new HttpBody();
 		if (contentLength > 0) {
 			byte[] buf = new byte[4068];
 			int size = -1;

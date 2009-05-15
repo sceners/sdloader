@@ -86,17 +86,7 @@ public class TempFileDataBuffer implements DataBuffer {
 	}
 
 	public OutputStream getOutputStream() throws IOException {
-		return new OutputStream() {
-			@Override
-			public void write(int b) throws IOException {
-				TempFileDataBuffer.this.write(b);
-			}
-
-			@Override
-			public void write(byte[] b, int off, int len) throws IOException {
-				TempFileDataBuffer.this.write(b, off, len);
-			}
-		};
+		return new DataBuffer.DelegateOutputStream(this);
 	}
 
 	public InputStream getInputStream() throws IOException {

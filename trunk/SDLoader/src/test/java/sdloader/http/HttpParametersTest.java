@@ -18,7 +18,7 @@ public class HttpParametersTest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		HttpHeader header = new HttpHeader(headerString);
-		HttpBody body = new HttpBody(0);
+		HttpBody body = new HttpBody();
 		params = new HttpRequestParameters(header, body);
 		params.setBodyEncoding("UTF-8");
 		params.setUseBodyEncodingForURI(true);
