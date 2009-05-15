@@ -49,6 +49,8 @@ import sdloader.util.databuffer.ByteDataBuffer;
  */
 public class ResourceUtil {
 
+	private static final int DEFAULT_BUFFER_SIZE = 32 * 1024;
+	
 	public static String stripFirstProtocolPart(String path) {
 		return path.substring(path.indexOf(":") + 1, path.length());
 	}
@@ -189,22 +191,39 @@ public class ResourceUtil {
 	 * 
 	 * @param in
 	 * @param out
+	 * @param バッファサイズ
 	 * @return コピーしたバイト数
 	 * @throws IOException
 	 */
 	public static final long copyStream(InputStream in, OutputStream out)
 			throws IOException {
-		byte[] buf = new byte[8196];
+		return copyStream(in, out, DEFAULT_BUFFER_SIZE);
+	}
+
+	/**
+	 * ストリームをコピーします。
+	 * 
+	 * @param in
+	 * @param out
+	 * @return コピーしたバイト数
+	 * @throws IOException
+	 */
+	public static final long copyStream(InputStream in, OutputStream out,
+			int bufferSize) throws IOException {
+		byte[] buf = new byte[bufferSize];
 		long totalSize = 0;
 		int s = -1;
 		while ((s = in.read(buf)) != -1) {
 			out.write(buf, 0, s);
 			totalSize += s;
 		}
+		buf = null;
 		return totalSize;
 	}
+
 	/**
 	 * InputStreamからbyte[]を取得します。
+	 * 
 	 * @param is
 	 * @return
 	 * @throws IOException
