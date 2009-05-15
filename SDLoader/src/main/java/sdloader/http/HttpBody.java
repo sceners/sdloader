@@ -18,9 +18,8 @@ package sdloader.http;
 import java.io.IOException;
 import java.io.InputStream;
 
-import sdloader.exception.IORuntimeException;
-import sdloader.util.ResourceUtil;
 import sdloader.util.databuffer.ByteDataBuffer;
+import sdloader.util.databuffer.CompositeDataBuffer;
 import sdloader.util.databuffer.DataBuffer;
 import sdloader.util.databuffer.TempFileDataBuffer;
 
@@ -35,16 +34,20 @@ import sdloader.util.databuffer.TempFileDataBuffer;
  */
 public class HttpBody {
 
-	public static final int NO_LIMIT = -1;
 	public static final int BYTE_BUFFER_LIMIT = 4 * 1024 * 1024;
-
-	private long dataBufferLimit;
-
 	private DataBuffer bodyData;
 
-	public HttpBody(long initCapacity) {
-		dataBufferLimit = BYTE_BUFFER_LIMIT;
-		checkBufferLimit(initCapacity);
+	public HttpBody() {
+		bodyData = new CompositeDataBuffer(BYTE_BUFFER_LIMIT) {
+			@Override
+			protected DataBuffer createFirstDataBuffer() {
+				return new ByteDataBuffer();
+			}
+			@Override
+			protected DataBuffer createNextDataBuffer() {
+				return new TempFileDataBuffer();
+			}
+		};
 	}
 
 	public long getSize() {
@@ -52,12 +55,10 @@ public class HttpBody {
 	}
 
 	public void write(int data) throws IOException {
-		checkBufferLimit(getSize() + 1);
 		bodyData.write(data);
 	}
 
 	public void write(byte[] buf, int offset, int length) throws IOException {
-		checkBufferLimit(getSize() + length);
 		bodyData.write(buf, offset, length);
 	}
 
@@ -67,28 +68,5 @@ public class HttpBody {
 
 	public void dispose() {
 		bodyData.dispose();
-	}
-
-	protected void checkBufferLimit(long size) {
-		if (dataBufferLimit == NO_LIMIT) {
-			return;
-		}
-		if (size >= BYTE_BUFFER_LIMIT) {
-			DataBuffer oldData = bodyData;
-			bodyData = new TempFileDataBuffer();
-			if (oldData != null) {
-				try {
-					ResourceUtil.copyStream(oldData.getInputStream(),bodyData.getOutputStream());
-				} catch (IOException ioe) {
-					throw new IORuntimeException(ioe);
-				}
-				oldData.dispose();
-			}
-			dataBufferLimit = NO_LIMIT;
-		} else {
-			if (bodyData == null) {
-				bodyData = new ByteDataBuffer((int) size);
-			}
-		}
 	}
 }

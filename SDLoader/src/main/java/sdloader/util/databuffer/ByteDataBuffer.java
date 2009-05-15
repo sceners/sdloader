@@ -52,17 +52,7 @@ public class ByteDataBuffer implements DataBuffer {
 	}
 
 	public OutputStream getOutputStream() throws IOException {
-		return new OutputStream() {
-			@Override
-			public void write(int b) throws IOException {
-				ByteDataBuffer.this.write(b);
-			}
-
-			@Override
-			public void write(byte[] b, int off, int len) throws IOException {
-				ByteDataBuffer.this.write(b, off, len);
-			}
-		};
+		return new DataBuffer.DelegateOutputStream(this);
 	}
 
 	public InputStream getInputStream() {
@@ -161,7 +151,7 @@ public class ByteDataBuffer implements DataBuffer {
 			return actualReadSize;
 		}
 
-		protected void checkBuffer() {
+		private void checkBuffer() {
 			if (buffer == null || buffer.position() == buffer.limit()) {
 				listIndex++;
 				buffer = target.bufferList.get(listIndex).asReadOnlyBuffer();

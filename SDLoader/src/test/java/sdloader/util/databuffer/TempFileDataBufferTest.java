@@ -1,4 +1,4 @@
-package sdloader.util;
+package sdloader.util.databuffer;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -13,7 +13,7 @@ import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 
 import junit.framework.TestCase;
-import sdloader.util.databuffer.TempFileDataBuffer;
+import sdloader.util.ResourceUtil;
 
 public class TempFileDataBufferTest extends TestCase {
 
@@ -80,6 +80,7 @@ public class TempFileDataBufferTest extends TestCase {
 		tempFile.delete();
 		buf.dispose();
 	}
+
 	private BufferedImage getImage() {
 		BufferedImage img = new BufferedImage(800, 600,
 				BufferedImage.TYPE_INT_RGB);

@@ -37,4 +37,19 @@ public interface DataBuffer {
 	OutputStream getOutputStream() throws IOException;
 
 	void dispose();
+	
+	public static class DelegateOutputStream extends OutputStream{
+		private DataBuffer delegate;
+		public DelegateOutputStream(DataBuffer buf){
+			this.delegate = buf;
+		}
+		@Override
+		public void write(int b) throws IOException {
+			this.delegate.write(b);
+		}
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			this.delegate.write(b,off,len);
+		}
+	}
 }

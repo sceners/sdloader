@@ -1,12 +1,13 @@
-package sdloader.util;
+package sdloader.util.databuffer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import junit.framework.TestCase;
+
 import org.junit.Assert;
 
-import junit.framework.TestCase;
-import sdloader.util.databuffer.ByteDataBuffer;
+import sdloader.util.ResourceUtil;
 
 public class ByteDataBufferTest extends TestCase {
 
@@ -50,32 +51,33 @@ public class ByteDataBufferTest extends TestCase {
 		assertEquals(7, buffer.getSize());
 		buffer.dispose();
 	}
+
 	public void test3() throws Exception {
 
 		ByteDataBuffer buffer = new ByteDataBuffer(5);
 
-		buffer.write(new byte[] { 1,2,3,4}, 0,4);
+		buffer.write(new byte[] { 1, 2, 3, 4 }, 0, 4);
 
 		InputStream is = buffer.getInputStream();
 		byte[] b1 = new byte[3];
 		byte[] b2 = new byte[2];
-		assertEquals(3,is.read(b1));
-		assertEquals(1,is.read(b2));
-		
+		assertEquals(3, is.read(b1));
+		assertEquals(1, is.read(b2));
+
 		buffer.write(5);
-		
-		assertEquals(1,is.read(b2));
-		assertEquals(5,b2[0]);
-		
+
+		assertEquals(1, is.read(b2));
+		assertEquals(5, b2[0]);
+
 		is = buffer.getInputStream();
 		byte[] buf = new byte[10];
-		assertEquals(5,is.read(buf));
-		for(int i =01;i <5;i++){
-			assertEquals(i+1,buf[i]);
+		assertEquals(5, is.read(buf));
+		for (int i = 01; i < 5; i++) {
+			assertEquals(i + 1, buf[i]);
 		}
-		
+
 		buffer.dispose();
-	}	
+	}
 
 	public void test4() throws Exception {
 
@@ -93,14 +95,15 @@ public class ByteDataBufferTest extends TestCase {
 			assertEquals(result[i], data[i]);
 		}
 	}
+
 	public void testToByteArray() throws Exception {
 		ByteDataBuffer buffer = new ByteDataBuffer(100);
 		byte[] data = new byte[150];
-		for(int i = 0;i < data.length;i++){
-			data[i] = (byte)i;
+		for (int i = 0; i < data.length; i++) {
+			data[i] = (byte) i;
 			buffer.write(data[i]);
 		}
 		byte[] result = buffer.toByteArray();
-		Assert.assertArrayEquals(data,result);
+		Assert.assertArrayEquals(data, result);
 	}
 }

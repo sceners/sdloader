@@ -255,7 +255,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	protected void initBody() {
 		dispose();
-		body = new HttpBody(bufferSize);
+		body = new HttpBody();
 		internalOutputStream = new ServletOutputStreamImpl(body);
 	}
 	
