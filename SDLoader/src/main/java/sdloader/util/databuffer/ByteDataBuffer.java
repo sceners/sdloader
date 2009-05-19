@@ -40,8 +40,7 @@ public class ByteDataBuffer implements DataBuffer {
 
 	public ByteDataBuffer(int blockSize) {
 		this.blockSize = blockSize;
-		buffer = ByteBuffer.allocate(blockSize);
-		bufferList.addLast(buffer);
+		nextBuffer();
 	}
 
 	public long getSize() {
@@ -97,11 +96,15 @@ public class ByteDataBuffer implements DataBuffer {
 		return data.array();
 	}
 
-	protected void checkBuffer() {
+	private final void checkBuffer() {
 		if (buffer.position() == buffer.limit()) {
-			buffer = ByteBuffer.allocate(blockSize);
-			bufferList.addLast(buffer);
+			nextBuffer();
 		}
+	}
+	
+	private final void nextBuffer(){
+		buffer = ByteBuffer.allocate(blockSize);
+		bufferList.addLast(buffer);		
 	}
 
 	private static class ByteDataBufferInputStream extends InputStream {
@@ -153,7 +156,7 @@ public class ByteDataBuffer implements DataBuffer {
 			return actualReadSize;
 		}
 
-		private void checkBuffer() {
+		private final void checkBuffer() {
 			if (buffer == null || buffer.position() == buffer.limit()) {
 				listIndex++;
 				buffer = target.bufferList.get(listIndex).asReadOnlyBuffer();
