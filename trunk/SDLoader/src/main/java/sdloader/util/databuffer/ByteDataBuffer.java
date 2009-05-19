@@ -40,7 +40,8 @@ public class ByteDataBuffer implements DataBuffer {
 
 	public ByteDataBuffer(int blockSize) {
 		this.blockSize = blockSize;
-		checkBuffer();
+		buffer = ByteBuffer.allocate(blockSize);
+		bufferList.addLast(buffer);
 	}
 
 	public long getSize() {
@@ -66,6 +67,7 @@ public class ByteDataBuffer implements DataBuffer {
 	}
 
 	public void write(byte[] buf, int offset, int length) throws IOException {
+		checkBuffer();
 		if (buffer.position() + length > buffer.limit()) {
 			do {
 				checkBuffer();
@@ -96,7 +98,7 @@ public class ByteDataBuffer implements DataBuffer {
 	}
 
 	protected void checkBuffer() {
-		if (buffer == null || buffer.position() == buffer.limit()) {
+		if (buffer.position() == buffer.limit()) {
 			buffer = ByteBuffer.allocate(blockSize);
 			bufferList.addLast(buffer);
 		}
