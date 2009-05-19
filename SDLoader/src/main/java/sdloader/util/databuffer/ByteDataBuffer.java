@@ -49,6 +49,8 @@ public class ByteDataBuffer implements DataBuffer {
 
 	public void dispose() {
 		bufferList = null;
+		buffer = null;
+		size = 0;
 	}
 
 	public OutputStream getOutputStream() throws IOException {
