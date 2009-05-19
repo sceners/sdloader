@@ -47,6 +47,10 @@ public class ByteDataBuffer implements DataBuffer {
 		return size;
 	}
 
+	public int getBlockSize() {
+		return blockSize;
+	}
+
 	public void dispose() {
 		bufferList = null;
 		buffer = null;
@@ -103,10 +107,10 @@ public class ByteDataBuffer implements DataBuffer {
 			nextBuffer();
 		}
 	}
-	
-	private final void nextBuffer(){
+
+	private final void nextBuffer() {
 		buffer = ByteBuffer.allocate(blockSize);
-		bufferList.addLast(buffer);		
+		bufferList.addLast(buffer);
 	}
 
 	private static class ByteDataBufferInputStream extends InputStream {
