@@ -76,7 +76,7 @@ public class WebAppContext {
 		return this;
 	}
 	public WebAppContext addLibDirPath(String libPath){
-		addPath(PathUtil.file2URL(libPath),false);
+		addPath(PathUtil.file2URL(libPath),true);
 		return this;
 	}
 	private void addPath(URL path,boolean libPath){
