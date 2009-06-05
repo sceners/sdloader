@@ -250,7 +250,7 @@ public class WebAppManager {
 		}
 		setDefaultServlet(webxml, docBase, contextPath, isInmemoryExtract);
 		// create InternalWebApplication
-		ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase)
+		ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase,context.getAdditionalPathList())
 				: createInMemoryWebAppClassLoader(docBase[0]);
 		context.setWebXml(webxml);
 		InternalWebApplication webapp = new InternalWebApplication(context,
@@ -303,7 +303,7 @@ public class WebAppManager {
 			setDefaultServlet(webXmlTag, new URL[] { docBase }, contextPath,
 					false);
 		}
-		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase });
+		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase },null);
 		WebAppContext context = new WebAppContext(contextPath, docBase);
 		context.setWebXml(webXmlTag);
 		final InternalWebApplication webapp = new InternalWebApplication(
@@ -324,7 +324,7 @@ public class WebAppManager {
 				new ServletMappingTag().setServletName("sdloader-command")
 						.setUrlPattern("/*"));
 
-		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase });
+		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase },null);
 		WebAppContext context = new WebAppContext(contextPath, docBase);
 		context.setWebXml(webXmlTag);
 		final InternalWebApplication webapp = new InternalWebApplication(
@@ -340,8 +340,28 @@ public class WebAppManager {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	protected ClassLoader createWebAppClassLoader(URL[] docBase) {
+	protected ClassLoader createWebAppClassLoader(URL[] docBase,List<WebAppContext.Path> pathList) {
 		List<URL> urlList = CollectionsUtil.newArrayList();
+		
+		//additional path
+		if(pathList != null){
+			for(WebAppContext.Path path:pathList){
+				File pathDir = PathUtil.url2File(path.getPath());
+				if(pathDir.exists()){
+					if(path.isLibPath()){
+						URL[] libs = WebUtil.createClassPaths(pathDir,
+								IOUtil.JAR_ZIP_FILEFILTER, false);
+						if (libs != null) {
+							for (int j = 0; j < libs.length; j++) {
+								urlList.add(libs[j]);
+							}
+						}
+					}else{					
+						urlList.add(path.getPath());
+					}
+				}
+			}
+		}		
 		// classes
 		for (int i = 0; i < docBase.length; i++) {
 			File docBaseDir = PathUtil.url2File(docBase[i]);
@@ -359,6 +379,7 @@ public class WebAppManager {
 				}
 			}
 		}
+		
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
 		ClassLoader parentClassLoader = Thread.currentThread()
 				.getContextClassLoader();
