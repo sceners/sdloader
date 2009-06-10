@@ -47,6 +47,7 @@ import sdloader.internal.resource.Resource;
 import sdloader.internal.resource.ResourceBuilder;
 import sdloader.internal.resource.ResourceBuilderImpl;
 import sdloader.internal.resource.ResourceURLConnection;
+import sdloader.javaee.classloader.ClassLoaderHandler;
 import sdloader.javaee.classloader.InMemoryWebAppClassLoader;
 import sdloader.javaee.classloader.WebAppClassLoader;
 import sdloader.javaee.constants.WebConstants;
@@ -250,8 +251,13 @@ public class WebAppManager {
 		}
 		setDefaultServlet(webxml, docBase, contextPath, isInmemoryExtract);
 		// create InternalWebApplication
-		ClassLoader webAppClassLoader = !isInmemoryExtract ? createWebAppClassLoader(docBase,context.getAdditionalPathList())
-				: createInMemoryWebAppClassLoader(docBase[0]);
+		ClassLoader webAppClassLoader = null;
+		if (isInmemoryExtract == false) {
+			webAppClassLoader = createWebAppClassLoader(docBase, context
+					.getAdditionalPathList(), context.getClassLoaderHandler());
+		} else {
+			webAppClassLoader = createInMemoryWebAppClassLoader(docBase[0]);
+		}
 		context.setWebXml(webxml);
 		InternalWebApplication webapp = new InternalWebApplication(context,
 				webAppClassLoader, this);
@@ -303,7 +309,8 @@ public class WebAppManager {
 			setDefaultServlet(webXmlTag, new URL[] { docBase }, contextPath,
 					false);
 		}
-		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase },null);
+		final ClassLoader webAppClassLoader = createWebAppClassLoader(
+				new URL[] { docBase }, null, null);
 		WebAppContext context = new WebAppContext(contextPath, docBase);
 		context.setWebXml(webXmlTag);
 		final InternalWebApplication webapp = new InternalWebApplication(
@@ -324,7 +331,8 @@ public class WebAppManager {
 				new ServletMappingTag().setServletName("sdloader-command")
 						.setUrlPattern("/*"));
 
-		final ClassLoader webAppClassLoader = createWebAppClassLoader(new URL[] { docBase },null);
+		final ClassLoader webAppClassLoader = createWebAppClassLoader(
+				new URL[] { docBase }, null, null);
 		WebAppContext context = new WebAppContext(contextPath, docBase);
 		context.setWebXml(webXmlTag);
 		final InternalWebApplication webapp = new InternalWebApplication(
@@ -340,15 +348,17 @@ public class WebAppManager {
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	protected ClassLoader createWebAppClassLoader(URL[] docBase,List<WebAppContext.Path> pathList) {
+	protected ClassLoader createWebAppClassLoader(URL[] docBase,
+			List<WebAppContext.Path> pathList,
+			ClassLoaderHandler classLoaderHandler) {
 		List<URL> urlList = CollectionsUtil.newArrayList();
-		
-		//additional path
-		if(pathList != null){
-			for(WebAppContext.Path path:pathList){
+
+		// additional path
+		if (pathList != null) {
+			for (WebAppContext.Path path : pathList) {
 				File pathDir = PathUtil.url2File(path.getPath());
-				if(pathDir.exists()){
-					if(path.isLibPath()){
+				if (pathDir.exists()) {
+					if (path.isLibPath()) {
 						URL[] libs = WebUtil.createClassPaths(pathDir,
 								IOUtil.JAR_ZIP_FILEFILTER, false);
 						if (libs != null) {
@@ -356,12 +366,12 @@ public class WebAppManager {
 								urlList.add(libs[j]);
 							}
 						}
-					}else{					
+					} else {
 						urlList.add(path.getPath());
 					}
 				}
 			}
-		}		
+		}
 		// classes
 		for (int i = 0; i < docBase.length; i++) {
 			File docBaseDir = PathUtil.url2File(docBase[i]);
@@ -379,12 +389,12 @@ public class WebAppManager {
 				}
 			}
 		}
-		
+
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
 		ClassLoader parentClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(urls,
-				parentClassLoader);
+				parentClassLoader, classLoaderHandler);
 		return webAppClassLoader;
 	}
 

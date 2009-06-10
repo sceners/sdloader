@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import sdloader.javaee.classloader.ClassLoaderHandler;
 import sdloader.javaee.webxml.WebXml;
 import sdloader.util.Assertion;
 import sdloader.util.PathUtil;
@@ -48,10 +49,13 @@ public class WebAppContext {
 	 */
 	private WebXml webXml;
 	/**
-	 * 追加のパスリスト
-	 * WEB-INF以下のパスよりも先に追加されます。
+	 * 追加のパスリスト WEB-INF以下のパスよりも先に追加されます。
 	 */
 	private List<Path> additionalPathList;
+	/**
+	 * Webアプリのクラスローダーのコールバックを受け取れます
+	 */
+	private ClassLoaderHandler classLoaderHandler;
 
 	public WebAppContext(final String contextPath,
 			final String... docBaseDirOrWarFile) {
@@ -70,21 +74,23 @@ public class WebAppContext {
 		setContextPath(contextPath);
 		setDocBase(docBaseDirOrWarFile);
 	}
-	
-	public WebAppContext addClassPath(String classPath){
-		addPath(PathUtil.file2URL(classPath),false);
+
+	public WebAppContext addClassPath(String classPath) {
+		addPath(PathUtil.file2URL(classPath), false);
 		return this;
 	}
-	public WebAppContext addLibDirPath(String libPath){
-		addPath(PathUtil.file2URL(libPath),true);
+
+	public WebAppContext addLibDirPath(String libPath) {
+		addPath(PathUtil.file2URL(libPath), true);
 		return this;
 	}
-	private void addPath(URL path,boolean libPath){
-		if(additionalPathList == null){
+
+	private void addPath(URL path, boolean libPath) {
+		if (additionalPathList == null) {
 			additionalPathList = new ArrayList<Path>();
 		}
-		additionalPathList.add(new Path(path,libPath));		
-	}	
+		additionalPathList.add(new Path(path, libPath));
+	}
 
 	/**
 	 * コンテキストパスを返します。
@@ -172,14 +178,16 @@ public class WebAppContext {
 	public void setWebXml(WebXml webXml) {
 		this.webXml = webXml;
 	}
+
 	/**
 	 * 追加のパスリストを返します。
+	 * 
 	 * @return
 	 */
 	public List<Path> getAdditionalPathList() {
 		return additionalPathList;
 	}
-	
+
 	/**
 	 * WebXmlを返します。
 	 * 
@@ -188,16 +196,34 @@ public class WebAppContext {
 	public WebXml getWebXml() {
 		return webXml;
 	}
-	static class Path{
+
+	/**
+	 * Webアプリのクラスローダーのコールバックを受け取るHandlerをセットします。
+	 */
+	public void setClassLoaderHandler(ClassLoaderHandler classLoaderHandler) {
+		this.classLoaderHandler = classLoaderHandler;
+	}
+
+	/**
+	 * Webアプリのクラスローダーのコールバックを受け取れるHandlerを返します。
+	 */
+	public ClassLoaderHandler getClassLoaderHandler() {
+		return classLoaderHandler;
+	}
+
+	static class Path {
 		private URL path;
 		private boolean libPath;
-		public Path(URL path,boolean libPath) {
+
+		public Path(URL path, boolean libPath) {
 			this.path = path;
 			this.libPath = libPath;
 		}
+
 		public URL getPath() {
 			return path;
 		}
+
 		public boolean isLibPath() {
 			return libPath;
 		}
