@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 import sdloader.log.SDLoaderLog;
@@ -44,8 +45,32 @@ public class WebAppClassLoader extends URLClassLoader {
 			"com.sun.", "sun.", "org.w3c.", "org.xml.sax.", "org.omg.",
 			"org.ietf.jgss" };
 
+	protected ClassLoaderHandler classLoaderHandler = new ClassLoaderHandler() {
+		public java.lang.Class<?> handleLoadClass(String name, boolean resolve)
+				throws ClassNotFoundException {
+			return null;// no op
+		};
+
+		public java.util.List<URL> handleResources(String name)
+				throws IOException {
+			return null;// no op
+		};
+	};
+
 	public WebAppClassLoader(URL[] webInfUrls, ClassLoader parent) {
 		super(webInfUrls, parent);
+	}
+
+	public WebAppClassLoader(URL[] webInfUrls, ClassLoader parent,
+			ClassLoaderHandler classLoaderHandler) {
+		super(webInfUrls, parent);
+		setClassLoaderHandler(classLoaderHandler);
+	}
+
+	public void setClassLoaderHandler(ClassLoaderHandler classLoaderHandler) {
+		if (classLoaderHandler != null) {
+			this.classLoaderHandler = classLoaderHandler;
+		}
 	}
 
 	/**
@@ -61,12 +86,17 @@ public class WebAppClassLoader extends URLClassLoader {
 	 */
 	protected synchronized Class<?> loadClass(String name, boolean resolve)
 			throws ClassNotFoundException {
-
 		Class<?> c = findLoadedClass(name);
 		if (c != null) {
 			return doResolve(c, resolve);
 		}
-		boolean parentFirst = isParentFirst(name);
+		c = classLoaderHandler.handleLoadClass(name, resolve);
+		if (c != null) {
+			log.debug("Class load by class loader handler. class=[" + name
+					+ "]");
+			return doResolve(c, resolve);
+		}
+		final boolean parentFirst = isParentFirst(name);
 		if (parentFirst) {
 			try {
 				c = findSystemClass(name);
@@ -152,7 +182,13 @@ public class WebAppClassLoader extends URLClassLoader {
 
 	@Override
 	public Enumeration<URL> getResources(String name) throws IOException {
-		Enumeration<URL> resources = super.getResources(name);
+		List<URL> handleResourecs = classLoaderHandler.handleResources(name);
+		if (handleResourecs != null) {
+			Vector<URL> handleUrlList = new Vector<URL>();
+			handleUrlList.addAll(handleResourecs);
+			return handleUrlList.elements();
+		}
+		final Enumeration<URL> resources = super.getResources(name);
 		// duplicate check
 		Vector<URL> margeUrlList = new Vector<URL>();
 		while (resources.hasMoreElements()) {
