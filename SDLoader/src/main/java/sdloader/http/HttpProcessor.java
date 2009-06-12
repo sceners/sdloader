@@ -332,10 +332,13 @@ public class HttpProcessor extends Thread {
 		// Cache Control
 		if (sdLoader.getSDLoaderConfig().getConfigBoolean(
 				HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE, false)) {
-			response.setHeader("Pragma", "no-cache");
-			response.setDateHeader("Expires", 1L);
-			response.setHeader("Cache-Control", "no-cache");
-			response.addHeader("Cache-Control", "no-store");
+			if (sdLoader.getSDLoaderConfig().getConfigBoolean(
+					SDLoader.KEY_SDLOADER_SSL_ENABLE, false) == false) {
+				response.setHeader("Pragma", "no-cache");
+				response.setHeader("Cache-Control",
+						"no-cache, no-store, must-revalidate");
+				response.setDateHeader("Expires", 1L);
+			}
 		}
 
 		// Content-Length
