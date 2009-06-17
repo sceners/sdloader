@@ -435,7 +435,7 @@ public class SDLoader implements Lifecycle {
 
 			sdLoaderThread.close();
 
-			running.set(true);
+			running.set(false);
 
 			dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 					LifecycleEvent.AFTER_STOP, this));
