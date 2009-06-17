@@ -45,17 +45,7 @@ public class WebAppClassLoader extends URLClassLoader {
 			"com.sun.", "sun.", "org.w3c.", "org.xml.sax.", "org.omg.",
 			"org.ietf.jgss" };
 
-	protected ClassLoaderHandler classLoaderHandler = new ClassLoaderHandler() {
-		public java.lang.Class<?> handleLoadClass(String name, boolean resolve)
-				throws ClassNotFoundException {
-			return null;// no op
-		};
-
-		public java.util.List<URL> handleResources(String name)
-				throws IOException {
-			return null;// no op
-		};
-	};
+	protected ClassLoaderHandler classLoaderHandler = new ClassLoaderHandlerAdapter();
 
 	public WebAppClassLoader(URL[] webInfUrls, ClassLoader parent) {
 		super(webInfUrls, parent);
