@@ -23,6 +23,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLSocket;
 import javax.servlet.Filter;
@@ -67,7 +68,7 @@ public class HttpProcessor extends Thread {
 
 	private SDLoader sdLoader;
 
-	private boolean stop;
+	private AtomicBoolean stop = new AtomicBoolean();
 
 	public HttpProcessor(String name) {
 		super(name);
@@ -96,13 +97,13 @@ public class HttpProcessor extends Thread {
 
 	void stopProcessor() {
 		synchronized (this) {
-			stop = true;
+			stop.set(true);
 			notify();
 		}
 	}
 
 	public void run() {
-		while (!stop) {
+		while (stop.get() == false) {
 			try {
 				synchronized (this) {
 					if (socket == null) {
@@ -112,7 +113,7 @@ public class HttpProcessor extends Thread {
 			} catch (InterruptedException e) {
 				continue;
 			}
-			if (stop) {
+			if (stop.get() == true) {
 				return;
 			}
 			processSocket();
@@ -151,7 +152,9 @@ public class HttpProcessor extends Thread {
 		} catch (SocketException e) {
 			log.debug("socket close.");
 		} catch (Throwable t) {
-			log.error(t.getMessage(), t);
+			if (stop.get() == false) {
+				log.error(t.getMessage(), t);
+			}
 		} finally {
 			IOUtil.closeNoException(is, os);
 			IOUtil.closeSocketNoException(socket);

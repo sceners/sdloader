@@ -24,6 +24,7 @@ import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import sdloader.event.EventDispatcher;
 import sdloader.http.HttpProcessor;
@@ -131,7 +132,7 @@ public class SDLoader implements Lifecycle {
 	protected EventDispatcher<LifecycleListener, LifecycleEvent<SDLoader>> dispatcher = new EventDispatcher<LifecycleListener, LifecycleEvent<SDLoader>>(
 			LifecycleListener.class);
 
-	public boolean running = false;
+	public AtomicBoolean running = new AtomicBoolean();
 
 	private HttpProcessorPool socketProcessorPool;
 
@@ -379,7 +380,7 @@ public class SDLoader implements Lifecycle {
 	 * サーバ起動中かどうかを返します。
 	 */
 	public boolean isRunning() {
-		return running;
+		return running.get();
 	}
 
 	/**
@@ -387,7 +388,7 @@ public class SDLoader implements Lifecycle {
 	 */
 	public void start() {
 		checkNotRunning();
-		running = true;
+		running.set(true);
 		printInitMessage();
 
 		long t = System.currentTimeMillis();
@@ -420,7 +421,7 @@ public class SDLoader implements Lifecycle {
 	 */
 	public void stop() {
 		synchronized (this) {
-			if (!running) {
+			if (isRunning() == false) {
 				return;
 			}
 			log.info("SDLoader[port:" + getPort() + "] shutdown start.");
@@ -434,7 +435,7 @@ public class SDLoader implements Lifecycle {
 
 			sdLoaderThread.close();
 
-			running = false;
+			running.set(true);
 
 			dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 					LifecycleEvent.AFTER_STOP, this));
@@ -448,7 +449,7 @@ public class SDLoader implements Lifecycle {
 	 * 
 	 */
 	public void waitForStop() {
-		if (running) {
+		if (isRunning()) {
 			try {
 				sdLoaderThread.join();
 			} catch (InterruptedException e) {
@@ -593,7 +594,7 @@ public class SDLoader implements Lifecycle {
 	}
 
 	protected boolean checkNotRunning() {
-		if (running) {
+		if (isRunning()) {
 			throw new IllegalStateException("SDLoader is already running.");
 		}
 		return false;
@@ -609,7 +610,7 @@ public class SDLoader implements Lifecycle {
 
 	class SDLoaderThread extends Thread {
 
-		private boolean shutdown = false;
+		private AtomicBoolean shutdown = new AtomicBoolean();
 
 		private ServerSocket serverSocket;
 
@@ -620,7 +621,7 @@ public class SDLoader implements Lifecycle {
 		}
 
 		public void run() {
-			while (!shutdown) {
+			while (shutdown.get() == false) {
 				Socket socket = null;
 				try {
 					socket = serverSocket.accept();
@@ -630,7 +631,7 @@ public class SDLoader implements Lifecycle {
 							+ ace.getMessage(), ace);
 					continue;
 				} catch (IOException ioe) {
-					if (shutdown) {
+					if (shutdown.get() == true) {
 						break;
 					}
 					log.error("Socket accept error.", ioe);
@@ -642,13 +643,11 @@ public class SDLoader implements Lifecycle {
 		}
 
 		public void close() {
-			synchronized (this) {
-				if (serverSocket != null) {
-					IOUtil.closeServerSocketNoException(serverSocket);
-					serverSocket = null;
-				}
-				shutdown = true;
+			if (serverSocket != null) {
+				IOUtil.closeServerSocketNoException(serverSocket);
+				serverSocket = null;
 			}
+			shutdown.set(true);
 		}
 	}
 }
