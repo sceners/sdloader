@@ -643,11 +643,11 @@ public class SDLoader implements Lifecycle {
 		}
 
 		public void close() {
+			shutdown.set(true);
 			if (serverSocket != null) {
 				IOUtil.closeServerSocketNoException(serverSocket);
 				serverSocket = null;
 			}
-			shutdown.set(true);
 		}
 	}
 }
