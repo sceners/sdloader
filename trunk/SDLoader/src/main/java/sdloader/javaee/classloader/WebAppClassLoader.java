@@ -92,63 +92,84 @@ public class WebAppClassLoader extends URLClassLoader {
 		}
 		c = classLoaderHandler.handleLoadClass(name, resolve);
 		if (c != null) {
-			log.debug("Class load by class loader handler. class=[" + name
+			log.debug("Class load from class loader handler. class=[" + name
 					+ "]");
 			return doResolve(c, resolve);
 		}
-		final boolean parentFirst = isParentFirst(name);
-		if (parentFirst) {
-			try {
-				c = findSystemClass(name);
-				if (c != null) {
-					log.debug("Class load by system. class=[" + name + "]");
-				}
-				return doResolve(c, resolve);
-			} catch (ClassNotFoundException e) {
-			}
-			try {
-				c = getParent().loadClass(name);
-				if (c != null) {
-					log.debug("Class load by parent. class=[" + name + "]");
-				}
-				return doResolve(c, resolve);
-			} catch (ClassNotFoundException e) {
-			}
-			if (isIgnoreLoadFromWebInfPackagePrefix(name) == false) {
-				c = findClass(name);
-				if (c != null) {
-					log.debug("Class load by app[" + this.hashCode()
-							+ "]. class=[" + name + "]");
-				}
-				return doResolve(c, resolve);
-			}
+
+		if (isParentFirst(name)) {
+			c = loadParentFirst(name);
 		} else {
-			try {
-				if (isIgnoreLoadFromWebInfPackagePrefix(name) == false) {
-					c = findClass(name);
-					if (c != null) {
-						log.debug("Class load by app[" + this.hashCode()
-								+ "]. class=[" + name + "]");
-					}
-				}
-				return doResolve(c, resolve);
-			} catch (ClassNotFoundException e) {
-			}
-			try {
-				c = findSystemClass(name);
-				if (c != null) {
-					log.debug("Class load by system. class=[" + name + "]");
-				}
-				return doResolve(c, resolve);
-			} catch (ClassNotFoundException e) {
-			}
-			c = getParent().loadClass(name);
-			if (c != null) {
-				log.debug("Class load by parent. class=[" + name + "]");
-			}
+			c = loadParentLast(name);
+		}
+		if (c != null) {
 			return doResolve(c, resolve);
 		}
 		throw new ClassNotFoundException("Class not found.class=[" + name + "]");
+	}
+
+	protected Class<?> loadParentFirst(String name) {
+		Class<?> c = findFromSystem(name);
+		if (c == null) {
+			c = findFromParent(name);
+		}
+		if (c == null) {
+			if (isIgnoreLoadFromWebInfPackagePrefix(name) == false) {
+				c = findFromWebInf(name);
+			}
+		}
+		return c;
+	}
+
+	protected Class<?> loadParentLast(String name) {
+		Class<?> c = null;
+		if (isIgnoreLoadFromWebInfPackagePrefix(name) == false) {
+			c = findFromWebInf(name);
+		}
+		if (c == null) {
+			c = findFromSystem(name);
+		}
+		if (c == null) {
+			c = findFromParent(name);
+		}
+		return c;
+	}
+
+	protected Class<?> findFromWebInf(String name) {
+		try {
+			Class<?> c = findClass(name);
+			if (c != null) {
+				log.debug("Class load from app[" + this.hashCode()
+						+ "]. class=[" + name + "]");
+			}
+			return c;
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
+	}
+
+	protected Class<?> findFromSystem(String name) {
+		try {
+			Class<?> c = findSystemClass(name);
+			if (c != null) {
+				log.debug("Class load from system. class=[" + name + "]");
+			}
+			return c;
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
+	}
+
+	protected Class<?> findFromParent(String name) {
+		try {
+			Class<?> c = getParent().loadClass(name);
+			if (c != null) {
+				log.debug("Class load from parent. class=[" + name + "]");
+			}
+			return c;
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
 	}
 
 	protected Class<?> doResolve(Class<?> c, boolean resolve) {

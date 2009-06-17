@@ -418,27 +418,29 @@ public class SDLoader implements Lifecycle {
 	/**
 	 * ソケットを閉じ、サーバを終了します。
 	 */
-	public synchronized void stop() {
-		if (!running) {
-			return;
+	public void stop() {
+		synchronized (this) {
+			if (!running) {
+				return;
+			}
+			log.info("SDLoader[port:" + getPort() + "] shutdown start.");
+			dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+					LifecycleEvent.BEFORE_STOP, this));
+
+			// destroy webapps
+			webAppManager.close();
+
+			socketProcessorPool.stop();
+
+			sdLoaderThread.close();
+
+			running = false;
+
+			dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+					LifecycleEvent.AFTER_STOP, this));
+
+			log.info("SDLoader[port:" + getPort() + "] stop.");
 		}
-		log.info("SDLoader[port:" + getPort() + "] shutdown start.");
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
-				LifecycleEvent.BEFORE_STOP, this));
-
-		// destroy webapps
-		webAppManager.close();
-
-		socketProcessorPool.stop();
-
-		sdLoaderThread.close();
-
-		running = false;
-
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
-				LifecycleEvent.AFTER_STOP, this));
-
-		log.info("SDLoader[port:" + getPort() + "] stop.");
 	}
 
 	/**
@@ -639,12 +641,14 @@ public class SDLoader implements Lifecycle {
 			}
 		}
 
-		public synchronized void close() {
-			if (serverSocket != null) {
-				IOUtil.closeServerSocketNoException(serverSocket);
-				serverSocket = null;
+		public void close() {
+			synchronized (this) {
+				if (serverSocket != null) {
+					IOUtil.closeServerSocketNoException(serverSocket);
+					serverSocket = null;
+				}
+				shutdown = true;
 			}
-			shutdown = true;
 		}
 	}
 }
