@@ -630,7 +630,7 @@ public class SDLoader implements Lifecycle {
 					log.warn("Socket accept security exception "
 							+ ace.getMessage(), ace);
 					continue;
-				} catch (IOException ioe) {
+				} catch (Exception ioe) {
 					if (shutdown.get() == true) {
 						break;
 					}
