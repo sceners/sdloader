@@ -65,15 +65,19 @@ public class HttpProcessor extends Thread {
 
 	private int keppAliveMaxRequests = 100;// Apache 100
 
+	private HttpProcessorPool httpProcessorPool;
+
 	private Socket socket;
 
 	private SDLoader sdLoader;
 
 	private AtomicBoolean running = new AtomicBoolean();
 
-	public HttpProcessor(String name) {
+	public HttpProcessor(String name, SDLoader sdloader, HttpProcessorPool pool) {
 		super(name);
 		setDaemon(true);
+		this.sdLoader = sdloader;
+		this.httpProcessorPool = pool;
 	}
 
 	public void setSocketTimeout(int socketTimeout) {
@@ -88,10 +92,9 @@ public class HttpProcessor extends Thread {
 		this.keppAliveMaxRequests = keppAliveMaxRequests;
 	}
 
-	public void process(Socket socket, SDLoader loader) {
+	public void process(Socket socket) {
 		synchronized (this) {
 			this.socket = socket;
-			this.sdLoader = loader;
 			notify();
 		}
 	}
@@ -164,10 +167,8 @@ public class HttpProcessor extends Thread {
 			is = null;
 			os = null;
 			socket = null;
-			SDLoader localLoader = this.sdLoader;
-			sdLoader = null;
 			if (isRunning()) {
-				localLoader.returnProcessor(this);
+				httpProcessorPool.returnProcessor(this);
 			}
 		}
 	}
