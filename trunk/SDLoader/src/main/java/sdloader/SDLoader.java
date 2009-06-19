@@ -32,6 +32,7 @@ import sdloader.http.HttpProcessorPool;
 import sdloader.http.HttpRequest;
 import sdloader.http.HttpResponse;
 import sdloader.internal.SDLoaderConfig;
+import sdloader.internal.ShutdownHook;
 import sdloader.javaee.SessionManager;
 import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
@@ -139,6 +140,8 @@ public class SDLoader implements Lifecycle {
 	private SessionManager sessionManager;
 
 	private SDLoaderThread sdLoaderThread;
+
+	private ShutdownHook shutdownHook = new ShutdownHook(this);
 
 	private static final String KEY_STORE_PATH = "sdloader/resource/ssl/SDLoader.keystore";
 	private static final String KEY_STORE_PASSWORD = "SDLoader";
@@ -403,7 +406,6 @@ public class SDLoader implements Lifecycle {
 
 		initWebApp();
 		initSocketProcessor();
-		initShutdownHook();
 
 		sdLoaderThread = new SDLoaderThread(initSocket);
 		sdLoaderThread.start();
@@ -437,6 +439,8 @@ public class SDLoader implements Lifecycle {
 
 		sdLoaderThread.close();
 
+		shutdownHook.removeShutdownHook();
+
 		waitForSDLoaderThreadStop();
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
@@ -446,6 +450,8 @@ public class SDLoader implements Lifecycle {
 		socketProcessorPool = null;
 		sdLoaderThread = null;
 		dispatcher = null;
+
+		DisposableUtil.dispose();
 
 		log.info("SDLoader[port:" + getPort() + "] stop.");
 	}
@@ -596,21 +602,6 @@ public class SDLoader implements Lifecycle {
 		int maxThreadPoolNum = config
 				.getConfigInteger(KEY_SDLOADER_MAX_THREAD_POOL_NUM);
 		socketProcessorPool = new HttpProcessorPool(maxThreadPoolNum);
-	}
-
-	protected void initShutdownHook() {
-		final SDLoader sdloader = this;
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				try {
-					sdloader.stop();
-				} catch (Throwable e) {
-					log.error("SDLoader close fail.", e);
-				} finally {
-					DisposableUtil.dispose();
-				}
-			};
-		});
 	}
 
 	protected boolean checkNotRunning() {
