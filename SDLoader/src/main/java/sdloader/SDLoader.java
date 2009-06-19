@@ -44,7 +44,6 @@ import sdloader.lifecycle.LifecycleListener;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.ClassUtil;
-import sdloader.util.DisposableUtil;
 import sdloader.util.IOUtil;
 import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
@@ -437,6 +436,7 @@ public class SDLoader implements Lifecycle {
 		socketProcessorPool.close();
 		webAppManager.close();
 		sdLoaderThread.close();
+		sessionManager.close();
 
 		shutdownHook.removeShutdownHook();
 
@@ -449,8 +449,6 @@ public class SDLoader implements Lifecycle {
 		socketProcessorPool = null;
 		sdLoaderThread = null;
 		dispatcher = null;
-
-		DisposableUtil.dispose();
 
 		log.info("SDLoader[port:" + getPort() + "] stop.");
 	}

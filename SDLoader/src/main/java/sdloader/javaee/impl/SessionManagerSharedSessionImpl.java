@@ -19,23 +19,20 @@ import javax.servlet.http.HttpSession;
 
 import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.SessionManager;
-import sdloader.util.DisposableUtil;
-import sdloader.util.DisposableUtil.Disposable;
 
 /**
- * セッションIDに係わらず、すべてのリクエストに対して 同一のセッションを返します。 プロセスの異なるIEなどでセッション共有できます。
+ * セッションIDに係わらず、すべてのリクエストに対して 同一のセッションを返します.
+ * 
+ * <pre>
+ * プロセスの異なるIEなどでセッション共有できます。
+ * </pre>
  * 
  * @author c9katayama
  * @author shot
  */
-public class SessionManagerSharedSessionImpl extends SessionManager implements
-		Disposable {
+public class SessionManagerSharedSessionImpl extends SessionManager {
 
 	private static HttpSessionImpl session;
-
-	public SessionManagerSharedSessionImpl() {
-		DisposableUtil.add(this);
-	}
 
 	public synchronized HttpSession getSession(String sessionId,
 			boolean createNew, InternalWebApplication webApplication) {
@@ -66,9 +63,9 @@ public class SessionManagerSharedSessionImpl extends SessionManager implements
 		return ses;
 	}
 
-	public void dispose() {
+	@Override
+	public void close() {
 		session.invalidate();
 		session = null;
 	}
-
 }
