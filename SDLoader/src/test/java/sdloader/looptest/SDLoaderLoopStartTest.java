@@ -36,12 +36,19 @@ import sdloader.javaee.WebAppContext;
 public class SDLoaderLoopStartTest extends TestCase {
 
 	public void testLoop() throws InterruptedException {
+		for (int i = 0; i < 100; i++) {
+			startstop(8080, false);
+		}
+		System.out.println("end");
+	}
+
+	public void testMultiThread() throws InterruptedException {
 		List<Thread> tlist = new ArrayList<Thread>(100);
 		for (int i = 0; i < 10; i++) {
 			Thread t = new Thread() {
 				@Override
 				public void run() {
-					startstop();
+					startstop(8080, true);
 				}
 			};
 			t.start();
@@ -53,9 +60,9 @@ public class SDLoaderLoopStartTest extends TestCase {
 		System.out.println("end");
 	}
 
-	protected void startstop() {
-		final SDLoader server = new SDLoader();
-		server.setAutoPortDetect(true);
+	protected void startstop(int port, boolean useAutoPortDetect) {
+		final SDLoader server = new SDLoader(port);
+		server.setAutoPortDetect(useAutoPortDetect);
 		try {
 
 			server.setAutoPortDetect(true);
