@@ -2,6 +2,7 @@ v0_3_00
 SSL時にnocacheを使わないようにした（ダウンロードできないコンテンツがあるため）
 SDLoader#stop()時にエラーが出るときがある問題を修正
 WebAppClassLoaderに介入するClassLoaderHandlerを追加。
+WebAppContextに、addClassPathとaddLibPathを追加。
 同一プロセスで複数インスタンスを起動/停止するような利用方法に対応するよう修正。
 制御フラグをAtomicBooleanに変更。
 
