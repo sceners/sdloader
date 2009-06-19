@@ -89,9 +89,11 @@ public class HttpProcessorPool {
 			for (HttpProcessor processor : processorPool) {
 				processor.stopProcessor();
 			}
+			processorPool.clear();
 			for (HttpProcessor borrowProcessor : borrowProcessorSet) {
 				borrowProcessor.stopProcessor();
 			}
+			borrowProcessorSet.clear();
 		}
 	}
 
