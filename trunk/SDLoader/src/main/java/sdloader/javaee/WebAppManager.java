@@ -650,21 +650,25 @@ public class WebAppManager {
 		for (Iterator<InternalWebApplication> itr = webAppList.iterator(); itr
 				.hasNext();) {
 			InternalWebApplication webapp = itr.next();
-			List<Servlet> servletList = webapp.getServletList();
-			if (servletList != null) {
-				for (Servlet servlet : servletList) {
+			List<Filter> filterList = webapp.getFilterList();
+			if (filterList != null) {
+				for (Filter filter : filterList) {
 					try {
-						servlet.destroy();
+						synchronized (filter) {
+							filter.destroy();
+						}
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
 					}
 				}
 			}
-			List<Filter> filterList = webapp.getFilterList();
-			if (filterList != null) {
-				for (Filter filter : filterList) {
+			List<Servlet> servletList = webapp.getServletList();
+			if (servletList != null) {
+				for (Servlet servlet : servletList) {
 					try {
-						filter.destroy();
+						synchronized (servlet) {
+							servlet.destroy();
+						}
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
 					}

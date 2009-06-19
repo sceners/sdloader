@@ -143,6 +143,9 @@ public class HttpProcessor extends Thread {
 							: keepAliveTimeout;
 					socket.setSoTimeout(timeout);
 					HttpRequest httpRequest = processReadRequest(is);
+					if (isRunning() == false) {
+						break;
+					}
 					processServlet(httpRequest, os, requestCount);
 					if (httpRequest.getHeader().isKeepAlive()) {
 						requestCount++;
