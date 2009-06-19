@@ -140,9 +140,6 @@ public class HttpProcessor extends Thread {
 							: keepAliveTimeout;
 					socket.setSoTimeout(timeout);
 					HttpRequest httpRequest = processReadRequest(is);
-					if (isRunning() == false) {
-						break;
-					}
 					processServlet(httpRequest, os, requestCount);
 					if (httpRequest.getHeader().isKeepAlive()) {
 						requestCount++;
@@ -197,7 +194,6 @@ public class HttpProcessor extends Thread {
 
 	protected void processServlet(HttpRequest httpRequest, OutputStream os,
 			int requestCount) throws Throwable {
-
 		HttpHeader header = httpRequest.getHeader();
 		String requestURI = header.getRequestURI();
 		InternalWebApplication webapp = sdLoader.getWebAppManager().findWebApp(
