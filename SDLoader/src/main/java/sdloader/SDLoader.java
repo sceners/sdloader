@@ -594,7 +594,7 @@ public class SDLoader implements Lifecycle {
 	protected void initSocketProcessor() {
 		int maxThreadPoolNum = config
 				.getConfigInteger(KEY_SDLOADER_MAX_THREAD_POOL_NUM);
-		socketProcessorPool = new HttpProcessorPool(maxThreadPoolNum);
+		socketProcessorPool = new HttpProcessorPool(this, maxThreadPoolNum);
 	}
 
 	protected boolean checkNotRunning() {
@@ -606,10 +606,6 @@ public class SDLoader implements Lifecycle {
 
 	public WebAppManager getWebAppManager() {
 		return webAppManager;
-	}
-
-	public void returnProcessor(HttpProcessor processor) {
-		socketProcessorPool.returnProcessor(processor);
 	}
 
 	class SDLoaderThread extends Thread {
@@ -643,7 +639,7 @@ public class SDLoader implements Lifecycle {
 					socket = serverSocket.accept();
 					log.debug("Accept socket connection.");
 					HttpProcessor con = socketProcessorPool.borrowProcessor();
-					con.process(socket, SDLoader.this);
+					con.process(socket);
 				} catch (AccessControlException ace) {
 					log.warn("Socket accept security exception "
 							+ ace.getMessage(), ace);

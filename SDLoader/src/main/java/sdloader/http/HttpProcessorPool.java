@@ -18,6 +18,7 @@ package sdloader.http;
 import java.util.List;
 import java.util.Set;
 
+import sdloader.SDLoader;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;
@@ -42,7 +43,10 @@ public class HttpProcessorPool {
 	private Set<HttpProcessor> borrowProcessorSet = CollectionsUtil
 			.newHashSet();
 
-	public HttpProcessorPool(int maxThreadPoolNum) {
+	private SDLoader sdLoader;
+
+	public HttpProcessorPool(SDLoader loader, int maxThreadPoolNum) {
+		this.sdLoader = loader;
 		this.maxThreadPoolNum = maxThreadPoolNum;
 		for (int i = 0; i < maxThreadPoolNum; ++i) {
 			String processorName = "HttpProcessor:init" + i;
@@ -92,7 +96,8 @@ public class HttpProcessorPool {
 	}
 
 	private HttpProcessor createProcessor(String processorName) {
-		HttpProcessor processor = new HttpProcessor(processorName);
+		HttpProcessor processor = new HttpProcessor(processorName, sdLoader,
+				this);
 		processor.start();
 		log.debug("create " + processor.getName());
 		return processor;
