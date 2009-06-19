@@ -29,11 +29,19 @@ public class ShutdownHook extends Thread {
 
 	public ShutdownHook(SDLoader loader) {
 		this.sdLoader = loader;
-		Runtime.getRuntime().addShutdownHook(this);
+		try {
+			Runtime.getRuntime().addShutdownHook(this);
+		} catch (Throwable t) {
+			// ignore
+		}
 	}
 
 	public void removeShutdownHook() {
-		Runtime.getRuntime().removeShutdownHook(this);
+		try {
+			Runtime.getRuntime().removeShutdownHook(this);
+		} catch (Throwable t) {
+			// ignore
+		}
 	}
 
 	@Override
@@ -41,6 +49,7 @@ public class ShutdownHook extends Thread {
 		try {
 			sdLoader.stop();
 		} catch (Throwable e) {
+			// ignore
 		}
 	}
 }
