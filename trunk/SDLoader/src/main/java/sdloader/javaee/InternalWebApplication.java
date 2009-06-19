@@ -44,8 +44,12 @@ import sdloader.util.CollectionsUtil;
 import sdloader.util.WebUtil;
 
 /**
- * WebAppクラス Webアプリケーションに属するサーブレットコンテキスト、 サーブレット、フィルター、webxml、クラスローダーが 集約されています。
- * WebAppManagerにより管理され、コンテキストパスをキーにして取り出します。
+ * WebAppクラス.
+ * 
+ * <pre>
+ * Webアプリケーションに属するサーブレットコンテキスト、 サーブレット、フィルター、webxml、クラスローダーが
+ * 集約されています。 WebAppManagerにより管理され、コンテキストパスをキーにして取り出します。
+ * </pre>
  * 
  * @author c9katayama
  */

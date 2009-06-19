@@ -22,22 +22,20 @@ import javax.servlet.http.HttpSession;
 import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.SessionManager;
 import sdloader.util.CollectionsUtil;
-import sdloader.util.DisposableUtil;
-import sdloader.util.DisposableUtil.Disposable;
 
 /**
- * セッション管理の実装クラス セッションID単位でセッションを管理します。 通常のJ2EEのセッション管理方式です。
+ * セッション管理の実装クラス.
+ * 
+ * <pre>
+ *  セッションID単位でセッションを管理します。 通常のJ2EEのセッション管理方式です。
+ * </pre>
  * 
  * @author c9katayama
  */
-public class SessionManagerImpl extends SessionManager implements Disposable {
+public class SessionManagerImpl extends SessionManager {
 
 	protected Map<String, HttpSessionImpl> sessionMap = CollectionsUtil
 			.newConcurrentHashMap();
-
-	public SessionManagerImpl() {
-		DisposableUtil.add(this);
-	}
 
 	@Override
 	public synchronized HttpSession getSession(String sessionId,
@@ -74,7 +72,8 @@ public class SessionManagerImpl extends SessionManager implements Disposable {
 		return ses;
 	}
 
-	public void dispose() {
+	@Override
+	public void close() {
 		for (HttpSessionImpl session : sessionMap.values()) {
 			session.invalidate();
 		}

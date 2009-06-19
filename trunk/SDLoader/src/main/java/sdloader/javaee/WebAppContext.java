@@ -16,7 +16,9 @@
 package sdloader.javaee;
 
 /**
- * Webアプリケーションのコンテキスト設定データ c9katayama
+ * Webアプリケーションのコンテキスト設定データ 
+ * 
+ * @author c9katayama
  */
 import java.io.File;
 import java.net.URL;
@@ -98,7 +100,7 @@ public class WebAppContext {
 	 * 
 	 * <pre>
 	 * binディレクトリなどを指定することで、WEB-INF/classesフォルダ以外の場所からクラスをロードできます。
-	 * 追加されたディレクトリは、WEB-INF/classesよりも先に読まれます。 
+	 * 追加されたディレクトリは、WEB-INF/classesよりも先に読まれます。
 	 * </pre>
 	 * 
 	 * @param classPath

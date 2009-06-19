@@ -28,6 +28,8 @@ import sdloader.util.PathUtil;
 import sdloader.util.TextFormatUtil;
 
 /**
+ * Webアプリのコンテキストファイルパーサーハンドラー
+ * 
  * @author c9Katayama
  * 
  */

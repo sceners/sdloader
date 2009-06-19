@@ -48,4 +48,6 @@ public abstract class SessionManager {
 		return sessionId;
 	}
 
+	public abstract void close();
+
 }
