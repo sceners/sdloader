@@ -35,9 +35,20 @@ import sdloader.javaee.WebAppContext;
  */
 public class SDLoaderLoopStartTest extends TestCase {
 
-	public void testLoop() {
-		for (int i = 0; i < 100; i++) {
-			startstop();
+	public void testLoop() throws InterruptedException {
+		List<Thread> tlist = new ArrayList<Thread>(100);
+		for (int i = 0; i < 10; i++) {
+			Thread t = new Thread() {
+				@Override
+				public void run() {
+					startstop();
+				}
+			};
+			t.start();
+			tlist.add(t);
+		}
+		for (Thread t : tlist) {
+			t.join();
 		}
 		System.out.println("end");
 	}
@@ -75,8 +86,6 @@ public class SDLoaderLoopStartTest extends TestCase {
 					}
 				};
 				tlist.add(t);
-			}
-			for (Thread t : tlist) {
 				t.start();
 			}
 			for (Thread t : tlist) {
