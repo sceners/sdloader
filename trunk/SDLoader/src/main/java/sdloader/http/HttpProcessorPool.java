@@ -16,6 +16,7 @@
 package sdloader.http;
 
 import java.util.List;
+import java.util.Set;
 
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
@@ -38,7 +39,8 @@ public class HttpProcessorPool {
 
 	private List<HttpProcessor> processorPool = CollectionsUtil.newLinkedList();
 
-	private boolean stop;
+	private Set<HttpProcessor> borrowProcessorSet = CollectionsUtil
+			.newHashSet();
 
 	public HttpProcessorPool(int maxThreadPoolNum) {
 		this.maxThreadPoolNum = maxThreadPoolNum;
@@ -50,43 +52,49 @@ public class HttpProcessorPool {
 		nextProcessorNo = maxThreadPoolNum + 1;
 	}
 
+	public synchronized HttpProcessor borrowProcessor() {
+		synchronized (this) {
+			HttpProcessor processor = null;
+			if (processorPool.isEmpty()) {
+				String processorName = "HttpProcessor:" + (nextProcessorNo++);
+				processor = createProcessor(processorName);
+			} else {
+				processor = processorPool.remove(0);
+				log.debug("reuse " + processor.getName());
+			}
+			borrowProcessorSet.add(processor);
+			return processor;
+		}
+	}
+
+	public void returnProcessor(HttpProcessor processor) {
+		synchronized (this) {
+			borrowProcessorSet.remove(processor);
+			if (processorPool.size() < maxThreadPoolNum) {
+				log.debug("return " + processor.getName());
+				processorPool.add(processor);
+			} else {
+				log.debug("stop " + processor.getName());
+				processor.stopProcessor();
+			}
+		}
+	}
+
+	public void close() {
+		synchronized (this) {
+			for (HttpProcessor processor : processorPool) {
+				processor.stopProcessor();
+			}
+			for (HttpProcessor borrowProcessor : borrowProcessorSet) {
+				borrowProcessor.stopProcessor();
+			}
+		}
+	}
+
 	private HttpProcessor createProcessor(String processorName) {
 		HttpProcessor processor = new HttpProcessor(processorName);
 		processor.start();
 		log.debug("create " + processor.getName());
 		return processor;
-	}
-
-	public synchronized HttpProcessor borrowProcessor() {
-		if (processorPool.isEmpty()) {
-			String processorName = "HttpProcessor:" + (nextProcessorNo++);
-			return createProcessor(processorName);
-		} else {
-			HttpProcessor processor = processorPool.remove(0);
-			log.debug("reuse " + processor.getName());
-			return processor;
-		}
-	}
-
-	public synchronized void returnProcessor(HttpProcessor processor) {
-		if (stop) {
-			return;
-		}
-		if (processorPool.size() < maxThreadPoolNum) {
-			log.debug("return " + processor.getName());
-			processorPool.add(processor);
-		} else {
-			log.debug("stop " + processor.getName());
-			processor.stopProcessor();
-		}
-	}
-
-	public synchronized void stop() {
-		if (!stop) {
-			stop = true;
-			for (HttpProcessor processor : processorPool) {
-				processor.stopProcessor();
-			}
-		}
 	}
 }

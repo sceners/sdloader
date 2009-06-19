@@ -60,7 +60,13 @@ public class ClassUtil {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T newInstance(final String clazzName) {
-		return (T) newInstance(forName(clazzName));
+		return (T) newInstance(forName(clazzName, Thread.currentThread()
+				.getContextClassLoader()));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T newInstance(final String clazzName, ClassLoader cl) {
+		return (T) newInstance(forName(clazzName, cl));
 	}
 
 	public static <T> T newInstance(final Class<T> clazz) {
