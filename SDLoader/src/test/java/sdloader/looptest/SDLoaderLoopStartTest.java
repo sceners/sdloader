@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.LogManager;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 import sdloader.SDLoader;
 import sdloader.javaee.WebAppContext;
@@ -38,10 +39,12 @@ public class SDLoaderLoopStartTest extends TestCase {
 		for (int i = 0; i < 100; i++) {
 			startstop();
 		}
+		System.out.println("end");
 	}
 
 	protected void startstop() {
 		final SDLoader server = new SDLoader();
+		server.setAutoPortDetect(true);
 		try {
 
 			server.setAutoPortDetect(true);
@@ -53,7 +56,7 @@ public class SDLoaderLoopStartTest extends TestCase {
 			server.start();
 
 			List<Thread> tlist = new ArrayList<Thread>(100);
-			for (int i = 0; i < 100; i++) {
+			for (int i = 0; i < 50; i++) {
 				Thread t = new Thread() {
 					@Override
 					public void run() {
@@ -64,9 +67,10 @@ public class SDLoaderLoopStartTest extends TestCase {
 						try {
 							String result = SDLoaderLoopStartTest
 									.getRequestContent(url, "GET");
-							assertEquals(time + "" + time, result);
+							Assert.assertEquals(time + "" + time, result);
 						} catch (Exception e) {
-							fail();
+							e.printStackTrace();
+							Assert.fail();
 						}
 					}
 				};
@@ -92,13 +96,17 @@ public class SDLoaderLoopStartTest extends TestCase {
 		URL url = new URL(urlText);
 		HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
 		urlcon.setRequestMethod(method);
-		urlcon.connect();
-
-		BufferedReader reader = new BufferedReader(new InputStreamReader(urlcon
-				.getInputStream()));
-		String line = reader.readLine();
-		reader.close();
-		urlcon.disconnect();
+		BufferedReader reader = null;
+		String line = null;
+		try {
+			urlcon.connect();
+			reader = new BufferedReader(new InputStreamReader(urlcon
+					.getInputStream()));
+			line = reader.readLine();
+		} finally {
+			reader.close();
+			urlcon.disconnect();
+		}
 		return line;
 	}
 }
