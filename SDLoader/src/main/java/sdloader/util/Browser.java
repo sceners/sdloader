@@ -18,6 +18,8 @@ package sdloader.util;
 import java.io.IOException;
 
 /**
+ * Webブラウザ起動用
+ * 
  * @author c9katayama
  */
 public class Browser {
