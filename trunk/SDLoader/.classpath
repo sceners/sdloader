@@ -9,7 +9,7 @@
 	<classpathentry kind="lib" path="lib/h2.jar"/>
 	<classpathentry kind="lib" path="lib/swt.jar"/>
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/el-api.jar"/>
-	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jasper.jar"/>
+	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jasper.jar" sourcepath="lib/Servlet2.5_JSP2.1/tomcat6.0.18src.zip"/>
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jasper-el.jar"/>
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jasper-jdt.jar"/>
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jsp-api.jar"/>
