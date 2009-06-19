@@ -47,6 +47,7 @@ import sdloader.util.IOUtil;
 import sdloader.util.QoSInputStream;
 import sdloader.util.QoSOutputStream;
 import sdloader.util.ResourceUtil;
+import sdloader.util.ThreadUtil;
 import sdloader.util.WebUtil;
 
 /**
@@ -102,27 +103,20 @@ public class HttpProcessor extends Thread {
 	void stopProcessor() {
 		running.set(false);
 		IOUtil.closeSocketNoException(this.socket);
-		synchronized (this) {
-			notify();
-		}
+		ThreadUtil.notify(this);
 	}
 
 	public void run() {
 		running.set(true);
 		while (isRunning()) {
-			try {
-				synchronized (this) {
-					if (socket == null) {
-						wait();
-					}
+			synchronized (this) {
+				if (socket == null) {
+					ThreadUtil.wait(this);
 				}
-			} catch (InterruptedException e) {
-				continue;
 			}
-			if (isRunning() == false) {
-				return;
+			if (isRunning()) {
+				processSocket();
 			}
-			processSocket();
 		}
 	}
 

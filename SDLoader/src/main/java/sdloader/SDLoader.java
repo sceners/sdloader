@@ -48,6 +48,7 @@ import sdloader.util.DisposableUtil;
 import sdloader.util.IOUtil;
 import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
+import sdloader.util.ThreadUtil;
 
 /**
  * SDLoader ローカル動作のアプリケーションサーバー
@@ -433,10 +434,8 @@ public class SDLoader implements Lifecycle {
 				LifecycleEvent.BEFORE_STOP, this));
 
 		// destroy webapps
-		webAppManager.close();
-
 		socketProcessorPool.close();
-
+		webAppManager.close();
 		sdLoaderThread.close();
 
 		shutdownHook.removeShutdownHook();
@@ -466,21 +465,15 @@ public class SDLoader implements Lifecycle {
 
 	protected void waitForSDLoaderThreadStop() {
 		if (isRunning()) {
-			try {
-				sdLoaderThread.join();
-			} catch (InterruptedException e) {
-			}
+			ThreadUtil.join(sdLoaderThread);
 		}
 	}
 
 	protected void waitForSDLoaderThreadRun() {
-		try {
-			synchronized (this) {
-				if (sdLoaderThread.isRunning() == false) {
-					wait();
-				}
+		synchronized (this) {
+			if (sdLoaderThread.isRunning() == false) {
+				ThreadUtil.wait(this);
 			}
-		} catch (InterruptedException e) {
 		}
 	}
 
@@ -636,13 +629,9 @@ public class SDLoader implements Lifecycle {
 		}
 
 		protected void notifyThreadStart() {
-			try {
-				synchronized (SDLoader.this) {
-					running.set(true);
-					SDLoader.this.notify();
-				}
-			} catch (Exception e) {
-
+			synchronized (SDLoader.this) {
+				running.set(true);
+				ThreadUtil.notify(SDLoader.this);
 			}
 		}
 
