@@ -68,7 +68,7 @@ public class HttpProcessor extends Thread {
 
 	private SDLoader sdLoader;
 
-	private AtomicBoolean stop = new AtomicBoolean();
+	private AtomicBoolean running = new AtomicBoolean();
 
 	public HttpProcessor(String name) {
 		super(name);
@@ -95,15 +95,21 @@ public class HttpProcessor extends Thread {
 		}
 	}
 
+	public boolean isRunning() {
+		return running.get();
+	}
+
 	void stopProcessor() {
+		running.set(false);
+		IOUtil.closeSocketNoException(this.socket);
 		synchronized (this) {
-			stop.set(true);
 			notify();
 		}
 	}
 
 	public void run() {
-		while (stop.get() == false) {
+		running.set(true);
+		while (isRunning()) {
 			try {
 				synchronized (this) {
 					if (socket == null) {
@@ -113,7 +119,7 @@ public class HttpProcessor extends Thread {
 			} catch (InterruptedException e) {
 				continue;
 			}
-			if (stop.get() == true) {
+			if (isRunning() == false) {
 				return;
 			}
 			processSocket();
@@ -152,7 +158,7 @@ public class HttpProcessor extends Thread {
 		} catch (SocketException e) {
 			log.debug("socket close.");
 		} catch (Throwable t) {
-			if (stop.get() == false) {
+			if (isRunning()) {
 				log.error(t.getMessage(), t);
 			}
 		} finally {
@@ -163,7 +169,9 @@ public class HttpProcessor extends Thread {
 			socket = null;
 			SDLoader localLoader = this.sdLoader;
 			sdLoader = null;
-			localLoader.returnProcessor(this);
+			if (isRunning()) {
+				localLoader.returnProcessor(this);
+			}
 		}
 	}
 

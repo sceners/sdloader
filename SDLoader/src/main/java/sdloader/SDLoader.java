@@ -388,7 +388,6 @@ public class SDLoader implements Lifecycle {
 	 */
 	public void start() {
 		checkNotRunning();
-		running.set(true);
 		printInitMessage();
 
 		long t = System.currentTimeMillis();
@@ -409,8 +408,12 @@ public class SDLoader implements Lifecycle {
 		sdLoaderThread = new SDLoaderThread(initSocket);
 		sdLoaderThread.start();
 
+		waitForSDLoaderThreadRun();
+
 		log.info("SDLoader[port:" + getPort() + "] startup in "
 				+ (System.currentTimeMillis() - t) + " ms.");
+
+		running.set(true);
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.AFTER_START, this));
@@ -420,28 +423,31 @@ public class SDLoader implements Lifecycle {
 	 * ソケットを閉じ、サーバを終了します。
 	 */
 	public void stop() {
-		synchronized (this) {
-			if (isRunning() == false) {
-				return;
-			}
-			log.info("SDLoader[port:" + getPort() + "] shutdown start.");
-			dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
-					LifecycleEvent.BEFORE_STOP, this));
-
-			// destroy webapps
-			webAppManager.close();
-
-			socketProcessorPool.stop();
-
-			sdLoaderThread.close();
-
-			running.set(false);
-
-			dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
-					LifecycleEvent.AFTER_STOP, this));
-
-			log.info("SDLoader[port:" + getPort() + "] stop.");
+		if (running.getAndSet(false) == false) {
+			return;
 		}
+		log.info("SDLoader[port:" + getPort() + "] shutdown start.");
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+				LifecycleEvent.BEFORE_STOP, this));
+
+		// destroy webapps
+		webAppManager.close();
+
+		socketProcessorPool.close();
+
+		sdLoaderThread.close();
+
+		waitForSDLoaderThreadStop();
+
+		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+				LifecycleEvent.AFTER_STOP, this));
+
+		webAppManager = null;
+		socketProcessorPool = null;
+		sdLoaderThread = null;
+		dispatcher = null;
+
+		log.info("SDLoader[port:" + getPort() + "] stop.");
 	}
 
 	/**
@@ -449,12 +455,26 @@ public class SDLoader implements Lifecycle {
 	 * 
 	 */
 	public void waitForStop() {
+		waitForSDLoaderThreadStop();
+	}
+
+	protected void waitForSDLoaderThreadStop() {
 		if (isRunning()) {
 			try {
 				sdLoaderThread.join();
 			} catch (InterruptedException e) {
-				log.error(e.getMessage(), e);
 			}
+		}
+	}
+
+	protected void waitForSDLoaderThreadRun() {
+		try {
+			synchronized (this) {
+				if (sdLoaderThread.isRunning() == false) {
+					wait();
+				}
+			}
+		} catch (InterruptedException e) {
 		}
 	}
 
@@ -610,7 +630,7 @@ public class SDLoader implements Lifecycle {
 
 	class SDLoaderThread extends Thread {
 
-		private AtomicBoolean shutdown = new AtomicBoolean();
+		private AtomicBoolean running = new AtomicBoolean();
 
 		private ServerSocket serverSocket;
 
@@ -620,31 +640,46 @@ public class SDLoader implements Lifecycle {
 			setDaemon(false);
 		}
 
+		public boolean isRunning() {
+			return running.get();
+		}
+
+		protected void notifyThreadStart() {
+			try {
+				synchronized (SDLoader.this) {
+					running.set(true);
+					SDLoader.this.notify();
+				}
+			} catch (Exception e) {
+
+			}
+		}
+
 		public void run() {
-			while (shutdown.get() == false) {
+			notifyThreadStart();
+			while (isRunning()) {
 				Socket socket = null;
 				try {
 					socket = serverSocket.accept();
 					log.debug("Accept socket connection.");
+					HttpProcessor con = socketProcessorPool.borrowProcessor();
+					con.process(socket, SDLoader.this);
 				} catch (AccessControlException ace) {
 					log.warn("Socket accept security exception "
 							+ ace.getMessage(), ace);
 					continue;
 				} catch (Exception ioe) {
-					if (shutdown.get() == true) {
+					if (isRunning() == false) {
 						break;
+					} else {
+						log.error("Socket accept error.", ioe);
 					}
-					log.error("Socket accept error.", ioe);
-					continue;
 				}
-				HttpProcessor con = socketProcessorPool.borrowProcessor();
-				con.process(socket, SDLoader.this);
 			}
 		}
 
 		public void close() {
-			shutdown.set(true);
-			if (serverSocket != null) {
+			if (running.getAndSet(false) == true) {
 				IOUtil.closeServerSocketNoException(serverSocket);
 				serverSocket = null;
 			}
