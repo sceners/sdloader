@@ -57,29 +57,69 @@ public class WebAppContext {
 	 */
 	private ClassLoaderHandler classLoaderHandler;
 
+	/**
+	 * コンテキストパスと、ドキュメントルートもしくはwarファイルパスを指定してWebAppContextを作成します。
+	 * 
+	 * @param contextPath
+	 * @param docBaseDirOrWarFile
+	 */
 	public WebAppContext(final String contextPath,
 			final String... docBaseDirOrWarFile) {
 		setContextPath(contextPath);
 		setDocBase(docBaseDirOrWarFile);
 	}
 
+	/**
+	 * コンテキストパスと、ドキュメントルートもしくはwarファイルパスを指定してWebAppContextを作成します。
+	 * 
+	 * @param contextPath
+	 * @param docBaseDirOrWarFile
+	 */
 	public WebAppContext(final String contextPath,
 			final File... docBaseDirOrWarFile) {
 		setContextPath(contextPath);
 		setDocBase(docBaseDirOrWarFile);
 	}
 
+	/**
+	 * コンテキストパスと、ドキュメントルートもしくはwarファイルパスを指定してWebAppContextを作成します。
+	 * 
+	 * @param contextPath
+	 * @param docBaseDirOrWarFile
+	 */
 	public WebAppContext(final String contextPath,
 			final URL... docBaseDirOrWarFile) {
 		setContextPath(contextPath);
 		setDocBase(docBaseDirOrWarFile);
 	}
 
+	/**
+	 * このWebアプリで使用するクラスパスを追加します。
+	 * 
+	 * <pre>
+	 * binディレクトリなどを指定することで、WEB-INF/classesフォルダ以外の場所からクラスをロードできます。
+	 * 追加されたディレクトリは、WEB-INF/classesよりも先に読まれます。 
+	 * </pre>
+	 * 
+	 * @param classPath
+	 * @return
+	 */
 	public WebAppContext addClassPath(String classPath) {
 		addPath(PathUtil.file2URL(classPath), false);
 		return this;
 	}
 
+	/**
+	 * このWebアプリで使用するライブラリディレクトリを追加します。
+	 * 
+	 * <pre>
+	 * libディレクトリなどを指定することで、WEB-INF/libフォルダ以外の場所からjarをロードできます。
+	 * 追加されたlibは、 WEB-INF/libよりも先に読まれます。
+	 * </pre>
+	 * 
+	 * @param libPath
+	 * @return
+	 */
 	public WebAppContext addLibDirPath(String libPath) {
 		addPath(PathUtil.file2URL(libPath), true);
 		return this;
