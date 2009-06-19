@@ -65,13 +65,13 @@ public class HttpProcessor extends Thread {
 
 	private int keppAliveMaxRequests = 100;// Apache 100
 
-	private HttpProcessorPool httpProcessorPool;
+	private AtomicBoolean running = new AtomicBoolean();
 
 	private Socket socket;
 
 	private SDLoader sdLoader;
 
-	private AtomicBoolean running = new AtomicBoolean();
+	private HttpProcessorPool httpProcessorPool;
 
 	public HttpProcessor(String name, SDLoader sdloader, HttpProcessorPool pool) {
 		super(name);
