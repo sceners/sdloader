@@ -679,6 +679,7 @@ public class WebAppManager {
 			webapp.getListenerEventDispatcher()
 					.dispatchServletContextListener_contextDestroyed(
 							contextEvent);
+			itr.remove();
 		}
 	}
 
