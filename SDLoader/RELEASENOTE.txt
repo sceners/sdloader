@@ -2,6 +2,7 @@ v0_2_04
 SSL時にnocacheを使わないようにした（ダウンロードできないコンテンツがあるため）
 SDLoader#stop()時にエラーが出るときがある問題を修正
 WebAppClassLoaderに介入するClassLoaderHandlerを追加。
+同一プロセスで複数インスタンス起動/停止で確実に動作するように修正。
 
 v0_2_03
 サイズの大きいリクエスト/レスポンスの場合に、OutOfMemoryになっていた問題を修正。
