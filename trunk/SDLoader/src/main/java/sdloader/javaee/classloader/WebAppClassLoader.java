@@ -19,11 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Vector;
-
-import sdloader.log.SDLoaderLog;
-import sdloader.log.SDLoaderLogFactory;
 
 /**
  * WebApp用クラスローダー
@@ -31,9 +27,6 @@ import sdloader.log.SDLoaderLogFactory;
  * @author c9katayama
  */
 public class WebAppClassLoader extends URLClassLoader {
-
-	protected SDLoaderLog log = SDLoaderLogFactory
-			.getLog(WebAppClassLoader.class);
 
 	// WEB-INF以下からはロードしないPrefix
 	protected String[] ignoreLoadFromWebInfPackagePrefix = { "java.",
@@ -45,22 +38,8 @@ public class WebAppClassLoader extends URLClassLoader {
 			"com.sun.", "sun.", "org.w3c.", "org.xml.sax.", "org.omg.",
 			"org.ietf.jgss" };
 
-	protected ClassLoaderHandler classLoaderHandler = new ClassLoaderHandlerAdapter();
-
 	public WebAppClassLoader(URL[] webInfUrls, ClassLoader parent) {
 		super(webInfUrls, parent);
-	}
-
-	public WebAppClassLoader(URL[] webInfUrls, ClassLoader parent,
-			ClassLoaderHandler classLoaderHandler) {
-		super(webInfUrls, parent);
-		setClassLoaderHandler(classLoaderHandler);
-	}
-
-	public void setClassLoaderHandler(ClassLoaderHandler classLoaderHandler) {
-		if (classLoaderHandler != null) {
-			this.classLoaderHandler = classLoaderHandler;
-		}
 	}
 
 	/**
@@ -80,13 +59,12 @@ public class WebAppClassLoader extends URLClassLoader {
 		if (c != null) {
 			return doResolve(c, resolve);
 		}
-		c = classLoaderHandler.handleLoadClass(name, resolve);
-		if (c != null) {
-			log.debug("Class load from class loader handler. class=[" + name
-					+ "]");
-			return doResolve(c, resolve);
-		}
+		return loadAppClass(name, resolve);
+	}
 
+	protected Class<?> loadAppClass(String name, boolean resolve)
+			throws ClassNotFoundException {
+		Class<?> c = null;
 		if (isParentFirst(name)) {
 			c = loadParentFirst(name);
 		} else {
@@ -127,12 +105,7 @@ public class WebAppClassLoader extends URLClassLoader {
 
 	protected Class<?> findFromWebInf(String name) {
 		try {
-			Class<?> c = findClass(name);
-			if (c != null) {
-				log.debug("Class load from app[" + this.hashCode()
-						+ "]. class=[" + name + "]");
-			}
-			return c;
+			return findClass(name);
 		} catch (ClassNotFoundException e) {
 			return null;
 		}
@@ -140,11 +113,7 @@ public class WebAppClassLoader extends URLClassLoader {
 
 	protected Class<?> findFromSystem(String name) {
 		try {
-			Class<?> c = findSystemClass(name);
-			if (c != null) {
-				log.debug("Class load from system. class=[" + name + "]");
-			}
-			return c;
+			return findSystemClass(name);
 		} catch (ClassNotFoundException e) {
 			return null;
 		}
@@ -152,11 +121,7 @@ public class WebAppClassLoader extends URLClassLoader {
 
 	protected Class<?> findFromParent(String name) {
 		try {
-			Class<?> c = getParent().loadClass(name);
-			if (c != null) {
-				log.debug("Class load from parent. class=[" + name + "]");
-			}
-			return c;
+			return getParent().loadClass(name);
 		} catch (ClassNotFoundException e) {
 			return null;
 		}
@@ -193,12 +158,6 @@ public class WebAppClassLoader extends URLClassLoader {
 
 	@Override
 	public Enumeration<URL> getResources(String name) throws IOException {
-		List<URL> handleResourecs = classLoaderHandler.handleResources(name);
-		if (handleResourecs != null) {
-			Vector<URL> handleUrlList = new Vector<URL>();
-			handleUrlList.addAll(handleResourecs);
-			return handleUrlList.elements();
-		}
 		final Enumeration<URL> resources = super.getResources(name);
 		// duplicate check
 		Vector<URL> margeUrlList = new Vector<URL>();

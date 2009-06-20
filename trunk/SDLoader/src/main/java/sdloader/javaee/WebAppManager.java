@@ -48,6 +48,7 @@ import sdloader.internal.resource.ResourceBuilder;
 import sdloader.internal.resource.ResourceBuilderImpl;
 import sdloader.internal.resource.ResourceURLConnection;
 import sdloader.javaee.classloader.ClassLoaderHandler;
+import sdloader.javaee.classloader.DevWebAppClassLoader;
 import sdloader.javaee.classloader.InMemoryWebAppClassLoader;
 import sdloader.javaee.classloader.WebAppClassLoader;
 import sdloader.javaee.constants.WebConstants;
@@ -393,9 +394,12 @@ public class WebAppManager {
 		URL[] urls = (URL[]) urlList.toArray(new URL[] {});
 		ClassLoader parentClassLoader = Thread.currentThread()
 				.getContextClassLoader();
-		WebAppClassLoader webAppClassLoader = new WebAppClassLoader(urls,
-				parentClassLoader, classLoaderHandler);
-		return webAppClassLoader;
+		if (log.isDebugEnabled() || classLoaderHandler != null) {
+			return new DevWebAppClassLoader(urls, parentClassLoader,
+					classLoaderHandler);
+		} else {
+			return new WebAppClassLoader(urls, parentClassLoader);
+		}
 	}
 
 	/**
