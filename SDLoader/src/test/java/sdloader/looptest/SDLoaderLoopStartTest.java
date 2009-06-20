@@ -63,15 +63,13 @@ public class SDLoaderLoopStartTest extends TestCase {
 	protected void startstop(int port, boolean useAutoPortDetect) {
 		final SDLoader server = new SDLoader(port);
 		server.setAutoPortDetect(useAutoPortDetect);
+		final WebAppContext ap = new WebAppContext("/loop",
+				"src/test/java/sdloader/looptest");
+		server.addWebAppContext(ap);
+		LogManager.getLogManager().reset();
+		server.start();
+
 		try {
-
-			server.setAutoPortDetect(true);
-
-			final WebAppContext ap = new WebAppContext("/loop",
-					"src/test/java/sdloader/looptest");
-			server.addWebAppContext(ap);
-			LogManager.getLogManager().reset();
-			server.start();
 
 			List<Thread> tlist = new ArrayList<Thread>(100);
 			for (int i = 0; i < 50; i++) {

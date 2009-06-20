@@ -26,7 +26,7 @@ public interface ClassLoaderHandler {
 	 * 
 	 * <pre>
 	 * nullを返すと、通常のWebAppClassLoaderの処理が続行します。
-	 * Classを返すと、そのクラスを使用します。
+	 * Classを返すと、そのクラスをロードします。
 	 * ClassNotFoundExceptionを投げると、クラスがないこととして処理を行います。
 	 * 
 	 * たとえば特定のクラスがクラスパス上にあり、そのクラスをWebアプリに認識させたくない場合、
