@@ -427,6 +427,7 @@ public class WebUtil {
 
 	public static void writeInternalServerErrorPage(HttpServletRequest req,
 			HttpServletResponse res, Throwable t) throws IOException {
+		res.reset();
 		res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		res.setContentType("text/html;charset=UTF-8");
 		PrintWriter writer = res.getWriter();
