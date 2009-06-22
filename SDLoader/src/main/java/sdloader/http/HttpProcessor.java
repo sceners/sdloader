@@ -134,13 +134,17 @@ public class HttpProcessor extends Thread {
 			while (true) {
 				ProcessScopeContext.init();
 				try {
-					ProcessScopeContext.getContext().setAttribute(
-							SDLoader.class, sdLoader);
 					int timeout = (requestCount == 1) ? socketTimeout
 							: keepAliveTimeout;
 					socket.setSoTimeout(timeout);
+					ProcessScopeContext scopeContext = ProcessScopeContext
+							.getContext();
+					scopeContext.setSDLoader(sdLoader);
+					scopeContext.setRequestCount(requestCount);
+					scopeContext.setOutputStream(os);
 					HttpRequest httpRequest = processReadRequest(is);
-					processServlet(httpRequest, os, requestCount);
+					scopeContext.setHttpRequest(httpRequest);
+					processServlet(httpRequest);
 					if (httpRequest.getHeader().isKeepAlive()) {
 						requestCount++;
 					} else {
@@ -192,45 +196,26 @@ public class HttpProcessor extends Thread {
 		}
 	}
 
-	protected void processServlet(HttpRequest httpRequest, OutputStream os,
-			int requestCount) throws Throwable {
-		HttpHeader header = httpRequest.getHeader();
-		String requestURI = header.getRequestURI();
+	protected void processServlet(HttpRequest httpRequest) throws Throwable {
+		String requestURI = httpRequest.getHeader().getRequestURI();
 		InternalWebApplication webapp = sdLoader.getWebAppManager().findWebApp(
 				requestURI);
 		HttpServletRequestImpl request = createServletRequestImp(httpRequest,
 				webapp);
-		if (socket instanceof SSLSocket) {
-			request.setSecure(true);
-		}
-
-		HttpServletResponseImpl response = new HttpServletResponseImpl();
 		ServletContextImpl servletContextImpl = webapp.getServletContext();
-
 		String contextPath = webapp.getContextPath();
 		String resourcePath = WebUtil.getResourcePath(contextPath, requestURI);
+
 		// contextpathだけのパターン (/testのようなパターン）の場合、contextpathに/をつけてリダイレクト
-		if (!requestURI.equals("/") && resourcePath == null) {
-			response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
-			resourcePath = requestURI + "/";
-			String host = request.getHeader(HttpConst.HOST);
-			if (host == null) {
-				host = request.getLocalName() + ":" + request.getLocalPort();
-			}
-			response.addHeader(HttpConst.LOCATION, WebUtil.buildRequestURL(
-					request.getScheme(), host, resourcePath).toString());
-			setDefaultResponseHeader(servletContextImpl, request, response,
-					requestCount);
-			processRequestEnd(response, os);
+		if (requestURI.equals("/") == false && resourcePath == null) {
+			processRedirectToContextRoot(servletContextImpl, request,
+					requestURI);
 			return;
 		}
 
 		ServletMapping mapping = webapp.findServletMapping(resourcePath);
 		if (mapping == null) {
-			WebUtil.writeNotFoundPage(response);
-			setDefaultResponseHeader(servletContextImpl, request, response,
-					requestCount);
-			processRequestEnd(response, os);
+			process404NotFound(servletContextImpl, request);
 			return;
 		}
 
@@ -239,16 +224,16 @@ public class HttpProcessor extends Thread {
 				resourcePath));
 		request.setPathInfo(WebUtil.getPathInfo(mapping.getUrlPattern(),
 				resourcePath));
+		HttpServletResponseImpl response = new HttpServletResponseImpl();
 
 		// class loader
-		ClassLoader webClassLoader = webapp.getWebAppClassLoader();
-		ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
+		final ClassLoader oldLoader = Thread.currentThread()
+				.getContextClassLoader();
 		try {
-			Thread.currentThread().setContextClassLoader(webClassLoader);
-			ProcessScopeContext processScopeContext = ProcessScopeContext
-					.getContext();
-			processScopeContext.setRequest(request);
-			processScopeContext.setResponse(response);
+			Thread.currentThread().setContextClassLoader(
+					webapp.getWebAppClassLoader());
+			ProcessScopeContext.getContext().setRequestResponse(request,
+					response);
 			request.intoScope();
 			// service
 			try {
@@ -271,14 +256,38 @@ public class HttpProcessor extends Thread {
 				log.error(ioe.getMessage(), ioe);
 				WebUtil.writeInternalServerErrorPage(request, response, ioe);
 			}
-			setDefaultResponseHeader(servletContextImpl, request, response,
-					requestCount);
-			processRequestEnd(response, os);
+			setDefaultResponseHeader(servletContextImpl, request, response);
+			processRequestEnd(response);
 		} finally {
 			request.dispose();
 			response.dispose();
 			Thread.currentThread().setContextClassLoader(oldLoader);
 		}
+	}
+
+	protected void processRedirectToContextRoot(
+			ServletContextImpl servletContextImpl,
+			HttpServletRequestImpl request, String requestURI)
+			throws IOException {
+		HttpServletResponseImpl response = new HttpServletResponseImpl();
+		response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
+		String resourcePath = requestURI + "/";
+		String host = request.getHeader(HttpConst.HOST);
+		if (host == null) {
+			host = request.getLocalName() + ":" + request.getLocalPort();
+		}
+		response.addHeader(HttpConst.LOCATION, WebUtil.buildRequestURL(
+				request.getScheme(), host, resourcePath).toString());
+		setDefaultResponseHeader(servletContextImpl, request, response);
+		processRequestEnd(response);
+	}
+
+	protected void process404NotFound(ServletContextImpl servletContextImpl,
+			HttpServletRequestImpl request) throws IOException {
+		HttpServletResponseImpl response = new HttpServletResponseImpl();
+		WebUtil.writeNotFoundPage(response);
+		setDefaultResponseHeader(servletContextImpl, request, response);
+		processRequestEnd(response);
 	}
 
 	private HttpServletRequestImpl createServletRequestImp(
@@ -303,13 +312,16 @@ public class HttpProcessor extends Thread {
 		if (uriEncoding != null) {
 			request.setUriEncoding(uriEncoding);
 		}
+		if (socket instanceof SSLSocket) {
+			request.setSecure(true);
+		}
 		return request;
 	}
 
 	protected void setDefaultResponseHeader(
 			ServletContextImpl servletContextImpl,
-			HttpServletRequestImpl request, HttpServletResponseImpl response,
-			int requestCount) throws IOException {
+			HttpServletRequestImpl request, HttpServletResponseImpl response)
+			throws IOException {
 		response.setHeader(HttpConst.DATE, WebUtil.formatHeaderDate(Calendar
 				.getInstance().getTime()));
 		response.setHeader(HttpConst.SERVER, sdLoader.getServerName());
@@ -323,7 +335,7 @@ public class HttpProcessor extends Thread {
 			sessionCookie.setPath(servletContextImpl.getContextPath());
 			response.addCookie(sessionCookie);
 		}
-
+		int requestCount = ProcessScopeContext.getContext().getRequestCount();
 		// Keep-Alive
 		if (request.getHeader().isKeepAlive()
 				&& requestCount < keppAliveMaxRequests) {
@@ -358,9 +370,10 @@ public class HttpProcessor extends Thread {
 		}
 	}
 
-	protected void processRequestEnd(HttpServletResponseImpl response,
-			OutputStream os) throws IOException {
+	protected void processRequestEnd(HttpServletResponseImpl response)
+			throws IOException {
 		HttpHeader resHeader = response.getResponseHeader();
+		OutputStream os = ProcessScopeContext.getContext().getOutputStream();
 		os = createOutputStream(os);
 
 		byte[] headerData = resHeader.buildResponseHeader().getBytes();

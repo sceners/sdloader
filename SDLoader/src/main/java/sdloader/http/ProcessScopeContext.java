@@ -15,9 +15,9 @@
  */
 package sdloader.http;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.OutputStream;
 
+import sdloader.SDLoader;
 import sdloader.javaee.impl.HttpServletRequestImpl;
 import sdloader.javaee.impl.HttpServletResponseImpl;
 
@@ -29,9 +29,10 @@ import sdloader.javaee.impl.HttpServletResponseImpl;
 public class ProcessScopeContext {
 
 	private static ThreadLocal<ProcessScopeContext> threadLocal = new ThreadLocal<ProcessScopeContext>();
-
-	private Map<Object, Object> attribute;
-
+	private SDLoader sdLoader;
+	private int requestCount;
+	private OutputStream outputStream;
+	private HttpRequest httpRequest;
 	private HttpServletRequestImpl request;
 	private HttpServletResponseImpl response;
 
@@ -55,34 +56,49 @@ public class ProcessScopeContext {
 		threadLocal.remove();
 	}
 
-	public void setRequest(HttpServletRequestImpl request) {
+	public void setSDLoader(SDLoader sdLoader) {
+		this.sdLoader = sdLoader;
+	}
+
+	public void setRequestCount(int requestCount) {
+		this.requestCount = requestCount;
+	}
+
+	public void setOutputStream(OutputStream outputStream) {
+		this.outputStream = outputStream;
+	}
+
+	public void setHttpRequest(HttpRequest httpRequest) {
+		this.httpRequest = httpRequest;
+	}
+
+	public void setRequestResponse(HttpServletRequestImpl request,
+			HttpServletResponseImpl response) {
 		this.request = request;
+		this.response = response;
+	}
+
+	public SDLoader getSDLoader() {
+		return sdLoader;
+	}
+
+	public int getRequestCount() {
+		return requestCount;
+	}
+
+	public OutputStream getOutputStream() {
+		return outputStream;
+	}
+
+	public HttpRequest getHttpRequest() {
+		return httpRequest;
 	}
 
 	public HttpServletRequestImpl getRequest() {
 		return request;
 	}
 
-	public void setResponse(HttpServletResponseImpl response) {
-		this.response = response;
-	}
-
 	public HttpServletResponseImpl getResponse() {
 		return response;
-	}
-
-	public void setAttribute(Object key, Object value) {
-		if (attribute == null) {
-			attribute = new HashMap<Object, Object>();
-		}
-		attribute.put(key, value);
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T> T getAttribute(Object key) {
-		if (attribute == null) {
-			return null;
-		}
-		return (T) attribute.get(key);
 	}
 }

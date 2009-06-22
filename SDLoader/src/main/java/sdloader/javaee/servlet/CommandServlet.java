@@ -23,7 +23,7 @@ public class CommandServlet extends HttpServlet {
 		if (command != null) {
 			if (command == Command.STOP) {
 				SDLoader loader = ProcessScopeContext.getContext()
-						.getAttribute(SDLoader.class);
+						.getSDLoader();
 				loader.stop();
 				res.getWriter().print("SDLoader stop.");
 				return;
