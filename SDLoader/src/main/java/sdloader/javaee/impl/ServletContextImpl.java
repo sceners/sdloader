@@ -30,8 +30,6 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextAttributeEvent;
 import javax.servlet.ServletException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.ListenerEventDispatcher;
@@ -41,7 +39,7 @@ import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.IteratorEnumeration;
-import sdloader.util.MimeParseHandler;
+import sdloader.util.Mime;
 import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
 
@@ -66,25 +64,6 @@ public class ServletContextImpl implements ServletContext {
 	private Map<String, Object> attributeMap = CollectionsUtil.newHashMap();
 
 	private Map<String, String> initParamMap = CollectionsUtil.newHashMap();
-
-	protected Map<String, String> mimeTypeMap;
-	{
-		InputStream is = ResourceUtil.getResourceAsStream(
-				"/sdloader/resource/mime.xml", getClass());
-		if (is == null) {
-			throw new ExceptionInInitializerError("mime.xml not found.");
-		}
-
-		try {
-			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
-			MimeParseHandler handler = new MimeParseHandler();
-			parser.parse(is, handler);
-			mimeTypeMap = handler.getMimeMap();
-		} catch (Exception se) {
-			throw new ExceptionInInitializerError("Mime parse fail. "
-					+ se.getMessage());
-		}
-	}
 
 	public ServletContextImpl(InternalWebApplication webapp) {
 		this.webApp = webapp;
@@ -300,9 +279,9 @@ public class ServletContextImpl implements ServletContext {
 	public String getMimeType(String path) {
 		String ext = PathUtil.getExtension(path);
 		if (ext == null) {
-			return mimeTypeMap.get(path.toLowerCase());
+			return Mime.getMime(path.toLowerCase());
 		} else {
-			return mimeTypeMap.get(ext.toLowerCase());
+			return Mime.getMime(ext.toLowerCase());
 		}
 	}
 
