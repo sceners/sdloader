@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -50,7 +51,10 @@ import sdloader.util.databuffer.ByteDataBuffer;
 public class ResourceUtil {
 
 	private static final int DEFAULT_BUFFER_SIZE = 32 * 1024;
-	
+
+	private static final String SLASH = "/";
+	private static final String FILE_PROTOCOL = "file";
+
 	public static String stripFirstProtocolPart(String path) {
 		return path.substring(path.indexOf(":") + 1, path.length());
 	}
@@ -74,10 +78,10 @@ public class ResourceUtil {
 	public static URL createURL(final URL baseURL, String relativeURL) {
 		try {
 			String protocol = baseURL.getProtocol();
-			relativeURL = relativeURL.replace("\\", "/");
+			relativeURL = relativeURL.replace("\\", SLASH);
 			// TODO
-			if (protocol.startsWith("file")) {
-				if (relativeURL.startsWith("/")) {
+			if (protocol.startsWith(FILE_PROTOCOL)) {
+				if (relativeURL.startsWith(SLASH)) {
 					relativeURL = relativeURL
 							.substring(1, relativeURL.length());
 				}
@@ -85,7 +89,7 @@ public class ResourceUtil {
 			} else {
 				// TODO
 				String baseArchivePath = baseURL.toExternalForm();
-				if (baseArchivePath.endsWith("/")) {
+				if (baseArchivePath.endsWith(SLASH)) {
 					baseArchivePath = baseArchivePath.substring(0,
 							baseArchivePath.length() - 1);
 				}
@@ -93,8 +97,8 @@ public class ResourceUtil {
 					baseArchivePath = baseArchivePath.substring(0,
 							baseArchivePath.length() - 1);
 				}
-				if (!relativeURL.startsWith("/")) {
-					relativeURL = "/" + relativeURL;
+				if (!relativeURL.startsWith(SLASH)) {
+					relativeURL = SLASH + relativeURL;
 				}
 				return new URL(baseArchivePath + "!" + relativeURL);
 			}
@@ -108,6 +112,14 @@ public class ResourceUtil {
 	}
 
 	public static boolean isResourceExist(URL resource) {
+		if (resource.getProtocol().equals(FILE_PROTOCOL)) {
+			try {
+				File file = new File(resource.toURI());
+				return file.exists();
+			} catch (URISyntaxException e) {
+				return false;
+			}
+		}
 		InputStream is = null;
 		try {
 			is = resource.openStream();
@@ -115,22 +127,16 @@ public class ResourceUtil {
 		} catch (Exception ioe) {
 			return false;
 		} finally {
-			if (is != null) {
-				try {
-					is.close();
-					is = null;
-				} catch (IOException ignore) {
-				}
-			}
+			IOUtil.closeNoException(is);
 		}
 	}
 
 	public static boolean isFileResource(URL resource) {
-		return !resource.toExternalForm().endsWith("/");
+		return !resource.toExternalForm().endsWith(SLASH);
 	}
 
 	public static boolean isDirectoryResource(URL resource) {
-		return resource.toExternalForm().endsWith("/");
+		return resource.toExternalForm().endsWith(SLASH);
 	}
 
 	public static Properties loadProperties(String path, Class<?> caller) {
@@ -157,7 +163,7 @@ public class ResourceUtil {
 	public static InputStream getResourceAsStream(String path, Class<?> caller) {
 
 		String resource = path;
-		if (resource.startsWith("/")) {
+		if (resource.startsWith(SLASH)) {
 			resource = resource.substring(1);
 		}
 
