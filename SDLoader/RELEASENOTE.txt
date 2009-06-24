@@ -6,6 +6,8 @@ WebAppContextに、addClassPathとaddLibPathを追加。
 同一プロセスで複数インスタンスを起動/停止するような利用方法に対応するよう修正。
 制御フラグをAtomicBooleanに変更。
 autoPortDetectでない場合に使用ポートがふさがっていた時に、同ポートに停止コマンドを送るように修正。
+初期スレッド数をデフォルト2に変更
+mime.xmlをmime.propertiesに変更
 
 v0_2_03
 サイズの大きいリクエスト/レスポンスの場合に、OutOfMemoryになっていた問題を修正。
