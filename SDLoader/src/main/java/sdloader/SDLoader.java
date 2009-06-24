@@ -31,11 +31,11 @@ import sdloader.http.HttpProcessorPool;
 import sdloader.http.HttpRequest;
 import sdloader.http.HttpResponse;
 import sdloader.internal.SDLoaderConfig;
+import sdloader.internal.SDLoaderHelper;
 import sdloader.internal.ShutdownHook;
 import sdloader.javaee.SessionManager;
 import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
-import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.javaee.constants.WebConstants;
 import sdloader.lifecycle.Lifecycle;
 import sdloader.lifecycle.LifecycleEvent;
@@ -127,9 +127,6 @@ public class SDLoader implements Lifecycle {
 		CONFIG_KEYS.add(KEY_SDLOADER_WORK_DIR);
 	}
 
-	private static final String SSL_KEY_STORE_PATH = "sdloader/resource/ssl/SDLoader.keystore";
-	private static final String SSL_KEY_STORE_PASSWORD = "SDLoader";
-
 	private String sdloaderConfigPath = "sdloader.properties";
 
 	protected WebAppManager webAppManager = new WebAppManager();
@@ -148,6 +145,8 @@ public class SDLoader implements Lifecycle {
 	private SDLoaderThread sdLoaderThread;
 
 	private ShutdownHook shutdownHook = new ShutdownHook(this);
+
+	private SDLoaderHelper helper = new SDLoaderHelper(this);
 
 	/**
 	 * ポート30000でSDLoaderを構築します。
@@ -399,7 +398,7 @@ public class SDLoader implements Lifecycle {
 	 */
 	public void start() {
 		checkNotRunning();
-		printInitMessage();
+		helper.printInitMessage(log);
 
 		long t = System.currentTimeMillis();
 
@@ -483,19 +482,6 @@ public class SDLoader implements Lifecycle {
 		}
 	}
 
-	protected void printInitMessage() {
-		String message = "Detect ServletAPI["
-				+ JavaEEConstants.SERVLETAPI_MAJOR_VERSION + "."
-				+ JavaEEConstants.SERVLETAPI_MINOR_VERSION + "]";
-		if (JavaEEConstants.JSP_MAJOR_VERSION != null) {
-			message += " JSP[" + JavaEEConstants.JSP_MAJOR_VERSION + "."
-					+ JavaEEConstants.JSP_MINOR_VERSION + "]";
-		} else {
-			message += " JSP[NOT SUPPORT]";
-		}
-		log.info(message);
-	}
-
 	protected void initConfig() {
 		// init home
 		String homeDir = config.getConfigStringIgnoreExist(KEY_SDLOADER_HOME);
@@ -558,35 +544,32 @@ public class SDLoader implements Lifecycle {
 	}
 
 	protected ServerSocket initServerSocket() {
-		int port = getPort();
-		boolean useOutSidePort = config
+		final int port = getPort();
+		final boolean useOutSidePort = config
 				.getConfigBoolean(KEY_SDLOADER_USE_OUTSIDE_PORT);
-		boolean autoPortDetect = config
+		final boolean autoPortDetect = config
 				.getConfigBoolean(KEY_SDLOADER_AUTO_PORT_DETECT);
-		boolean ssl = config.getConfigBoolean(KEY_SDLOADER_SSL_ENABLE, false);
-
+		final boolean sslEnable = config.getConfigBoolean(
+				KEY_SDLOADER_SSL_ENABLE, false);
 		String portMessage = autoPortDetect ? "AutoDetect" : String
 				.valueOf(port);
-
 		log.info("Bind start. Port=" + portMessage + " useOutSidePort="
-				+ useOutSidePort + " SSL=" + ssl);
+				+ useOutSidePort + " SSL=" + sslEnable);
 
 		ServerSocket servetSocket = null;
 		try {
 			try {
-				int bindPort = getPort();
-				servetSocket = ssl ? IOUtil.createSSLServerSocket(bindPort,
-						useOutSidePort, SSL_KEY_STORE_PATH,
-						SSL_KEY_STORE_PASSWORD) : IOUtil.createServerSocket(
-						bindPort, useOutSidePort);
+				servetSocket = helper.createServerSocket(port, sslEnable,
+						useOutSidePort);
 			} catch (IOException ioe) {
 				if (autoPortDetect) {
-					servetSocket = ssl ? IOUtil.createSSLServerSocket(0,
-							useOutSidePort, SSL_KEY_STORE_PATH,
-							SSL_KEY_STORE_PASSWORD) : IOUtil
-							.createServerSocket(0, useOutSidePort);
+					servetSocket = helper.createServerSocket(0, sslEnable,
+							useOutSidePort);
 				} else {
-					throw ioe;
+					// try to stop SDLoader
+					helper.sendStopCommand(port);
+					servetSocket = helper.createServerSocket(port, sslEnable,
+							useOutSidePort);
 				}
 			}
 			int bindSuccessPort = servetSocket.getLocalPort();
