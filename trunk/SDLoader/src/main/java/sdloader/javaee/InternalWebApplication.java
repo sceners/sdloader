@@ -178,8 +178,9 @@ public class InternalWebApplication {
 
 	private void initServlet() {
 		List<ServletTag> servletList = webXml.getWebApp().getServlet();
-		List<ServletTag> loadOnStartUpList = CollectionsUtil.newLinkedList();
-		List<ServletTag> noStartUpList = CollectionsUtil.newLinkedList();
+		final List<ServletTag> loadOnStartUpList = CollectionsUtil
+				.newLinkedList();
+		final List<ServletTag> noStartUpList = CollectionsUtil.newLinkedList();
 		sort: for (ServletTag servletTag : servletList) {
 			Integer loadOnStartUp = servletTag.getLoadOnStartup();
 			if (loadOnStartUp == null || loadOnStartUp < 0) {
@@ -197,7 +198,6 @@ public class InternalWebApplication {
 		}
 		servletList = loadOnStartUpList;
 		servletList.addAll(noStartUpList);
-
 		for (ServletTag servletTag : servletList) {
 			if (servletMap == null) {
 				servletMap = CollectionsUtil.newHashMap();

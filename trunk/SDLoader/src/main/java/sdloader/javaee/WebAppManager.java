@@ -561,7 +561,7 @@ public class WebAppManager {
 	}
 
 	protected void parseContextXMLs(File[] contextXMLs) throws Exception {
-		if (contextXMLs != null) {
+		if (contextXMLs != null && contextXMLs.length > 0) {
 			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
 			for (int i = 0; i < contextXMLs.length; i++) {
 				final File contextXml = contextXMLs[i];

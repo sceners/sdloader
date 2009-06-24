@@ -1,10 +1,6 @@
 package sdloader.util;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
-
-import sdloader.exception.IORuntimeException;
 
 public class Mime {
 
@@ -18,16 +14,7 @@ public class Mime {
 	}
 
 	private synchronized static void init() {
-		InputStream is = ResourceUtil.getResourceAsStream(
+		mimeMap = ResourceUtil.loadProperties(
 				"/sdloader/resource/mime.properties", Mime.class);
-		if (is == null) {
-			throw new ExceptionInInitializerError("mime.properties not found.");
-		}
-		mimeMap = new Properties();
-		try {
-			mimeMap.load(is);
-		} catch (IOException ioe) {
-			throw new IORuntimeException(ioe);
-		}
 	}
 }
