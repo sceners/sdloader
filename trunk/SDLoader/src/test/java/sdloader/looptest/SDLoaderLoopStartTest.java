@@ -43,7 +43,7 @@ public class SDLoaderLoopStartTest extends TestCase {
 	}
 
 	public void testMultiThread() throws InterruptedException {
-		List<Thread> tlist = new ArrayList<Thread>(100);
+		List<Thread> tlist = new ArrayList<Thread>(10);
 		for (int i = 0; i < 10; i++) {
 			Thread t = new Thread() {
 				@Override
@@ -71,8 +71,8 @@ public class SDLoaderLoopStartTest extends TestCase {
 
 		try {
 
-			List<Thread> tlist = new ArrayList<Thread>(100);
-			for (int i = 0; i < 50; i++) {
+			List<Thread> tlist = new ArrayList<Thread>(20);
+			for (int i = 0; i < 20; i++) {
 				Thread t = new Thread() {
 					@Override
 					public void run() {
@@ -109,6 +109,9 @@ public class SDLoaderLoopStartTest extends TestCase {
 			throws Exception {
 		URL url = new URL(urlText);
 		HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
+		urlcon.setUseCaches(false);
+		urlcon.setDoInput(true);
+		urlcon.setDoOutput(true);
 		urlcon.setRequestMethod(method);
 		BufferedReader reader = null;
 		String line = null;
@@ -118,8 +121,14 @@ public class SDLoaderLoopStartTest extends TestCase {
 					.getInputStream()));
 			line = reader.readLine();
 		} finally {
-			reader.close();
-			urlcon.disconnect();
+			try {
+				reader.close();
+			} catch (Exception e) {
+			}
+			try {
+				urlcon.disconnect();
+			} catch (Exception e) {
+			}
 		}
 		return line;
 	}
