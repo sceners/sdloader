@@ -149,7 +149,7 @@ public class SDLoader implements Lifecycle {
 	private SDLoaderHelper helper = new SDLoaderHelper(this);
 
 	/**
-	 * ポート30000でSDLoaderを構築します。
+	 * ポート30000でSDLoaderを構築します.
 	 * 
 	 * @param port
 	 */
@@ -158,7 +158,7 @@ public class SDLoader implements Lifecycle {
 	}
 
 	/**
-	 * 指定のプロパティでSDLoaderを構築します。
+	 * 指定のプロパティでSDLoaderを構築します.
 	 * 
 	 * @param port
 	 */
@@ -168,7 +168,7 @@ public class SDLoader implements Lifecycle {
 	}
 
 	/**
-	 * 指定のポートでSDLoaderを構築します。
+	 * 指定のポートでSDLoaderを構築します.
 	 * 
 	 * @param port
 	 */
@@ -177,6 +177,16 @@ public class SDLoader implements Lifecycle {
 		setPort(port);
 	}
 
+	/**
+	 * ポート30000でSDLoaderを構築します.
+	 * 
+	 * <pre>
+	 * autoPortDetectがtrueの場合、ポート30000にバインド出来なかった時に
+	 * 開きポートを探して起動します。
+	 * </pre>
+	 * 
+	 * @param autoPortDetect
+	 */
 	public SDLoader(boolean autoPortDetect) {
 		loadDefaultConfig();
 		setAutoPortDetect(autoPortDetect);
@@ -298,6 +308,17 @@ public class SDLoader implements Lifecycle {
 		config.setConfig(KEY_SDLOADER_LINE_SPEED, bps);
 	}
 
+	/**
+	 * Webアプリの入っているディレクトリを指定します。
+	 * 
+	 * <pre>
+	 * デフォルトは、SDLoader起動ディレクトリ下のwebappsフォルダです。
+	 * このフォルダの下にディレクトリ、warファイル、コンテキストファイルを置くと、
+	 * Webアプリとして認識されます。
+	 * </pre>
+	 * 
+	 * @param dir
+	 */
 	public void setWebAppsDir(String dir) {
 		checkNotRunning();
 		config.setConfig(KEY_SDLOADER_WEBAPPS_DIR, dir);
@@ -313,6 +334,16 @@ public class SDLoader implements Lifecycle {
 		config.setConfig(KEY_SDLOADER_WORK_DIR, workDir);
 	}
 
+	/**
+	 * SSLを使用するかどうか.
+	 * 
+	 * <pre>
+	 * trueの場合、SSLでソケットを開きます。
+	 * デフォルトはfalseです。
+	 * </pre>
+	 * 
+	 * @param value
+	 */
 	public void setSSLEnable(boolean value) {
 		checkNotRunning();
 		config.setConfig(KEY_SDLOADER_SSL_ENABLE, value);
@@ -415,6 +446,7 @@ public class SDLoader implements Lifecycle {
 		initSocketProcessor();
 
 		sdLoaderThread = new SDLoaderThread(initSocket);
+
 		sdLoaderThread.start();
 
 		waitForSDLoaderThreadRun();
@@ -436,6 +468,7 @@ public class SDLoader implements Lifecycle {
 			return;
 		}
 		log.info("SDLoader[port:" + getPort() + "] shutdown start.");
+
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.BEFORE_STOP, this));
 
@@ -444,7 +477,6 @@ public class SDLoader implements Lifecycle {
 		sessionManager.close();
 		webAppManager.close();
 		sdLoaderThread.close();
-
 		shutdownHook.removeShutdownHook();
 
 		waitForSDLoaderThreadStop();
@@ -452,9 +484,11 @@ public class SDLoader implements Lifecycle {
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.AFTER_STOP, this));
 
-		webAppManager = null;
 		socketProcessorPool = null;
+		sessionManager = null;
+		webAppManager = null;
 		sdLoaderThread = null;
+		shutdownHook = null;
 		dispatcher = null;
 
 		log.info("SDLoader[port:" + getPort() + "] stop.");
