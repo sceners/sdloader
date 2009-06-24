@@ -17,7 +17,6 @@ package sdloader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.AccessControlException;
@@ -110,19 +109,26 @@ public class SDLoader implements Lifecycle {
 	public static final String KEY_SDLOADER_WORK_DIR = CONFIG_KEY_PREFIX
 			+ "workDir";
 
-	public static final List<String> CONFIG_KEYS = new ArrayList<String>();
+	public static final List<String> CONFIG_KEYS = new ArrayList<String>(14);
 	static {
-		try {
-			Field[] fields = SDLoader.class.getFields();
-			for (int i = 0; i < fields.length; i++) {
-				if (fields[i].getName().startsWith("KEY")) {
-					CONFIG_KEYS.add((String) fields[i].get(null));
-				}
-			}
-		} catch (Exception e) {
-
-		}
+		CONFIG_KEYS.add(KEY_SDLOADER_JSP_LIBPATH);
+		CONFIG_KEYS.add(KEY_SDLOADER_HOME);
+		CONFIG_KEYS.add(KEY_SDLOADER_WEBAPPS_DIR);
+		CONFIG_KEYS.add(KEY_SDLOADER_WEBAPP_PATH);
+		CONFIG_KEYS.add(KEY_WAR_INMEMORY_EXTRACT);
+		CONFIG_KEYS.add(KEY_SDLOADER_USE_OUTSIDE_PORT);
+		CONFIG_KEYS.add(KEY_SDLOADER_MAX_THREAD_POOL_NUM);
+		CONFIG_KEYS.add(KEY_SDLOADER_AUTO_PORT_DETECT);
+		CONFIG_KEYS.add(KEY_SDLOADER_SSL_ENABLE);
+		CONFIG_KEYS.add(KEY_SDLOADER_SERVER_NAME);
+		CONFIG_KEYS.add(KEY_SDLOADER_SESSION_MANAGER);
+		CONFIG_KEYS.add(KEY_SDLOADER_LINE_SPEED);
+		CONFIG_KEYS.add(KEY_SDLOADER_PORT);
+		CONFIG_KEYS.add(KEY_SDLOADER_WORK_DIR);
 	}
+
+	private static final String SSL_KEY_STORE_PATH = "sdloader/resource/ssl/SDLoader.keystore";
+	private static final String SSL_KEY_STORE_PASSWORD = "SDLoader";
 
 	private String sdloaderConfigPath = "sdloader.properties";
 
@@ -142,9 +148,6 @@ public class SDLoader implements Lifecycle {
 	private SDLoaderThread sdLoaderThread;
 
 	private ShutdownHook shutdownHook = new ShutdownHook(this);
-
-	private static final String KEY_STORE_PATH = "sdloader/resource/ssl/SDLoader.keystore";
-	private static final String KEY_STORE_PASSWORD = "SDLoader";
 
 	/**
 	 * ポート30000でSDLoaderを構築します。
@@ -294,6 +297,11 @@ public class SDLoader implements Lifecycle {
 	public void setLineSpeed(int bps) {
 		checkNotRunning();
 		config.setConfig(KEY_SDLOADER_LINE_SPEED, bps);
+	}
+
+	public void setWebAppsDir(String dir) {
+		checkNotRunning();
+		config.setConfig(KEY_SDLOADER_WEBAPPS_DIR, dir);
 	}
 
 	/**
@@ -568,13 +576,15 @@ public class SDLoader implements Lifecycle {
 			try {
 				int bindPort = getPort();
 				servetSocket = ssl ? IOUtil.createSSLServerSocket(bindPort,
-						useOutSidePort, KEY_STORE_PATH, KEY_STORE_PASSWORD)
-						: IOUtil.createServerSocket(bindPort, useOutSidePort);
+						useOutSidePort, SSL_KEY_STORE_PATH,
+						SSL_KEY_STORE_PASSWORD) : IOUtil.createServerSocket(
+						bindPort, useOutSidePort);
 			} catch (IOException ioe) {
 				if (autoPortDetect) {
 					servetSocket = ssl ? IOUtil.createSSLServerSocket(0,
-							useOutSidePort, KEY_STORE_PATH, KEY_STORE_PASSWORD)
-							: IOUtil.createServerSocket(0, useOutSidePort);
+							useOutSidePort, SSL_KEY_STORE_PATH,
+							SSL_KEY_STORE_PASSWORD) : IOUtil
+							.createServerSocket(0, useOutSidePort);
 				} else {
 					throw ioe;
 				}
