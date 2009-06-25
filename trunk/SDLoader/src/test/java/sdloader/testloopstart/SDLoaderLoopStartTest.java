@@ -72,7 +72,7 @@ public class SDLoaderLoopStartTest extends TestCase {
 		try {
 
 			List<Thread> tlist = new ArrayList<Thread>(20);
-			for (int i = 0; i < 20; i++) {
+			for (int i = 0; i < 10; i++) {
 				Thread t = new Thread() {
 					@Override
 					public void run() {
