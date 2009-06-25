@@ -2,10 +2,11 @@
 <project name="SDLoader" default="dist" basedir=".">
 
   <property name="build" value="./dist/bin" />
+	<property name="buildtest" value="./dist/bintest" />
   <property name="src" value="./src/main/java" /> 	
   <property name="srcresources" value="./src/main/resources" /> 		
   <property name="srctest" value="./src/test/java" />
-  <property name="srctestresources" value="./src/test/resources" />	
+	
   <property name="lib" value="./lib" />	
   <property name="distbase"  value="dist" />
   <property file="sdloaderversion.txt" />
@@ -24,7 +25,13 @@
   	<fileset dir="lib/Servlet2.5_JSP2.1">
       <include name="*.jar" />
     </fileset>
-  </path>
+  </path>	
+	
+  <target name="init">
+  	<tstamp/>  	
+	<property name="dist"  value="${distbase}/${libversion}_${DSTAMP}${TSTAMP}" />	  	
+    <mkdir dir="${dist}" />
+  </target>	
 
   <target name="compile">
   	<delete dir="${build}"/>
@@ -34,22 +41,51 @@
     	destdir="${build}" nowarn="true" deprecation="false" debug="true" optimize="false" 
     	source="1.5" target="1.5">
       <src>
-        <pathelement location="src/main/java"/>
+        <pathelement location="${src}"/>
       </src>
       <classpath refid="build.classpath" />
     </javac>
   	<copy todir="${build}">
-  		<fileset dir="src/main/resources"/>
+  		<fileset dir="${srcresources}"/>
   	</copy>
   </target>
-	
-  <target name="init">
-  	<tstamp/>  	
-	<property name="dist"  value="${distbase}/${libversion}_${DSTAMP}${TSTAMP}" />	  	
-    <mkdir dir="${dist}" />
+
+  <target name="compiletest" depends="compile">
+  	<delete dir="${buildtest}"/>
+  	<mkdir dir="${buildtest}"/>
+    <javac 
+    	encoding="UTF-8" 
+    	destdir="${buildtest}" nowarn="true" deprecation="false" debug="true" optimize="false" 
+    	source="1.5" target="1.5">
+      <src>
+      	<pathelement location="${srctest}"/>
+      </src>
+      <classpath refid="build.classpath" />
+      <classpath path="${build}"></classpath>
+    </javac>
+  	<copy todir="${buildtest}">
+  		<fileset dir="${srctest}"/>
+  	</copy>
+  </target>
+
+  <target name="test" depends="compiletest">
+  	<junit haltonerror="true" haltonfailure="true">
+  	 <formatter type="brief" usefile="false" />
+  	 <classpath refid="build.classpath"/>
+  	 <classpath path="${build}"/>
+  	 <classpath path="${buildtest}"/>  		
+    <batchtest>
+      <fileSet dir="${buildtest}">
+        <include name="**/*Test*.java"/>
+      </fileSet>
+    </batchtest>
+  		
+  	</junit>
+  	<echo>TEST COMPLETE.</echo>
   </target>
 	
-  <target name="dist" depends="init,compile">
+  <target name="dist" depends="init,test,compile">
+
 	<echo message="${libversion}"/>  	
 	<property name="distbuild"  value="${dist}/build" />
     <property name="distrelease" value="${dist}/release" />
@@ -90,7 +126,7 @@
     	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-runtime.jar" excludes="META-INF/**"/>
        	<zipfileset src="lib/Servlet2.4_JSP2.0/jsp-api.jar" excludes="META-INF/**"/>    	
     	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar" excludes="META-INF/**,*.html"/>
-    	<zipfileset src="lib/commons-logging-1.1.jar" excludes="META-INF/**"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/commons-logging.jar" excludes="META-INF/**"/>
     	<manifest>
  	    	<attribute name="Main-Class" value="${mainclasslib}"/>
 		</manifest>
@@ -205,7 +241,7 @@
     	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar">
     		<exclude name="*.html"/>
     	</zipfileset>
-    	<zipfileset src="lib/commons-logging-1.1.jar"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/commons-logging.jar"/>
 		<zipfileset src="lib/swt.jar"/>
     	<manifest>
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
@@ -292,13 +328,12 @@
 		<fileset dir="${srcresources}">
 			<include name="**/*" />
 		</fileset>
+  		<!--
 		<fileset dir="${srctest}">
-			<include name="**/*" />
-		</fileset>
-		<fileset dir="${srctestresources}">			
 			<include name="**/*" />
 			<exclude name="sdloader-logging.properties"/>
 		</fileset>
+		-->
     	<fileset dir=".">
 		    <include name="sdloaderversion.txt"/>
     	</fileset>  		
