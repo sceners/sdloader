@@ -84,7 +84,7 @@
   	<echo>TEST COMPLETE.</echo>
   </target>
 	
-  <target name="dist" depends="init,test,compile">
+  <target name="dist" depends="init,test">
 
 	<echo message="${libversion}"/>  	
 	<property name="distbuild"  value="${dist}/build" />
@@ -187,10 +187,8 @@
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
     	</metainf>
-    	<zipfileset src="lib/Servlet2.5_JSP2.1/servlet-api.jar">
-    		<exclude name="*.html"/>
-    	</zipfileset>
-    	<zipfileset src="lib/swt.jar"/>
+    	<zipfileset src="lib/Servlet2.5_JSP2.1/servlet-api.jar" excludes="META-INF/**,*.html"/>
+    	<zipfileset src="lib/swt.jar" excludes="META-INF/**"/>
     	<manifest>
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>
@@ -233,16 +231,14 @@
     	<metainf dir=".">
 		    <include name="sdloaderversion.txt"/>
     	</metainf>
-    	<zipfileset src="lib/Servlet2.4_JSP2.0/commons-el.jar"/>
-    	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-compiler.jar"/>
-    	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-compiler-jdt.jar"/>
-    	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-runtime.jar"/>
-       	<zipfileset src="lib/Servlet2.4_JSP2.0/jsp-api.jar"/>    	
-    	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar">
-    		<exclude name="*.html"/>
-    	</zipfileset>
-    	<zipfileset src="lib/Servlet2.4_JSP2.0/commons-logging.jar"/>
-		<zipfileset src="lib/swt.jar"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/commons-el.jar" excludes="META-INF/**,*.html"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-compiler.jar" excludes="META-INF/**,*.html"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-compiler-jdt.jar" excludes="META-INF/**,*.html"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/jasper-runtime.jar" excludes="META-INF/**,*.html"/>
+       	<zipfileset src="lib/Servlet2.4_JSP2.0/jsp-api.jar" excludes="META-INF/**,*.html"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/servlet-api.jar" excludes="META-INF/**,*.html"/>
+    	<zipfileset src="lib/Servlet2.4_JSP2.0/commons-logging.jar" excludes="META-INF/**,*.html"/>
+		<zipfileset src="lib/swt.jar" excludes="META-INF/**,*.html"/>
     	<manifest>
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>
@@ -279,7 +275,7 @@
 			<include name="webapps/WARFILE*"/>			
 			<include name="webapps/ROOT/*"/>
 		</fileset>
-    </copy>  
+    </copy> 
     <jar jarfile="${distbuildstandalone}/sdloader-jsp21/lib/sdloader-jsp21.jar" compress="true">
     	<fileset dir="${build}"/>    	
     	<metainf dir=".">
@@ -293,7 +289,7 @@
     	<zipfileset src="lib/Servlet2.5_JSP2.1/jasper-jdt.jar" excludes="META-INF/**"/>
     	<zipfileset src="lib/Servlet2.5_JSP2.1/jsp-api.jar" excludes="META-INF/**"/>
     	<zipfileset src="lib/Servlet2.5_JSP2.1/servlet-api.jar" excludes="META-INF/**,*.html"/>
-    	<zipfileset src="lib/swt.jar"/>
+    	<zipfileset src="lib/swt.jar" excludes="META-INF/**"/>
     	<manifest>
  	    	<attribute name="Main-Class" value="${mainclassstandalone}"/>
 		</manifest>

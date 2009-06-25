@@ -17,7 +17,7 @@ public class LineSpeedServlet extends HttpServlet {
 			throws ServletException, IOException {
 
 		OutputStream os = resp.getOutputStream();
-		byte[] buf = new byte[80000];// 80k
+		byte[] buf = new byte[40000];// 40k
 		os.write(buf);
 		os.flush();
 	}

@@ -474,9 +474,9 @@ public class SDLoader implements Lifecycle {
 
 		// destroy webapps
 		socketProcessorPool.close();
+		sdLoaderThread.close();
 		sessionManager.close();
 		webAppManager.close();
-		sdLoaderThread.close();
 		shutdownHook.removeShutdownHook();
 
 		waitForSDLoaderThreadStop();
