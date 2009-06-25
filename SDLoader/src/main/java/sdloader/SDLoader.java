@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2007 the original author or authors.
+ * Copyright the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import sdloader.util.ResourceUtil;
 import sdloader.util.ThreadUtil;
 
 /**
- * SDLoader ローカル動作のアプリケーションサーバー
+ * SDLoader.
  * 
  * @author c9katayama
  */
