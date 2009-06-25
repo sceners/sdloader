@@ -1,6 +1,8 @@
-package sdloader;
+package sdloader.testloadonstartup;
 
 import junit.framework.TestCase;
+import sdloader.SDLoader;
+import sdloader.StartUpList;
 import sdloader.javaee.WebAppContext;
 import sdloader.util.Browser;
 

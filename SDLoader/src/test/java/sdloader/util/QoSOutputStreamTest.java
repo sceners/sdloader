@@ -19,13 +19,13 @@ public class QoSOutputStreamTest extends TestCase {
 		execute((64 * 1000 / 8) * 3 + 100, LineSpeed.ISDN_64K_BPS);
 
 		System.out.println("64k");
+		execute(8000, LineSpeed.ISDN_64K_BPS);// 8k
+		execute(16000, LineSpeed.ISDN_64K_BPS);// 16k
 		execute(8000 * 10, LineSpeed.ISDN_64K_BPS);// 80k
-		execute(16000 * 10, LineSpeed.ISDN_64K_BPS);// 160k
-		execute(8000 * 100, LineSpeed.ISDN_64K_BPS);// 800k
 		System.out.println("128k");
+		execute(8000, LineSpeed.ISDN_128K_BPS);// 8k
+		execute(16000, LineSpeed.ISDN_128K_BPS);// 16k
 		execute(8000 * 10, LineSpeed.ISDN_128K_BPS);// 80k
-		execute(16000 * 10, LineSpeed.ISDN_128K_BPS);// 160k
-		execute(8000 * 100, LineSpeed.ISDN_128K_BPS);// 800k
 
 	}
 

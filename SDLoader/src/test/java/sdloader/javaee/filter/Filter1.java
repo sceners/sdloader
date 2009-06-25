@@ -24,7 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-public class TestFilter1 implements Filter {
+public class Filter1 implements Filter {
 
 	public void init(FilterConfig arg0) throws ServletException {
 		System.out.println("init 1");
