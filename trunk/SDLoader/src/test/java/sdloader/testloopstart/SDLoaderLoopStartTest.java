@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.looptest;
+package sdloader.testloopstart;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -64,7 +64,7 @@ public class SDLoaderLoopStartTest extends TestCase {
 		final SDLoader server = new SDLoader(port);
 		server.setAutoPortDetect(useAutoPortDetect);
 		final WebAppContext ap = new WebAppContext("/loop",
-				"src/test/java/sdloader/looptest");
+				"src/test/java/sdloader/testloopstart");
 		server.addWebAppContext(ap);
 		LogManager.getLogManager().reset();
 		server.start();

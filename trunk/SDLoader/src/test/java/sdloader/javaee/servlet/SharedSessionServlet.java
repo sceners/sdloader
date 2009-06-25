@@ -29,7 +29,7 @@ import javax.servlet.http.HttpSession;
  * 
  * @author c9katayama
  */
-public class SharedSessionTestServlet extends HttpServlet {
+public class SharedSessionServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
