@@ -14,18 +14,18 @@ import sdloader.util.PathUtil;
 @SuppressWarnings("serial")
 public class CommandServlet extends HttpServlet {
 
+	public static final String COMMAND_STOP = "stop";
+
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
 
-		String commandPath = PathUtil.removeStartSlashIfNeed(req.getPathInfo());
-		Command command = CommandFactory.getCommand(commandPath);
+		String command = PathUtil.removeStartSlashIfNeed(req.getPathInfo());
 		if (command != null) {
-			if (command == Command.STOP) {
+			if (command.equals(COMMAND_STOP)) {
 				SDLoader loader = ProcessScopeContext.getContext()
 						.getSDLoader();
 				loader.stop();
-				res.getWriter().print("SDLoader stop.");
 				return;
 			}
 		}

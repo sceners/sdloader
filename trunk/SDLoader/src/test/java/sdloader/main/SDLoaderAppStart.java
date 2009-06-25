@@ -1,10 +1,11 @@
-package sdloader;
+package sdloader.main;
 
 import junit.framework.TestCase;
+import sdloader.SDLoader;
 import sdloader.javaee.WebAppContext;
 import sdloader.util.MiscUtils;
 
-public class SDLoaderTestAppStart extends TestCase {
+public class SDLoaderAppStart extends TestCase {
 
 	public static void main(String[] args) {
 		SDLoader sdloader = new SDLoader();

@@ -1,17 +1,21 @@
-package sdloader;
+package sdloader.main;
 
-import sdloader.constants.LineSpeed;
+import sdloader.SDLoader;
+import sdloader.javaee.WebAppContext;
 import sdloader.util.Browser;
 
-public class SDLoaderLineSpeedTest {
+public class SDLoaderWarDeploy {
 
 	public static void main(String[] args) {
-
 		SDLoader sdloader = new SDLoader(8080);
 		sdloader.setAutoPortDetect(true);
-		sdloader.setLineSpeed(LineSpeed.ISDN_64K_BPS);
+
+		WebAppContext webapp = new WebAppContext("/t2",
+				"webapps/t2-samples.war");
+		sdloader.addWebAppContext(webapp);
 
 		sdloader.start();
+
 		Browser.open("http://localhost:" + sdloader.getPort());
 	}
 }

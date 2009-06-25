@@ -1,8 +1,9 @@
-package sdloader;
+package sdloader.main;
 
+import sdloader.SDLoader;
 import sdloader.util.Browser;
 
-public class SDLoaderSSLTest {
+public class SDLoaderSSL {
 
 	public static void main(String[] args) {
 
