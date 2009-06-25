@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader;
+package sdloader.main;
 
 import java.net.Inet4Address;
 
+import sdloader.SDLoader;
 import sdloader.util.Browser;
 
 /**
@@ -24,7 +25,7 @@ import sdloader.util.Browser;
  * 
  * @author c9katayama
  */
-public class SDLoaderAutoDetectAndOutSidePortTest {
+public class SDLoaderAutoDetectAndOutSidePort {
 
 	public static void main(String[] args) {
 

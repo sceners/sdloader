@@ -62,34 +62,6 @@
 		<servlet-class>sdloader.testwebapp.filteranddispatchtest.ForwardServlet</servlet-class>
 	</servlet>
 	
-
-	<!-- load onstartup test -->
-    <servlet>
-        <servlet-name>S1</servlet-name>
-        <servlet-class>sdloader.testloadonstartup.servlet.Servlet1</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>S2</servlet-name>
-        <servlet-class>sdloader.testloadonstartup.servlet.Servlet2</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet>
-        <servlet-name>S3</servlet-name>
-        <servlet-class>sdloader.testloadonstartup.servlet.Servlet3</servlet-class>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
-    <servlet>
-        <servlet-name>S4</servlet-name>
-        <servlet-class>sdloader.testloadonstartup.servlet.Servlet4</servlet-class>
-		<load-on-startup>-1</load-on-startup>
-    </servlet>
-    <servlet>
-        <servlet-name>S5</servlet-name>
-        <servlet-class>sdloader.testloadonstartup.servlet.Servlet5</servlet-class>
-		<load-on-startup>1</load-on-startup>
-    </servlet>
-	<!-- //load onstartup test -->
-	
 	<servlet-mapping>
 		<servlet-name>lageSizeFileDownloadServlet</servlet-name>
 		<url-pattern>/filetest/lageSizeFileDownloadServlet.zip</url-pattern>

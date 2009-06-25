@@ -1,8 +1,9 @@
-package sdloader;
+package sdloader.main;
 
+import sdloader.SDLoader;
 import sdloader.util.Browser;
 
-public class SDLoaderWebAppDetectTest {
+public class SDLoaderWebAppDetect {
 
 	public static void main(String[] args) {
 		SDLoader sdloader = new SDLoader(8080);

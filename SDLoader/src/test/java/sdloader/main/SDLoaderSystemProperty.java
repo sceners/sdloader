@@ -1,6 +1,8 @@
-package sdloader;
+package sdloader.main;
 
-public class SDLoaderSystemPropertyTest {
+import sdloader.SDLoader;
+
+public class SDLoaderSystemProperty {
 
 	public static void main(String[] args) {
 		SDLoader sdLoader = new SDLoader();

@@ -56,8 +56,9 @@ public class SDLoaderHelper {
 			urlcon.setConnectTimeout(100);
 			urlcon.connect();
 			urlcon.getInputStream();
+			Thread.sleep(100);
 			return;
-		} catch (IOException ioe) {
+		} catch (Exception ioe) {
 		}
 	}
 }

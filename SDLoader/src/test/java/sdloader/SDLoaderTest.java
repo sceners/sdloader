@@ -15,4 +15,16 @@ public class SDLoaderTest extends TestCase {
 			}
 		}
 	}
+
+	public void testForceStop() {
+		SDLoader sdloader = new SDLoader(8080);
+		sdloader.setWebAppsDir("src/test/java/sdloader/main/webapps");
+		sdloader.start();
+
+		sdloader = new SDLoader(8080);
+		sdloader.setWebAppsDir("src/test/java/sdloader/main/webapps");
+		sdloader.start();
+
+		sdloader.stop();
+	}
 }
