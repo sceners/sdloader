@@ -138,23 +138,6 @@
 			<name>The T2 Project Maven2 Snapshot Repository</name>
 			<url>http://maven.t2framework.org/maven2-snapshot</url>
 		</repository>
-
-		<repository>
-			<id>repository.codehaus.org</id>
-			<name>Codehaus Maven2 Repository</name>
-			<url>http://repository.codehaus.org</url>
-		</repository>
-		<repository>
-			<id>localizable-doclet.googlecode.com</id>
-			<name>LocalizableDoclet Maven2 Repository</name>
-			<url>http://localizable-doclet.googlecode.com/svn/maven2/</url>
-		</repository>
-		<repository>
-			<id>local</id>
-			<name>Local libraly</name>
-			<url>file:${basedir}/lib</url>
-		</repository>
-
 	</repositories>
 	<dependencies>
 		<dependency>
