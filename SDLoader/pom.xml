@@ -47,24 +47,6 @@
     <url>http://sdloader.googlecode.com</url>
   </organization>
   <build>
-    <sourceDirectory>${basedir}/src</sourceDirectory>
-    <testSourceDirectory>${basedir}/test</testSourceDirectory>
-    <resources>
-      <resource>
-        <directory>${basedir}/src</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>${basedir}/test</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </testResource>
-    </testResources>
     <defaultGoal>validate</defaultGoal>
     <plugins>
       <plugin>
@@ -76,8 +58,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      
+      </plugin>      
       <!-- mvn com.googlecode.maven-overview-plugin:maven-overview-plugin:1.3:overview -->
       <plugin>
         <groupId>com.googlecode.maven-overview-plugin</groupId>
@@ -93,8 +74,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
             <encoding>UTF-8</encoding>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>1.5</source>
+            <target>1.5</target>
           </configuration>
         </plugin>
         <plugin>
@@ -180,58 +161,82 @@
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>org.t2framework.commons</groupId>
-      <artifactId>commons</artifactId>
-      <version>0.6.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.t2framework.ioc</groupId>
-      <artifactId>lucy-core</artifactId>
-      <version>0.5.2-ga</version>
-    </dependency>
-    <dependency>
-      <groupId>org.mvel</groupId>
-      <artifactId>mvel2</artifactId>
-      <version>2.0.7</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.5</version>
       <optional>true</optional>
+    </dependency>    
+    <dependency>
+      <groupId>swt</groupId>
+      <artifactId>swt</artifactId>
+      <scope>system</scope>
+      <version>0.0.1</version>
+      <systemPath>${basedir}/lib/swt.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <version>1.2.1</version>
+      <groupId>annotations-api</groupId>
+      <artifactId>annotations-api</artifactId>
+      <scope>system</scope>
+      <version>0.0.1</version>
+      <systemPath>${basedir}/lib/Servlet2.5_JSP2.1/annotations-api.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>1.4</version>
+      <groupId>jasper-jdt</groupId>
+      <artifactId>annotations-api</artifactId>
+      <scope>system</scope>
+      <version>0.0.1</version>
+      <systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jasper-jdt.jar</systemPath>
     </dependency>
-	<dependency>
-		<groupId>com.adobe.blazeds</groupId>
-		<artifactId>blazeds-common</artifactId>
-		<version>3.2.0.3978</version>
-	</dependency>
-	<dependency>
-		<groupId>com.adobe.blazeds</groupId>
-		<artifactId>blazeds-core</artifactId>
-		<version>3.2.0.3978</version>
-	</dependency>
     <dependency>
-      <groupId>sdloader</groupId>
-      <artifactId>sdloader-jsp21</artifactId>
-      <version>0.2.4</version>
-      <scope>test</scope>
-    </dependency>	
+      <groupId>annotations-api</groupId>
+      <artifactId>annotations-api</artifactId>
+      <scope>system</scope>
+      <version>0.0.1</version>
+      <systemPath>${basedir}/lib/Servlet2.5_JSP2.1/annotations-api.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>jsp-api</groupId>
+      <artifactId>jsp-api</artifactId>
+      <scope>system</scope>
+      <version>0.0.1</version>
+      <systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jsp-api.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>servlet-api</groupId>
+      <artifactId>servlet-api</artifactId>
+      <scope>system</scope>
+      <version>0.0.1</version>
+      <systemPath>${basedir}/lib/Servlet2.5_JSP2.1/servlet-api.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>tomcat-juli</groupId>
+      <artifactId>tomcat-juli</artifactId>
+      <scope>system</scope>
+      <version>0.0.1</version>
+      <systemPath>${basedir}/lib/Servlet2.5_JSP2.1/tomcat-juli.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>el-api</groupId>
+      <artifactId>el-api</artifactId>
+      <scope>system</scope>
+      <version>0.0.1</version>
+      <systemPath>${basedir}/lib/Servlet2.5_JSP2.1/el-api.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>jasper</groupId>
+      <artifactId>jasper</artifactId>
+      <scope>system</scope>
+      <version>0.0.1</version>
+      <systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jasper.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>jasper-el</groupId>
+      <artifactId>jasper-el</artifactId>
+      <scope>system</scope>
+      <version>0.0.1</version>
+      <systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jasper-el.jar</systemPath>
+    </dependency>
+
   </dependencies>
   <distributionManagement>
     <repository>
