@@ -1,16 +1,15 @@
-package sdloader.testwebapp.loadonstartuptest;
+package sdloader.testloadonstartup.servlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
-import sdloader.StartUpList;
+import junit.framework.Assert;
 
 @SuppressWarnings("serial")
 public class Servlet1 extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
-		System.out.println("Servlet1 init.");
-		StartUpList.startUpList.add("Servlet1");
+		Assert.assertEquals(4, StartUpNum.startupNum++);
 	}
 
 }
