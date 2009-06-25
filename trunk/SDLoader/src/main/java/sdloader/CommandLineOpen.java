@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2007 the original author or authors.
+ * Copyright the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import sdloader.javaee.WebAppContext;
 import sdloader.util.CollectionsUtil;
 
 /**
- * SDLoaderをオープンし、デプロイしたアプリの一覧をブラウザに表示します。
+ * SDLoaderをオープンし、デプロイしたアプリの一覧をブラウザに表示します.
  * 
  * @author c9katayama
  */
@@ -132,11 +132,8 @@ public class CommandLineOpen {
 						"外部からのアクセス可能なポートを使用するかどうか。",
 						"指定しない場合、localhostのみのリクエストを受け付けます。",
 						"例）--useOutSidePort=true"));
-		optionList
-		.add(new Option("--sslEnable",
-				"SSLを使用するかどうか。",
-				"指定しない場合、SSLは使用しません。",
-				"例）--sslEnable=true"));
+		optionList.add(new Option("--sslEnable", "SSLを使用するかどうか。",
+				"指定しない場合、SSLは使用しません。", "例）--sslEnable=true"));
 		optionList.add(new Option("--lineSpeed", "擬似的な回線速度を設定します。",
 				"指定しない場合、速度制限はありません。", "例）--lineSpeed=64000 (64Kbpsの場合)"));
 		optionList.add(new Option("--workDir",
