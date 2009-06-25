@@ -28,7 +28,7 @@ public class SDLoaderLineSpeedTest extends TestCase {
 			byte[] buf = new byte[1024];
 			while (is.read(buf) != -1) {
 			}
-			assertTrue((System.currentTimeMillis() - time) > 10000);
+			assertTrue((System.currentTimeMillis() - time) > 5000);
 		} finally {
 			sdloader.stop();
 		}

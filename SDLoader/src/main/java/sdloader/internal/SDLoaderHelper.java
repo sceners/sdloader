@@ -1,6 +1,7 @@
 package sdloader.internal;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.ServerSocket;
 import java.net.URL;
@@ -46,6 +47,7 @@ public class SDLoaderHelper {
 	}
 
 	public void sendStopCommand(int port) {
+		InputStream is = null;
 		try {
 			URL stopUrl = new URL("http://localhost:" + port
 					+ "/sdloader-command/stop");
@@ -54,11 +56,15 @@ public class SDLoaderHelper {
 			urlcon.setRequestMethod("POST");
 			urlcon.setUseCaches(false);
 			urlcon.setConnectTimeout(100);
+			urlcon.setDoInput(true);
+			urlcon.setDoOutput(true);
 			urlcon.connect();
-			urlcon.getInputStream();
+			is = urlcon.getInputStream();
 			Thread.sleep(100);
 			return;
-		} catch (Exception ioe) {
+		} catch (Throwable ioe) {
+		} finally {
+			IOUtil.closeNoException(is);
 		}
 	}
 }
