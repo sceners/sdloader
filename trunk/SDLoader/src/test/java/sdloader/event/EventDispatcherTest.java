@@ -8,61 +8,61 @@ import junit.framework.TestCase;
 @SuppressWarnings("unchecked")
 public class EventDispatcherTest extends TestCase {
 
-	static class EventTest extends Event {
-		public EventTest(String type, Object source) {
+	static class EventT extends Event {
+		public EventT(String type, Object source) {
 			super(type, source);
 		}
 	}
 
-	static interface ListenerTest {
-		public void handle(EventTest e);
+	static interface ListenerT {
+		public void handle(EventT e);
 	}
 
 	public void testDispatch() {
-		EventDispatcher dispatcher = new EventDispatcher<ListenerTest, EventTest>(
+		EventDispatcher dispatcher = new EventDispatcher<ListenerT, EventT>(
 				"handle");
 		final List<String> handleString = new ArrayList<String>();
 
-		dispatcher.addEventListener("handle", new ListenerTest() {
-			public void handle(EventTest e) {
+		dispatcher.addEventListener("handle", new ListenerT() {
+			public void handle(EventT e) {
 				handleString.add((String) e.getSource());
 			}
 		});
 
-		dispatcher.dispatchEvent(new EventTest("handle", "ok"));
+		dispatcher.dispatchEvent(new EventT("handle", "ok"));
 
 		assertEquals(1, handleString.size());
 		assertEquals("ok", handleString.get(0));
 	}
 
 	public void testDetectMethod() {
-		EventDispatcher<ListenerTest, EventTest> dispatcher = new EventDispatcher<ListenerTest, EventTest>(
-				ListenerTest.class);
+		EventDispatcher<ListenerT, EventT> dispatcher = new EventDispatcher<ListenerT, EventT>(
+				ListenerT.class);
 		final List<String> handleString = new ArrayList<String>();
 
-		dispatcher.addEventListener("handle", new ListenerTest() {
-			public void handle(EventTest e) {
+		dispatcher.addEventListener("handle", new ListenerT() {
+			public void handle(EventT e) {
 				handleString.add((String) e.getSource());
 			}
 		});
-		dispatcher.dispatchEvent(new EventTest("handle", "ok"));
+		dispatcher.dispatchEvent(new EventT("handle", "ok"));
 
 		assertEquals(1, handleString.size());
 		assertEquals("ok", handleString.get(0));
 	}
 
 	public void testRemove() {
-		EventDispatcher<ListenerTest, EventTest> dispatcher = new EventDispatcher<ListenerTest, EventTest>(
+		EventDispatcher<ListenerT, EventT> dispatcher = new EventDispatcher<ListenerT, EventT>(
 				"handle");
 		final List<String> handleString = new ArrayList<String>();
 
-		ListenerTest l1 = new ListenerTest() {
-			public void handle(EventTest e) {
+		ListenerT l1 = new ListenerT() {
+			public void handle(EventT e) {
 				handleString.add((String) e.getSource() + "l1");
 			}
 		};
-		ListenerTest l2 = new ListenerTest() {
-			public void handle(EventTest e) {
+		ListenerT l2 = new ListenerT() {
+			public void handle(EventT e) {
 				handleString.add((String) e.getSource() + "l2");
 			}
 		};
@@ -74,7 +74,7 @@ public class EventDispatcherTest extends TestCase {
 
 		dispatcher.removeEventListener("handle", l1);
 
-		dispatcher.dispatchEvent(new EventTest("handle", "ok"));
+		dispatcher.dispatchEvent(new EventT("handle", "ok"));
 
 		assertEquals(2, handleString.size());
 		assertEquals("okl2", handleString.get(0));
