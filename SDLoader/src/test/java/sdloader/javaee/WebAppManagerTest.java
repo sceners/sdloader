@@ -7,7 +7,7 @@ public class WebAppManagerTest extends TestCase {
 
 	public void testFindWebApp() {
 
-		SDLoader loader = new SDLoader();
+		SDLoader loader = new SDLoader(8080);
 		try {
 			loader.addWebAppContext(new WebAppContext("/hoge", "test"));
 			loader.addWebAppContext(new WebAppContext("/hogehoge", "test"));
@@ -18,8 +18,8 @@ public class WebAppManagerTest extends TestCase {
 
 			assertEquals("/hoge", manager.findWebApp("/hoge/test")
 					.getContextPath());
-			assertEquals(null, manager.findWebApp("/hoge2"));
-			assertEquals(null, manager.findWebApp("/hog"));
+			assertEquals("/", manager.findWebApp("/hoge2").getContextPath());
+			assertEquals("/", manager.findWebApp("/hog").getContextPath());
 			assertEquals("/hogehoge", manager.findWebApp("/hogehoge")
 					.getContextPath());
 			assertEquals("/hogehoge", manager.findWebApp("/hogehoge/")
