@@ -32,7 +32,8 @@ import sdloader.util.CollectionsUtil;
  * @param <L>
  *            ListenerTest
  */
-public class EventDispatcher<L, E extends Event<?>> {
+@SuppressWarnings("unchecked")
+public class EventDispatcher<L, E extends Event> {
 
 	private String invokeMethodName;
 	private Map<String, List<L>> listenerMap = CollectionsUtil.newHashMap();
