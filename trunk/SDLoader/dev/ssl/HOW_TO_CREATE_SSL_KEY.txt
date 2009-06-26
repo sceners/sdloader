@@ -1,35 +1,35 @@
-ƒL[ƒyƒAì¬i”é–§Œ®EŒöŠJŒ®j
+ã‚­ãƒ¼ãƒšã‚¢ä½œæˆï¼ˆç§˜å¯†éµãƒ»å…¬é–‹éµï¼‰
 keytool.exe -genkey -alias SDLoader -keyalg RSA -keysize 512 -keypass SDLoader -validity 3650 -storetype JKS -keystore SDLoader.keystore -storepass SDLoader
-CSRì¬
+CSRä½œæˆ
 keytool -certreq -alias SDLoader -file SDLoader.csr -keystore SDLoader.keystore -storetype JKS -storepass SDLoader -keypass SDLoader
-CAì¬
-Openssl‚ÌCA.sh‚ğƒRƒs[BˆÈ‰º‚ğ•ÏX
+CAä½œæˆ
+Opensslã®CA.shã‚’ã‚³ãƒ”ãƒ¼ã€‚ä»¥ä¸‹ã‚’å¤‰æ›´
 DAYS="-days 3650"
 CADAYS="-days 3650"
 CATOP="./CA"
-ƒRƒ}ƒ“ƒhÀs ./CA.sh -newca
+ã‚³ãƒãƒ³ãƒ‰å®Ÿè¡Œ ./CA.sh -newca
 
-/usr/local/openssl/default/openssl.cnf‚ğƒRƒs[
+/usr/local/openssl/default/openssl.cnfã‚’ã‚³ãƒ”ãƒ¼
 
-ˆÈ‰º•ÏX
+ä»¥ä¸‹å¤‰æ›´
 default_days=3650
 default_crl_days=3650
 [ policy_match ]
-countryNameˆÈ‰º‚·‚×‚Ä‚ğoptional
-nsCertType‚ÌƒRƒƒ“ƒg‚ğ‚Í‚¸‚·
+countryNameä»¥ä¸‹ã™ã¹ã¦ã‚’optional
+nsCertTypeã®ã‚³ãƒ¡ãƒ³ãƒˆã‚’ã¯ãšã™
 
-–¼
+ç½²å
 openssl ca -config openssl.cnf -in SDLoader.csr -out SDLoaderCert.pem
 
 
-JKSŒ`®‚ÌƒL[ƒXƒgƒA‚É“ü‚ê‚é‚½‚ß‚ÉADERŒ`®‚É•ÏX
+JKSå½¢å¼ã®ã‚­ãƒ¼ã‚¹ãƒˆã‚¢ã«å…¥ã‚Œã‚‹ãŸã‚ã«ã€DERå½¢å¼ã«å¤‰æ›´
 openssl x509 -in cacert.pem -outform DER -out cacert.der
 openssl x509 -in SDLoaderCert.pem -outform DER -out SDLoaderCert.der
 
-ƒL[ƒXƒgƒA‚ÉŠi”[
+ã‚­ãƒ¼ã‚¹ãƒˆã‚¢ã«æ ¼ç´
 keytool -import -alias SDLoaderCA -file cacert.der -keystore SDLoader.keystore -trustcacerts -storetype JKS -keypass SDLoader -storepass SDLoader
 keytool -import -alias SDLoaderServer -file SDLoaderCert.der -keystore SDLoader.keystore -trustcacerts -storetype JKS -keypass SDLoader -storepass SDLoader
 
 
-ƒL[ƒXƒgƒA‚ğg‚Á‚ÄSSL’ÊM
+ã‚­ãƒ¼ã‚¹ãƒˆã‚¢ã‚’ä½¿ã£ã¦SSLé€šä¿¡
 
