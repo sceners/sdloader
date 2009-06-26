@@ -3,11 +3,9 @@ package sdloader.desktopswt;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.BindException;
-import java.util.Iterator;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -18,6 +16,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -31,7 +30,6 @@ import org.eclipse.swt.widgets.Shell;
 import sdloader.SDLoader;
 import sdloader.lifecycle.LifecycleEvent;
 import sdloader.lifecycle.LifecycleListener;
-import sdloader.util.ResourceUtil;
 
 public class DesktopSWTMain {
 
@@ -41,7 +39,7 @@ public class DesktopSWTMain {
 	private CTabFolder tabFolder;
 
 	private SDLoader server;
-	private Properties appProperties;
+	private AppConfig appConfig;
 
 	public static void main(String[] args) {
 		new DesktopSWTMain().open();
@@ -50,12 +48,21 @@ public class DesktopSWTMain {
 	@SuppressWarnings("deprecation")
 	public void open() {
 
+		initAppConfig();
+
 		display = new Display();
 		openSplashWindow();
-		initAppProperty();
 
-		shell = new Shell(display);
-		shell.setText(getTitleName());
+		int arg = SWT.TITLE | SWT.MIN | SWT.CLOSE;
+		if (appConfig.isResizable()) {
+			arg |= SWT.RESIZE;
+		}
+		shell = new Shell(display, arg);
+		Point p = appConfig.getWindowSize();
+		if (p != null) {
+			shell.setSize(p);
+		}
+		shell.setText(appConfig.getTitleName());
 		shell.setImage(getWindowIconImage());
 		FillLayout layout = new FillLayout(SWT.VERTICAL);
 		shell.setLayout(layout);
@@ -78,9 +85,7 @@ public class DesktopSWTMain {
 			}
 		});
 		try {
-
 			initSDLoader();
-
 			while (!shell.isDisposed()) {
 				if (!display.readAndDispatch()) {
 					display.sleep();
@@ -90,7 +95,7 @@ public class DesktopSWTMain {
 			try {
 				splash.close();
 			} catch (Exception ex) {
-			}			
+			}
 			MessageBox msg = new MessageBox(shell, SWT.ICON_ERROR);
 			msg.setMessage("エラー");
 			msg.setMessage(e.getMessage());
@@ -132,18 +137,9 @@ public class DesktopSWTMain {
 		splash.open();
 	}
 
-	protected void initAppProperty() {
-		appProperties = new Properties();
-		InputStream app = ResourceUtil.getResourceAsStream(
-				"application.properties", DesktopSWTMain.class);
-		if (app == null) {
-			return;
-		}
-		try {
-			appProperties.load(app);
-		} catch (IOException ioe) {
-			throw new RuntimeException("application.propertiesのロードに失敗しました。");
-		}
+	protected void initAppConfig() {
+		appConfig = new AppConfig();
+		appConfig.init();
 	}
 
 	public void initSDLoader() {
@@ -154,23 +150,22 @@ public class DesktopSWTMain {
 	protected void initServer() {
 		server = new SDLoader(true);
 
-		Iterator<Object> keyItr = appProperties.keySet().iterator();
-		while (keyItr.hasNext()) {
-			String key = (String) keyItr.next();
+		for (Entry<Object, Object> entry : appConfig.getEntryList()) {
+			String key = (String) entry.getKey();
 			if (key.startsWith(SDLoader.CONFIG_KEY_PREFIX)) {
-				String value = appProperties.getProperty(key);
+				String value = (String) entry.getValue();
 				server.setConfig(key, value);
 			}
 			// TODO
 			if (key.equals("port")) {
-				String value = appProperties.getProperty(key);
+				String value = (String) entry.getValue();
 				server.setConfig(SDLoader.KEY_SDLOADER_PORT, value);
 			}
 		}
 
 		String webAppsDir = System.getProperty("user.dir") + "/webapps";
 		webAppsDir = webAppsDir.replace("\\", "/");
-		server.setConfig(SDLoader.KEY_SDLOADER_WEBAPP_PATH, webAppsDir);
+		server.setWebAppsDir(webAppsDir);
 
 		server.addEventListener(LifecycleEvent.AFTER_START,
 				new LifecycleListener() {
@@ -207,10 +202,6 @@ public class DesktopSWTMain {
 			return new Image(display, getClass().getResourceAsStream(
 					"/icon/splash.bmp"));
 		}
-	}
-
-	protected String getTitleName() {
-		return appProperties.getProperty("title", "SDLoaderDesktopSWT");
 	}
 
 	protected Image getWindowIconImage() {
