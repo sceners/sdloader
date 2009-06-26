@@ -27,4 +27,25 @@ public class SDLoaderTest extends TestCase {
 
 		sdloader.stop();
 	}
+
+	public void testWaitForStop() {
+		final SDLoader sdloader = new SDLoader(8080);
+		sdloader.setWebAppsDir("src/test/java/sdloader/main/webapps");
+		sdloader.start();
+
+		long time = System.currentTimeMillis();
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					sleep(1000);
+					sdloader.stop();
+				} catch (Exception e) {
+					fail();
+				}
+			}
+		}.start();
+		sdloader.waitForStop();
+		assertTrue((System.currentTimeMillis() - time) >= 1000);
+	}
 }
