@@ -14,9 +14,9 @@ import sdloader.util.ResourceUtil;
 public class AppConfig {
 
 	public static final String CONFIG_TITLE = "title";
-	public static final String CONFIG_WINDOW_WIDTH = "windowWidth";
-	public static final String CONFIG_WINDOW_HEIGHT = "windowHeight";
-	public static final String CONFIG_RESIZABLE = "resizable";
+	public static final String CONFIG_WINDOW_WIDTH = "window.width";
+	public static final String CONFIG_WINDOW_HEIGHT = "window.height";
+	public static final String CONFIG_RESIZABLE = "window.resizable";
 
 	private Properties appProperties;
 
