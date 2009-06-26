@@ -105,7 +105,6 @@ public class HttpProcessor extends Thread {
 
 	void stopProcessor() {
 		running.set(false);
-		IOUtil.closeSocketNoException(this.socket);
 		ThreadUtil.notify(this);
 	}
 
@@ -128,8 +127,8 @@ public class HttpProcessor extends Thread {
 		OutputStream os = null;
 		try {
 			socket.setTcpNoDelay(true);
-			is = socket.getInputStream();
-			os = socket.getOutputStream();
+			is = createInputStream(socket.getInputStream());
+			os = createOutputStream(socket.getOutputStream());
 			int requestCount = 1;
 			while (true) {
 				ProcessScopeContext.init();
@@ -176,8 +175,7 @@ public class HttpProcessor extends Thread {
 
 	protected HttpRequest processReadRequest(InputStream is) throws IOException {
 		try {
-			HttpRequestReader reader = new HttpRequestReader(
-					createInputStream(is));
+			HttpRequestReader reader = new HttpRequestReader(is);
 			HttpRequest httpRequest = new HttpRequest(reader);
 			log.debug("request read start.");
 			httpRequest.readRequest();
@@ -374,7 +372,6 @@ public class HttpProcessor extends Thread {
 			throws IOException {
 		HttpHeader resHeader = response.getResponseHeader();
 		OutputStream os = ProcessScopeContext.getContext().getOutputStream();
-		os = createOutputStream(os);
 
 		byte[] headerData = resHeader.buildResponseHeader().getBytes();
 		os.write(headerData);

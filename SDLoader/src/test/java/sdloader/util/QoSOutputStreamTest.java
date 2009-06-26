@@ -52,9 +52,9 @@ public class QoSOutputStreamTest extends TestCase {
 					if (time != 0) {
 						long bit = byteSize * 8L;
 						double sec = time / 1000D;
-						System.out.println("bit = " + bit + " sec=" + sec);
-						System.out.println("targetbsp=" + bps + " resultbps="
-								+ bit / sec);
+						System.out.println("bit = " + bit + " sec=" + sec
+								+ " targetbsp=" + bps + " resultbps=" + bit
+								/ sec);
 					}
 
 					byte[] result = bout.toByteArray();

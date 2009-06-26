@@ -22,6 +22,14 @@ package sdloader.util;
  */
 public class ThreadUtil {
 
+	public static void sleep(int sleepTime) {
+		try {
+			Thread.sleep(sleepTime);
+		} catch (Exception e) {
+			// ignore
+		}
+	}
+
 	public static void join(Thread t) {
 		try {
 			t.join();

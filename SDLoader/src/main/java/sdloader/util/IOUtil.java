@@ -80,8 +80,8 @@ public class IOUtil {
 		if (closeables != null) {
 			for (Closeable cl : closeables) {
 				try {
-					if(cl instanceof Flushable){
-						flushNoException((Flushable)cl);
+					if (cl instanceof Flushable) {
+						flushNoException((Flushable) cl);
 					}
 					cl.close();
 				} catch (Exception ioe) {
@@ -111,8 +111,8 @@ public class IOUtil {
 	}
 
 	public static ServerSocket createSSLServerSocket(int bindPort,
-			boolean useOutSidePort, String keyStoreFilePath, String keyStorePassword)
-			throws IOException {
+			boolean useOutSidePort, String keyStoreFilePath,
+			String keyStorePassword) throws IOException {
 		try {
 			KeyStore keyStore = KeyStore.getInstance("JKS");
 			char[] password = keyStorePassword.toCharArray();
@@ -122,7 +122,7 @@ public class IOUtil {
 					.getInstance("SunX509");
 			keyManagerFactory.init(keyStore, password);
 			SSLContext sslContext = SSLContext.getInstance("TLS");
-			sslContext.init(keyManagerFactory.getKeyManagers(),null,null);
+			sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
 			ServerSocketFactory serverSocketFactory = sslContext
 					.getServerSocketFactory();
 			ServerSocket socket = serverSocketFactory.createServerSocket();

@@ -50,7 +50,7 @@ import sdloader.util.databuffer.ByteDataBuffer;
  */
 public class ResourceUtil {
 
-	private static final int DEFAULT_BUFFER_SIZE = 32 * 1024;
+	private static final int DEFAULT_BUFFER_SIZE = 16 * 1024;
 
 	private static final String SLASH = "/";
 	private static final String FILE_PROTOCOL = "file";

@@ -8,8 +8,7 @@ import sdloader.util.MiscUtils;
 public class SDLoaderAppStart extends TestCase {
 
 	public static void main(String[] args) {
-		SDLoader sdloader = new SDLoader();
-		sdloader.setAutoPortDetect(true);
+		SDLoader sdloader = new SDLoader(8080);
 		sdloader.setUseNoCacheMode(true);
 		sdloader.setURIEncoding("UTF-8");
 		WebAppContext webapp = new WebAppContext("/testwebapp", "webapps/test");
