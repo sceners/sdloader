@@ -28,7 +28,7 @@ import sdloader.constants.LineSpeed;
  */
 public class QoSInputStream extends InputStream {
 
-	private static final int SEC_SLICE_NUM = 8;
+	private static final int SEC_SLICE_NUM = 4;
 	private static final int BIT_PER_BYTE = 8;
 	private static final int SLEEP_MILLI_SEC = 1000 / SEC_SLICE_NUM;
 
@@ -36,7 +36,7 @@ public class QoSInputStream extends InputStream {
 	private int bytePerSliceSec;
 
 	private int readBytes;
-	private long lastSleepTime;
+	private long nextReadTime;
 
 	public QoSInputStream(InputStream in, int bps) {
 		this.in = in;
@@ -55,22 +55,23 @@ public class QoSInputStream extends InputStream {
 
 	@Override
 	public int read() throws IOException {
-		int b = in.read();
-		readBytes++;
-		if (lastSleepTime == 0) {
-			lastSleepTime = System.currentTimeMillis();
+		if (nextReadTime == 0) {
+			nextReadTime = System.currentTimeMillis() + SLEEP_MILLI_SEC;
 		}
-		if (readBytes == bytePerSliceSec) {
-			long now = System.currentTimeMillis();
-			long sleepTime = SLEEP_MILLI_SEC - (now - lastSleepTime);
+		if (readBytes == 0) {
+			long sleepTime = nextReadTime - System.currentTimeMillis();
 			if (sleepTime > 0) {
 				try {
 					Thread.sleep(sleepTime);
 				} catch (InterruptedException e) {
 				}
 			}
-			lastSleepTime = System.currentTimeMillis();
+		}
+		int b = in.read();
+		readBytes++;
+		if (readBytes == bytePerSliceSec) {
 			readBytes = 0;
+			nextReadTime = System.currentTimeMillis() + SLEEP_MILLI_SEC;
 		}
 		return b;
 	}

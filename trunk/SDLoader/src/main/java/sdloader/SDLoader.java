@@ -138,8 +138,6 @@ public class SDLoader implements Lifecycle {
 
 	public AtomicBoolean running = new AtomicBoolean();
 
-	private HttpProcessorPool socketProcessorPool;
-
 	private SessionManager sessionManager;
 
 	private SDLoaderThread sdLoaderThread;
@@ -428,28 +426,25 @@ public class SDLoader implements Lifecycle {
 	 * ソケットをオープンし、サーバを開始します。
 	 */
 	public void start() {
+		long t = System.currentTimeMillis();
+
 		checkNotRunning();
 		helper.printInitMessage(log);
-
-		long t = System.currentTimeMillis();
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.BEFORE_START, this));
 
 		initConfig();
 
-		initSessionManager();
-
 		ServerSocket initSocket = initServerSocket();
 
-		initWebApp();
-		initSocketProcessor();
+		initSessionManager();
 
-		sdLoaderThread = new SDLoaderThread(initSocket);
+		initWebApp();
+
+		sdLoaderThread = new SDLoaderThread(this, initSocket);
 
 		sdLoaderThread.start();
-
-		waitForSDLoaderThreadRun();
 
 		log.info("SDLoader[port:" + getPort() + "] startup in "
 				+ (System.currentTimeMillis() - t) + " ms.");
@@ -467,31 +462,8 @@ public class SDLoader implements Lifecycle {
 		if (running.getAndSet(false) == false) {
 			return;
 		}
-		log.info("SDLoader[port:" + getPort() + "] shutdown start.");
-
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
-				LifecycleEvent.BEFORE_STOP, this));
-
-		// destroy webapps
-		socketProcessorPool.close();
 		sdLoaderThread.close();
-		sessionManager.close();
-		webAppManager.close();
-		shutdownHook.removeShutdownHook();
-
-		waitForSDLoaderThreadStop();
-
-		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
-				LifecycleEvent.AFTER_STOP, this));
-
-		socketProcessorPool = null;
-		sessionManager = null;
-		webAppManager = null;
-		sdLoaderThread = null;
-		shutdownHook = null;
-		dispatcher = null;
-
-		log.info("SDLoader[port:" + getPort() + "] stop.");
+		ThreadUtil.join(sdLoaderThread);
 	}
 
 	/**
@@ -499,20 +471,8 @@ public class SDLoader implements Lifecycle {
 	 * 
 	 */
 	public void waitForStop() {
-		waitForSDLoaderThreadStop();
-	}
-
-	protected void waitForSDLoaderThreadStop() {
 		if (isRunning()) {
 			ThreadUtil.join(sdLoaderThread);
-		}
-	}
-
-	protected void waitForSDLoaderThreadRun() {
-		synchronized (this) {
-			if (sdLoaderThread.isRunning() == false) {
-				ThreadUtil.wait(this);
-			}
 		}
 	}
 
@@ -616,12 +576,6 @@ public class SDLoader implements Lifecycle {
 		return servetSocket;
 	}
 
-	protected void initSocketProcessor() {
-		int maxThreadPoolNum = config
-				.getConfigInteger(KEY_SDLOADER_MAX_THREAD_POOL_NUM);
-		socketProcessorPool = new HttpProcessorPool(this, maxThreadPoolNum);
-	}
-
 	protected boolean checkNotRunning() {
 		if (isRunning()) {
 			throw new IllegalStateException("SDLoader is already running.");
@@ -633,31 +587,38 @@ public class SDLoader implements Lifecycle {
 		return webAppManager;
 	}
 
-	class SDLoaderThread extends Thread {
+	static class SDLoaderThread extends Thread {
 
 		private AtomicBoolean running = new AtomicBoolean();
 
 		private ServerSocket serverSocket;
 
-		SDLoaderThread(ServerSocket serverSocket) {
+		private HttpProcessorPool socketProcessorPool;
+
+		private SDLoader sdLoader;
+
+		public SDLoaderThread(SDLoader sdLoader, ServerSocket serverSocket) {
 			super("SDLoaderThread");
-			this.serverSocket = serverSocket;
 			setDaemon(false);
+
+			this.sdLoader = sdLoader;
+			this.serverSocket = serverSocket;
+			initSocketProcessor();
+			running.set(true);
+		}
+
+		protected void initSocketProcessor() {
+			int maxThreadPoolNum = sdLoader.getSDLoaderConfig()
+					.getConfigInteger(KEY_SDLOADER_MAX_THREAD_POOL_NUM);
+			this.socketProcessorPool = new HttpProcessorPool(sdLoader,
+					maxThreadPoolNum);
 		}
 
 		public boolean isRunning() {
 			return running.get();
 		}
 
-		protected void notifyThreadStart() {
-			synchronized (SDLoader.this) {
-				running.set(true);
-				ThreadUtil.notify(SDLoader.this);
-			}
-		}
-
 		public void run() {
-			notifyThreadStart();
 			while (isRunning()) {
 				Socket socket = null;
 				try {
@@ -668,7 +629,7 @@ public class SDLoader implements Lifecycle {
 				} catch (AccessControlException ace) {
 					log.warn("Socket accept security exception "
 							+ ace.getMessage(), ace);
-					continue;
+					break;
 				} catch (Exception ioe) {
 					if (isRunning() == false) {
 						break;
@@ -677,13 +638,36 @@ public class SDLoader implements Lifecycle {
 					}
 				}
 			}
+			shutdownSDLoader();
 		}
 
 		public void close() {
-			if (running.getAndSet(false) == true) {
-				IOUtil.closeServerSocketNoException(serverSocket);
-				serverSocket = null;
+			synchronized (this) {
+				if (running.getAndSet(false) == true) {
+					IOUtil.closeServerSocketNoException(serverSocket);
+					serverSocket = null;
+				}
 			}
+		}
+
+		protected void shutdownSDLoader() {
+			int port = sdLoader.getPort();
+			SDLoader.log.info("SDLoader[port:" + port + "] shutdown start.");
+
+			sdLoader.dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+					LifecycleEvent.BEFORE_STOP, sdLoader));
+
+			// destroy webapps
+			IOUtil.closeServerSocketNoException(serverSocket);
+			socketProcessorPool.close();
+			sdLoader.webAppManager.close();
+			sdLoader.sessionManager.close();
+			sdLoader.shutdownHook.removeShutdownHook();
+
+			sdLoader.dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
+					LifecycleEvent.AFTER_STOP, sdLoader));
+
+			SDLoader.log.info("SDLoader[port:" + port + "] stop.");
 		}
 	}
 }

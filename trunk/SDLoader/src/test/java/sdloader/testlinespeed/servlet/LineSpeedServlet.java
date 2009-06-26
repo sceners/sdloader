@@ -2,6 +2,7 @@ package sdloader.testlinespeed.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +19,7 @@ public class LineSpeedServlet extends HttpServlet {
 
 		OutputStream os = resp.getOutputStream();
 		byte[] buf = new byte[40000];// 40k
+		Arrays.fill(buf, (byte) 1);
 		os.write(buf);
 		os.flush();
 	}

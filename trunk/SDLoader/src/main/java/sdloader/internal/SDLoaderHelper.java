@@ -49,18 +49,18 @@ public class SDLoaderHelper {
 	public void sendStopCommand(int port) {
 		InputStream is = null;
 		try {
-			URL stopUrl = new URL("http://localhost:" + port
+			URL stopUrl = new URL("http://127.0.0.1:" + port
 					+ "/sdloader-command/stop");
 			HttpURLConnection urlcon = (HttpURLConnection) stopUrl
 					.openConnection();
 			urlcon.setRequestMethod("POST");
 			urlcon.setUseCaches(false);
-			urlcon.setConnectTimeout(100);
+			urlcon.setConnectTimeout(1000);
+			urlcon.setReadTimeout(1000);
 			urlcon.setDoInput(true);
 			urlcon.setDoOutput(true);
 			urlcon.connect();
 			is = urlcon.getInputStream();
-			Thread.sleep(100);
 			return;
 		} catch (Throwable ioe) {
 		} finally {

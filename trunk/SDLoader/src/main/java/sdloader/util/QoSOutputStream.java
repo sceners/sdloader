@@ -28,7 +28,7 @@ import sdloader.constants.LineSpeed;
  */
 public class QoSOutputStream extends OutputStream {
 
-	private static final int SEC_SLICE_NUM = 8;
+	private static final int SEC_SLICE_NUM = 4;
 	private static final int BIT_PER_BYTE = 8;
 	private static final int SLEEP_MILLI_SEC = 1000 / SEC_SLICE_NUM;
 
@@ -36,36 +36,37 @@ public class QoSOutputStream extends OutputStream {
 	private int bytePerSliceSec;
 
 	private int writeBytes;
-	private long lastSleepTime;
+	private long nextWriteTime;
 
 	public QoSOutputStream(OutputStream out, int bps) {
 		this.out = out;
 		if (bps <= LineSpeed.NO_LIMIT) {
 			bytePerSliceSec = Integer.MAX_VALUE;
 		} else {
-			bytePerSliceSec = Math.max(1,
+			bytePerSliceSec = Math.max(100,
 					(int) (bps / BIT_PER_BYTE / SEC_SLICE_NUM));
 		}
 	}
 
 	@Override
 	public void write(int b) throws IOException {
-		out.write(b);
-		writeBytes++;
-		if (lastSleepTime == 0) {
-			lastSleepTime = System.currentTimeMillis();
+		if (nextWriteTime == 0) {
+			nextWriteTime = System.currentTimeMillis() + SLEEP_MILLI_SEC;
 		}
-		if (writeBytes == bytePerSliceSec) {
-			long now = System.currentTimeMillis();
-			long sleepTime = SLEEP_MILLI_SEC - (now - lastSleepTime);
+		if (writeBytes == 0) {
+			long sleepTime = nextWriteTime - System.currentTimeMillis();
 			if (sleepTime > 0) {
 				try {
 					Thread.sleep(sleepTime);
 				} catch (InterruptedException e) {
 				}
 			}
-			lastSleepTime = System.currentTimeMillis();
+		}
+		out.write(b);
+		writeBytes++;
+		if (writeBytes == bytePerSliceSec) {
 			writeBytes = 0;
+			nextWriteTime = System.currentTimeMillis() + SLEEP_MILLI_SEC;
 		}
 	}
 

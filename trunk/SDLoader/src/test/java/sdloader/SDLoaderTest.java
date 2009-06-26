@@ -1,8 +1,10 @@
 package sdloader;
 
 import java.lang.reflect.Field;
+import java.net.ServerSocket;
 
 import junit.framework.TestCase;
+import sdloader.util.IOUtil;
 
 public class SDLoaderTest extends TestCase {
 
@@ -26,6 +28,36 @@ public class SDLoaderTest extends TestCase {
 		sdloader.start();
 
 		sdloader.stop();
+	}
+
+	public void testForceStopFail() throws Exception {
+		ServerSocket sc = IOUtil.createServerSocket(8080, false);
+		try {
+			SDLoader sdloader = new SDLoader(8080);
+			sdloader.setWebAppsDir("src/test/java/sdloader/main/webapps");
+			sdloader.start();
+			fail();
+		} catch (Exception e) {
+
+		}
+		IOUtil.closeServerSocketNoException(sc);
+	}
+
+	public void testAutoPortDetect() throws Exception {
+		ServerSocket sc = IOUtil.createServerSocket(8080, false);
+		try {
+			SDLoader sdloader = new SDLoader(8080);
+			sdloader.setAutoPortDetect(true);
+			sdloader.setWebAppsDir("src/test/java/sdloader/main/webapps");
+			sdloader.start();
+
+			assertTrue(sdloader.getPort() != 8080);
+			sdloader.stop();
+
+		} catch (Exception e) {
+			fail();
+		}
+		IOUtil.closeServerSocketNoException(sc);
 	}
 
 	public void testWaitForStop() {

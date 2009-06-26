@@ -26,9 +26,18 @@ public class SDLoaderLineSpeedTest extends TestCase {
 
 			InputStream is = url.openConnection().getInputStream();
 			byte[] buf = new byte[1024];
-			while (is.read(buf) != -1) {
+			int totalSize = 0;
+			int size = 0;
+			while ((size = is.read(buf)) != -1) {
+				totalSize += size;
 			}
-			assertTrue((System.currentTimeMillis() - time) > 5000);
+			assertEquals(40000, totalSize);
+			long pasttime = System.currentTimeMillis() - time;
+			System.out.println("SIZE=" + totalSize + " PASTTIME=" + pasttime
+					+ " BPS=" + ((totalSize * 8) / (pasttime / 1000d)));
+			assertTrue(pasttime >= 5000);
+		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			sdloader.stop();
 		}
