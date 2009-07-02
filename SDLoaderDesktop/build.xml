@@ -14,7 +14,24 @@
     <mkdir dir="${dist}" />
   </target>
 
-  <target name="dist" depends="init">
+	<path id="build.classpath">
+		<fileset dir="lib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="compile">
+		<delete dir="${build}" />
+		<mkdir dir="${build}" />
+		<javac encoding="UTF-8" destdir="${build}" nowarn="true" deprecation="false" debug="true" optimize="false" source="1.5" target="1.5">
+			<src>
+				<pathelement location="${src}" />
+			</src>
+			<classpath refid="build.classpath" />
+		</javac>
+	</target>
+	
+  <target name="dist" depends="init,compile">
 	<echo message="${version}"/>	
     <jar jarfile="${dist}/SDLoaderDesktop.jar">
     	<fileset dir="${build}">
