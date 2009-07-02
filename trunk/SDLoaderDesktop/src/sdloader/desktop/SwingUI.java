@@ -34,174 +34,192 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import sdloader.LifecycleEvent;
-import sdloader.LifecycleListener;
 import sdloader.SDLoader;
+import sdloader.lifecycle.LifecycleEvent;
+import sdloader.lifecycle.LifecycleListener;
 import sdloader.util.MiscUtils;
 import sdloader.util.ResourceUtil;
 import sdloader.util.TextFormatUtil;
+
 /**
  * Swingで起動するSDLoaderのUI
+ * 
  * @author AKatayama
- *
+ * 
  */
 @SuppressWarnings("serial")
-public class SwingUI extends JFrame{
+public class SwingUI extends JFrame {
 
 	private SDLoader server;
 	private Properties appProperties;
-	
-	public static void main(String[] args){
+
+	public static void main(String[] args) {
 		SwingUI ui = new SwingUI();
-		try{
+		try {
 			ui.start();
-		}catch(Throwable t){
-			JOptionPane.showMessageDialog(ui,t.getMessage());
+		} catch (Throwable t) {
+			JOptionPane.showMessageDialog(ui, t.getMessage());
 			System.exit(-1);
 		}
 	}
 
-	public void start(){
+	public void start() {
 		initProperty();
 		initSystemProperty();
 		showLoadingWindow();
 		initServer();
 		startServer();
 	}
-	protected void initProperty(){		
-		InputStream app = ResourceUtil.getResourceAsStream("application.properties",SwingUI.class);
-		if(app == null){
+
+	protected void initProperty() {
+		InputStream app = ResourceUtil.getResourceAsStream(
+				"application.properties", SwingUI.class);
+		if (app == null) {
 			throw new RuntimeException("application.propertiesがありません");
 		}
 		appProperties = new Properties();
-		try{
+		try {
 			appProperties.load(app);
-		}catch(IOException ioe){
+		} catch (IOException ioe) {
 			throw new RuntimeException("application.propertiesがありません");
 		}
 		Iterator<?> keyItr = appProperties.keySet().iterator();
-		while(keyItr.hasNext()){
-			String key = (String)keyItr.next();
-			if(key.startsWith(SDLoader.CONFIG_KEY_PREFIX)){
+		while (keyItr.hasNext()) {
+			String key = (String) keyItr.next();
+			if (key.startsWith(SDLoader.CONFIG_KEY_PREFIX)) {
 				String value = appProperties.getProperty(key);
-				server.setConfig(key,value);
+				server.setConfig(key, value);
 			}
 		}
 	}
+
 	/**
 	 * application.propertiesで使う変数を登録
 	 */
-	protected void initSystemProperty(){
-		System.setProperty("webapps",(System.getProperty("user.dir")+"/webapps").replace("\\","/"));
+	protected void initSystemProperty() {
+		System.setProperty("webapps",
+				(System.getProperty("user.dir") + "/webapps")
+						.replace("\\", "/"));
 	}
-	protected void showLoadingWindow(){
+
+	protected void showLoadingWindow() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(300,200);
-		setLocationRelativeTo(null);//画面の真ん中
-		String title = appProperties.getProperty("title","SDLoaderDesktop");
+		setSize(300, 200);
+		setLocationRelativeTo(null);// 画面の真ん中
+		String title = appProperties.getProperty("title", "SDLoaderDesktop");
 		setTitle(title);
-		getContentPane().add(new Label("起動中です・・・"),BorderLayout.CENTER);
+		getContentPane().add(new Label("起動中です・・・"), BorderLayout.CENTER);
 		setVisible(true);
 	}
-	protected void initServer(){
-		
+
+	protected void initServer() {
+
 		server = new SDLoader();
 		String port = appProperties.getProperty("port");
-		if(port != null){
+		if (port != null) {
 			server.setPort(Integer.parseInt(port));
 			server.setAutoPortDetect(false);
-		}else{
+		} else {
 			server.setAutoPortDetect(true);
 		}
-		server.addEventListener(LifecycleEvent.AFTER_START,new LifecycleListener(){
-			public void handleLifecycle(LifecycleEvent<?> arg0) {
-				showUI();
-			}
-		});
+		server.addEventListener(LifecycleEvent.AFTER_START,
+				new LifecycleListener() {
+					public void handleLifecycle(LifecycleEvent<?> arg0) {
+						showUI();
+					}
+				});
 	}
-	protected void startServer(){
-		try{
+
+	protected void startServer() {
+		try {
 			server.start();
-		}catch(Exception e){
-			if(e.getCause()!=null&&e.getCause() instanceof BindException){
+		} catch (Exception e) {
+			if (e.getCause() != null && e.getCause() instanceof BindException) {
 				throw new RuntimeException("2重起動は出来ません。");
-			}else{
+			} else {
 				e.printStackTrace();
-				throw new RuntimeException("エラーが発生しました。\n"+e.getMessage());
+				throw new RuntimeException("エラーが発生しました。\n" + e.getMessage());
 			}
 		}
 	}
-	protected void showUI(){
+
+	protected void showUI() {
 		this.getContentPane().removeAll();
 		addCloseHandler();
 		addAppButton();
 		this.getContentPane().validate();
 	}
+
 	/**
 	 * application.propertiesに基づき、アプリケーション起動ボタンを追加します。
 	 */
-	private void addAppButton(){
+	private void addAppButton() {
 		int port = server.getPort();
-		String baseurl = "http://localhost:"+port;
-		String prefix = "app";		
+		String baseurl = "http://localhost:" + port;
+		String prefix = "app";
 		getContentPane().setLayout(new GridBagLayout());
 		GridBagConstraints constraint = new GridBagConstraints();
-		constraint.gridx=0;
-		constraint.gridy=0;
-		constraint.fill=GridBagConstraints.HORIZONTAL;
-		getContentPane().add(new Label("起動したいアプリケーションをクリックして下さい。"),constraint);
-		
-		for(int i = 1; ;i++){
-			String name = appProperties.getProperty(prefix+i+".name");
-			final String url = appProperties.getProperty(prefix+i+".url");
-			final String exec = appProperties.getProperty(prefix+i+".exec");
-			final String autorun = appProperties.getProperty(prefix+i+".autorun","false");
-			if(name != null && ( url != null || exec != null)){
-				final String absoluteUrl = baseurl+url;
-				JButton button =new JButton(name);
+		constraint.gridx = 0;
+		constraint.gridy = 0;
+		constraint.fill = GridBagConstraints.HORIZONTAL;
+		getContentPane().add(new Label("起動したいアプリケーションをクリックして下さい。"), constraint);
+
+		for (int i = 1;; i++) {
+			String name = appProperties.getProperty(prefix + i + ".name");
+			final String url = appProperties.getProperty(prefix + i + ".url");
+			final String exec = appProperties.getProperty(prefix + i + ".exec");
+			final String autorun = appProperties.getProperty(prefix + i
+					+ ".autorun", "false");
+			if (name != null && (url != null || exec != null)) {
+				final String absoluteUrl = baseurl + url;
+				JButton button = new JButton(name);
 				constraint = new GridBagConstraints();
-				constraint.gridx=0;
-				constraint.gridy=i;
-				constraint.fill=GridBagConstraints.BOTH;
-				constraint.insets = new Insets(4,4,4,4);
-				constraint.weighty=100;
-				constraint.weightx=100;
-				getContentPane().add(button,constraint);
-				button.addActionListener(new ActionListener(){
+				constraint.gridx = 0;
+				constraint.gridy = i;
+				constraint.fill = GridBagConstraints.BOTH;
+				constraint.insets = new Insets(4, 4, 4, 4);
+				constraint.weighty = 100;
+				constraint.weightx = 100;
+				getContentPane().add(button, constraint);
+				button.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						openApplication(absoluteUrl,exec);
+						openApplication(absoluteUrl, exec);
 					}
 				});
-				if(autorun.equals("true")){
-					openApplication(absoluteUrl,exec);
+				if (autorun.equals("true")) {
+					openApplication(absoluteUrl, exec);
 				}
-			}else{
+			} else {
 				break;
 			}
 		}
 	}
-	private void openApplication(String url,String exec){
-		if(exec != null && exec.length()>0){
+
+	private void openApplication(String url, String exec) {
+		if (exec != null && exec.length() > 0) {
 			String exePath = exec;
-			try{				
+			try {
 				exePath = TextFormatUtil.formatTextBySystemProperties(exec);
 				Runtime.getRuntime().exec(exePath);
-			}catch(Throwable t){
-				JOptionPane.showMessageDialog(SwingUI.this,exePath+"の起動に失敗しました。");
+			} catch (Throwable t) {
+				JOptionPane.showMessageDialog(SwingUI.this, exePath
+						+ "の起動に失敗しました。");
 			}
-		}else{
-			try{
+		} else {
+			try {
 				MiscUtils.openBrowser(url);
-			}catch(IOException ioe){
-				JOptionPane.showMessageDialog(SwingUI.this,url+"の起動に失敗しました。");
+			} catch (IOException ioe) {
+				JOptionPane
+						.showMessageDialog(SwingUI.this, url + "の起動に失敗しました。");
 			}
 		}
 	}
-	private void addCloseHandler(){
-		this.addWindowListener(new WindowAdapter(){
+
+	private void addCloseHandler() {
+		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				if(server != null){
+				if (server != null) {
 					server.stop();
 				}
 			}
