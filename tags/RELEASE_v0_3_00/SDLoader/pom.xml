@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>sdloader</groupId>
+	<artifactId>sdloader-jsp21</artifactId>
+	<version>0.3.0</version>
+	<packaging>jar</packaging>
+	<name>SDLoader</name>
+	<description>SDLoader</description>
+	<issueManagement>
+		<system></system>
+		<url></url>
+	</issueManagement>
+	<inceptionYear>2006</inceptionYear>
+	<developers>
+		<developer>
+			<id>c9katayama</id>
+			<name>Akio Katayama</name>
+			<email>c95029 at gmail.com</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+			<timezone>+9</timezone>
+		</developer>
+		<developer>
+			<id>shot</id>
+			<name>Shinpei Ohtani</name>
+			<email>shinpei.ohtani at gmail.com</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+			<timezone>+9</timezone>
+			<url>http://shot6.blogspot.com/</url>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<organization>
+		<name>SDLoader</name>
+		<url>http://sdloader.googlecode.com</url>
+	</organization>
+	<build>
+		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+		<testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>${basedir}/src/test/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+		</testResources>
+
+		<defaultGoal>validate</defaultGoal>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<updateReleaseInfo>true</updateReleaseInfo>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>build-config-files</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<echo message="Copy jar classes" />
+								<copy todir="target/classes" overwrite="true">
+									<zipfileset src="lib/Servlet2.5_JSP2.1/tomcat-juli.jar" excludes="META-INF/**" />
+									<zipfileset src="lib/Servlet2.5_JSP2.1/el-api.jar" excludes="META-INF/**" />
+									<zipfileset src="lib/Servlet2.5_JSP2.1/annotations-api.jar" excludes="META-INF/**" />
+									<zipfileset src="lib/Servlet2.5_JSP2.1/jasper.jar" excludes="META-INF/**" />
+									<zipfileset src="lib/Servlet2.5_JSP2.1/jasper-el.jar" excludes="META-INF/**" />
+									<zipfileset src="lib/Servlet2.5_JSP2.1/jasper-jdt.jar" excludes="META-INF/**" />
+									<zipfileset src="lib/Servlet2.5_JSP2.1/jsp-api.jar" excludes="META-INF/**" />
+									<zipfileset src="lib/Servlet2.5_JSP2.1/servlet-api.jar" excludes="META-INF/**,*.html" />
+								</copy>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<scm>
+		<connection>scm:svn:https://sdloader.googlecode.com/svn/trunk/SDLoader</connection>
+		<developerConnection>scm:svn:https://sdloader.googlecode.com/svn/trunk/SDLoader</developerConnection>
+		<url></url>
+	</scm>
+	<repositories>
+		<repository>
+			<id>maven.t2framework.org</id>
+			<name>The T2 Project Maven2 Repository</name>
+			<url>http://maven.t2framework.org/maven2</url>
+		</repository>
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>snapshot-maven.t2framework.org</id>
+			<name>The T2 Project Maven2 Snapshot Repository</name>
+			<url>http://maven.t2framework.org/maven2-snapshot</url>
+		</repository>
+	</repositories>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.5</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>swt</groupId>
+			<artifactId>swt</artifactId>
+			<scope>system</scope>
+			<version>0.0.1</version>
+			<systemPath>${basedir}/lib/swt.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>annotations-api</groupId>
+			<artifactId>annotations-api</artifactId>
+			<scope>system</scope>
+			<version>0.0.1</version>
+			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/annotations-api.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>jasper-jdt</groupId>
+			<artifactId>annotations-api</artifactId>
+			<scope>system</scope>
+			<version>0.0.1</version>
+			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jasper-jdt.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>annotations-api</groupId>
+			<artifactId>annotations-api</artifactId>
+			<scope>system</scope>
+			<version>0.0.1</version>
+			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/annotations-api.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>jsp-api</groupId>
+			<artifactId>jsp-api</artifactId>
+			<scope>system</scope>
+			<version>0.0.1</version>
+			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jsp-api.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>servlet-api</groupId>
+			<artifactId>servlet-api</artifactId>
+			<scope>system</scope>
+			<version>0.0.1</version>
+			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/servlet-api.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>tomcat-juli</groupId>
+			<artifactId>tomcat-juli</artifactId>
+			<scope>system</scope>
+			<version>0.0.1</version>
+			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/tomcat-juli.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>el-api</groupId>
+			<artifactId>el-api</artifactId>
+			<scope>system</scope>
+			<version>0.0.1</version>
+			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/el-api.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>jasper</groupId>
+			<artifactId>jasper</artifactId>
+			<scope>system</scope>
+			<version>0.0.1</version>
+			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jasper.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>jasper-el</groupId>
+			<artifactId>jasper-el</artifactId>
+			<scope>system</scope>
+			<version>0.0.1</version>
+			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jasper-el.jar</systemPath>
+		</dependency>
+
+	</dependencies>
+	<distributionManagement>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>maven.t2framework.org</id>
+			<name>The T2 Project Maven2 Repository</name>
+			<url>dav:http://maven.t2framework.org/maven2</url>
+		</repository>
+		<snapshotRepository>
+			<uniqueVersion>true</uniqueVersion>
+			<id>maven.t2framework.org</id>
+			<name>The T2 Project Maven2 Snapshot Repository</name>
+			<url>dav:http://maven.t2framework.org/maven2-snapshot</url>
+		</snapshotRepository>
+	</distributionManagement>
+</project>
