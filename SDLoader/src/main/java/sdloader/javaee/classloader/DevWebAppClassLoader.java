@@ -21,6 +21,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
+import sdloader.exception.IORuntimeException;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 
@@ -95,6 +96,20 @@ public class DevWebAppClassLoader extends WebAppClassLoader {
 			log.debug("Class load from parent. class=[" + name + "]");
 		}
 		return c;
+	}
+
+	@Override
+	public URL getResource(String name) {
+		try {
+			Enumeration<URL> resource = getResources(name);
+			if (resource.hasMoreElements()) {
+				return resource.nextElement();
+			} else {
+				return super.getResource(name);
+			}
+		} catch (IOException ioe) {
+			throw new IORuntimeException(ioe);
+		}
 	}
 
 	@Override
