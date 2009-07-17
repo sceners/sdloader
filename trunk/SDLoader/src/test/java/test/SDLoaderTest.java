@@ -21,21 +21,21 @@ public class SDLoaderTest extends TestCase {
 
 	public void testForceStop() {
 		SDLoader sdloader = new SDLoader(8080);
-		sdloader.setWebAppsDir("src/test/java/sdloader/main/webapps");
+		sdloader.setWebAppsDir("src/test/java/main/webapps");
 		sdloader.start();
 
 		sdloader = new SDLoader(8080);
-		sdloader.setWebAppsDir("src/test/java/sdloader/main/webapps");
+		sdloader.setWebAppsDir("src/test/java/main/webapps");
 		sdloader.start();
 
 		sdloader.stop();
 	}
 
 	public void testForceStopFail() throws Exception {
-		ServerSocket sc = IOUtil.createServerSocket(8080, false);
+		ServerSocket sc = IOUtil.createServerSocket(8080, false, false);
 		try {
 			SDLoader sdloader = new SDLoader(8080);
-			sdloader.setWebAppsDir("src/test/java/sdloader/main/webapps");
+			sdloader.setWebAppsDir("src/test/java/main/webapps");
 			sdloader.start();
 			fail();
 		} catch (Exception e) {
@@ -45,11 +45,11 @@ public class SDLoaderTest extends TestCase {
 	}
 
 	public void testAutoPortDetect() throws Exception {
-		ServerSocket sc = IOUtil.createServerSocket(8080, false);
+		ServerSocket sc = IOUtil.createServerSocket(8080, false, false);
 		try {
 			SDLoader sdloader = new SDLoader(8080);
 			sdloader.setAutoPortDetect(true);
-			sdloader.setWebAppsDir("src/test/java/sdloader/main/webapps");
+			sdloader.setWebAppsDir("src/test/java/main/webapps");
 			sdloader.start();
 
 			assertTrue(sdloader.getPort() != 8080);
@@ -63,7 +63,7 @@ public class SDLoaderTest extends TestCase {
 
 	public void testWaitForStop() {
 		final SDLoader sdloader = new SDLoader(8080);
-		sdloader.setWebAppsDir("src/test/java/sdloader/main/webapps");
+		sdloader.setWebAppsDir("src/test/java/main/webapps");
 		sdloader.start();
 
 		long time = System.currentTimeMillis();
