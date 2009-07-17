@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sdloader</groupId>
 	<artifactId>sdloader-jsp21</artifactId>
-	<version>0.3.0</version>
+	<version>0.3.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>SDLoader</name>
 	<description>SDLoader</description>
@@ -152,6 +152,7 @@
 			<scope>system</scope>
 			<version>0.0.1</version>
 			<systemPath>${basedir}/lib/swt.jar</systemPath>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>annotations-api</groupId>
@@ -159,6 +160,7 @@
 			<scope>system</scope>
 			<version>0.0.1</version>
 			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/annotations-api.jar</systemPath>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>jasper-jdt</groupId>
@@ -166,6 +168,7 @@
 			<scope>system</scope>
 			<version>0.0.1</version>
 			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jasper-jdt.jar</systemPath>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>annotations-api</groupId>
@@ -173,6 +176,7 @@
 			<scope>system</scope>
 			<version>0.0.1</version>
 			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/annotations-api.jar</systemPath>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>jsp-api</groupId>
@@ -180,6 +184,7 @@
 			<scope>system</scope>
 			<version>0.0.1</version>
 			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jsp-api.jar</systemPath>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>servlet-api</groupId>
@@ -187,6 +192,7 @@
 			<scope>system</scope>
 			<version>0.0.1</version>
 			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/servlet-api.jar</systemPath>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>tomcat-juli</groupId>
@@ -194,6 +200,7 @@
 			<scope>system</scope>
 			<version>0.0.1</version>
 			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/tomcat-juli.jar</systemPath>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>el-api</groupId>
@@ -201,6 +208,7 @@
 			<scope>system</scope>
 			<version>0.0.1</version>
 			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/el-api.jar</systemPath>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>jasper</groupId>
@@ -208,6 +216,7 @@
 			<scope>system</scope>
 			<version>0.0.1</version>
 			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jasper.jar</systemPath>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>jasper-el</groupId>
@@ -215,6 +224,7 @@
 			<scope>system</scope>
 			<version>0.0.1</version>
 			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jasper-el.jar</systemPath>
+			<optional>true</optional>
 		</dependency>
 
 	</dependencies>

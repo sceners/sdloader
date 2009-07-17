@@ -36,7 +36,7 @@ public class WebAppClassLoader extends URLClassLoader {
 	protected String[] parentLoadFirstPackagePrefix = { "java.", "javax.",
 			"org.apache.el.", "org.apache.jasper.", "org.apache.juli.",
 			"com.sun.", "sun.", "org.w3c.", "org.xml.sax.", "org.omg.",
-			"org.ietf.jgss" };
+			"org.ietf.jgss", "sdloader." };
 
 	public WebAppClassLoader(URL[] webInfUrls, ClassLoader parent) {
 		super(webInfUrls, parent);
