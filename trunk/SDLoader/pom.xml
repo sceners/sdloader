@@ -7,10 +7,6 @@
 	<packaging>jar</packaging>
 	<name>SDLoader</name>
 	<description>SDLoader</description>
-	<issueManagement>
-		<system></system>
-		<url></url>
-	</issueManagement>
 	<inceptionYear>2006</inceptionYear>
 	<developers>
 		<developer>
@@ -144,7 +140,7 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.5</version>
-			<optional>true</optional>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>swt</groupId>
@@ -226,8 +222,8 @@
 			<systemPath>${basedir}/lib/Servlet2.5_JSP2.1/jasper-el.jar</systemPath>
 			<optional>true</optional>
 		</dependency>
-
 	</dependencies>
+	
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
