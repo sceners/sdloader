@@ -37,22 +37,22 @@ public class SDLoaderHelper {
 	}
 
 	public ServerSocket createServerSocket(int bindPort, boolean sslEnable,
-			boolean useOutSidePort) throws IOException {
+			boolean useOutSidePort, boolean reuse) throws IOException {
 		if (sslEnable) {
 			return IOUtil.createSSLServerSocket(bindPort, useOutSidePort,
 					SSL_KEY_STORE_PATH, SSL_KEY_STORE_PASSWORD);
 		} else {
-			return IOUtil.createServerSocket(bindPort, useOutSidePort);
+			return IOUtil.createServerSocket(bindPort, useOutSidePort, reuse);
 		}
 	}
 
 	public void sendStopCommand(int port) {
 		InputStream is = null;
+		HttpURLConnection urlcon = null;
 		try {
-			URL stopUrl = new URL("http://127.0.0.1:" + port
+			URL stopUrl = new URL("http://localhost:" + port
 					+ "/sdloader-command/stop");
-			HttpURLConnection urlcon = (HttpURLConnection) stopUrl
-					.openConnection();
+			urlcon = (HttpURLConnection) stopUrl.openConnection();
 			urlcon.setRequestMethod("POST");
 			urlcon.setUseCaches(false);
 			urlcon.setConnectTimeout(1000);
@@ -65,6 +65,7 @@ public class SDLoaderHelper {
 		} catch (Throwable ioe) {
 		} finally {
 			IOUtil.closeNoException(is);
+			IOUtil.closeHttpUrlConnectionNoException(urlcon);
 		}
 	}
 }

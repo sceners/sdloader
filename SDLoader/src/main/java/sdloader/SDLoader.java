@@ -429,6 +429,7 @@ public class SDLoader implements Lifecycle {
 		long t = System.currentTimeMillis();
 
 		checkNotRunning();
+
 		helper.printInitMessage(log);
 
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
@@ -437,14 +438,18 @@ public class SDLoader implements Lifecycle {
 		initConfig();
 
 		ServerSocket initSocket = initServerSocket();
+		try {
+			initSessionManager();
 
-		initSessionManager();
+			initWebApp();
 
-		initWebApp();
+			sdLoaderThread = new SDLoaderThread(this, initSocket);
 
-		sdLoaderThread = new SDLoaderThread(this, initSocket);
-
-		sdLoaderThread.start();
+			sdLoaderThread.start();
+		} catch (RuntimeException re) {
+			IOUtil.closeServerSocketNoException(initSocket);
+			throw re;
+		}
 
 		log.info("SDLoader[port:" + getPort() + "] startup in "
 				+ (System.currentTimeMillis() - t) + " ms.");
@@ -554,16 +559,16 @@ public class SDLoader implements Lifecycle {
 		try {
 			try {
 				servetSocket = helper.createServerSocket(port, sslEnable,
-						useOutSidePort);
+						useOutSidePort, false);
 			} catch (IOException ioe) {
 				if (autoPortDetect) {
 					servetSocket = helper.createServerSocket(0, sslEnable,
-							useOutSidePort);
+							useOutSidePort, false);
 				} else {
 					// try to stop SDLoader
 					helper.sendStopCommand(port);
 					servetSocket = helper.createServerSocket(port, sslEnable,
-							useOutSidePort);
+							useOutSidePort, false);
 				}
 			}
 			int bindSuccessPort = servetSocket.getLocalPort();

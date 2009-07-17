@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.Flushable;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -91,6 +92,19 @@ public class IOUtil {
 		}
 	}
 
+	public static void closeHttpUrlConnectionNoException(
+			HttpURLConnection... closeables) {
+		if (closeables != null) {
+			for (HttpURLConnection cl : closeables) {
+				try {
+					cl.disconnect();
+				} catch (Exception ioe) {
+					// ignore
+				}
+			}
+		}
+	}
+
 	public static void closeServerSocketNoException(
 			final ServerSocket serverSocket) {
 		if (serverSocket != null) {
@@ -135,8 +149,9 @@ public class IOUtil {
 	}
 
 	public static ServerSocket createServerSocket(int bindPort,
-			boolean useOutSidePort) throws IOException {
+			boolean useOutSidePort, boolean reuseAddress) throws IOException {
 		ServerSocket socket = new ServerSocket();
+		socket.setReuseAddress(reuseAddress);
 		return bind(socket, bindPort, useOutSidePort);
 	}
 
