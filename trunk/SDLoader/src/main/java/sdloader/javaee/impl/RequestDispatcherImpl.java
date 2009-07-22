@@ -28,10 +28,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import sdloader.constants.JavaEEConstants;
 import sdloader.http.HttpRequestParameters;
 import sdloader.http.ProcessScopeContext;
 import sdloader.javaee.ServletMapping;
-import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.util.WebUtil;
 
 /**

@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
 import sdloader.SDLoader;
+import sdloader.constants.HttpConstants;
 import sdloader.internal.SDLoaderConfig;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.ResourceUtil;
@@ -88,11 +89,11 @@ public class HttpRequestParameters {
 					getQueryEncoding());
 		}
 		if (body.getSize() > 0
-				&& header.getMethod().equalsIgnoreCase(HttpConst.POST)) {
-			String contType = header.getHeaderValue(HttpConst.CONTENTTYPE);
+				&& header.getMethod().equalsIgnoreCase(HttpConstants.POST)) {
+			String contType = header.getHeaderValue(HttpConstants.CONTENTTYPE);
 			if (contType != null) {
 				contType = contType.toLowerCase();
-				if (contType.indexOf(HttpConst.WWW_FORM_URLENCODE) != -1) {
+				if (contType.indexOf(HttpConstants.WWW_FORM_URLENCODE) != -1) {
 					try {
 						byte[] postData = ResourceUtil.getBytes(body
 								.getInputStream());

@@ -21,6 +21,7 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.Cookie;
 
+import sdloader.constants.HttpConstants;
 import sdloader.util.CollectionsUtil;
 import sdloader.util.WebUtil;
 
@@ -42,11 +43,11 @@ public class HttpHeader {
 	private String queryString;
 
 	// for response
-	private int statusCode = HttpConst.SC_OK;
+	private int statusCode = HttpConstants.SC_OK;
 
-	private String status = HttpConst.findStatus(HttpConst.SC_OK);
+	private String status = HttpConstants.findStatus(HttpConstants.SC_OK);
 
-	private String version = HttpConst.HTTP_1_1;
+	private String version = HttpConstants.HTTP_1_1;
 
 	private List<HeaderData> headerList = CollectionsUtil.newArrayList();
 
@@ -101,7 +102,7 @@ public class HttpHeader {
 
 	private void parseHttpRequest(String httpRequest) {
 		StringTokenizer token = new StringTokenizer(httpRequest,
-				HttpConst.CRLF_STRING, false);
+				HttpConstants.CRLF_STRING, false);
 		if (token.hasMoreTokens()) {
 			String requestLine = token.nextToken();
 			parseRequestPathLine(requestLine);
@@ -114,15 +115,15 @@ public class HttpHeader {
 			if (line.trim().length() <= 0) {
 				break;
 			}
-			int nameEnd = line.indexOf(HttpConst.COLON_STRING);
+			int nameEnd = line.indexOf(HttpConstants.COLON_STRING);
 			String name = line.substring(0, nameEnd).trim().toLowerCase();
 			String value = null;
-			int valueStart = nameEnd + HttpConst.COLON_STRING.length();
+			int valueStart = nameEnd + HttpConstants.COLON_STRING.length();
 			if (line.length() > valueStart) {
 				value = line.substring(valueStart, line.length());
 			}
 
-			if (name.equalsIgnoreCase(HttpConst.COOKIE)) {
+			if (name.equalsIgnoreCase(HttpConstants.COOKIE)) {
 				parseCookie(value);
 			} else {
 				addHeader(name, value);
@@ -168,7 +169,7 @@ public class HttpHeader {
 			return;
 		}
 		StringTokenizer token = new StringTokenizer(cookieValue,
-				HttpConst.SEMI_COLON_STRING, false);
+				HttpConstants.SEMI_COLON_STRING, false);
 		while (token.hasMoreTokens()) {
 			String keyValue = token.nextToken();
 
@@ -243,16 +244,16 @@ public class HttpHeader {
 	}
 
 	public boolean isKeepAlive() {
-		String keepAliveHeader = getHeaderValue(HttpConst.KEEPALIVE);
+		String keepAliveHeader = getHeaderValue(HttpConstants.KEEPALIVE);
 		if (keepAliveHeader != null
-				&& keepAliveHeader.equalsIgnoreCase(HttpConst.CLOSE)) {
+				&& keepAliveHeader.equalsIgnoreCase(HttpConstants.CLOSE)) {
 			return false;
 		}
-		if (version.equals(HttpConst.HTTP_1_1)) {
+		if (version.equals(HttpConstants.HTTP_1_1)) {
 			return true;
 		}
-		String connection = getHeaderValue(HttpConst.CONNECTION);
-		if (connection.equalsIgnoreCase(HttpConst.KEEPALIVE)) {
+		String connection = getHeaderValue(HttpConstants.CONNECTION);
+		if (connection.equalsIgnoreCase(HttpConstants.KEEPALIVE)) {
 			return true;
 		}
 		return false;
@@ -261,16 +262,16 @@ public class HttpHeader {
 	public String buildResponseHeader() {
 		StringBuffer buf = new StringBuffer();
 		buf.append(this.version + " " + statusCode + " " + status
-				+ HttpConst.CRLF_STRING);
+				+ HttpConstants.CRLF_STRING);
 		for (HeaderData headerData : headerList) {
 			String headerName = headerData.getName();
 			String headerValue = headerData.getValue();
-			buf.append(headerName + HttpConst.COLON_STRING + headerValue
-					+ HttpConst.CRLF_STRING);
+			buf.append(headerName + HttpConstants.COLON_STRING + headerValue
+					+ HttpConstants.CRLF_STRING);
 		}
 		for (Cookie cookie : cookieList) {
 			if (cookie.getValue() != null) {
-				buf.append(HttpConst.SETCOOKIE + HttpConst.COLON_STRING);
+				buf.append(HttpConstants.SETCOOKIE + HttpConstants.COLON_STRING);
 				buf.append(cookie.getName() + "=" + cookie.getValue());
 
 				if (cookie.getMaxAge() > 0) {
@@ -288,7 +289,7 @@ public class HttpHeader {
 				if (cookie.getSecure()) {
 					buf.append("; secure");
 				}
-				buf.append(HttpConst.CRLF_STRING);
+				buf.append(HttpConstants.CRLF_STRING);
 			}
 		}
 		return buf.toString();

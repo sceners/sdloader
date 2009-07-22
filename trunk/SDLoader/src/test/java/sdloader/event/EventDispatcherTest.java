@@ -3,6 +3,9 @@ package sdloader.event;
 import java.util.ArrayList;
 import java.util.List;
 
+import sdloader.util.event.Event;
+import sdloader.util.event.EventDispatcher;
+
 import junit.framework.TestCase;
 
 @SuppressWarnings("unchecked")

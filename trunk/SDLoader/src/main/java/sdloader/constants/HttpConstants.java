@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.http;
+package sdloader.constants;
 
 import java.util.Map;
 
@@ -24,7 +24,7 @@ import sdloader.util.CollectionsUtil;
  * 
  * @author c9katayama
  */
-public class HttpConst {
+public class HttpConstants {
 
 	public static final String HTTP_1_1 = "HTTP/1.1";
 
@@ -253,7 +253,7 @@ public class HttpConst {
 		return (String) statusMap.get(new Integer(statusCode));
 	}
 
-	private HttpConst() {
+	private HttpConstants() {
 		super();
 	}
 }

@@ -18,8 +18,8 @@ package sdloader.javaee.webxml;
 import java.util.HashSet;
 import java.util.Set;
 
+import sdloader.constants.JavaEEConstants;
 import sdloader.exception.NotImplementedYetException;
-import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.util.CollectionsUtil;
 
 /**

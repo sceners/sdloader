@@ -18,6 +18,7 @@ package sdloader.http;
 import java.io.IOException;
 
 import sdloader.SDLoader;
+import sdloader.constants.HttpConstants;
 
 /**
  * HTTPリクエスト ヘッダーパートとボディーパートを生成します。
@@ -91,7 +92,7 @@ public class HttpRequest {
 				break;
 			}
 			httpHeaderBuf.append(line);
-			httpHeaderBuf.append(HttpConst.CRLF_STRING);
+			httpHeaderBuf.append(HttpConstants.CRLF_STRING);
 
 			line = requestReader.readHeaderLine();
 		}
@@ -100,7 +101,7 @@ public class HttpRequest {
 
 	private void createHttpRequestBody() throws IOException {
 		String contentLengthHeader = header
-				.getHeaderValue(HttpConst.CONTENTLENGTH);
+				.getHeaderValue(HttpConstants.CONTENTLENGTH);
 		long contentLength = 0;
 		if (contentLengthHeader != null) {
 			contentLength = Long.parseLong(contentLengthHeader);

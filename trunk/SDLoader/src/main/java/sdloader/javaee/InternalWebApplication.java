@@ -27,7 +27,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
 
-import sdloader.javaee.constants.JavaEEConstants;
+import sdloader.constants.JavaEEConstants;
 import sdloader.javaee.impl.FilterConfigImpl;
 import sdloader.javaee.impl.ServletConfigImpl;
 import sdloader.javaee.impl.ServletContextImpl;

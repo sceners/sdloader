@@ -13,31 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.event;
+package sdloader.constants;
 
 /**
- * イベントクラス
+ * SDLoaderの定数定義
  * 
- * @author AKatayama
- * 
- * @param <S>
+ * @author c9katayama
  */
-public class Event<S> {
-
-	private String type;
-	private S source;
-
-	public Event(String type, S source) {
-		this.type = type;
-		this.source = source;
-	}
-
-	public S getSource() {
-		return source;
-	}
-
-	public String getType() {
-		return type;
-	}
-
+public interface SDLoaderConstants {
+	/**
+	 * ルートのディレクトリ名
+	 */
+	public static final String ROOT_DIR_NAME = "ROOT";
 }

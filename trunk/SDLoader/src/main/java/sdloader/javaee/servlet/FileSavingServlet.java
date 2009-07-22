@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import sdloader.http.HttpConst;
+import sdloader.constants.HttpConstants;
 import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.impl.ServletContextImpl;
 import sdloader.javaee.webxml.ServletMappingTag;
@@ -196,9 +196,9 @@ public class FileSavingServlet extends HttpServlet {
 			HttpServletResponse res) throws IOException {
 		if (!ignoreLastModified) {
 			Date lastModifyDate = new Date(file.lastModified());
-			res.setHeader(HttpConst.LASTMODIFIED, WebUtil
+			res.setHeader(HttpConstants.LASTMODIFIED, WebUtil
 					.formatHeaderDate(lastModifyDate));
-			String ifModified = req.getHeader(HttpConst.IFMODIFIEDSINCE);
+			String ifModified = req.getHeader(HttpConstants.IFMODIFIEDSINCE);
 			// 変更したかどうか
 			if (!isModifiedSince(lastModifyDate, ifModified)) {
 				res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);

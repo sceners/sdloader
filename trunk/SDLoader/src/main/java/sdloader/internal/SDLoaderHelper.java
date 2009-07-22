@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 import java.net.URL;
 
 import sdloader.SDLoader;
-import sdloader.javaee.constants.JavaEEConstants;
+import sdloader.constants.JavaEEConstants;
 import sdloader.log.SDLoaderLog;
 import sdloader.util.IOUtil;
 
@@ -40,29 +40,36 @@ public class SDLoaderHelper {
 			boolean useOutSidePort, boolean reuse) throws IOException {
 		if (sslEnable) {
 			return IOUtil.createSSLServerSocket(bindPort, useOutSidePort,
-					SSL_KEY_STORE_PATH, SSL_KEY_STORE_PASSWORD);
+					SSL_KEY_STORE_PATH, SSL_KEY_STORE_PASSWORD, reuse);
 		} else {
 			return IOUtil.createServerSocket(bindPort, useOutSidePort, reuse);
 		}
 	}
 
-	public void sendStopCommand(int port) {
+	public boolean tryConnectAndSendStopCommand(int port) {
 		InputStream is = null;
 		HttpURLConnection urlcon = null;
 		try {
-			URL stopUrl = new URL("http://localhost:" + port
-					+ "/sdloader-command/stop");
-			urlcon = (HttpURLConnection) stopUrl.openConnection();
-			urlcon.setRequestMethod("POST");
-			urlcon.setUseCaches(false);
-			urlcon.setConnectTimeout(1000);
-			urlcon.setReadTimeout(1000);
-			urlcon.setDoInput(true);
-			urlcon.setDoOutput(true);
-			urlcon.connect();
-			is = urlcon.getInputStream();
-			return;
-		} catch (Throwable ioe) {
+			try {
+				URL stopUrl = new URL("http://localhost:" + port
+						+ "/sdloader-command/stop");
+				urlcon = (HttpURLConnection) stopUrl.openConnection();
+				urlcon.setRequestMethod("POST");
+				urlcon.setUseCaches(false);
+				urlcon.setConnectTimeout(1000);
+				urlcon.setReadTimeout(1000);
+				urlcon.setDoInput(true);
+				urlcon.setDoOutput(true);
+			} catch (Exception e) {
+				return false;
+			}
+			try {
+				urlcon.connect();
+				is = urlcon.getInputStream();
+				return true;
+			} catch (Throwable ioe) {
+				return false;
+			}
 		} finally {
 			IOUtil.closeNoException(is);
 			IOUtil.closeHttpUrlConnectionNoException(urlcon);
