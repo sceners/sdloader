@@ -13,20 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sdloader.javaee.constants;
+package sdloader.util.event;
 
 /**
- * Webの定数定義
+ * イベントクラス
  * 
- * @author c9katayama
+ * @author AKatayama
+ * 
+ * @param <S>
  */
-public interface WebConstants {
-	/**
-	 * ルートのディレクトリ名
-	 */
-	public static final String ROOT_DIR_NAME = "ROOT";
-	/**
-	 * Webアプリの格納ディレクトリ名
-	 */
-	public static final String WEBAPP_DIR_NAME = "webapps";
+public class Event<S> {
+
+	private String type;
+	private S source;
+
+	public Event(String type, S source) {
+		this.type = type;
+		this.source = source;
+	}
+
+	public S getSource() {
+		return source;
+	}
+
+	public String getType() {
+		return type;
+	}
+
 }

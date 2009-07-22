@@ -16,9 +16,10 @@ public class ResourceUtilTest extends TestCase {
 
 	public void testIsResourceExist() throws IOException {
 
-		File dir = new File("c:/hoge fuga　bar");
+		File dir = new File(System.getProperty("user.dir") + "/hoge fuga　bar");
 		dir.mkdir();
-		File file = new File("c:/hoge fuga　bar/テスト.txt");
+		File file = new File(System.getProperty("user.dir")
+				+ "/hoge fuga　bar/テスト.txt");
 		file.createNewFile();
 		try {
 			assertTrue(ResourceUtil.isResourceExist(file.toURI().toURL()));

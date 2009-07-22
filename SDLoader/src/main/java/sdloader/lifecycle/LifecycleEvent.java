@@ -15,7 +15,7 @@
  */
 package sdloader.lifecycle;
 
-import sdloader.event.Event;
+import sdloader.util.event.Event;
 
 /**
  * ライフサイクルイベント

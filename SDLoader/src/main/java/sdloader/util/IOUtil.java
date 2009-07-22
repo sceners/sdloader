@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.KeyStore;
+import java.util.Map;
 
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.KeyManagerFactory;
@@ -36,6 +37,26 @@ import javax.net.ssl.SSLContext;
  * @author c9katayama
  */
 public class IOUtil {
+
+	// 同一プロセス内で、すでに閉じたポート番号を記録
+	private static Map<Integer, Boolean> closedPortMap;
+
+	public static boolean isClosedPort(int port) {
+		if (closedPortMap != null) {
+			Boolean open = closedPortMap.get(port);
+			if (open != null && open == false) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void setPortStatus(int port, boolean open) {
+		if (closedPortMap == null) {
+			closedPortMap = CollectionsUtil.newHashMap();
+		}
+		closedPortMap.put(port, open);
+	}
 
 	public static boolean forceRemoveDirectory(File directory) {
 		if (!directory.exists()) {
@@ -109,7 +130,9 @@ public class IOUtil {
 			final ServerSocket serverSocket) {
 		if (serverSocket != null) {
 			try {
+				int port = serverSocket.getLocalPort();
 				serverSocket.close();
+				IOUtil.setPortStatus(port, false);
 			} catch (IOException e) {
 			}
 		}
@@ -126,7 +149,7 @@ public class IOUtil {
 
 	public static ServerSocket createSSLServerSocket(int bindPort,
 			boolean useOutSidePort, String keyStoreFilePath,
-			String keyStorePassword) throws IOException {
+			String keyStorePassword, boolean reuse) throws IOException {
 		try {
 			KeyStore keyStore = KeyStore.getInstance("JKS");
 			char[] password = keyStorePassword.toCharArray();
@@ -140,6 +163,7 @@ public class IOUtil {
 			ServerSocketFactory serverSocketFactory = sslContext
 					.getServerSocketFactory();
 			ServerSocket socket = serverSocketFactory.createServerSocket();
+			socket.setReuseAddress(reuse);
 			return bind(socket, bindPort, useOutSidePort);
 		} catch (IOException e) {
 			throw e;

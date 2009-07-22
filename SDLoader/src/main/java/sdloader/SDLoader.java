@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import sdloader.event.EventDispatcher;
 import sdloader.http.HttpProcessor;
 import sdloader.http.HttpProcessorPool;
 import sdloader.http.HttpRequest;
@@ -36,7 +35,6 @@ import sdloader.internal.ShutdownHook;
 import sdloader.javaee.SessionManager;
 import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
-import sdloader.javaee.constants.WebConstants;
 import sdloader.lifecycle.Lifecycle;
 import sdloader.lifecycle.LifecycleEvent;
 import sdloader.lifecycle.LifecycleListener;
@@ -47,6 +45,7 @@ import sdloader.util.IOUtil;
 import sdloader.util.PathUtil;
 import sdloader.util.ResourceUtil;
 import sdloader.util.ThreadUtil;
+import sdloader.util.event.EventDispatcher;
 
 /**
  * SDLoader.
@@ -502,7 +501,7 @@ public class SDLoader implements Lifecycle {
 		if (webAppsDirPath == null) {
 			webAppsDirPath = System.getProperty(KEY_SDLOADER_WEBAPPS_DIR);
 			if (webAppsDirPath == null) {
-				webAppsDirPath = WebConstants.WEBAPP_DIR_NAME;
+				webAppsDirPath = "webapps";
 			}
 		}
 		webAppsDirPath = PathUtil.replaceFileSeparator(webAppsDirPath);
@@ -566,13 +565,23 @@ public class SDLoader implements Lifecycle {
 							useOutSidePort, false);
 				} else {
 					// try to stop SDLoader
-					helper.sendStopCommand(port);
+					boolean connectSuccess = helper
+							.tryConnectAndSendStopCommand(port);
+					// 同一プロセス内で閉じていた場合、ポートをSO_RESUEADDRで開く
+					boolean reuse = false;
+					if (IOUtil.isClosedPort(port) || connectSuccess == false) {
+						reuse = true;
+					}
+					if (reuse) {
+						log.info("Reuse address.port=" + port);
+					}
 					servetSocket = helper.createServerSocket(port, sslEnable,
-							useOutSidePort, false);
+							useOutSidePort, reuse);
 				}
 			}
 			int bindSuccessPort = servetSocket.getLocalPort();
 			config.setConfig(KEY_SDLOADER_PORT, bindSuccessPort);
+			IOUtil.setPortStatus(bindSuccessPort, true);
 			log.info("Bind success. Port=" + getPort());
 		} catch (IOException ioe) {
 			log.error("Bind fail! Port=" + portMessage, ioe);

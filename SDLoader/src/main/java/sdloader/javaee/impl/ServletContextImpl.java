@@ -31,10 +31,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextAttributeEvent;
 import javax.servlet.ServletException;
 
+import sdloader.constants.JavaEEConstants;
 import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.ListenerEventDispatcher;
 import sdloader.javaee.ServletMapping;
-import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 import sdloader.util.CollectionsUtil;

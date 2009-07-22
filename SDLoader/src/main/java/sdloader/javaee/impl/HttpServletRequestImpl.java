@@ -39,8 +39,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import sdloader.constants.HttpConstants;
 import sdloader.http.HttpBody;
-import sdloader.http.HttpConst;
 import sdloader.http.HttpHeader;
 import sdloader.http.HttpRequest;
 import sdloader.http.HttpRequestParameters;
@@ -165,7 +165,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public int getContentLength() {
-		String length = getHeader(HttpConst.CONTENTLENGTH);
+		String length = getHeader(HttpConstants.CONTENTLENGTH);
 		if (length == null)
 			return 0;
 		else
@@ -173,7 +173,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getContentType() {
-		return httpRequest.getHeader().getHeaderValue(HttpConst.CONTENTTYPE);
+		return httpRequest.getHeader().getHeaderValue(HttpConstants.CONTENTTYPE);
 	}
 
 	public ServletInputStream getInputStream() throws IOException {
@@ -293,7 +293,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public String getRequestedSessionId() {
 		Cookie cookie = httpRequest.getHeader().getCookie(
-				HttpConst.SESSIONID_KEY);
+				HttpConstants.SESSIONID_KEY);
 		return (cookie != null) ? cookie.getValue() : null;
 	}
 
@@ -310,7 +310,7 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getServerName() {
-		String host = httpRequest.getHeader().getHeaderValue(HttpConst.HOST);
+		String host = httpRequest.getHeader().getHeaderValue(HttpConstants.HOST);
 		if (host.indexOf(":") > 0)
 			return host.substring(0, host.indexOf(":"));
 		else

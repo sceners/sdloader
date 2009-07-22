@@ -38,6 +38,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 
 import sdloader.SDLoader;
+import sdloader.constants.SDLoaderConstants;
 import sdloader.http.HttpResponse;
 import sdloader.internal.SDLoaderConfig;
 import sdloader.internal.resource.ArchiveTypeResource;
@@ -51,7 +52,6 @@ import sdloader.javaee.classloader.ClassLoaderHandler;
 import sdloader.javaee.classloader.DevWebAppClassLoader;
 import sdloader.javaee.classloader.InMemoryWebAppClassLoader;
 import sdloader.javaee.classloader.WebAppClassLoader;
-import sdloader.javaee.constants.WebConstants;
 import sdloader.javaee.jasper.InMemoryEmbeddedServletOptions;
 import sdloader.javaee.servlet.CommandServlet;
 import sdloader.javaee.servlet.FileSavingServlet;
@@ -305,7 +305,7 @@ public class WebAppManager {
 		// Default servlet
 		String contextPath = "/";
 		URL docBase = PathUtil.file2URL(webappDirPath + "/"
-				+ WebConstants.ROOT_DIR_NAME);
+				+ SDLoaderConstants.ROOT_DIR_NAME);
 		if (ResourceUtil.isResourceExist(docBase)) {
 			setDefaultServlet(webXmlTag, new URL[] { docBase }, contextPath,
 					false);

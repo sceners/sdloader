@@ -26,8 +26,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import sdloader.constants.HttpConstants;
 import sdloader.http.HttpBody;
-import sdloader.http.HttpConst;
 import sdloader.http.HttpHeader;
 import sdloader.util.IOUtil;
 import sdloader.util.WebUtil;
@@ -70,15 +70,15 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public String getContentType() {
-		return header.getHeaderValue(HttpConst.CONTENTTYPE);
+		return header.getHeaderValue(HttpConstants.CONTENTTYPE);
 	}
 
 	public void setContentLength(int length) {
-		setHeader(HttpConst.CONTENTLENGTH, String.valueOf(length));
+		setHeader(HttpConstants.CONTENTLENGTH, String.valueOf(length));
 	}
 
 	public void setContentType(String type) {
-		setHeader(HttpConst.CONTENTTYPE, type);
+		setHeader(HttpConstants.CONTENTTYPE, type);
 		String encodeInContentType = WebUtil.parseCharsetFromContentType(type);
 		if (encodeInContentType != null){
 			characterEncoding = encodeInContentType;
@@ -87,7 +87,7 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 
 	public void setStatus(int sc) {
 		header.setStatusCode(sc);
-		header.setStatus(HttpConst.findStatus(sc));
+		header.setStatus(HttpConstants.findStatus(sc));
 	}
 
 	public void setStatus(int sc, String msg) {
@@ -122,8 +122,8 @@ public class HttpServletResponseImpl implements HttpServletResponse {
 	}
 
 	public void sendRedirect(String path) throws IOException {
-		header.addHeader(HttpConst.LOCATION, path);
-		setStatus(HttpConst.SC_MOVED_TEMPORARILY);
+		header.addHeader(HttpConstants.LOCATION, path);
+		setStatus(HttpConstants.SC_MOVED_TEMPORARILY);
 		commit();
 	}
 

@@ -33,10 +33,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 
 import sdloader.SDLoader;
+import sdloader.constants.HttpConstants;
+import sdloader.constants.JavaEEConstants;
 import sdloader.constants.LineSpeed;
 import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.ServletMapping;
-import sdloader.javaee.constants.JavaEEConstants;
 import sdloader.javaee.impl.FilterChainImpl;
 import sdloader.javaee.impl.HttpServletRequestImpl;
 import sdloader.javaee.impl.HttpServletResponseImpl;
@@ -268,13 +269,13 @@ public class HttpProcessor extends Thread {
 			HttpServletRequestImpl request, String requestURI)
 			throws IOException {
 		HttpServletResponseImpl response = new HttpServletResponseImpl();
-		response.setStatus(HttpConst.SC_MOVED_TEMPORARILY);
+		response.setStatus(HttpConstants.SC_MOVED_TEMPORARILY);
 		String resourcePath = requestURI + "/";
-		String host = request.getHeader(HttpConst.HOST);
+		String host = request.getHeader(HttpConstants.HOST);
 		if (host == null) {
 			host = request.getLocalName() + ":" + request.getLocalPort();
 		}
-		response.addHeader(HttpConst.LOCATION, WebUtil.buildRequestURL(
+		response.addHeader(HttpConstants.LOCATION, WebUtil.buildRequestURL(
 				request.getScheme(), host, resourcePath).toString());
 		setDefaultResponseHeader(servletContextImpl, request, response);
 		processRequestEnd(response);
@@ -320,15 +321,15 @@ public class HttpProcessor extends Thread {
 			ServletContextImpl servletContextImpl,
 			HttpServletRequestImpl request, HttpServletResponseImpl response)
 			throws IOException {
-		response.setHeader(HttpConst.DATE, WebUtil.formatHeaderDate(Calendar
+		response.setHeader(HttpConstants.DATE, WebUtil.formatHeaderDate(Calendar
 				.getInstance().getTime()));
-		response.setHeader(HttpConst.SERVER, sdLoader.getServerName());
+		response.setHeader(HttpConstants.SERVER, sdLoader.getServerName());
 
 		// session
 		HttpSession session = request.getSession(false);
 		if (session != null && servletContextImpl != null) {
 			String sessionId = session.getId();
-			Cookie sessionCookie = new Cookie(HttpConst.SESSIONID_KEY,
+			Cookie sessionCookie = new Cookie(HttpConstants.SESSIONID_KEY,
 					sessionId);
 			sessionCookie.setPath(servletContextImpl.getContextPath());
 			response.addCookie(sessionCookie);
@@ -337,12 +338,12 @@ public class HttpProcessor extends Thread {
 		// Keep-Alive
 		if (request.getHeader().isKeepAlive()
 				&& requestCount < keppAliveMaxRequests) {
-			response.addHeader(HttpConst.KEEPALIVE, "timeout="
+			response.addHeader(HttpConstants.KEEPALIVE, "timeout="
 					+ (int) keepAliveTimeout / 1000 + ", max="
 					+ keppAliveMaxRequests);
-			response.addHeader(HttpConst.CONNECTION, HttpConst.KEEPALIVE);
+			response.addHeader(HttpConstants.CONNECTION, HttpConstants.KEEPALIVE);
 		} else {
-			response.addHeader(HttpConst.CONNECTION, HttpConst.CLOSE);
+			response.addHeader(HttpConstants.CONNECTION, HttpConstants.CLOSE);
 		}
 		// Cache Control
 		if (sdLoader.getSDLoaderConfig().getConfigBoolean(
@@ -360,10 +361,10 @@ public class HttpProcessor extends Thread {
 		// Chunked以外はセット
 		HttpHeader resHeader = response.getResponseHeader();
 		String transferEncoding = resHeader
-				.getHeaderValue(HttpConst.TRANSFERENCODING);
+				.getHeaderValue(HttpConstants.TRANSFERENCODING);
 		if (transferEncoding == null
-				|| !transferEncoding.equalsIgnoreCase(HttpConst.CHUNKED)) {
-			response.setHeader(HttpConst.CONTENTLENGTH, String.valueOf(response
+				|| !transferEncoding.equalsIgnoreCase(HttpConstants.CHUNKED)) {
+			response.setHeader(HttpConstants.CONTENTLENGTH, String.valueOf(response
 					.getBodySize()));
 		}
 	}
@@ -378,7 +379,7 @@ public class HttpProcessor extends Thread {
 		if (log.isDebugEnabled()) {
 			log.debug("<RESPONSE_HEADER>\n" + new String(headerData));
 		}
-		os.write(HttpConst.CRLF_STRING.getBytes());// Separator
+		os.write(HttpConstants.CRLF_STRING.getBytes());// Separator
 		os.flush();
 		HttpBody bodyData = response.getBodyData();
 		if (bodyData != null) {

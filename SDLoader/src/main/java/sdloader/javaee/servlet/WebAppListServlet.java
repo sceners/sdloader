@@ -24,8 +24,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import sdloader.constants.SDLoaderConstants;
 import sdloader.javaee.InternalWebApplication;
-import sdloader.javaee.constants.WebConstants;
 import sdloader.javaee.impl.ServletContextImpl;
 
 /**
@@ -69,7 +69,7 @@ public class WebAppListServlet extends HttpServlet {
 		writer.write("<a href=\"/\">ROOT</a><br/>");
 		if (contextPathList != null) {
 			for (String path : contextPathList) {
-				if (!path.equals("/" + WebConstants.ROOT_DIR_NAME)) {
+				if (!path.equals("/" + SDLoaderConstants.ROOT_DIR_NAME)) {
 					writer.write("<a href=\"" + path + "/\">" + path
 							+ "</a><br/>");
 				}
