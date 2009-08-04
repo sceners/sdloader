@@ -371,12 +371,15 @@ public class WebUtil {
 	public static StringBuffer buildRequestURL(String scheme, String host,
 			int port, String requestURI) {
 		String portString;
-		if (port == 80 && scheme.equals("http"))
+		if (port == 80 && scheme.equals("http")) {
 			portString = "";
-		else if (port == 443 && scheme.equals("https"))
+		} else if (port == 443 && scheme.equals("https")) {
 			portString = "";
-		else
+		} else if (host.indexOf(":") != -1) {
+			portString = "";
+		} else {
 			portString = ":" + port;
+		}
 		requestURI = stripQueryPart(requestURI);
 		return new StringBuffer(scheme + "://" + host + portString + requestURI);
 	}

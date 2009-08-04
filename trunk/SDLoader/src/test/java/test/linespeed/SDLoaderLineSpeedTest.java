@@ -16,7 +16,7 @@ public class SDLoaderLineSpeedTest extends TestCase {
 		try {
 			sdloader.setLineSpeed(LineSpeed.ISDN_64K_BPS);
 			WebAppContext webapp = new WebAppContext("/test",
-					"src/test/java/sdloader/testlinespeed");
+					"src/test/java/test/linespeed");
 			sdloader.addWebAppContext(webapp);
 
 			sdloader.start();
@@ -36,8 +36,6 @@ public class SDLoaderLineSpeedTest extends TestCase {
 			System.out.println("SIZE=" + totalSize + " PASTTIME=" + pasttime
 					+ " BPS=" + ((totalSize * 8) / (pasttime / 1000d)));
 			assertTrue(pasttime >= 5000);
-		} catch (Exception e) {
-			e.printStackTrace();
 		} finally {
 			sdloader.stop();
 		}
