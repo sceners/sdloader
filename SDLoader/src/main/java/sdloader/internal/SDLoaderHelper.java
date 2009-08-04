@@ -51,7 +51,7 @@ public class SDLoaderHelper {
 		HttpURLConnection urlcon = null;
 		try {
 			try {
-				URL stopUrl = new URL("http://localhost:" + port
+				URL stopUrl = new URL("http://127.0.0.1:" + port
 						+ "/sdloader-command/stop");
 				urlcon = (HttpURLConnection) stopUrl.openConnection();
 				urlcon.setRequestMethod("POST");

@@ -186,7 +186,7 @@ public class IOUtil {
 				socket.bind(new InetSocketAddress(bindPort));
 			} else {
 				socket.bind(new InetSocketAddress(InetAddress
-						.getByName("localhost"), bindPort));
+						.getByName("127.0.0.1"), bindPort));
 			}
 			return socket;
 		} catch (IOException ioe) {

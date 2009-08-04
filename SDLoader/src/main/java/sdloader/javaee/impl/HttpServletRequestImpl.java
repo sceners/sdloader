@@ -173,19 +173,20 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getContentType() {
-		return httpRequest.getHeader().getHeaderValue(HttpConstants.CONTENTTYPE);
+		return httpRequest.getHeader()
+				.getHeaderValue(HttpConstants.CONTENTTYPE);
 	}
 
 	public ServletInputStream getInputStream() throws IOException {
-		final InputStream is = httpRequest.getBody()
-				.getInputStream();
+		final InputStream is = httpRequest.getBody().getInputStream();
 		ServletInputStream sIs = new ServletInputStream() {
 			public int read() throws IOException {
 				return is.read();
 			}
+
 			@Override
-			public int read(byte[] b, int off, int len) throws IOException {			
-				return is.read(b,off,len);
+			public int read(byte[] b, int off, int len) throws IOException {
+				return is.read(b, off, len);
 			}
 		};
 		return sIs;
@@ -266,7 +267,9 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 
 	public StringBuffer getRequestURL() {
 		if (requestURL == null) {
-			requestURL = WebUtil.buildRequestURL(getScheme(), getLocalName(),
+			String host = httpRequest.getHeader().getHeaderValue(
+					HttpConstants.HOST);
+			requestURL = WebUtil.buildRequestURL(getScheme(), host,
 					getServerPort(), getRequestURI());
 		}
 		return new StringBuffer(decodeURI(requestURL.toString()));
@@ -310,7 +313,8 @@ public class HttpServletRequestImpl implements HttpServletRequest {
 	}
 
 	public String getServerName() {
-		String host = httpRequest.getHeader().getHeaderValue(HttpConstants.HOST);
+		String host = httpRequest.getHeader()
+				.getHeaderValue(HttpConstants.HOST);
 		if (host.indexOf(":") > 0)
 			return host.substring(0, host.indexOf(":"));
 		else

@@ -253,7 +253,8 @@ public class HttpHeader {
 			return true;
 		}
 		String connection = getHeaderValue(HttpConstants.CONNECTION);
-		if (connection.equalsIgnoreCase(HttpConstants.KEEPALIVE)) {
+		if (connection != null
+				&& connection.equalsIgnoreCase(HttpConstants.KEEPALIVE)) {
 			return true;
 		}
 		return false;
@@ -271,7 +272,9 @@ public class HttpHeader {
 		}
 		for (Cookie cookie : cookieList) {
 			if (cookie.getValue() != null) {
-				buf.append(HttpConstants.SETCOOKIE + HttpConstants.COLON_STRING);
+				buf
+						.append(HttpConstants.SETCOOKIE
+								+ HttpConstants.COLON_STRING);
 				buf.append(cookie.getName() + "=" + cookie.getValue());
 
 				if (cookie.getMaxAge() > 0) {

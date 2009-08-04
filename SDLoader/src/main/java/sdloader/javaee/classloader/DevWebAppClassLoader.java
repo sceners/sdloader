@@ -41,6 +41,8 @@ public class DevWebAppClassLoader extends WebAppClassLoader {
 	protected SDLoaderLog log = SDLoaderLogFactory
 			.getLog(DevWebAppClassLoader.class);
 
+	protected boolean debugEnable = log.isDebugEnabled();
+
 	protected ClassLoaderHandler classLoaderHandler = new ClassLoaderHandlerAdapter();
 
 	public DevWebAppClassLoader(URL[] webInfUrls, ClassLoader parent) {
@@ -63,8 +65,10 @@ public class DevWebAppClassLoader extends WebAppClassLoader {
 			throws ClassNotFoundException {
 		Class<?> c = classLoaderHandler.handleLoadClass(name, resolve);
 		if (c != null) {
-			log.debug("Class load from class loader handler. class=[" + name
-					+ "]");
+			if (debugEnable) {
+				log.debug("Class load from class loader handler. class=["
+						+ name + "]");
+			}
 			return doResolve(c, resolve);
 		}
 		return super.loadAppClass(name, resolve);
@@ -74,8 +78,10 @@ public class DevWebAppClassLoader extends WebAppClassLoader {
 	protected Class<?> findFromWebInf(String name) {
 		Class<?> c = super.findFromWebInf(name);
 		if (c != null) {
-			log.debug("Class load from app[" + this.hashCode() + "]. class=["
-					+ name + "]");
+			if (debugEnable) {
+				log.debug("Class load from app[" + this.hashCode()
+						+ "]. class=[" + name + "]");
+			}
 		}
 		return c;
 	}
@@ -84,7 +90,9 @@ public class DevWebAppClassLoader extends WebAppClassLoader {
 	protected Class<?> findFromSystem(String name) {
 		Class<?> c = super.findFromSystem(name);
 		if (c != null) {
-			log.debug("Class load from system. class=[" + name + "]");
+			if (debugEnable) {
+				log.debug("Class load from system. class=[" + name + "]");
+			}
 		}
 		return c;
 	}
@@ -93,7 +101,9 @@ public class DevWebAppClassLoader extends WebAppClassLoader {
 	protected Class<?> findFromParent(String name) {
 		Class<?> c = super.findFromParent(name);
 		if (c != null) {
-			log.debug("Class load from parent. class=[" + name + "]");
+			if (debugEnable) {
+				log.debug("Class load from parent. class=[" + name + "]");
+			}
 		}
 		return c;
 	}
