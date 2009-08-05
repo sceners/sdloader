@@ -3,6 +3,7 @@ ClassLoaderHandlerのhandleResourecesが正しく動作するように修正.
 バインドする対象を、localhostから127.0.0.1に変更
 同一プロセス内で同じポートを再度バインドする際、REUSE_ADDRで開くように修正.
 定数定義のクラスをconstantsに移動.
+HttpServletRequest#getRequestURL()の戻り値が、ローカルのホスト名だったのを修正
 
 v0_3_00
 SSL時にnocacheを使わないようにした（ダウンロードできないコンテンツがあるため）
