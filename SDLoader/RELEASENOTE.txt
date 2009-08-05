@@ -1,3 +1,9 @@
+v0_3_01
+ClassLoaderHandlerのhandleResourecesが正しく動作するように修正.
+バインドする対象を、localhostから127.0.0.1に変更
+同一プロセス内で同じポートを再度バインドする際、REUSE_ADDRで開くように修正.
+定数定義のクラスをconstantsに移動.
+
 v0_3_00
 SSL時にnocacheを使わないようにした（ダウンロードできないコンテンツがあるため）
 SDLoader#stop()時にエラーが出るときがある問題を修正
