@@ -1,3 +1,6 @@
+v0_3_02
+SystemTrayOpenで起動した場合に、停止しない問題を修正.
+
 v0_3_01
 ClassLoaderHandlerのhandleResourecesが正しく動作するように修正.
 バインドする対象を、localhostから127.0.0.1に変更
