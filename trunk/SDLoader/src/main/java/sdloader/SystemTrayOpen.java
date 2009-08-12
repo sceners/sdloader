@@ -66,7 +66,7 @@ public class SystemTrayOpen {
 			server.addEventListener(LifecycleEvent.AFTER_STOP,
 					new LifecycleListener() {
 						public void handleLifecycle(LifecycleEvent<?> event) {
-							display.syncExec(new Runnable() {
+							display.asyncExec(new Runnable() {
 								public void run() {
 									display.dispose();
 								}
@@ -150,14 +150,6 @@ public class SystemTrayOpen {
 			shutdownItem.addListener(SWT.Selection, new Listener() {
 				public void handleEvent(Event event) {
 					sdLoader.stop();
-				}
-			});
-
-			MenuItem portItem = new MenuItem(menu, SWT.NONE);
-			portItem.setText("port:" + sdLoader.getPort());
-			portItem.addListener(SWT.Selection, new Listener() {
-				public void handleEvent(Event event) {
-					openBrowser();
 				}
 			});
 
