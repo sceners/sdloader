@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sdloader</groupId>
 	<artifactId>sdloader-jsp21</artifactId>
-	<version>0.3.1</version>
+	<version>0.3.2</version>
 	<packaging>jar</packaging>
 	<name>SDLoader</name>
 	<description>SDLoader</description>
