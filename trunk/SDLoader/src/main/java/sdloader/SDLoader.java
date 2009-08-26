@@ -377,7 +377,11 @@ public class SDLoader implements Lifecycle {
 	 * stopメソッドを呼んだ場合にSystem.exit()を呼ぶかどうか.
 	 * 
 	 * <pre>
-	 * trueの場合、SDLoader#stop()呼出し時にSystem.exit()を呼びます.
+	 * SDLoaderはメインスレッド（SDLoaderThread)以外はデーモンスレッドのため、
+	 * stop()を呼び出すことでSDLoader関連のすべてのスレッドが終了するため、他にスレッドがなければ
+	 * システムが停止します。
+	 * SDLoader以外でスレッドを実行しており、SDLoader#stop()呼出し時にSystem.exit()を呼びたい場合に
+	 * trueをセットします。
 	 * デフォルトはfalseです。
 	 * </pre>
 	 * 
