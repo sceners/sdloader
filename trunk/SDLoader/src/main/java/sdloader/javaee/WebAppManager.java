@@ -150,7 +150,7 @@ public class WebAppManager {
 
 	protected void initConfig() {
 		isInmemoryExtract = config
-				.getConfigBoolean(SDLoader.KEY_WAR_INMEMORY_EXTRACT);
+				.getConfigBoolean(SDLoader.KEY_SDLOADER_WAR_INMEMORY_EXTRACT);
 	}
 
 	protected void detectWebApps() throws Exception {
@@ -523,8 +523,8 @@ public class WebAppManager {
 			fileServletTag.addInitParam(new InitParamTag(
 					FileSavingServlet.PARAM_DOC_ROOT, docRoots));
 			// noCacheMode
-			boolean noCacheMode = config.getConfigBoolean(
-					HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE, false);
+			boolean noCacheMode = config
+					.getConfigBoolean(HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE);
 			if (noCacheMode) {
 				fileServletTag.addInitParam(new InitParamTag(
 						FileSavingServlet.PARAM_IGNORE_LAST_MODIFIED, "true"));

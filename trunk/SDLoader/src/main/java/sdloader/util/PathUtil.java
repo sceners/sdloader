@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Stack;
 
 /**
  * PathUtils
@@ -28,6 +29,42 @@ import java.net.URL;
  * 
  */
 public class PathUtil {
+	/**
+	 * パス中の//および./および../部分を取り除きます.
+	 */
+	public static String narrow(String path) {
+		path = replaceFileSeparator(path);
+
+		String[] paths = path.split("/");
+		Stack<String> narrowPathList = new Stack<String>();
+		for (int i = 0; i < paths.length; i++) {
+			if (paths[i].length() == 0 || paths[i].equals(".")) {
+				continue;
+			} else if (paths[i].equals("..")) {
+				if (narrowPathList.size() != 0) {
+					narrowPathList.pop();
+				}
+			} else {
+				narrowPathList.add(paths[i]);
+			}
+		}
+		boolean first = true;
+		String newPath = null;
+		for (String p : narrowPathList) {
+			if (first) {
+				newPath = path.startsWith("/") ? "/" : "";
+				first = false;
+			} else {
+				newPath += "/";
+			}
+			newPath += p;
+		}
+		if (path.endsWith("/")) {
+			newPath += "/";
+		}
+		return newPath;
+	}
+
 	/**
 	 * ベースパスに対して相対パスを解決します。
 	 * 

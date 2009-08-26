@@ -32,7 +32,7 @@ public class OpenWithInmemory {
 		try {
 			SDLoader server = new SDLoader();
 			server.getSDLoaderConfig().setConfig(
-					SDLoader.KEY_WAR_INMEMORY_EXTRACT, true);
+					SDLoader.KEY_SDLOADER_WAR_INMEMORY_EXTRACT, true);
 
 			server.start();
 

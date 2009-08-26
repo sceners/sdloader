@@ -19,7 +19,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
+
+import sdloader.util.PathUtil;
 
 /**
  * WebApp用クラスローダー
@@ -161,9 +165,12 @@ public class WebAppClassLoader extends URLClassLoader {
 		final Enumeration<URL> resources = super.getResources(name);
 		// duplicate check
 		Vector<URL> margeUrlList = new Vector<URL>();
+		Set<String> narrowPathSet = new HashSet<String>();
 		while (resources.hasMoreElements()) {
 			URL url = resources.nextElement();
-			if (!margeUrlList.contains(url)) {
+			String narrowPath = PathUtil.narrow(url.toExternalForm());
+			if (narrowPathSet.contains(narrowPath) == false) {
+				narrowPathSet.add(narrowPath);
 				margeUrlList.add(url);
 			}
 		}
