@@ -1,5 +1,7 @@
 v0_3_02
 SystemTrayOpenで起動した場合に、停止しない問題を修正.
+パスが../から始まる場合、WebAppClassLoader#getResources()でリソースを重複して返していた問題を修正.
+stop()時にSystem.exitを呼ぶためのsetExitOnStop()を追加.
 
 v0_3_01
 ClassLoaderHandlerのhandleResourecesが正しく動作するように修正.

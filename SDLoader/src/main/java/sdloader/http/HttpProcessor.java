@@ -308,7 +308,7 @@ public class HttpProcessor extends Thread {
 		String uriEncoding = sdLoader.getSDLoaderConfig()
 				.getConfigStringIgnoreExist(
 						HttpRequest.KEY_REQUEST_URI_ENCODING);
-		if (uriEncoding != null) {
+		if (uriEncoding != null && uriEncoding.length() > 0) {
 			request.setUriEncoding(uriEncoding);
 		}
 		if (socket instanceof SSLSocket) {
@@ -321,8 +321,8 @@ public class HttpProcessor extends Thread {
 			ServletContextImpl servletContextImpl,
 			HttpServletRequestImpl request, HttpServletResponseImpl response)
 			throws IOException {
-		response.setHeader(HttpConstants.DATE, WebUtil.formatHeaderDate(Calendar
-				.getInstance().getTime()));
+		response.setHeader(HttpConstants.DATE, WebUtil
+				.formatHeaderDate(Calendar.getInstance().getTime()));
 		response.setHeader(HttpConstants.SERVER, sdLoader.getServerName());
 
 		// session
@@ -341,15 +341,16 @@ public class HttpProcessor extends Thread {
 			response.addHeader(HttpConstants.KEEPALIVE, "timeout="
 					+ (int) keepAliveTimeout / 1000 + ", max="
 					+ keppAliveMaxRequests);
-			response.addHeader(HttpConstants.CONNECTION, HttpConstants.KEEPALIVE);
+			response.addHeader(HttpConstants.CONNECTION,
+					HttpConstants.KEEPALIVE);
 		} else {
 			response.addHeader(HttpConstants.CONNECTION, HttpConstants.CLOSE);
 		}
 		// Cache Control
 		if (sdLoader.getSDLoaderConfig().getConfigBoolean(
-				HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE, false)) {
+				HttpResponse.KEY_RESPONSE_USE_NOCACHE_MODE)) {
 			if (sdLoader.getSDLoaderConfig().getConfigBoolean(
-					SDLoader.KEY_SDLOADER_SSL_ENABLE, false) == false) {
+					SDLoader.KEY_SDLOADER_SSL_ENABLE) == false) {
 				response.setHeader("Pragma", "no-cache");
 				response.setHeader("Cache-Control",
 						"no-cache, no-store, must-revalidate");
@@ -364,8 +365,8 @@ public class HttpProcessor extends Thread {
 				.getHeaderValue(HttpConstants.TRANSFERENCODING);
 		if (transferEncoding == null
 				|| !transferEncoding.equalsIgnoreCase(HttpConstants.CHUNKED)) {
-			response.setHeader(HttpConstants.CONTENTLENGTH, String.valueOf(response
-					.getBodySize()));
+			response.setHeader(HttpConstants.CONTENTLENGTH, String
+					.valueOf(response.getBodySize()));
 		}
 	}
 
@@ -390,7 +391,7 @@ public class HttpProcessor extends Thread {
 
 	protected InputStream createInputStream(InputStream is) {
 		int lineSpeed = sdLoader.getSDLoaderConfig().getConfigInteger(
-				SDLoader.KEY_SDLOADER_LINE_SPEED, LineSpeed.NO_LIMIT);
+				SDLoader.KEY_SDLOADER_LINE_SPEED);
 		if (lineSpeed <= LineSpeed.NO_LIMIT) {
 			return is;
 		} else {
@@ -400,7 +401,7 @@ public class HttpProcessor extends Thread {
 
 	protected OutputStream createOutputStream(OutputStream out) {
 		int lineSpeed = sdLoader.getSDLoaderConfig().getConfigInteger(
-				SDLoader.KEY_SDLOADER_LINE_SPEED, LineSpeed.NO_LIMIT);
+				SDLoader.KEY_SDLOADER_LINE_SPEED);
 		if (lineSpeed <= LineSpeed.NO_LIMIT) {
 			return out;
 		} else {

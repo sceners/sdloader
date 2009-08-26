@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import sdloader.constants.LineSpeed;
 import sdloader.http.HttpProcessor;
 import sdloader.http.HttpProcessorPool;
 import sdloader.http.HttpRequest;
@@ -79,8 +80,12 @@ public class SDLoader implements Lifecycle {
 	 */
 	public static final String KEY_SDLOADER_WEBAPP_PATH = KEY_SDLOADER_WEBAPPS_DIR;
 
-	public static final String KEY_WAR_INMEMORY_EXTRACT = CONFIG_KEY_PREFIX
+	public static final String KEY_SDLOADER_WAR_INMEMORY_EXTRACT = CONFIG_KEY_PREFIX
 			+ "warInMemoryExtract";
+	/**
+	 * @deprecated
+	 */
+	public static final String KEY_WAR_INMEMORY_EXTRACT = KEY_SDLOADER_WAR_INMEMORY_EXTRACT;
 
 	public static final String KEY_SDLOADER_USE_OUTSIDE_PORT = CONFIG_KEY_PREFIX
 			+ "useOutSidePort";
@@ -108,13 +113,16 @@ public class SDLoader implements Lifecycle {
 	public static final String KEY_SDLOADER_WORK_DIR = CONFIG_KEY_PREFIX
 			+ "workDir";
 
+	public static final String KEY_SDLOADER_EXIT_ON_STOP = CONFIG_KEY_PREFIX
+			+ "exitOnStop";
+
 	public static final List<String> CONFIG_KEYS = new ArrayList<String>(14);
 	static {
 		CONFIG_KEYS.add(KEY_SDLOADER_JSP_LIBPATH);
 		CONFIG_KEYS.add(KEY_SDLOADER_HOME);
 		CONFIG_KEYS.add(KEY_SDLOADER_WEBAPPS_DIR);
 		CONFIG_KEYS.add(KEY_SDLOADER_WEBAPP_PATH);
-		CONFIG_KEYS.add(KEY_WAR_INMEMORY_EXTRACT);
+		CONFIG_KEYS.add(KEY_SDLOADER_WAR_INMEMORY_EXTRACT);
 		CONFIG_KEYS.add(KEY_SDLOADER_USE_OUTSIDE_PORT);
 		CONFIG_KEYS.add(KEY_SDLOADER_MAX_THREAD_POOL_NUM);
 		CONFIG_KEYS.add(KEY_SDLOADER_AUTO_PORT_DETECT);
@@ -124,6 +132,7 @@ public class SDLoader implements Lifecycle {
 		CONFIG_KEYS.add(KEY_SDLOADER_LINE_SPEED);
 		CONFIG_KEYS.add(KEY_SDLOADER_PORT);
 		CONFIG_KEYS.add(KEY_SDLOADER_WORK_DIR);
+		CONFIG_KEYS.add(KEY_SDLOADER_EXIT_ON_STOP);
 	}
 
 	private String sdloaderConfigPath = "sdloader.properties";
@@ -195,9 +204,23 @@ public class SDLoader implements Lifecycle {
 	}
 
 	protected void loadDefaultConfig() {
+
+		config.setConfig(KEY_SDLOADER_SESSION_MANAGER,
+				"sdloader.javaee.impl.SessionManagerImpl");
+		config.setConfig(KEY_SDLOADER_WAR_INMEMORY_EXTRACT, false);
+		setSSLEnable(false);
+		setUseOutSidePort(false);
+		setMaxThreadPoolNum(2);
+		setAutoPortDetect(false);
+		setServerName("SDLoader");
+		setPort(30000);
+		setUseNoCacheMode(false);
+		setLineSpeed(LineSpeed.NO_LIMIT);
+		setExitOnStop(false);
+
 		Properties initSetting = ResourceUtil.loadProperties(
 				sdloaderConfigPath, SDLoader.class);
-		config.addAllIfNotExist(initSetting);
+		config.addAll(initSetting);
 	}
 
 	public void setConfig(String key, String value) {
@@ -351,6 +374,24 @@ public class SDLoader implements Lifecycle {
 	}
 
 	/**
+	 * stopメソッドを呼んだ場合にSystem.exit()を呼ぶかどうか.
+	 * 
+	 * <pre>
+	 * trueの場合、SDLoader#stop()呼出し時にSystem.exit()を呼びます.
+	 * デフォルトはfalseです。
+	 * </pre>
+	 * 
+	 * @param value
+	 */
+	public void setExitOnStop(boolean value) {
+		config.setConfig(KEY_SDLOADER_EXIT_ON_STOP, value);
+	}
+
+	public boolean isExitOnStop() {
+		return config.getConfigBoolean(KEY_SDLOADER_EXIT_ON_STOP);
+	}
+
+	/**
 	 * Webアプリケーションコンテキストを追加します。
 	 * 
 	 * @param context
@@ -468,6 +509,9 @@ public class SDLoader implements Lifecycle {
 		}
 		sdLoaderThread.close();
 		ThreadUtil.join(sdLoaderThread);
+		if (isExitOnStop()) {
+			System.exit(0);
+		}
 	}
 
 	/**
@@ -547,8 +591,8 @@ public class SDLoader implements Lifecycle {
 				.getConfigBoolean(KEY_SDLOADER_USE_OUTSIDE_PORT);
 		final boolean autoPortDetect = config
 				.getConfigBoolean(KEY_SDLOADER_AUTO_PORT_DETECT);
-		final boolean sslEnable = config.getConfigBoolean(
-				KEY_SDLOADER_SSL_ENABLE, false);
+		final boolean sslEnable = config
+				.getConfigBoolean(KEY_SDLOADER_SSL_ENABLE);
 		String portMessage = autoPortDetect ? "AutoDetect" : String
 				.valueOf(port);
 		log.info("Bind start. Port=" + portMessage + " useOutSidePort="
