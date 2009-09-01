@@ -220,7 +220,9 @@ public class SDLoader implements Lifecycle {
 
 		Properties initSetting = ResourceUtil.loadProperties(
 				sdloaderConfigPath, SDLoader.class);
-		config.addAll(initSetting);
+		if (initSetting != null) {
+			config.addAll(initSetting);
+		}
 	}
 
 	public void setConfig(String key, String value) {
