@@ -2,6 +2,10 @@ v0_3_02
 SystemTrayOpenで起動した場合に、停止しない問題を修正.
 パスが../から始まる場合、WebAppClassLoader#getResources()でリソースを重複して返していた問題を修正.
 stop()時にSystem.exitを呼ぶためのsetExitOnStop()を追加.
+mime.xmlを廃止（クラスに直書き。ただしファイルの読み込み自体は行い、読めたら上書き）
+sdloader.propertiesのデフォルト設定をSDLoaderクラスに移動。
+ファイルがなくてもエラーが出ないようにした。
+（こちらもクラスに直書き。ただしファイルの読み込み自体は行い、読めたら上書き）
 
 v0_3_01
 ClassLoaderHandlerのhandleResourecesが正しく動作するように修正.
