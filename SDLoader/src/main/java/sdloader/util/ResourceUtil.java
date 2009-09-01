@@ -142,13 +142,13 @@ public class ResourceUtil {
 	public static Properties loadProperties(String path, Class<?> caller) {
 		InputStream is = getResourceAsStream(path, caller);
 		if (is == null) {
-			throw new RuntimeException("Properties not found.path=" + path);
+			return null;
 		}
 		Properties p = new Properties();
 		try {
 			p.load(is);
 		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
+			return null;
 		}
 		return p;
 	}

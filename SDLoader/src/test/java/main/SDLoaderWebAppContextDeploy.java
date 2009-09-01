@@ -11,6 +11,9 @@ public class SDLoaderWebAppContextDeploy {
 		sdloader.setUseOutSidePort(true);
 		WebAppContext webapp = new WebAppContext("/testwebapp", "webapps/test");
 		sdloader.addWebAppContext(webapp);
+
+		WebAppContext ROOT = new WebAppContext("/testwebapp", "webapps/test");
+
 		sdloader.start();
 		Browser.open("http://localhost:" + sdloader.getPort());
 	}

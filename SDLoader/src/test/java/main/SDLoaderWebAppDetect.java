@@ -6,7 +6,7 @@ import sdloader.util.Browser;
 public class SDLoaderWebAppDetect {
 
 	public static void main(String[] args) {
-		SDLoader sdloader = new SDLoader(8080);
+		SDLoader sdloader = new SDLoader(8081);
 		sdloader.setAutoPortDetect(true);
 		sdloader.setUseOutSidePort(true);
 
