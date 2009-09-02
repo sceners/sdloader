@@ -11,6 +11,8 @@ import junit.framework.Assert;
 
 public class RequestURLServlet extends HttpServlet {
 
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
