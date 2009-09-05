@@ -176,8 +176,10 @@ public class ResourceUtil {
 			}
 		}
 		if (is == null) {
-			is = Thread.currentThread().getContextClassLoader()
-					.getResourceAsStream(resource);
+			ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+			if (tcl != null) {
+				is = tcl.getResourceAsStream(resource);
+			}
 		}
 		if (is == null) {
 			is = caller.getResourceAsStream(path);

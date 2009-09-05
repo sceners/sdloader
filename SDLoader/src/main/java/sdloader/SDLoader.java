@@ -577,7 +577,8 @@ public class SDLoader implements Lifecycle {
 	protected void initSessionManager() {
 		String sessionManagerClassName = config
 				.getConfigString(KEY_SDLOADER_SESSION_MANAGER);
-		this.sessionManager = ClassUtil.newInstance(sessionManagerClassName);
+		this.sessionManager = ClassUtil.newInstance(sessionManagerClassName,
+				SDLoader.class.getClassLoader());
 	}
 
 	protected void initWebApp() {
