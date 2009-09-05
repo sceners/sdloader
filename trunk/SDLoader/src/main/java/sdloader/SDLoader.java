@@ -472,7 +472,7 @@ public class SDLoader implements Lifecycle {
 	 * ソケットをオープンし、サーバを開始します。
 	 */
 	public void start() {
-		long t = System.currentTimeMillis();
+		final long t = System.currentTimeMillis();
 
 		checkNotRunning();
 
@@ -481,10 +481,19 @@ public class SDLoader implements Lifecycle {
 		dispatcher.dispatchEvent(new LifecycleEvent<SDLoader>(
 				LifecycleEvent.BEFORE_START, this));
 
-		initConfig();
+		ServerSocket initSocket = null;
 
-		ServerSocket initSocket = initServerSocket();
+		final Thread currentThread = Thread.currentThread();
+		final ClassLoader currentContextClassLoader = currentThread
+				.getContextClassLoader();
 		try {
+			currentThread
+					.setContextClassLoader(SDLoader.class.getClassLoader());
+
+			initConfig();
+
+			initSocket = initServerSocket();
+
 			initSessionManager();
 
 			initWebApp();
@@ -495,6 +504,8 @@ public class SDLoader implements Lifecycle {
 		} catch (RuntimeException re) {
 			IOUtil.closeServerSocketNoException(initSocket);
 			throw re;
+		} finally {
+			currentThread.setContextClassLoader(currentContextClassLoader);
 		}
 
 		log.info("SDLoader[port:" + getPort() + "] startup in "
@@ -577,8 +588,7 @@ public class SDLoader implements Lifecycle {
 	protected void initSessionManager() {
 		String sessionManagerClassName = config
 				.getConfigString(KEY_SDLOADER_SESSION_MANAGER);
-		this.sessionManager = ClassUtil.newInstance(sessionManagerClassName,
-				SDLoader.class.getClassLoader());
+		this.sessionManager = ClassUtil.newInstance(sessionManagerClassName);
 	}
 
 	protected void initWebApp() {
