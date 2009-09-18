@@ -56,5 +56,5 @@ public interface ClassLoaderHandler {
 	 * @return
 	 * @throws IOException
 	 */
-	List<URL> handleResources(String resounceName) throws IOException;
+	List<URL> handleResources(String resourceName) throws IOException;
 }
