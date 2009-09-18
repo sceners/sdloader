@@ -43,7 +43,7 @@ public class ClassLoaderHandlerAdapter implements ClassLoaderHandler {
 	 * 
 	 * @see sdloader.javaee.classloader.ClassLoaderHandler#handleResources(java.lang.String)
 	 */
-	public List<URL> handleResources(String resounceName) throws IOException {
+	public List<URL> handleResources(String resourceName) throws IOException {
 		return null;
 	}
 
