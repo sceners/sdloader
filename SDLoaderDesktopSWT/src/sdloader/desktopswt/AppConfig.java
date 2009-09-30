@@ -20,6 +20,9 @@ public class AppConfig {
 	public static final String CONFIG_MAXIMIZE_BUTTON = "window.maximizebutton";
 	public static final String CONFIG_MAXIMIZED = "window.maximized";
 
+	public static final String CONFIG_STARTUP_HOOK = "desktopswt.startupHook";
+	public static final String CONFIG_SHUTDOWN_HOOK = "desktopswt.shutdownHook";
+
 	private Properties appProperties;
 
 	public void init() {
@@ -66,6 +69,14 @@ public class AppConfig {
 	public boolean isMaximized() {
 		String value = getConfig(CONFIG_MAXIMIZED, "false");
 		return BooleanUtil.toBoolean(value);
+	}
+
+	public String getStartupHook() {
+		return getConfig(CONFIG_STARTUP_HOOK);
+	}
+
+	public String getShutdownHook() {
+		return getConfig(CONFIG_SHUTDOWN_HOOK);
 	}
 
 	public Point getWindowSize() {

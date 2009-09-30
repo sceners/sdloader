@@ -50,9 +50,43 @@ public class DesktopSWTMain {
 
 		initAppConfig();
 
+		startupHook();
+
 		display = new Display();
 		openSplashWindow();
 
+		try {
+			initWindow();
+			initSDLoader();
+			while (!shell.isDisposed()) {
+				if (!display.readAndDispatch()) {
+					display.sleep();
+				}
+			}
+		} catch (Exception e) {
+			try {
+				splash.close();
+			} catch (Exception ex) {
+			}
+			MessageBox msg = new MessageBox(shell, SWT.ICON_ERROR);
+			msg.setMessage("エラー");
+			msg.setMessage(e.getMessage());
+			msg.open();
+		} finally {
+			try {
+				display.dispose();
+			} catch (Exception e) {
+			}
+			try {
+				server.stop();
+			} catch (Exception e) {
+			}
+			shutdownHook();
+			System.exit(0);
+		}
+	}
+
+	protected void initWindow() {
 		int arg = SWT.TITLE | SWT.MIN | SWT.CLOSE;
 		if (appConfig.isResizable()) {
 			arg |= SWT.RESIZE;
@@ -90,33 +124,6 @@ public class DesktopSWTMain {
 				event.doit = false; // タブをとじないようにする
 			}
 		});
-		try {
-			initSDLoader();
-			while (!shell.isDisposed()) {
-				if (!display.readAndDispatch()) {
-					display.sleep();
-				}
-			}
-		} catch (Exception e) {
-			try {
-				splash.close();
-			} catch (Exception ex) {
-			}
-			MessageBox msg = new MessageBox(shell, SWT.ICON_ERROR);
-			msg.setMessage("エラー");
-			msg.setMessage(e.getMessage());
-			msg.open();
-		} finally {
-			try {
-				display.dispose();
-			} catch (Exception e) {
-			}
-			try {
-				server.stop();
-			} catch (Exception e) {
-			}
-			System.exit(0);
-		}
 	}
 
 	private void openSplashWindow() {
@@ -284,4 +291,29 @@ public class DesktopSWTMain {
 			}
 		}
 	}
+
+	protected void startupHook() {
+		try {
+			String startupHook = appConfig.getStartupHook();
+			if (startupHook != null) {
+				ProcessBuilder pb = new ProcessBuilder(startupHook);
+				Process p = pb.start();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	protected void shutdownHook() {
+		try {
+			String shutdownHook = appConfig.getShutdownHook();
+			if (shutdownHook != null) {
+				ProcessBuilder pb = new ProcessBuilder(shutdownHook);
+				Process p = pb.start();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }
