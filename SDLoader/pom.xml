@@ -118,13 +118,13 @@
 			  <artifactId>maven-license-plugin</artifactId>
 			  <version>1.4.0</version>
 			  <configuration>
-			    <header>src/header.txt</header>
+			    <header>dev/header.txt</header>
 			    <includes>
 			      <include>src/**/*.java</include>
 			    </includes>
 			    <encoding>UTF-8</encoding>
 			    <headerDefinitions>
-			      <headerDefinition>src/header-definition.xml</headerDefinition>
+			      <headerDefinition>dev/header-definition.xml</headerDefinition>
 			    </headerDefinitions>
 			  </configuration>
 			</plugin>
