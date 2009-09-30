@@ -57,7 +57,13 @@ public class DesktopSWTMain {
 		if (appConfig.isResizable()) {
 			arg |= SWT.RESIZE;
 		}
+		if (appConfig.isMaximizeButtonEnable()) {
+			arg |= SWT.MAX;
+		}
 		shell = new Shell(display, arg);
+		if (appConfig.isMaximized()) {
+			shell.setMaximized(true);
+		}
 		Point p = appConfig.getWindowSize();
 		if (p != null) {
 			shell.setSize(p);

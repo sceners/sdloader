@@ -17,6 +17,8 @@ public class AppConfig {
 	public static final String CONFIG_WINDOW_WIDTH = "window.width";
 	public static final String CONFIG_WINDOW_HEIGHT = "window.height";
 	public static final String CONFIG_RESIZABLE = "window.resizable";
+	public static final String CONFIG_MAXIMIZE_BUTTON = "window.maximizebutton";
+	public static final String CONFIG_MAXIMIZED = "window.maximized";
 
 	private Properties appProperties;
 
@@ -53,6 +55,16 @@ public class AppConfig {
 
 	public boolean isResizable() {
 		String value = getConfig(CONFIG_RESIZABLE, "true");
+		return BooleanUtil.toBoolean(value);
+	}
+
+	public boolean isMaximizeButtonEnable() {
+		String value = getConfig(CONFIG_MAXIMIZE_BUTTON, "true");
+		return BooleanUtil.toBoolean(value);
+	}
+
+	public boolean isMaximized() {
+		String value = getConfig(CONFIG_MAXIMIZED, "false");
 		return BooleanUtil.toBoolean(value);
 	}
 
