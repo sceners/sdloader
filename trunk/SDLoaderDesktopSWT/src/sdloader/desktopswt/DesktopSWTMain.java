@@ -3,6 +3,7 @@ package sdloader.desktopswt;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.net.BindException;
 import java.util.Properties;
 import java.util.Map.Entry;
@@ -293,30 +294,56 @@ public class DesktopSWTMain {
 	}
 
 	protected void startupHook() {
-		try {
-			String startupHook = appConfig.getStartupHook();
-			if (startupHook != null) {
-				System.out.println("Invoke startup hook. hook=" + startupHook);
-				ProcessBuilder pb = new ProcessBuilder(startupHook);
-				Process p = pb.start();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		final String startupHook = appConfig.getStartupHook();
+		if (startupHook != null) {
+			System.out.println("Invoke startup thread start. hook="
+					+ startupHook);
+			new Thread() {
+				@Override
+				public void run() {
+					try {
+						System.out.println("startup hook invoke.");
+						ProcessBuilder pb = new ProcessBuilder(startupHook);
+						Process process = pb.start();
+						printProcess(process);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}.start();
 		}
 	}
 
 	protected void shutdownHook() {
-		try {
-			String shutdownHook = appConfig.getShutdownHook();
-			if (shutdownHook != null) {
-				System.out
-						.println("Invoke shutdown hook. hook=" + shutdownHook);
-				ProcessBuilder pb = new ProcessBuilder(shutdownHook);
-				Process p = pb.start();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		final String shutdownHook = appConfig.getShutdownHook();
+		if (shutdownHook != null) {
+			System.out.println("Invoke shutdown thread start. hook="
+					+ shutdownHook);
+			new Thread() {
+				@Override
+				public void run() {
+					try {
+						System.out.println("Invoke shutdown hook start.");
+						ProcessBuilder pb = new ProcessBuilder(shutdownHook);
+						Process process = pb.start();
+						printProcess(process);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}.start();
 		}
 	}
 
+	protected void printProcess(Process process) throws Exception {
+		InputStream stream = process.getInputStream();
+		while (true) {
+			int c = stream.read();
+			if (c == -1) {
+				stream.close();
+				break;
+			}
+			System.out.print((char) c);
+		}
+	}
 }
