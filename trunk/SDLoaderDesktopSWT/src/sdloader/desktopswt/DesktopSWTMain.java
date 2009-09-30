@@ -296,6 +296,7 @@ public class DesktopSWTMain {
 		try {
 			String startupHook = appConfig.getStartupHook();
 			if (startupHook != null) {
+				System.out.println("Invoke startup hook. hook=" + startupHook);
 				ProcessBuilder pb = new ProcessBuilder(startupHook);
 				Process p = pb.start();
 			}
@@ -308,6 +309,8 @@ public class DesktopSWTMain {
 		try {
 			String shutdownHook = appConfig.getShutdownHook();
 			if (shutdownHook != null) {
+				System.out
+						.println("Invoke shutdown hook. hook=" + shutdownHook);
 				ProcessBuilder pb = new ProcessBuilder(shutdownHook);
 				Process p = pb.start();
 			}
