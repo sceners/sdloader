@@ -50,7 +50,7 @@ eclipseの場合、クラスパスに通した後、jarファイルを右クリ�
 一覧からServlet25ProjectTemplateToolを選ぶと、WEB-INFやweb.xmlなどの雛形、
 SDLoader起動のコードの雛形がプロジェクト内に出力されます。
 
-雛形を作らなかった場合は、WEB-INFやweb.xmlを作成たあと、mainメソッドを持ったクラスを作成します。
+雛形を作らなかった場合は、WEB-INFやweb.xmlを作成したあと、mainメソッドを持ったクラスを作成します。
 mainクラスには、SDLoaderを起動するコードを書きます。
 最低限必要なコードは、以下のようになります。
 
@@ -61,7 +61,8 @@ public static void main(String[] args){
   sdLoader.start();
 }
 
-  SDLoader sdLoader = new SDLoader(8080);
+
+	SDLoader sdLoader = new SDLoader(8080);
 の部分は、Webコンテナのインスタンス化です。
 SDLoaderの引数にポート番号を渡すことで、そのポートでSDLoaderを起動します。
 SDLoader sdLoader = new SDLoader(true);
