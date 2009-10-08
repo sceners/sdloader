@@ -25,7 +25,7 @@ public class Util {
 	public static String getRequestContent(String urlText) throws Exception {
 		URL url = new URL(urlText);
 		HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
-		urlcon.setRequestMethod("GET");
+		urlcon.setRequestMethod("POST");
 		urlcon.setUseCaches(false);
 		urlcon.setDoOutput(true);
 		PrintStream ps = new PrintStream(urlcon.getOutputStream());
