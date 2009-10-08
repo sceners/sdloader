@@ -105,7 +105,8 @@ public class ServletContextImplTest extends TestCase {
 			Assert.assertTrue(paths.contains("/foo.txt"));
 			Assert.assertTrue(paths.contains("/bar.txt"));
 			Assert.assertTrue(paths.contains("/foo2.txt"));
-			Assert.assertEquals(4, paths.size());
+			Assert.assertTrue(paths.contains("/.svn/"));
+			Assert.assertEquals(5, paths.size());
 		}
 	}
 
