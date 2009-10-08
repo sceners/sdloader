@@ -40,6 +40,7 @@ import sdloader.javaee.webxml.ServletTag;
 import sdloader.javaee.webxml.WebXml;
 import sdloader.util.ClassUtil;
 import sdloader.util.CollectionsUtil;
+import sdloader.util.StringUtil;
 import sdloader.util.WebUtil;
 
 /**
@@ -218,8 +219,10 @@ public class InternalWebApplication {
 		ServletConfigImpl config = new ServletConfigImpl();
 		config.setServletContext(servletContext);
 		for (InitParamTag initParam : servletTag.getInitParamList()) {
-			config.addInitParameter(initParam.getParamName(), initParam
+			String paramName = StringUtil.emptyIfNull(initParam.getParamName());
+			String paramValue = StringUtil.emptyIfNull(initParam
 					.getParamValue());
+			config.addInitParameter(paramName, paramValue);
 		}
 		config.setServletName(servletTag.getServletName());
 		return config;
@@ -229,8 +232,10 @@ public class InternalWebApplication {
 		FilterConfigImpl config = new FilterConfigImpl();
 		config.setServletContext(servletContext);
 		for (InitParamTag initParam : filterTag.getInitParamList()) {
-			config.addInitParameter(initParam.getParamName(), initParam
+			String paramName = StringUtil.emptyIfNull(initParam.getParamName());
+			String paramValue = StringUtil.emptyIfNull(initParam
 					.getParamValue());
+			config.addInitParameter(paramName, paramValue);
 		}
 		config.setFilterName(filterTag.getFilterName());
 		return config;
