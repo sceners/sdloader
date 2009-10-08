@@ -14,17 +14,29 @@
  */
 package sdloader.javaee.impl;
 
+import java.io.IOException;
+import java.util.Set;
+
 import javax.servlet.ServletContextAttributeEvent;
 import javax.servlet.ServletContextAttributeListener;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
+import sdloader.SDLoader;
 import sdloader.javaee.InternalWebApplication;
 import sdloader.javaee.WebAppContext;
 import sdloader.javaee.WebAppManager;
 import sdloader.javaee.webxml.ListenerTag;
+import sdloader.javaee.webxml.ServletMappingTag;
+import sdloader.javaee.webxml.ServletTag;
 import sdloader.javaee.webxml.WebXml;
+import sdloader.util.Util;
 
 public class ServletContextImplTest extends TestCase {
 
@@ -49,6 +61,52 @@ public class ServletContextImplTest extends TestCase {
 		impl.setAttribute("test", "set");
 		impl.setAttribute("test", "set2");
 		impl.removeAttribute("test");
+	}
+
+	public void testGetResourcePaths() throws Exception {
+		WebXml webxml = new WebXml();
+		webxml.getWebApp().addServlet(
+				new ServletTag().setServletName("test").setServletClass(
+						ResourceTestServlet.class)).addServletMapping(
+				new ServletMappingTag().setServletName("test").setUrlPattern(
+						"*.do"));
+
+		WebAppContext context = new WebAppContext("/test",
+				"src/test/java/sdloader/javaee/impl/docbase1",
+				"src/test/java/sdloader/javaee/impl/docbase2");
+		context.setWebXml(webxml);
+
+		SDLoader sdloader = new SDLoader();
+		try {
+
+			sdloader.addWebAppContext(context);
+
+			sdloader.start();
+
+			Util.getRequestContent("http://localhost:" + sdloader.getPort()
+					+ "/test/test.do");
+		} finally {
+			sdloader.stop();
+		}
+	}
+
+	public static class ResourceTestServlet extends HttpServlet {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+				throws ServletException, IOException {
+
+			@SuppressWarnings("unchecked")
+			Set<String> paths = getServletContext().getResourcePaths("/");
+
+			Assert.assertTrue(paths.contains("/hoge/"));
+			Assert.assertTrue(paths.contains("/foo.txt"));
+			Assert.assertTrue(paths.contains("/bar.txt"));
+			Assert.assertTrue(paths.contains("/foo2.txt"));
+			Assert.assertEquals(4, paths.size());
+		}
 	}
 
 	public static class Listener implements ServletContextListener,
