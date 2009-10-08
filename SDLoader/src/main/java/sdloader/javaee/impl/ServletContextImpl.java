@@ -86,31 +86,31 @@ public class ServletContextImpl implements ServletContext {
 			path = path.substring(0, path.length() - 1);
 		}
 
-		String absPath = docBase + path;
-		File targetResource = new File(absPath);
-		if (targetResource.exists()) {
-			Set<String> pathSet = CollectionsUtil.newHashSet();
-			if (targetResource.isDirectory()) {
-				File[] resources = targetResource.listFiles();
-				if (resources != null) {
-					for (int i = 0; i < resources.length; i++) {
-						File resource = resources[i];
-						String name = path + "/" + resource.getName();
-						if (resource.isDirectory()) {
-							name += "/";
+		Set<String> pathSet = CollectionsUtil.newHashSet();
+		for (URL base : docBase) {
+			File baseFile = PathUtil.url2File(base);
+			File targetResource = new File(PathUtil.jointPathWithSlash(baseFile
+					.getAbsolutePath(), path));
+			if (targetResource.exists()) {
+				if (targetResource.isDirectory()) {
+					File[] resources = targetResource.listFiles();
+					if (resources != null) {
+						for (int i = 0; i < resources.length; i++) {
+							File resource = resources[i];
+							String name = path + "/" + resource.getName();
+							if (resource.isDirectory()) {
+								name += "/";
+							}
+							pathSet.add(name);
 						}
-						pathSet.add(name);
 					}
+				} else {
+					String name = path + "/" + targetResource.getName();
+					pathSet.add(name);
 				}
-			} else {
-				String name = path + "/" + targetResource.getName();
-				pathSet.add(name);
-			}
-			if (!pathSet.isEmpty()) {
-				return pathSet;
 			}
 		}
-		return null;
+		return pathSet.isEmpty() ? null : pathSet;
 	}
 
 	public URL getResource(String resource) throws MalformedURLException {
