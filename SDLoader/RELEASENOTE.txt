@@ -1,3 +1,8 @@
+v0_3_03
+pom.xmlが他プロジェクトで使用するとエラーになっていたのを修正
+ServletとFilterの初期パラメータが空文字の場合にnullをセットしていたのを修正
+ServletContext#getResourcePaths()で正しいパスが返っていなかったのを修正
+
 v0_3_02
 SystemTrayOpenで起動した場合に、停止しない問題を修正.
 パスが../から始まる場合、WebAppClassLoader#getResources()でリソースを重複して返していた問題を修正.
