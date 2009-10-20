@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sdloader</groupId>
 	<artifactId>sdloader-jsp21</artifactId>
-	<version>0.3.3-SNAPSHOT</version>
+	<version>0.3.3</version>
 	<packaging>jar</packaging>
 	<name>SDLoader</name>
 	<description>SDLoader</description>
@@ -28,6 +28,15 @@
 			<timezone>+9</timezone>
 			<url>http://shot6.blogspot.com/</url>
 		</developer>
+		<developer>
+			<id>yone098</id>
+			<name>Masaaki Yonebayashi</name>
+			<email>yone098 at gmail.com</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+			<timezone>+9</timezone>
+		</developer>		
 	</developers>
 	<licenses>
 		<license>
