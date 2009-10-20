@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/java"/>
-	<classpathentry kind="src" path="webapps/test/WEB-INF/src"/>
+	<classpathentry kind="src" output="webapps/test/WEB-INF/classes" path="webapps/test/WEB-INF/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/el-api.jar"/>
 	<classpathentry kind="lib" path="lib/Servlet2.5_JSP2.1/jasper.jar" sourcepath="lib/Servlet2.5_JSP2.1/tomcat6.0.18src.zip"/>
