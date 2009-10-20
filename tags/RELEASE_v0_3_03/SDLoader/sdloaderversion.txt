@@ -1,0 +1,2 @@
+libversion=v0_3_03
+exeversion=0.3.0.3
