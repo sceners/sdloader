@@ -602,6 +602,7 @@ public class SDLoader implements Lifecycle {
 	}
 
 	protected ServerSocket initServerSocket() {
+
 		final int port = getPort();
 		final boolean useOutSidePort = config
 				.getConfigBoolean(KEY_SDLOADER_USE_OUTSIDE_PORT);
@@ -609,6 +610,7 @@ public class SDLoader implements Lifecycle {
 				.getConfigBoolean(KEY_SDLOADER_AUTO_PORT_DETECT);
 		final boolean sslEnable = config
 				.getConfigBoolean(KEY_SDLOADER_SSL_ENABLE);
+
 		String portMessage = autoPortDetect ? "AutoDetect" : String
 				.valueOf(port);
 		log.info("Bind start. Port=" + portMessage + " useOutSidePort="
@@ -626,23 +628,19 @@ public class SDLoader implements Lifecycle {
 				} else {
 					// 同一プロセス内で閉じていた場合、ポートをSO_RESUEADDRで開く
 					boolean reuse = false;
-					if (IOUtil.isClosedPort(port)){
+					if (IOUtil.isClosedPort(port)) {
 						reuse = true;
-					}else{
+					} else {
 						// try to stop SDLoader
-						boolean connectSuccess = helper
-								.tryConnectAndSendStopCommand(port);
-						if (connectSuccess) {
-							reuse = true;
-						}
+						reuse = helper.tryConnectAndSendStopCommand(port);
 					}
 					if (reuse) {
-						log.info("Reuse address.port=" + port);
-						servetSocket = helper.createServerSocket(port, sslEnable,
-								useOutSidePort, reuse);
-					}else{
+						log.info("Reuse address.Port=" + port);
+						servetSocket = helper.createServerSocket(port,
+								sslEnable, useOutSidePort, reuse);
+					} else {
 						throw ioe;
-					}	
+					}
 				}
 			}
 			int bindSuccessPort = servetSocket.getLocalPort();
