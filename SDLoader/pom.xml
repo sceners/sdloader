@@ -111,11 +111,11 @@
 									<zipfileset src="lib/Servlet2.5_JSP2.1/tomcat-juli.jar" excludes="META-INF/**" />
 									<zipfileset src="lib/Servlet2.5_JSP2.1/el-api.jar" excludes="META-INF/**" />
 									<zipfileset src="lib/Servlet2.5_JSP2.1/annotations-api.jar" excludes="META-INF/**" />
-									<zipfileset src="lib/Servlet2.5_JSP2.1/jasper.jar" excludes="META-INF/**" />
+									<zipfileset src="lib/Servlet2.5_JSP2.1/jasper.jar" excludes="META-INF/**,org/apache/jaser/JspC.class" />
 									<zipfileset src="lib/Servlet2.5_JSP2.1/jasper-el.jar" excludes="META-INF/**" />
 									<zipfileset src="lib/Servlet2.5_JSP2.1/jasper-jdt.jar" excludes="META-INF/**" />
 									<zipfileset src="lib/Servlet2.5_JSP2.1/jsp-api.jar" excludes="META-INF/**" />
-									<zipfileset src="lib/Servlet2.5_JSP2.1/servlet-api.jar" excludes="META-INF/**,*.html" />
+									<zipfileset src="lib/Servlet2.5_JSP2.1/servlet-api.jar" excludes="META-INF/**,*.html,**/*.dtd.,**/*.xsd" />
 								</copy>
 							</tasks>
 						</configuration>
