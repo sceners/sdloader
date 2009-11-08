@@ -25,6 +25,12 @@ import sdloader.constants.JavaEEConstants;
 import sdloader.log.SDLoaderLog;
 import sdloader.util.IOUtil;
 
+/**
+ * SDLoader処理用のHelperクラス
+ * 
+ * @author AKatayama
+ * 
+ */
 public class SDLoaderHelper {
 
 	private static final String SSL_KEY_STORE_PATH = "sdloader/resource/ssl/SDLoader.keystore";
@@ -64,31 +70,23 @@ public class SDLoaderHelper {
 		InputStream is = null;
 		HttpURLConnection urlcon = null;
 		try {
-			try {
-				URL stopUrl = new URL("http://127.0.0.1:" + port
-						+ "/sdloader-command/stop");
-				urlcon = (HttpURLConnection) stopUrl.openConnection();
-				urlcon.setRequestMethod("POST");
-				urlcon.setUseCaches(false);
-				urlcon.setConnectTimeout(1000);
-				urlcon.setReadTimeout(1000);
-				urlcon.setDoInput(true);
-				urlcon.setDoOutput(true);
-			} catch (Exception e) {
+			URL stopUrl = new URL("http://127.0.0.1:" + port
+					+ "/sdloader-command/stop");
+			urlcon = (HttpURLConnection) stopUrl.openConnection();
+			urlcon.setRequestMethod("POST");
+			urlcon.setUseCaches(false);
+			urlcon.setConnectTimeout(1000);
+			urlcon.setReadTimeout(1000);
+			urlcon.setDoInput(true);
+			urlcon.setDoOutput(true);
+			int responseCode = urlcon.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				return true;
+			} else {
 				return false;
 			}
-			try {
-				urlcon.connect();
-				is = urlcon.getInputStream();
-				int responseCode = urlcon.getResponseCode();
-				if(responseCode==HttpURLConnection.HTTP_OK){				
-					return true;
-				}else{
-					return false;
-				}
-			} catch (Throwable ioe) {
-				return false;
-			}
+		} catch (IOException e) {
+			return false;
 		} finally {
 			IOUtil.closeNoException(is);
 			IOUtil.closeHttpUrlConnectionNoException(urlcon);
