@@ -45,10 +45,10 @@ public class WebXmlBuilder {
 	static {
 		registrations.put(
 				"-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN",
-				"/sdloader/resource/web-app_2_2.dtd");
+				"/javax/servlet/resources/web-app_2_2.dtd");
 		registrations.put(
 				"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN",
-				"/sdloader/resource/web-app_2_3.dtd");
+				"/javax/servlet/resources/web-app_2_3.dtd");
 	}
 
 	public static WebXml build(final String webXmlUrl)
