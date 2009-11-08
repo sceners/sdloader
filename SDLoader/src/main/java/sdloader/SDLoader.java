@@ -624,19 +624,25 @@ public class SDLoader implements Lifecycle {
 					servetSocket = helper.createServerSocket(0, sslEnable,
 							useOutSidePort, false);
 				} else {
-					// try to stop SDLoader
-					boolean connectSuccess = helper
-							.tryConnectAndSendStopCommand(port);
 					// 同一プロセス内で閉じていた場合、ポートをSO_RESUEADDRで開く
 					boolean reuse = false;
-					if (IOUtil.isClosedPort(port) || connectSuccess == false) {
+					if (IOUtil.isClosedPort(port)){
 						reuse = true;
+					}else{
+						// try to stop SDLoader
+						boolean connectSuccess = helper
+								.tryConnectAndSendStopCommand(port);
+						if (connectSuccess) {
+							reuse = true;
+						}
 					}
 					if (reuse) {
 						log.info("Reuse address.port=" + port);
-					}
-					servetSocket = helper.createServerSocket(port, sslEnable,
-							useOutSidePort, reuse);
+						servetSocket = helper.createServerSocket(port, sslEnable,
+								useOutSidePort, reuse);
+					}else{
+						throw ioe;
+					}	
 				}
 			}
 			int bindSuccessPort = servetSocket.getLocalPort();
