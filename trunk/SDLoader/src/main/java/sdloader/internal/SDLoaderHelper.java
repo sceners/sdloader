@@ -80,7 +80,12 @@ public class SDLoaderHelper {
 			try {
 				urlcon.connect();
 				is = urlcon.getInputStream();
-				return true;
+				int responseCode = urlcon.getResponseCode();
+				if(responseCode==HttpURLConnection.HTTP_OK){				
+					return true;
+				}else{
+					return false;
+				}
 			} catch (Throwable ioe) {
 				return false;
 			}
