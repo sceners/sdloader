@@ -40,6 +40,11 @@ public class IOUtil {
 	// 同一プロセス内で、すでに閉じたポート番号を記録
 	private static Map<Integer, Boolean> closedPortMap;
 
+	public static void clearClosedPortMap(){
+		if(closedPortMap != null){
+			closedPortMap.clear();
+		}
+	}
 	public static boolean isClosedPort(int port) {
 		if (closedPortMap != null) {
 			Boolean open = closedPortMap.get(port);
@@ -187,6 +192,7 @@ public class IOUtil {
 				socket.bind(new InetSocketAddress(InetAddress
 						.getByName("127.0.0.1"), bindPort));
 			}
+			IOUtil.setPortStatus(bindPort,true);
 			return socket;
 		} catch (IOException ioe) {
 			closeServerSocketNoException(socket);
