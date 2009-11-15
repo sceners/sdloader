@@ -17,10 +17,11 @@ package sdloader.util;
 import java.io.IOException;
 
 import sdloader.exception.NotImplementedYetException;
+
 /**
  * 
  * @author c9katayama
- *
+ * @author yone098
  */
 public class MiscUtils {
 
@@ -30,13 +31,7 @@ public class MiscUtils {
 	public static void openBrowser(String url) throws IOException {
 		final String os = System.getProperty("os.name").toLowerCase();
 		if (os.indexOf("windows") != -1) {
-			if (os.indexOf("2000") != -1) {
-				// 2000の場合、htmlもしくはhtmで終わるとブラウザが開かない為、ダミーの#をつける
-				if (url.toLowerCase().endsWith(".html")
-						|| url.toLowerCase().endsWith(".htm")) {
-					url += "#";
-				}
-			}
+			url = appendUrlForWindows2000(os, url);
 			Runtime.getRuntime().exec(
 					"rundll32 url.dll,FileProtocolHandler " + url);
 			return;
@@ -54,6 +49,45 @@ public class MiscUtils {
 			}
 		}
 		throw new NotImplementedYetException();
+	}
+
+	/**
+	 * 起動ブラウザを指定してブラウザを起動します
+	 * 
+	 * @param url
+	 *            接続先URL
+	 * @param browserPath
+	 *            起動ブラウザパス
+	 * @throws IOException
+	 */
+	public static void openBrowser(String url, final String browserPath)
+			throws IOException {
+		final String os = System.getProperty("os.name").toLowerCase();
+		if (os.indexOf("windows") != -1) {
+			url = appendUrlForWindows2000(os, url);
+		}
+		Runtime.getRuntime().exec(new String[] { browserPath, url });
+	}
+
+	/**
+	 * // 2000の場合、htmlもしくはhtmで終わるとブラウザが開かない為、ダミーの#をつける
+	 * 
+	 * @param os
+	 *            OS名
+	 * @param url
+	 *            接続URL
+	 * @return URL文字列
+	 */
+	private static String appendUrlForWindows2000(final String os,
+			final String url) {
+		String ret = url;
+		if (os.indexOf("2000") != -1) {
+			if (url.toLowerCase().endsWith(".html")
+					|| url.toLowerCase().endsWith(".htm")) {
+				ret += "#";
+			}
+		}
+		return ret;
 	}
 
 }

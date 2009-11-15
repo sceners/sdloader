@@ -20,12 +20,35 @@ import java.io.IOException;
  * Webブラウザ起動用
  * 
  * @author c9katayama
+ * @author yone098
  */
 public class Browser {
 
-	public static void open(String url) {
+	/**
+	 * Webブラウザを起動します
+	 * 
+	 * @param url
+	 *            接続先URL
+	 */
+	public static void open(final String url) {
 		try {
 			MiscUtils.openBrowser(url);
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		}
+	}
+
+	/**
+	 * 起動ブラウザを指定してWebブラウザを起動します
+	 * 
+	 * @param url
+	 *            接続先URL
+	 * @param browserPath
+	 *            起動ブラウザ（フルパス）
+	 */
+	public static void open(final String url, final String browserPath) {
+		try {
+			MiscUtils.openBrowser(url, browserPath);
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
 		}
