@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 
@@ -110,11 +111,13 @@ public class SystemTrayOpen {
 		}
 		System.exit(0);
 	}
+
 	protected void showInfoDialog(String message) {
 		MessageBox f = new MessageBox(shell, SWT.ICON_INFORMATION);
 		f.setMessage(message);
 		f.open();
 	}
+
 	protected void showErroDialog(String message) {
 		MessageBox f = new MessageBox(shell, SWT.ICON_ERROR);
 		f.setMessage(message);
@@ -168,6 +171,7 @@ public class SystemTrayOpen {
 		if (tray == null) {
 			log.error("System tray not found.");
 		} else {
+
 			final TrayItem item = new TrayItem(tray, SWT.NONE);
 			item.setImage(image);
 			item.setToolTipText("SDLoader port:" + sdLoader.getPort());
@@ -195,9 +199,17 @@ public class SystemTrayOpen {
 				}
 			});
 			menu.setDefaultItem(browserItem);
+
+			final ToolTip tip = new ToolTip(shell, SWT.BALLOON
+					| SWT.ICON_INFORMATION);
+			tip.setMessage("アプリケーションを開始しました");
+			item.setToolTip(tip);
+			tip.setVisible(true);
+			tip.setAutoHide(true);
+
 			shell.addDisposeListener(new DisposeListener() {
 				public void widgetDisposed(DisposeEvent arg0) {
-					item.dispose();
+					tip.dispose();
 					item.dispose();
 					menu.dispose();
 					shutdownItem.dispose();
