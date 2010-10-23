@@ -57,7 +57,7 @@ public class Open {
 
 			if (helper.isOpenBrowser()) {
 				int port = sdloader.getPort();
-				String url = "http://localhost:" + port;
+				String url = "http://localhost:" + port + "/";
 				Browser.open(url);
 			}
 			if (helper.isWaitForStop()) {
