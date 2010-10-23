@@ -240,6 +240,9 @@ public class CommandLineHelper {
 		optionList.add(new Option("--" + openBrowser,
 				"SDLoader起動後にブラウザを開くかどうかを指定します。", "例）--" + openBrowser
 						+ "=true"));
+		optionList.add(new Option("--" + OPTION_WAIT_FOR_STOP,
+				"SDLoaderがシャットダウンするまで、mainメソッドでwaitするかどうか。", "例）--"
+						+ OPTION_WAIT_FOR_STOP + "=true"));
 
 		int maxCommandSize = 0;
 		for (Option option : optionList) {
