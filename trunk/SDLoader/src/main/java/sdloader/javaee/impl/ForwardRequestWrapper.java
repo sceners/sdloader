@@ -28,7 +28,7 @@ import sdloader.util.WebUtil;
 
 /**
  * RequestDispatcher#forward利用時のリクエストラッパー
- * 
+ *
  * @author c9katayama
  */
 public class ForwardRequestWrapper extends HttpServletRequestWrapper {
@@ -85,15 +85,13 @@ public class ForwardRequestWrapper extends HttpServletRequestWrapper {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public Enumeration getParameterNames() {
+	public Enumeration<?> getParameterNames() {
 		return new IteratorEnumeration<String>(margedParameterContext
 				.getParameterNames());
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public Map getParameterMap() {
+	public Map<?,?> getParameterMap() {
 		return margedParameterContext.getParameterMap();
 	}
 
