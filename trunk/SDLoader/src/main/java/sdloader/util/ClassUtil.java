@@ -91,8 +91,7 @@ public class ClassUtil {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static boolean isAssignableFrom(Class from, Class to) {
+	public static boolean isAssignableFrom(Class<?> from, Class<?> to) {
 		final boolean fromPrimitive = from.isPrimitive();
 		if (to == Object.class && !fromPrimitive) {
 			return true;
