@@ -1,3 +1,46 @@
+=== v0_3_03 ===
+ * pom.xmlが他プロジェクトで使用するとエラーになっていたのを修正
+ * ServletとFilterの初期パラメータが空文字の場合にnullをセットしていたのを修正
+ * ServletContext#getResourcePaths()で正しいパスが返っていなかったのを修正
+
+=== v0_3_02 ===
+ * SystemTrayOpenで起動した場合に、停止しない問題を修正
+ * パスが../から始まる場合、WebAppClassLoader#getResources()でリソースを重複して返していた問題を修正.
+ * stop()時にSystem.exitを呼ぶためのsetExitOnStop()を追加.
+ * mime.xmlを廃止（クラスに直書き。ただしファイルの読み込み自体は行い、読めたら上書き）
+ * sdloader.propertiesのデフォルト設定をSDLoaderクラスに移動。ファイルが無くてもエラーにならないようにした
+
+=== v0_3_01 ===
+ * ClassLoaderHandlerのhandleResourecesが正しく動作するように修正.
+ * バインドする対象を、localhostから127.0.0.1に変更
+ * 同一プロセス内で同じポートを再度バインドする際、REUSE_ADDRで開くように修正.
+ * 定数定義のクラスをconstantsに移動.
+ * HttpServletRequest#getRequestURL()の戻り値が、ローカルのホスト名だったのを修正
+
+=== v0_3_00 ===
+ * 起動時のパフォーマンスを向上
+ * SSL時にnocacheを使わないようにした（ダウンロードできないコンテンツがあるため）
+ * SDLoader#stop()時にエラーが出るときがある問題を修正(動作中のSocketProcessorが止まっていなかったため）
+ * WebAppClassLoaderに介入するClassLoaderHandlerを追加。
+ * WebAppContextに、addClassPathとaddLibPathを追加。
+ * 同一プロセスで複数インスタンスを起動/停止するような利用方法に対応するよう修正。
+ * autoPortDetectでない場合に使用ポートがふさがっていた時に、同ポートに停止コマンドを送るように修正。
+ * 初期スレッド数をデフォルト2に変更
+
+=== v0_2_03 ===
+ * サイズの大きいリクエスト/レスポンスの場合に、OutOfMemoryになっていた問題を修正。
+ * Include時、ヘッダーなどの各種項目設定を無視するように修正。
+ * 複数回setContentLengthを呼ぶとヘッダーが複数出ていたのを修正。
+
+=== v0_2_02 ===
+ * コマンドライン引数をとるMainクラス(sdloader.CommandLineOpen)を追加。（詳細は[http://code.google.com/p/sdloader/wiki/CommandLineOption CommandLineオブション]から確認できます）
+
+ * URIEncodeがISO-8859-1の場合、デコード処理を行わないように変更。
+ * getRealPath()がURL形式になっていたため、URIに変換するように修正した。（OS準拠のパスが取れるように変更）
+ * SSLを使用可能にした。
+ * WebXMLWriterを導入した。(WebXMLクラスをXMLにシリアライズできます）
+ * 帯域制限なしの時に、通信が遅くなっていたのを修正
+ * フォワード時にURLに付与したパラメータがフォワード先でとれなかったため、取れるように修正した。(T2のProceed対応）
 
 === v0_2_01 ===
  * loadonstartupを実装
