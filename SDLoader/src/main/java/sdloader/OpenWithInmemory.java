@@ -19,9 +19,11 @@ import sdloader.log.SDLoaderLogFactory;
 
 /**
  * SDLoaderをインメモリでオープンします.
- * 
+ *
+ * @deprecated
  * @author c9katayama
  */
+@Deprecated
 public class OpenWithInmemory {
 
 	private static final SDLoaderLog log = SDLoaderLogFactory
