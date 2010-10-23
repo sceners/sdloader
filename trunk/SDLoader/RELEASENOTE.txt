@@ -1,7 +1,7 @@
 v0_3_04
 ポート再利用のロジックを見直し。
 SDLoaderの停止コマンド実行時に正しく通信できるかを確認してから再利用するように修正。
-Open,SystemTrayOpen,BrowserOpen
+Open,SystemTrayOpen,BrowserOpenでコマンドライン引数を取れるように修正。
 
 v0_3_03
 pom.xmlが他プロジェクトで使用するとエラーになっていたのを修正
