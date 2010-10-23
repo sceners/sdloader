@@ -64,6 +64,7 @@ public class Open {
 				sdloader.waitForStop();
 				System.exit(0);
 			}
+
 		} catch (Exception e) {
 			log.error("SDLoader catch error.", e);
 			System.exit(0);
