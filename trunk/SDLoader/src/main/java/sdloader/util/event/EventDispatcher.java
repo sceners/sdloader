@@ -22,24 +22,23 @@ import sdloader.util.CollectionsUtil;
 
 /**
  * イベントディスパッチャー
- * 
+ *
  * @author AKatayama
  * @author shot
- * 
+ *
  * @param <E>
  *            Event
  * @param <L>
  *            ListenerTest
  */
-@SuppressWarnings("unchecked")
-public class EventDispatcher<L, E extends Event> {
+public class EventDispatcher<L, E extends Event<?>> {
 
 	private String invokeMethodName;
 	private Map<String, List<L>> listenerMap = CollectionsUtil.newHashMap();
 
 	/**
 	 * イベント発生時に呼び出すメソッド名を引数に、EventDispatcherを 構築します。
-	 * 
+	 *
 	 * @param invokeMethodName
 	 */
 	public EventDispatcher(String invokeMethodName) {
@@ -49,7 +48,7 @@ public class EventDispatcher<L, E extends Event> {
 	/**
 	 * リスナーインターフェースのクラスを引数に、EventDispatcherを 構築します。
 	 * リスナーインターフェースが1つのメソッド宣言を持つ場合、そのメソッドを呼び出しメソッド として採用します。 それ以外の場合はエラーが発生します。
-	 * 
+	 *
 	 * @param listenerClass
 	 */
 	public EventDispatcher(Class<?> listenerClass) {
@@ -76,7 +75,7 @@ public class EventDispatcher<L, E extends Event> {
 
 	/**
 	 * 引数のタイプに対するリスナーを全てクリアします。
-	 * 
+	 *
 	 * @param type
 	 */
 	public void clear(String type) {
