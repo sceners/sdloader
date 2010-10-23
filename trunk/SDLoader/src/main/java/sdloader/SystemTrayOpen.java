@@ -156,7 +156,7 @@ public class SystemTrayOpen {
 		try {
 			int port = sdloader.getPort();
 			String protocol = sdloader.isSSLEnable() ? "https" : "http";
-			String url = protocol + "://localhost:" + port;
+			String url = protocol + "://localhost:" + port + "/";
 			Browser.open(url);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
