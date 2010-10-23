@@ -163,27 +163,39 @@ public class ServletContextImpl implements ServletContext {
 	}
 
 	public String getRealPath(String resource) {
+		if (resource == null) {
+			return null;
+		}
 		if (docBase.length == 0) {
 			URL url = ResourceUtil.createURL(docBase[0], resource);
-			return toRealPath(url);
+			return toRealPath(url, resource);
 		} else {
 			for (int i = 0; i < docBase.length; i++) {
 				URL url = ResourceUtil.createURL(docBase[i], resource);
 				if (ResourceUtil.isResourceExist(url)) {
-					return toRealPath(url);
+					return toRealPath(url, resource);
 				}
 			}
 			URL url = ResourceUtil.createURL(docBase[0], resource);
-			return toRealPath(url);
+			return toRealPath(url, resource);
 		}
 	}
 
-	protected String toRealPath(URL url) {
+	protected String toRealPath(URL url, String resource) {
 		if (url.getProtocol().startsWith("file")) {
 			try {
 				File file = PathUtil.url2File(url);
 				if (file.exists()) {
-					return file.getAbsolutePath();
+					String path = file.getAbsolutePath();
+					// 指定のリソースがパスセパレータで終わっている場合は、返すパスもパスセパレータで終わる
+					String testPath = PathUtil.replaceFileSeparator(path);
+					String testResource = PathUtil
+							.replaceFileSeparator(resource);
+					if (testPath.endsWith("/") == false
+							&& testResource.endsWith("/") == true) {
+						path = path + File.separatorChar;
+					}
+					return path;
 				} else {
 					return null;
 				}
