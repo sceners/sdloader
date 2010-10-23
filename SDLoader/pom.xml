@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sdloader</groupId>
 	<artifactId>sdloader-jsp21</artifactId>
-	<version>0.3.3</version>
+	<version>0.3.4</version>
 	<packaging>jar</packaging>
 	<name>SDLoader</name>
 	<description>SDLoader</description>
@@ -36,7 +36,7 @@
 				<role>Developer</role>
 			</roles>
 			<timezone>+9</timezone>
-		</developer>		
+		</developer>
 	</developers>
 	<licenses>
 		<license>
@@ -162,7 +162,7 @@
 			<id>tomcat.apache.org</id>
 			<name>Tomcat Repository</name>
 			<url>http://tomcat.apache.org/dev/dist/m2-repository</url>
-		</repository>		
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -173,62 +173,62 @@
 		</dependency>
 		<dependency>
 				<groupId>org.eclipse.swt.win32.win32</groupId>
-				<artifactId>x86</artifactId>				
+				<artifactId>x86</artifactId>
 				<!-- <classifier>win32-win32-x86</classifier>-->
         <version>3.3.0-v3346</version>
         <scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.tomcat</groupId> 
-		  <artifactId>annotations-api</artifactId> 
-		  <version>6.0.18</version>
-			<scope>provided</scope>		  
-		</dependency>		
-		<dependency>
-			<groupId>org.apache.tomcat</groupId> 
-		  <artifactId>jasper-jdt</artifactId> 
-		  <version>6.0.18</version>
-			<scope>provided</scope>		  
-		</dependency>
-		<dependency>
-			<groupId>org.apache.tomcat</groupId> 
-		  <artifactId>jsp-api</artifactId> 
+			<groupId>org.apache.tomcat</groupId>
+		  <artifactId>annotations-api</artifactId>
 		  <version>6.0.18</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.tomcat</groupId> 
-		  <artifactId>servlet-api</artifactId> 
+			<groupId>org.apache.tomcat</groupId>
+		  <artifactId>jasper-jdt</artifactId>
+		  <version>6.0.18</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+		  <artifactId>jsp-api</artifactId>
+		  <version>6.0.18</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+		  <artifactId>servlet-api</artifactId>
 		  <version>6.0.18</version>
 		  <scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.tomcat</groupId> 
-		  <artifactId>juli</artifactId> 
+			<groupId>org.apache.tomcat</groupId>
+		  <artifactId>juli</artifactId>
 		  <version>6.0.18</version>
 		  <scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.tomcat</groupId> 
-		  <artifactId>el-api</artifactId> 
+			<groupId>org.apache.tomcat</groupId>
+		  <artifactId>el-api</artifactId>
 		  <version>6.0.18</version>
 		  <scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.tomcat</groupId> 
-		  <artifactId>jasper</artifactId> 
+			<groupId>org.apache.tomcat</groupId>
+		  <artifactId>jasper</artifactId>
 		  <version>6.0.18</version>
 		  <scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.tomcat</groupId> 
-		  <artifactId>jasper-el</artifactId> 
+			<groupId>org.apache.tomcat</groupId>
+		  <artifactId>jasper-el</artifactId>
 		  <version>6.0.18</version>
 		  <scope>provided</scope>
-		</dependency>		
+		</dependency>
 
 	</dependencies>
-	
+
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
