@@ -67,6 +67,7 @@ public class SystemTrayOpen {
 	public void start(String[] args) {
 
 		CommandLineHelper helper = new CommandLineHelper(args);
+		helper.setOpenBrowser(true);
 		if (helper.hasHelpOption()) {
 			helper.printUsage(log);
 			showInfoDialog(helper.getUsageText());
@@ -87,7 +88,7 @@ public class SystemTrayOpen {
 				});
 
 		try {
-			helper.initSDLoader(sdloader);
+			helper.applySDLoaderProperties(sdloader);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			helper.printHelpOption(log);
@@ -100,7 +101,9 @@ public class SystemTrayOpen {
 		try {
 			sdloader.start();
 
-			openBrowser();
+			if (helper.isOpenBrowser()) {
+				openBrowser();
+			}
 
 			createSystemTray(sdloader);
 
