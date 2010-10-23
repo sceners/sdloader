@@ -37,18 +37,19 @@ import sdloader.log.SDLoaderLogFactory;
  * A class to hold all init parameters specific to the JSP engine.
  * EmbeddedServletOptionsがfinalの為、コピー。 tldLocationsCache = new
  * SDTldLocationsCache(context); を変更
- * 
+ *
  * JSP25対応の為、compilerClassName,getCompilerClassName(),displaySourceFragment,
  * getDisplaySourceFragment() およびcompilerClassNameとdisplaySourceFragmentをconfig.
  * getInitParameterから取るコードを追加。 (Tomcat6.0.18より取得)
  * Tomcat6では、sendErrToClientがdeplecatedされており、getInitParameterから取得する部分がなくなっていますが、
  * 5.5との互換性のためにこの実装では残してあります。
- * 
+ *
  * @author Anil K. Vijendran
  * @author Hans Bergsten
  * @author Pierre Delisle
  */
 @SuppressWarnings("unchecked")
+@Deprecated
 public class InMemoryEmbeddedServletOptions implements Options {
 
 	// Logger
