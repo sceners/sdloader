@@ -44,10 +44,11 @@ import sdloader.log.SDLoaderLogFactory;
 
 /**
  * InMemory動作用のTldLocationCache
- * 
+ *
  * @author c9katayama
  */
 @SuppressWarnings("unchecked")
+@Deprecated
 public class InMemoryTldLocationsCache extends TldLocationsCache {
 
 	private static SDLoaderLog log = SDLoaderLogFactory
@@ -68,7 +69,7 @@ public class InMemoryTldLocationsCache extends TldLocationsCache {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param ctxt
 	 *            the servlet context of the web application in which Jasper is
 	 *            running
@@ -89,15 +90,15 @@ public class InMemoryTldLocationsCache extends TldLocationsCache {
 
 	/**
 	 * Gets the 'location' of the TLD associated with the given taglib 'uri'.
-	 * 
+	 *
 	 * Returns null if the uri is not associated with any tag library 'exposed'
 	 * in the web application. A tag library is 'exposed' either explicitly in
 	 * web.xml or implicitly via the uri tag in the TLD of a taglib deployed in
 	 * a jar file (WEB-INF/lib).
-	 * 
+	 *
 	 * @param uri
 	 *            The taglib uri
-	 * 
+	 *
 	 * @return An array of two Strings: The first element denotes the real path
 	 *         to the TLD. If the path to the TLD points to a jar file, then the
 	 *         second element denotes the name of the TLD entry in the jar file.
@@ -242,7 +243,7 @@ public class InMemoryTldLocationsCache extends TldLocationsCache {
 		 * urlStr.endsWith(JAR_FILE_SUFFIX) && needScanJar(loader, webappLoader,
 		 * urlStr)) { URL jarURL = new URL("jar:" + urlStr + "!/");
 		 * scanJar((JarURLConnection) jarURL.openConnection(), true); } } } }
-		 * 
+		 *
 		 * loader = loader.getParent(); }
 		 */
 	}
@@ -251,7 +252,7 @@ public class InMemoryTldLocationsCache extends TldLocationsCache {
 	 * Scans the given JarURLConnection for TLD files located in META-INF (or a
 	 * subdirectory of it), adding an implicit map entry to the taglib map for
 	 * any TLD that has a <uri> element.
-	 * 
+	 *
 	 * @param conn
 	 *            The JarURLConnection to the JAR file to scan
 	 * @param ignore
