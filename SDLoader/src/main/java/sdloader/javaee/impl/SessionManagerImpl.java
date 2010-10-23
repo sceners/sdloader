@@ -24,11 +24,11 @@ import sdloader.util.CollectionsUtil;
 
 /**
  * セッション管理の実装クラス.
- * 
+ *
  * <pre>
  *  セッションID単位でセッションを管理します。 通常のJ2EEのセッション管理方式です。
  * </pre>
- * 
+ *
  * @author c9katayama
  */
 public class SessionManagerImpl extends SessionManager {
@@ -40,7 +40,11 @@ public class SessionManagerImpl extends SessionManager {
 	public synchronized HttpSession getSession(String sessionId,
 			boolean createNew, InternalWebApplication webApplication) {
 		if (sessionId == null) {
-			return createNewSession(webApplication);
+			if(createNew){
+				return createNewSession(webApplication);
+			}else{
+				return null;
+			}
 		}
 		HttpSessionImpl session = (HttpSessionImpl) sessionMap.get(sessionId);
 		if (session != null) {
