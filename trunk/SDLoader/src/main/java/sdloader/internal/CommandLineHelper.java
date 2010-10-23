@@ -28,14 +28,73 @@ import sdloader.util.CollectionsUtil;
 /**
  * コマンドライン用Helper
  *
- * @author AKatayama
+ * @author c9katayama
  *
  */
 public class CommandLineHelper {
 
 	protected String OPTION_WEBAPPS = "webApps";
+	protected String OPTION_OPENBROWSER = "openBrowser";
+	protected String OPTION_WAIT_FOR_STOP = "waitForStop";
 
 	protected String[] args;
+	protected boolean parsed;
+
+	protected Properties sdloaderProperty = new Properties();
+	protected String warFilePaths;
+	protected boolean openBrowser = false;
+	protected boolean waitForStop = true;
+
+	protected static interface ArgumentHandler {
+		boolean accept(String key);
+
+		void handle(String key, String value);
+	}
+
+	protected List<ArgumentHandler> argumentHandlerList = CollectionsUtil
+			.newArrayList();
+	{
+		argumentHandlerList.add(new ArgumentHandler() {
+			public boolean accept(String key) {
+				return OPTION_WEBAPPS.equalsIgnoreCase(key);
+			}
+
+			public void handle(String key, String value) {
+				warFilePaths = value;
+			}
+		});
+		argumentHandlerList.add(new ArgumentHandler() {
+			public boolean accept(String key) {
+				return OPTION_OPENBROWSER.equalsIgnoreCase(key);
+			}
+
+			public void handle(String key, String value) {
+				openBrowser = Boolean.parseBoolean(value);
+			}
+		});
+		argumentHandlerList.add(new ArgumentHandler() {
+			public boolean accept(String key) {
+				return OPTION_WAIT_FOR_STOP.equalsIgnoreCase(key);
+			}
+
+			public void handle(String key, String value) {
+				waitForStop = Boolean.parseBoolean(value);
+			}
+		});
+		argumentHandlerList.add(new ArgumentHandler() {
+			public boolean accept(String key) {
+				return SDLoader.CONFIG_KEYS.contains(toSDLoaderKey(key));
+			}
+
+			public void handle(String key, String value) {
+				sdloaderProperty.setProperty(toSDLoaderKey(key), value);
+			}
+
+			protected String toSDLoaderKey(String key) {
+				return SDLoader.CONFIG_KEY_PREFIX + key;
+			}
+		});
+	}
 
 	public CommandLineHelper(String[] args) {
 		this.args = args;
@@ -49,14 +108,17 @@ public class CommandLineHelper {
 		}
 	}
 
-	protected void initWebApps(SDLoader loader, String warFilePaths) {
+	protected void initWebApps(SDLoader loader) {
+		if (warFilePaths == null) {
+			return;
+		}
 		String[] paths = warFilePaths.split(";");
 		for (int i = 0; i < paths.length; i++) {
 			String path = paths[i];
 			File warFile = new File(path);
 			if (warFile.exists() == false) {
 				throw new IllegalArgumentException(
-						"WebApp File not found. path=" + path);
+						"WebApp file not found. path=" + path);
 			}
 			String contextPath = "/" + warFile.getName();
 			WebAppContext app = new WebAppContext(contextPath, warFile);
@@ -64,38 +126,57 @@ public class CommandLineHelper {
 		}
 	}
 
-	public void initSDLoader(SDLoader loader) throws IllegalArgumentException {
+	protected void parse() throws IllegalArgumentException {
 		if (args == null) {
 			return;
 		}
-		Properties p = new Properties();
-		for (int i = 0; i < args.length; i++) {
+		if (parsed == true) {
+			return;
+		}
+		loop: for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
 			if (arg.startsWith("--")) {
 				String command = arg.substring(2);
 				String[] keyvalue = command.split("=");
 				if (keyvalue.length != 2) {
-					throw new IllegalArgumentException("invalide argument ["
+					throw new IllegalArgumentException("invalid argument ["
 							+ arg + "]");
 				}
 				String key = keyvalue[0];
 				String value = keyvalue[1].trim();
-				if (OPTION_WEBAPPS.equals(key)) {
-					initWebApps(loader, value);
-					continue;
+				for (ArgumentHandler handler : argumentHandlerList) {
+					if (handler.accept(key) == true) {
+						handler.handle(key, value);
+						continue loop;
+					}
 				}
-				key = SDLoader.CONFIG_KEY_PREFIX + key;
-				if (!SDLoader.CONFIG_KEYS.contains(key)) {
-					throw new IllegalArgumentException("invalide argument ["
-							+ arg + "]");
-				}
-				p.setProperty(key, value);
-			} else {
-				throw new IllegalArgumentException("invalide argument [" + arg
-						+ "]");
+
 			}
+			throw new IllegalArgumentException("invalid argument [" + arg + "]");
 		}
-		loader.getSDLoaderConfig().addAll(p);
+		parsed = true;
+	}
+
+	public void applySDLoaderProperties(SDLoader sdloader) {
+		parse();
+		sdloader.getSDLoaderConfig().addAll(sdloaderProperty);
+		initWebApps(sdloader);
+	}
+
+	public void setOpenBrowser(boolean openBrowser) {
+		this.openBrowser = openBrowser;
+	}
+
+	public boolean isOpenBrowser() {
+		return openBrowser;
+	}
+
+	public void setWaitForStop(boolean waitForStop) {
+		this.waitForStop = waitForStop;
+	}
+
+	public boolean isWaitForStop() {
+		return waitForStop;
 	}
 
 	public void printHelpOption(SDLoaderLog log) {
@@ -156,6 +237,9 @@ public class CommandLineHelper {
 				"JSPおよびwarファイル展開用のworkディレクトリを指定します。",
 				"指定しない場合、${java.io.tmp}/.sdloaderを使用します。",
 				"例）--workDir=/path/to/dir"));
+		optionList.add(new Option("--" + openBrowser,
+				"SDLoader起動後にブラウザを開くかどうかを指定します。", "例）--" + openBrowser
+						+ "=true"));
 
 		int maxCommandSize = 0;
 		for (Option option : optionList) {

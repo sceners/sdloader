@@ -15,46 +15,22 @@
 package sdloader;
 
 import sdloader.internal.CommandLineHelper;
-import sdloader.log.SDLoaderLog;
-import sdloader.log.SDLoaderLogFactory;
-import sdloader.util.Browser;
 
 /**
  * SDLoaderをオープンし、デプロイしたアプリの一覧をブラウザに表示します.
  *
  * @author c9katayama
  */
-public class BrowserOpen {
-
-	private static final SDLoaderLog log = SDLoaderLogFactory
-			.getLog(BrowserOpen.class);
+public class BrowserOpen extends Open {
 
 	public static void main(String[] args) {
+		new BrowserOpen().open(args);
+	}
 
+	@Override
+	protected CommandLineHelper createCommandLineHelper() {
 		CommandLineHelper helper = new CommandLineHelper(args);
-		if (helper.hasHelpOption()) {
-			helper.printUsage(log);
-			System.exit(0);
-		}
-		SDLoader sdloader = new SDLoader();
-		sdloader.setAutoPortDetect(true);
-		try {
-			helper.initSDLoader(sdloader);
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			helper.printHelpOption(log);
-			System.exit(0);
-		}
-		try {
-			sdloader.start();
-
-			int port = sdloader.getPort();
-			String url = "http://localhost:" + port;
-
-			Browser.open(url);
-
-		} catch (Exception e) {
-			log.error("SDLoader catch error.", e);
-		}
+		helper.setOpenBrowser(true);
+		return helper;
 	}
 }

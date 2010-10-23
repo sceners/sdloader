@@ -15,6 +15,7 @@
 package sdloader;
 
 import sdloader.internal.CommandLineHelper;
+import sdloader.util.Browser;
 
 /**
  * SDLoaderをオープンします.
@@ -31,7 +32,7 @@ public class CommandLineOpen {
 		}
 		SDLoader sdloader = new SDLoader();
 		try {
-			helper.initSDLoader(sdloader);
+			helper.applySDLoaderProperties(sdloader);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			helper.printHelpOption();
@@ -39,6 +40,13 @@ public class CommandLineOpen {
 		}
 		try {
 			sdloader.start();
+
+			if (helper.isOpenBrowser()) {
+				int port = sdloader.getPort();
+				String url = "http://localhost:" + port;
+				Browser.open(url);
+			}
+
 			sdloader.waitForStop();
 		} catch (Exception e) {
 			e.printStackTrace();

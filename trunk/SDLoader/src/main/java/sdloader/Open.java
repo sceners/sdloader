@@ -17,6 +17,7 @@ package sdloader;
 import sdloader.internal.CommandLineHelper;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
+import sdloader.util.Browser;
 
 /**
  * SDLoaderをオープンします.
@@ -28,16 +29,24 @@ public class Open {
 	private static final SDLoaderLog log = SDLoaderLogFactory
 			.getLog(Open.class);
 
+	protected String[] args;
+
 	public static void main(String[] args) {
-		CommandLineHelper helper = new CommandLineHelper(args);
+		new Open().open(args);
+	}
+
+	public void open(String[] args) {
+		this.args = args;
+
+		CommandLineHelper helper = createCommandLineHelper();
 		if (helper.hasHelpOption()) {
 			helper.printUsage(log);
 			System.exit(0);
 		}
-		SDLoader sdloader = new SDLoader();
-		sdloader.setAutoPortDetect(true);
+
+		SDLoader sdloader = createSDLoader();
 		try {
-			helper.initSDLoader(sdloader);
+			helper.applySDLoaderProperties(sdloader);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			helper.printHelpOption(log);
@@ -45,10 +54,30 @@ public class Open {
 		}
 		try {
 			sdloader.start();
-			sdloader.waitForStop();
+
+			if (helper.isOpenBrowser()) {
+				int port = sdloader.getPort();
+				String url = "http://localhost:" + port;
+				Browser.open(url);
+			}
+			if (helper.isWaitForStop()) {
+				sdloader.waitForStop();
+				System.exit(0);
+			}
 		} catch (Exception e) {
 			log.error("SDLoader catch error.", e);
+			System.exit(0);
 		}
-		System.exit(0);
+	}
+
+	protected CommandLineHelper createCommandLineHelper() {
+		CommandLineHelper helper = new CommandLineHelper(args);
+		return helper;
+	}
+
+	protected SDLoader createSDLoader() {
+		SDLoader sdloader = new SDLoader();
+		sdloader.setAutoPortDetect(true);
+		return sdloader;
 	}
 }
