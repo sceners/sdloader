@@ -14,12 +14,13 @@
  */
 package sdloader;
 
+import sdloader.internal.CommandLineHelper;
 import sdloader.log.SDLoaderLog;
 import sdloader.log.SDLoaderLogFactory;
 
 /**
  * SDLoaderをオープンします.
- * 
+ *
  * @author c9katayama
  */
 public class Open {
@@ -28,14 +29,24 @@ public class Open {
 			.getLog(Open.class);
 
 	public static void main(String[] args) {
+		CommandLineHelper helper = new CommandLineHelper(args);
+		if (helper.hasHelpOption()) {
+			helper.printUsage(log);
+			System.exit(0);
+		}
+		SDLoader sdloader = new SDLoader();
+		sdloader.setAutoPortDetect(true);
 		try {
-			SDLoader server = new SDLoader(true);
-
-			server.start();
-
-			server.waitForStop();
-
-		} catch (Throwable e) {
+			helper.initSDLoader(sdloader);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			helper.printHelpOption(log);
+			System.exit(0);
+		}
+		try {
+			sdloader.start();
+			sdloader.waitForStop();
+		} catch (Exception e) {
 			log.error("SDLoader catch error.", e);
 		}
 		System.exit(0);

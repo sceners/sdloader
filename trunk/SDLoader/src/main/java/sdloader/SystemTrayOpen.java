@@ -20,16 +20,20 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 
+import sdloader.internal.CommandLineHelper;
 import sdloader.lifecycle.LifecycleEvent;
 import sdloader.lifecycle.LifecycleListener;
 import sdloader.log.SDLoaderLog;
@@ -38,11 +42,11 @@ import sdloader.util.Browser;
 
 /**
  * SDLoaderをオープンします.
- * 
+ *
  * <pre>
  * システムトレーにアイコンを表示します。
  * </pre>
- * 
+ *
  * @author c9katayama
  */
 public class SystemTrayOpen {
@@ -51,47 +55,79 @@ public class SystemTrayOpen {
 			.getLog(SystemTrayOpen.class);
 
 	private Display display = new Display();
+	private Shell shell = new Shell(display);
+
+	private SDLoader sdloader;
 
 	public static void main(String[] args) {
-		new SystemTrayOpen().start();
+		new SystemTrayOpen().start(args);
 	}
 
-	private SDLoader server;
+	public void start(String[] args) {
 
-	public void start() {
+		CommandLineHelper helper = new CommandLineHelper(args);
+		if (helper.hasHelpOption()) {
+			helper.printUsage(log);
+			showInfoDialog(helper.getUsageText());
+			dispose();
+			System.exit(0);
+		}
+		sdloader = new SDLoader();
+		sdloader.setAutoPortDetect(true);
+		sdloader.addEventListener(LifecycleEvent.AFTER_STOP,
+				new LifecycleListener() {
+					public void handleLifecycle(LifecycleEvent<?> event) {
+						display.asyncExec(new Runnable() {
+							public void run() {
+								display.dispose();
+							}
+						});
+					}
+				});
+
 		try {
-			server = new SDLoader();
-			server.setAutoPortDetect(true);
-			server.addEventListener(LifecycleEvent.AFTER_STOP,
-					new LifecycleListener() {
-						public void handleLifecycle(LifecycleEvent<?> event) {
-							display.asyncExec(new Runnable() {
-								public void run() {
-									display.dispose();
-								}
-							});
-						}
-					});
-			server.start();
+			helper.initSDLoader(sdloader);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			helper.printHelpOption(log);
+			showErroDialog(e.getMessage());
+			showInfoDialog(helper.getUsageText());
+			dispose();
+			System.exit(0);
+		}
+
+		try {
+			sdloader.start();
 
 			openBrowser();
 
-			createSystemTray(server);
+			createSystemTray(sdloader);
 
 		} catch (Throwable e) {
 			log.error("SDLoader catch error.", e);
-		} finally {
-			System.exit(0);
+			showErroDialog("エラーが発生しました。詳細はログを確認してください");
+			dispose();
 		}
+		System.exit(0);
+	}
+	protected void showInfoDialog(String message) {
+		MessageBox f = new MessageBox(shell, SWT.ICON_INFORMATION);
+		f.setMessage(message);
+		f.open();
+	}
+	protected void showErroDialog(String message) {
+		MessageBox f = new MessageBox(shell, SWT.ICON_ERROR);
+		f.setMessage(message);
+		f.open();
 	}
 
 	/**
 	 * アイコンのInputStreamを返します。 はじめにtrayicon.gifの名前でFileを検索します。
 	 * ない場合、クラスパスから/sdloader/resource/trayicon.gifを探します。
-	 * 
+	 *
 	 * @return
 	 */
-	private InputStream getIconInputStream() {
+	protected InputStream getIconInputStream() {
 		try {
 			InputStream iconStream = null;
 			File icon = new File("trayicon.gif");
@@ -110,10 +146,10 @@ public class SystemTrayOpen {
 	/**
 	 * デフォルトＵＲＬをブラウザをオープンします。
 	 */
-	private void openBrowser() {
+	protected void openBrowser() {
 		try {
-			int port = server.getPort();
-			String protocol = server.isSSLEnable() ? "https" : "http";
+			int port = sdloader.getPort();
+			String protocol = sdloader.isSSLEnable() ? "https" : "http";
 			String url = protocol + "://localhost:" + port;
 			Browser.open(url);
 		} catch (Exception e) {
@@ -123,15 +159,14 @@ public class SystemTrayOpen {
 
 	/**
 	 * システムトレーを作成します。
-	 * 
+	 *
 	 * @param sdLoader
 	 */
-	private void createSystemTray(final SDLoader sdLoader) {
-		Shell shell = new Shell(display);
+	protected void createSystemTray(final SDLoader sdLoader) {
 		Image image = new Image(display, getIconInputStream());
 		final Tray tray = display.getSystemTray();
 		if (tray == null) {
-			log.info("System tray not found.");
+			log.error("System tray not found.");
 		} else {
 			final TrayItem item = new TrayItem(tray, SWT.NONE);
 			item.setImage(image);
@@ -144,7 +179,7 @@ public class SystemTrayOpen {
 				}
 			});
 
-			MenuItem shutdownItem = new MenuItem(menu, SWT.PUSH);
+			final MenuItem shutdownItem = new MenuItem(menu, SWT.PUSH);
 			shutdownItem.setText("shutdown");
 			shutdownItem.addListener(SWT.Selection, new Listener() {
 				public void handleEvent(Event event) {
@@ -152,7 +187,7 @@ public class SystemTrayOpen {
 				}
 			});
 
-			MenuItem browserItem = new MenuItem(menu, SWT.PUSH);
+			final MenuItem browserItem = new MenuItem(menu, SWT.PUSH);
 			browserItem.setText("open browser");
 			browserItem.addListener(SWT.Selection, new Listener() {
 				public void handleEvent(Event event) {
@@ -160,12 +195,24 @@ public class SystemTrayOpen {
 				}
 			});
 			menu.setDefaultItem(browserItem);
+			shell.addDisposeListener(new DisposeListener() {
+				public void widgetDisposed(DisposeEvent arg0) {
+					item.dispose();
+					item.dispose();
+					menu.dispose();
+					shutdownItem.dispose();
+					browserItem.dispose();
+				}
+			});
 		}
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
-		image.dispose();
+	}
+
+	protected void dispose() {
+		shell.dispose();
 		display.dispose();
 	}
 }
