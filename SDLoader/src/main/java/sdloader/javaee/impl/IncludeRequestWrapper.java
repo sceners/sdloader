@@ -25,11 +25,10 @@ import sdloader.util.IteratorEnumeration;
 
 /**
  * RequestDispatcher#include利用時のリクエストラッパー
- * 
+ *
  * @author c9katayama
  * @author shot
  */
-@SuppressWarnings("unchecked")
 public class IncludeRequestWrapper extends HttpServletRequestWrapper {
 
 	private HttpRequestParameters.ParameterContext margedParameterContext;
@@ -49,18 +48,18 @@ public class IncludeRequestWrapper extends HttpServletRequestWrapper {
 	}
 
 	@Override
-	public Enumeration getParameterNames() {
+	public Enumeration<?> getParameterNames() {
 		return new IteratorEnumeration<String>(margedParameterContext
 				.getParameterNames());
 	}
 
 	@Override
-	public Map getParameterMap() {
+	public Map<?,?> getParameterMap() {
 		return margedParameterContext.getParameterMap();
 	}
-	
+
 	void setMargedParameterContext(
 			HttpRequestParameters.ParameterContext margedParameterContext) {
 		this.margedParameterContext = margedParameterContext;
-	}	
+	}
 }
