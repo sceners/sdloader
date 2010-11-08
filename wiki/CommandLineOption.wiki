@@ -36,5 +36,9 @@ java -cp sdloader.jar sdloader.CommandLineOpen オプション
 --workDir          JSPおよびwarファイル展開用のworkディレクトリを指定します。
                    指定しない場合、${java.io.tmp}/.sdloaderを使用します。
                    例）--workDir=/path/to/dir
+--openBrowser      SDLoader起動後にブラウザを開くかどうかを指定します。
+                   例）--openBrowser=true
+--waitForStop      SDLoaderがシャットダウンするまで、mainメソッドでwaitするかどうか。
+                   例）--waitForStop=true
 
 なお、この一覧は--helpでも出力できます。
