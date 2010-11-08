@@ -238,8 +238,8 @@ public class CommandLineHelper {
 				"指定しない場合、${java.io.tmp}/.sdloaderを使用します。",
 				"例）--workDir=/path/to/dir"));
 
-		optionList.add(new Option("--" + openBrowser,
-				"SDLoader起動後にブラウザを開くかどうかを指定します。", "例）--" + openBrowser
+		optionList.add(new Option("--"+OPTION_OPENBROWSER,
+				"SDLoader起動後にブラウザを開くかどうかを指定します。", "例）--" + OPTION_OPENBROWSER
 						+ "=true"));
 		optionList.add(new Option("--" + OPTION_WAIT_FOR_STOP,
 				"SDLoaderがシャットダウンするまで、mainメソッドでwaitするかどうか。", "例）--"
