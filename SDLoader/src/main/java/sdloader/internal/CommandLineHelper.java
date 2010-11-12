@@ -41,7 +41,7 @@ public class CommandLineHelper {
 	protected boolean parsed;
 
 	protected Properties sdloaderProperty = new Properties();
-	protected String warFilePaths;
+	protected String warOrDirPaths;
 	protected boolean openBrowser = false;
 	protected boolean waitForStop = true;
 
@@ -60,7 +60,7 @@ public class CommandLineHelper {
 			}
 
 			public void handle(String key, String value) {
-				warFilePaths = value;
+				warOrDirPaths = value;
 			}
 		});
 		argumentHandlerList.add(new ArgumentHandler() {
@@ -109,20 +109,30 @@ public class CommandLineHelper {
 	}
 
 	protected void initWebApps(SDLoader loader) {
-		if (warFilePaths == null) {
+		if (warOrDirPaths == null) {
 			return;
 		}
-		String[] paths = warFilePaths.split(";");
+		String[] paths = warOrDirPaths.split(";");
 		for (int i = 0; i < paths.length; i++) {
 			String path = paths[i];
-			File warFile = new File(path);
-			if (warFile.exists() == false) {
+			File warOrDirFile = new File(path);
+			if (warOrDirFile.exists() == false) {
 				throw new IllegalArgumentException(
 						"WebApp file not found. path=" + path);
 			}
-			String contextPath = "/" + warFile.getName();
-			WebAppContext app = new WebAppContext(contextPath, warFile);
-			loader.addWebAppContext(app);
+			String name = warOrDirFile.getName();
+			if(warOrDirFile.isDirectory()){
+				String contextPath = "/" + name;
+				WebAppContext app = new WebAppContext(contextPath, warOrDirFile);
+				loader.addWebAppContext(app);
+			}else if(name.endsWith(".war")){
+				name = name.substring(0,name.length()-".war".length());
+				String contextPath = "/" + name;
+				WebAppContext app = new WebAppContext(contextPath, warOrDirFile);
+				loader.addWebAppContext(app);
+			}else{
+				throw new IllegalArgumentException("WebApp file ['"+name+"'] does not supoprt.");
+			}
 		}
 	}
 
